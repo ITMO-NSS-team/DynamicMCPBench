@@ -1,0 +1,53 @@
+{
+  "goals_version": "0.1.0",
+  "entries": [
+    {
+      "goal_id": "time-tokyo",
+      "goal": "What time is it right now in Tokyo, and what timezone offset does that correspond to relative to UTC?",
+      "servers": ["time"],
+      "tags": ["single-server", "static", "shallow"]
+    },
+    {
+      "goal_id": "time-three-cities",
+      "goal": "Get the current time in Tokyo, London, and New York. Tell me which city is the furthest ahead of UTC.",
+      "servers": ["time"],
+      "tags": ["single-server", "static", "parallel-calls"]
+    },
+    {
+      "goal_id": "fetch-example",
+      "goal": "Fetch the page at https://example.com and tell me the single sentence that describes what the domain is for.",
+      "servers": ["fetch"],
+      "tags": ["single-server", "live_read"]
+    },
+    {
+      "goal_id": "fetch-and-time",
+      "goal": "Fetch the page at https://example.com, then get the current UTC time, and report both in a single summary that includes the timestamp and the page's title.",
+      "servers": ["fetch", "time"],
+      "tags": ["cross-server", "live_read"]
+    },
+    {
+      "goal_id": "git-status-and-log",
+      "goal": "Check the status and last 3 commits of the git repository at /tmp/dmcp-sandbox-repo. Tell me whether the working tree is clean and what the most recent commit message was.",
+      "servers": ["git"],
+      "tags": ["single-server", "stateful_write", "read-only-usage"]
+    },
+    {
+      "goal_id": "git-timestamped-branch",
+      "goal": "Get the current UTC time, then in the git repository at /tmp/dmcp-sandbox-repo create a new branch whose name follows the pattern 'snapshot-YYYYMMDD-HHMMSS' using the timestamp you just retrieved. Confirm the branch was created by listing all local branches.",
+      "servers": ["time", "git"],
+      "tags": ["cross-server", "stateful_write", "runtime-branching"]
+    },
+    {
+      "goal_id": "git-tagged-branch-from-fetch",
+      "goal": "Fetch https://example.com and identify any heading or title. Then in the git repository at /tmp/dmcp-sandbox-repo, create a branch named 'fetched-example' so we can later reference this snapshot of the page. Confirm the branch was created.",
+      "servers": ["fetch", "git"],
+      "tags": ["cross-server", "stateful_write"]
+    },
+    {
+      "goal_id": "git-three-snapshot-branches",
+      "goal": "Get the current UTC time, then in the git repository at /tmp/dmcp-sandbox-repo create three branches in sequence named 'snap-a-<ts>', 'snap-b-<ts>', 'snap-c-<ts>' where <ts> is a compact form of the timestamp. List branches at the end to confirm all three exist.",
+      "servers": ["time", "git"],
+      "tags": ["cross-server", "stateful_write", "deep"]
+    }
+  ]
+}

@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.DS_Store
+research_plan.html
+tmp.md
+
+# DynamicMCPBench runtime artifacts (regenerable; commit canonical datasets explicitly)
+/traces/
+/specs/
+/evals/
+/reports/

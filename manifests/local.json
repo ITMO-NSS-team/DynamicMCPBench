@@ -1,0 +1,33 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "time",
+      "transport": "stdio",
+      "command": ".venv/bin/python",
+      "args": ["-m", "mcp_server_time", "--local-timezone", "UTC"],
+      "dynamism": "static",
+      "description": "Time and timezone queries (mcp-server-time).",
+      "tags": ["time", "utility"]
+    },
+    {
+      "server_id": "fetch",
+      "transport": "stdio",
+      "command": ".venv/bin/python",
+      "args": ["-m", "mcp_server_fetch"],
+      "dynamism": "live_read",
+      "description": "HTTP fetch and Markdown extraction (mcp-server-fetch).",
+      "tags": ["http", "web"]
+    },
+    {
+      "server_id": "git",
+      "transport": "stdio",
+      "command": ".venv/bin/python",
+      "args": ["-m", "mcp_server_git", "--repository", "/tmp/dmcp-sandbox-repo"],
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Git operations confined to /tmp/dmcp-sandbox-repo (mcp-server-git).",
+      "tags": ["git", "vcs", "sandboxed"]
+    }
+  ]
+}

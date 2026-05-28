@@ -1,0 +1,386 @@
+name: fedotmas-mcp-bench
+
+networks:
+  mcp:
+    driver: bridge
+
+configs:
+  searxng_settings:
+    content: |
+      use_default_settings: true
+      server:
+        secret_key: "fedotmas-bench-secret-change-in-production"
+      search:
+        formats:
+          - html
+          - json
+
+volumes:
+  postgres-data:
+  mongo-data:
+  neo4j-data:
+  qdrant-data:
+  redis-data:
+  duckdb-data:
+  elasticsearch-data:
+  meilisearch-data:
+  grafana-data:
+  prometheus-data:
+  minio-data:
+  kafka-data:
+
+services:
+
+  # ---- SearXNG ----
+  searxng:
+    image: searxng/searxng:latest
+    profiles: [minimal, full]
+    configs:
+      - source: searxng_settings
+        target: /etc/searxng/settings.yml
+    ports: ["8888:8080"]
+    networks: [mcp]
+
+  # ---- Bifrost (LLM proxy) ----
+  bifrost:
+    image: maximhq/bifrost:latest
+    profiles: [minimal, full]
+    ports: ["9090:8080"]
+    volumes:
+      - ./FEDOT.MAS/bifrost/config.json:/app/data/config.json
+    env_file: ./FEDOT.MAS/.env
+    networks: [mcp]
+
+  # ---- PostgreSQL ----
+  postgres:
+    image: postgres:16-alpine
+    profiles: [minimal, full]
+    environment:
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+      POSTGRES_DB: bench
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [mcp]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench"]
+      interval: 5s
+      retries: 10
+
+  postgres-mcp:
+    image: crystaldba/postgres-mcp:latest
+    profiles: [minimal, full]
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URI: postgresql://bench:bench@postgres:5432/bench
+    command: ["--access-mode=unrestricted", "--transport=sse", "--sse-host=0.0.0.0", "--sse-port=8000"]
+    ports: ["8001:8000"]
+    networks: [mcp]
+
+  # ---- MongoDB ----
+  mongo:
+    image: mongo:7
+    profiles: [minimal, full]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: bench
+      MONGO_INITDB_ROOT_PASSWORD: bench
+    volumes:
+      - mongo-data:/data/db
+    networks: [mcp]
+
+  mongo-mcp:
+    image: mongodb/mongodb-mcp-server:latest
+    profiles: [minimal, full]
+    depends_on: [mongo]
+    environment:
+      MDB_MCP_CONNECTION_STRING: "mongodb://bench:bench@mongo:27017"
+      MDB_MCP_TRANSPORT: http
+      MDB_MCP_HTTP_HOST: 0.0.0.0
+      MDB_MCP_HTTP_PORT: 3000
+    ports: ["8002:3000"]
+    networks: [mcp]
+
+  # ---- Neo4j ----
+  neo4j:
+    image: neo4j:5-community
+    profiles: [full]
+    environment:
+      NEO4J_AUTH: neo4j/benchbench
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+    volumes:
+      - neo4j-data:/data
+    networks: [mcp]
+
+  neo4j-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        COPY --from=mcp/neo4j:latest /app/neo4j-mcp /app/neo4j-mcp
+        RUN npm install -g supergateway
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "/app/neo4j-mcp", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [full]
+    depends_on: [neo4j]
+    restart: unless-stopped
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: benchbench
+    ports: ["8003:8000"]
+    networks: [mcp]
+
+  # ---- Qdrant ----
+  qdrant:
+    image: qdrant/qdrant:v1.11.0
+    profiles: [minimal, full]
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks: [mcp]
+
+  qdrant-mcp:
+    build:
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        RUN pip install --no-cache-dir mcp-server-qdrant
+        EXPOSE 8000
+        CMD ["mcp-server-qdrant", "--transport", "sse"]
+    profiles: [minimal, full]
+    depends_on: [qdrant]
+    restart: unless-stopped
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      COLLECTION_NAME: bench
+      FASTEMBED_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      FASTMCP_SERVER_HOST: "0.0.0.0"
+      FASTMCP_SERVER_PORT: "8000"
+    ports: ["8005:8000"]
+    networks: [mcp]
+
+  # ---- Redis ----
+  redis:
+    image: redis:7-alpine
+    profiles: [full]
+    volumes:
+      - redis-data:/data
+    networks: [mcp]
+
+  redis-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway
+        RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && rm -rf /var/lib/apt/lists/*
+        RUN pip3 install --no-cache-dir redis-mcp-server --break-system-packages
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "redis-mcp-server", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [full]
+    depends_on: [redis]
+    restart: unless-stopped
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports: ["8006:8000"]
+    networks: [mcp]
+
+  # ---- DuckDB ----
+  duckdb-mcp:
+    build:
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        RUN pip install --no-cache-dir mcp-server-motherduck
+        EXPOSE 8000
+        CMD ["mcp-server-motherduck", "--db-path", "/data/bench.duckdb", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+    profiles: [full]
+    volumes:
+      - duckdb-data:/data
+    ports: ["8008:8000"]
+    networks: [mcp]
+
+  # ---- Elasticsearch ----
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    profiles: [full]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks: [mcp]
+
+  elasticsearch-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway @elastic/mcp-server-elasticsearch
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "mcp-server-elasticsearch", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [full]
+    depends_on: [elasticsearch]
+    restart: unless-stopped
+    environment:
+      ES_URL: http://elasticsearch:9200
+    ports: ["8010:8000"]
+    networks: [mcp]
+
+  # ---- Meilisearch ----
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    profiles: [full]
+    environment:
+      MEILI_MASTER_KEY: benchmasterkey
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch-data:/meili_data
+    networks: [mcp]
+
+  meilisearch-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway
+        RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && rm -rf /var/lib/apt/lists/*
+        RUN pip3 install --no-cache-dir meilisearch-mcp --break-system-packages
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "meilisearch-mcp", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [full]
+    depends_on: [meilisearch]
+    restart: unless-stopped
+    environment:
+      MEILI_HTTP_ADDR: http://meilisearch:7700
+      MEILI_MASTER_KEY: benchmasterkey
+    ports: ["8011:8000"]
+    networks: [mcp]
+
+  # ---- Grafana ----
+  grafana:
+    image: grafana/grafana:11.2.0
+    profiles: [full]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: bench
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks: [mcp]
+
+  grafana-mcp:
+    image: grafana/mcp-grafana:latest
+    profiles: [full]
+    depends_on: [grafana]
+    environment:
+      GRAFANA_URL: http://grafana:3000
+      GRAFANA_API_KEY: ""
+    command: ["-transport=sse", "-address=0.0.0.0:8000", "-disable-write"]
+    ports: ["8012:8000"]
+    networks: [mcp]
+
+  # ---- Prometheus ----
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    profiles: [full]
+    volumes:
+      - prometheus-data:/prometheus
+    networks: [mcp]
+
+  prometheus-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway
+        RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && rm -rf /var/lib/apt/lists/*
+        RUN pip3 install --no-cache-dir prometheus-mcp-server --break-system-packages
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "prometheus-mcp-server", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [full]
+    depends_on: [prometheus]
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+    ports: ["8013:8000"]
+    networks: [mcp]
+
+  # ---- MinIO (S3-совместимое хранилище) ----
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    profiles: [full]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: minio server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks: [mcp]
+
+  # ---- Kafka ----
+  kafka:
+    image: confluentinc/cp-kafka:7.7.0
+    profiles: [full]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: bench-cluster-id-aaaaaaaaaaaa
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks: [mcp]
+
+  kafka-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g @confluentinc/mcp-confluent
+        RUN apt-get update && apt-get install -y --no-install-recommends socat && rm -rf /var/lib/apt/lists/*
+        EXPOSE 8000
+        CMD ["sh", "-c", "mcp-confluent --transport http --disable-auth & sleep 2 && socat TCP4-LISTEN:8000,reuseaddr,fork TCP4:127.0.0.1:8080"]
+    profiles: [full]
+    depends_on: [kafka]
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+    ports: ["8018:8000"]
+    networks: [mcp]
+
+  # ---- Git
+  # ./repos монтируется в /repos внутри контейнера.
+  # Положи туда нужные репозитории — агент будет работать с ними через MCP.
+  # git init выполняется автоматически при первом старте если /repos пустой.
+  git-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway
+        RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip git && rm -rf /var/lib/apt/lists/*
+        RUN pip3 install --no-cache-dir mcp-server-git --break-system-packages
+        EXPOSE 8000
+        CMD ["sh", "-c", "git init /repos 2>/dev/null; supergateway --stdio 'mcp-server-git --repository /repos' --port 8000 --host 0.0.0.0"]
+    profiles: [minimal, full]
+    restart: unless-stopped
+    volumes:
+      - ./repos:/repos:rw
+    ports: ["8019:8000"]
+    networks: [mcp]
+
+  # ---- Time ----
+  time-mcp:
+    build:
+      dockerfile_inline: |
+        FROM node:22-slim
+        RUN npm install -g supergateway
+        RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && rm -rf /var/lib/apt/lists/*
+        RUN pip3 install --no-cache-dir mcp-server-time --break-system-packages
+        EXPOSE 8000
+        CMD ["supergateway", "--stdio", "mcp-server-time", "--port", "8000", "--host", "0.0.0.0"]
+    profiles: [minimal, full]
+    restart: unless-stopped
+    ports: ["8020:8000"]
+    networks: [mcp]
