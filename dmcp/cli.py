@@ -27,6 +27,7 @@ from dmcp.evaluator import evaluate as run_eval
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goals import Goals
+from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
 from dmcp.manifest import Manifest
 from dmcp.recorder import (
@@ -392,6 +393,17 @@ def evaluate(
             help="JSONL of reference traces (e.g. traces/generated.jsonl). Required with --replay.",
         ),
     ] = None,
+    judge: Annotated[
+        bool,
+        typer.Option(
+            "--judge",
+            help="After tier-1, run a tier-2 LLM effect-equivalence judge over failed tool_effect checkpoints.",
+        ),
+    ] = False,
+    judge_model: Annotated[
+        str,
+        typer.Option("--judge-model", help="LLM used by the tier-2 judge"),
+    ] = DEFAULT_MODEL,
     output: Annotated[
         Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")
     ] = Path("evals/results.jsonl"),
@@ -422,12 +434,15 @@ def evaluate(
     m = Manifest.load(manifest)
     configs = m.configs(servers)
     llm = OpenRouterClient(model=model)
+    judge_llm = OpenRouterClient(model=judge_model) if judge else None
 
     reference_index: dict[str, Trace] = {}
     if replay:
         assert reference_traces is not None
         reference_index = _load_traces_by_id(reference_traces)
         typer.echo(f"replay mode: indexed {len(reference_index)} reference trace(s)")
+    if judge:
+        typer.echo(f"tier-2 judge enabled: {judge_model}")
 
     async def _run() -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -469,12 +484,35 @@ def evaluate(
                             budget=budget,
                         )
                     stash_exploration_in_trace(result)
+                    mode_tag = "replay" if replay else "live"
+                    if judge:
+                        mode_tag = f"{mode_tag}+judge"
                     ev = run_eval(
                         spec,
                         result.trace,
                         candidate_model=model,
-                        evaluation_mode="replay" if replay else "live",
+                        evaluation_mode=mode_tag,
                     )
+                    if judge_llm is not None:
+                        ev.checkpoint_results = await upgrade_with_judge(
+                            spec.checkpoints,
+                            result.trace,
+                            ev.checkpoint_results,
+                            llm=judge_llm,
+                        )
+                        # Re-derive passed + summary after tier-2 upgrades.
+                        all_cps_pass = all(cr.passed for cr in ev.checkpoint_results)
+                        no_mines = not any(mr.hit for mr in ev.minefield_results)
+                        ev.passed = all_cps_pass and no_mines and ev.ordering_ok
+                        ev.summary["checkpoints_passed"] = sum(
+                            1 for cr in ev.checkpoint_results if cr.passed
+                        )
+                        ev.summary["tier2_judgments"] = sum(
+                            1 for cr in ev.checkpoint_results if cr.tier == 2
+                        )
+                        ev.summary["tier2_upgrades"] = sum(
+                            1 for cr in ev.checkpoint_results if cr.tier == 2 and cr.passed
+                        )
                     fout.write(ev.to_jsonl())
                     fout.write("\n")
                     if cand_fh is not None:

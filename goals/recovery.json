@@ -1,0 +1,23 @@
+{
+  "goals_version": "0.1.0",
+  "entries": [
+    {
+      "goal_id": "recovery-git-discover-path",
+      "goal": "Check the status of the git sandbox repository. You'll need to figure out the correct repository path — it lives somewhere under /tmp. Try plausible paths until one works.",
+      "servers": ["git"],
+      "tags": ["recovery", "stateful_write", "discovery"]
+    },
+    {
+      "goal_id": "recovery-git-show-then-fallback",
+      "goal": "In the git repository at /tmp/dmcp-sandbox-repo, show the commit with hash 'abcdef0' if it exists. If that lookup fails, fall back to git_log and report the most recent commit's message instead.",
+      "servers": ["git"],
+      "tags": ["recovery", "stateful_write", "fallback"]
+    },
+    {
+      "goal_id": "recovery-fetch-add-scheme",
+      "goal": "Fetch the page at 'example.com' (you may need to add a URL scheme if the request fails). Tell me the single sentence that describes what the domain is for.",
+      "servers": ["fetch"],
+      "tags": ["recovery", "live_read", "arg-fix"]
+    }
+  ]
+}

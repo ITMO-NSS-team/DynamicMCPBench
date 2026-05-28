@@ -53,6 +53,8 @@ class CheckpointResult(BaseModel):
     passed: bool
     reason: str
     matched_step_id: int | None = None
+    # tier=1 deterministic, tier=2 LLM-judged effect-equivalence.
+    tier: int = 1
 
 
 class MinefieldResult(BaseModel):
