@@ -78,7 +78,8 @@ def _tool_result_to_str(result: dict[str, Any], max_chars: int) -> tuple[str, bo
 async def explore(
     *,
     goal: str,
-    servers: list[ServerConfig],
+    servers: list[ServerConfig] | None = None,
+    recorder: Any = None,
     llm: OpenRouterClient,
     system_prompt: str = DEFAULT_SYSTEM_PROMPT,
     budget: int = DEFAULT_BUDGET,
@@ -86,7 +87,14 @@ async def explore(
     extra_seed: dict[str, Any] | None = None,
     tool_result_truncation: int = DEFAULT_TOOL_RESULT_TRUNCATION,
 ) -> ExplorationResult:
-    """Run one goal-seeded exploration session and return a Trace + summary."""
+    """Run one goal-seeded exploration session and return a Trace + summary.
+
+    Pass either `servers=` (constructs a live TraceRecorder) OR `recorder=`
+    (use a pre-built recorder, e.g. TraceReplayRecorder for deterministic
+    evaluation). Exactly one of the two must be set.
+    """
+    if (servers is None) == (recorder is None):
+        raise ValueError("explore() requires exactly one of `servers` or `recorder`")
 
     seed_metadata: dict[str, Any] = {
         "explorer_version": "0.1.0",
@@ -98,7 +106,15 @@ async def explore(
     if extra_seed:
         seed_metadata.update(extra_seed)
 
-    recorder = TraceRecorder(servers=servers, goal=goal, seed_metadata=seed_metadata)
+    if recorder is None:
+        recorder = TraceRecorder(servers=servers, goal=goal, seed_metadata=seed_metadata)
+    else:
+        # Caller-supplied recorder: merge our exploration metadata into its
+        # existing seed_metadata without clobbering.
+        for k, v in seed_metadata.items():
+            recorder.trace.seed_metadata.setdefault(k, v)
+        if recorder.trace.goal is None:
+            recorder.trace.goal = goal
 
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": system_prompt},

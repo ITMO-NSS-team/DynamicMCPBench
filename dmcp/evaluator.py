@@ -70,6 +70,7 @@ class EvaluationResult(BaseModel):
     task_id: UUID
     candidate_trace_id: UUID
     candidate_model: str | None = None
+    evaluation_mode: str | None = None  # "live" | "replay"
     passed: bool
     checkpoint_results: list[CheckpointResult]
     minefield_results: list[MinefieldResult]
@@ -323,6 +324,7 @@ def evaluate(
     candidate: Trace,
     *,
     candidate_model: str | None = None,
+    evaluation_mode: str | None = None,
 ) -> EvaluationResult:
     agent_calls = [
         s for s in candidate.steps if s.kind is StepKind.call_tool_agent
@@ -352,6 +354,7 @@ def evaluate(
         task_id=spec.task_id,
         candidate_trace_id=candidate.trace_id,
         candidate_model=candidate_model,
+        evaluation_mode=evaluation_mode,
         passed=passed,
         checkpoint_results=checkpoint_results,
         minefield_results=minefield_results,

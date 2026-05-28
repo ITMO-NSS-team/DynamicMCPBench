@@ -35,6 +35,7 @@ from dmcp.recorder import (
     StreamableHttpServer,
     TraceRecorder,
 )
+from dmcp.replay import TraceReplayRecorder
 from dmcp.report import aggregate_markdown
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
@@ -355,6 +356,18 @@ def generate(
     asyncio.run(_run())
 
 
+def _load_traces_by_id(path: Path) -> dict[str, Trace]:
+    index: dict[str, Trace] = {}
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            t = Trace.model_validate_json(line)
+            index[str(t.trace_id)] = t
+    return index
+
+
 @app.command(name="eval")
 def evaluate(
     specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL input")],
@@ -363,7 +376,21 @@ def evaluate(
     budget: Annotated[int, typer.Option("--budget", help="Max turns per candidate run")] = 12,
     servers: Annotated[
         list[str] | None,
-        typer.Option("--server", help="Repeatable: restrict the candidate's server pool"),
+        typer.Option("--server", help="Repeatable: restrict the candidate's server pool (live mode only)"),
+    ] = None,
+    replay: Annotated[
+        bool,
+        typer.Option(
+            "--replay",
+            help="Use deterministic replay against reference traces instead of live MCP servers",
+        ),
+    ] = False,
+    reference_traces: Annotated[
+        Path | None,
+        typer.Option(
+            "--reference-traces",
+            help="JSONL of reference traces (e.g. traces/generated.jsonl). Required with --replay.",
+        ),
     ] = None,
     output: Annotated[
         Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")
@@ -376,21 +403,38 @@ def evaluate(
         ),
     ] = Path("evals/candidate_traces.jsonl"),
 ) -> None:
-    """Run each candidate agent inline against its TaskSpec and score the trajectory.
+    """Run each candidate agent against its TaskSpec and score the trajectory.
 
-    v0 inline mode: for each spec, the candidate is the explorer driven by --model,
-    using the spec's prompt as goal. Trajectory is scored by the Tier-1
-    deterministic evaluator. External candidate-trace mode will be added later.
+    Two modes:
+
+      live    (default) — candidate hits the manifest's MCP servers directly.
+                          Subject to upstream nondeterminism (time, web data,
+                          server state). Use for one-shot debugging.
+
+      --replay          — candidate runs against a TraceReplayRecorder built
+                          from each spec's source trace. Fully deterministic,
+                          reproducible across re-runs and across candidates.
+                          Required for fair multi-agent comparison.
     """
+    if replay and reference_traces is None:
+        raise typer.BadParameter("--replay requires --reference-traces")
+
     m = Manifest.load(manifest)
     configs = m.configs(servers)
     llm = OpenRouterClient(model=model)
+
+    reference_index: dict[str, Trace] = {}
+    if replay:
+        assert reference_traces is not None
+        reference_index = _load_traces_by_id(reference_traces)
+        typer.echo(f"replay mode: indexed {len(reference_index)} reference trace(s)")
 
     async def _run() -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
         if candidate_traces_out:
             candidate_traces_out.parent.mkdir(parents=True, exist_ok=True)
         passed = total = 0
+        cache_miss_steps = 0
         with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
             cand_fh = candidate_traces_out.open("a", encoding="utf-8") if candidate_traces_out else None
             try:
@@ -401,14 +445,36 @@ def evaluate(
                     total += 1
                     spec = TaskSpec.model_validate_json(raw)
                     typer.echo(f"[task {spec.task_id}] prompt: {spec.prompt[:90]}{'…' if len(spec.prompt) > 90 else ''}")
-                    result = await run_exploration(
-                        goal=spec.prompt,
-                        servers=configs,
-                        llm=llm,
-                        budget=budget,
-                    )
+
+                    if replay:
+                        ref = reference_index.get(str(spec.source_trace_id))
+                        if ref is None:
+                            typer.echo(f"  skip: no reference trace for source_trace_id={spec.source_trace_id}")
+                            continue
+                        cand_recorder = TraceReplayRecorder(
+                            cache_traces=[ref],
+                            goal=spec.prompt,
+                        )
+                        result = await run_exploration(
+                            goal=spec.prompt,
+                            recorder=cand_recorder,
+                            llm=llm,
+                            budget=budget,
+                        )
+                    else:
+                        result = await run_exploration(
+                            goal=spec.prompt,
+                            servers=configs,
+                            llm=llm,
+                            budget=budget,
+                        )
                     stash_exploration_in_trace(result)
-                    ev = run_eval(spec, result.trace, candidate_model=model)
+                    ev = run_eval(
+                        spec,
+                        result.trace,
+                        candidate_model=model,
+                        evaluation_mode="replay" if replay else "live",
+                    )
                     fout.write(ev.to_jsonl())
                     fout.write("\n")
                     if cand_fh is not None:
@@ -416,11 +482,17 @@ def evaluate(
                         cand_fh.write("\n")
                     if ev.passed:
                         passed += 1
+                    miss_count = sum(
+                        1 for s in result.trace.steps
+                        if s.result is not None and s.result.get("replay_cache_miss")
+                    )
+                    cache_miss_steps += miss_count
                     typer.echo(
                         f"  → {'PASS' if ev.passed else 'FAIL'} "
                         f"checkpoints={ev.summary['checkpoints_passed']}/{ev.summary['checkpoints_total']} "
                         f"minefields={ev.summary['minefields_hit']}/{ev.summary['minefields_total']} "
                         f"ordering={'ok' if ev.ordering_ok else 'fail'}"
+                        + (f" misses={miss_count}" if replay and miss_count else "")
                     )
                     for cr in ev.checkpoint_results:
                         flag = "✓" if cr.passed else "✗"
@@ -428,7 +500,8 @@ def evaluate(
             finally:
                 if cand_fh is not None:
                     cand_fh.close()
-        typer.echo(f"done: {passed}/{total} specs passed → {output}")
+        suffix = f" (cache misses total: {cache_miss_steps})" if replay else ""
+        typer.echo(f"done: {passed}/{total} specs passed → {output}{suffix}")
 
     asyncio.run(_run())
 

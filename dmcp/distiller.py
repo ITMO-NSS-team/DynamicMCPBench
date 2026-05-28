@@ -106,12 +106,29 @@ def _had_recovery(trace: Trace) -> bool:
     return False
 
 
+_DIGIT_WINDOW = 6
+
+
+def _digits_only(s: str) -> str:
+    return "".join(c for c in s if c.isdigit())
+
+
 def _runtime_branching(trace: Trace) -> bool:
-    """Heuristic: a later tool call's argument value (as string) appears as
-    a substring of an earlier successful result. Imperfect but catches the
-    common 'one call's output feeds the next' pattern.
+    """Heuristic: does a later call's argument come from an earlier result?
+
+    Catches two patterns:
+      1) raw substring: the later arg appears verbatim in an earlier result.
+         Works for names, paths, ids carried through unchanged.
+      2) digit-window reuse: any 6+ contiguous-digit window from the later
+         arg's digit-only projection appears in an earlier result's digit-only
+         projection. Catches reformatted timestamps —
+         '2026-05-28T13:17:05' → 'snapshot-20260528-131705' — where the raw
+         substring check fails because punctuation was dropped.
+
+    6-digit threshold avoids false positives from common years (4 digits).
     """
-    prior_result_blobs: list[str] = []
+    prior_blobs: list[str] = []
+    prior_digit_blobs: list[str] = []
     for s in trace.steps:
         if s.kind is not StepKind.call_tool_agent:
             continue
@@ -119,10 +136,18 @@ def _runtime_branching(trace: Trace) -> bool:
             for v in s.arguments.values():
                 if not isinstance(v, str) or len(v) < 3:
                     continue
-                if any(v in blob for blob in prior_result_blobs):
+                if any(v in blob for blob in prior_blobs):
                     return True
+                d = _digits_only(v)
+                if len(d) >= _DIGIT_WINDOW and prior_digit_blobs:
+                    for i in range(len(d) - _DIGIT_WINDOW + 1):
+                        window = d[i : i + _DIGIT_WINDOW]
+                        if any(window in pd for pd in prior_digit_blobs):
+                            return True
         if s.status is StepStatus.success and s.result is not None:
-            prior_result_blobs.append(json.dumps(s.result, default=str))
+            blob = json.dumps(s.result, default=str)
+            prior_blobs.append(blob)
+            prior_digit_blobs.append(_digits_only(blob))
     return False
 
 

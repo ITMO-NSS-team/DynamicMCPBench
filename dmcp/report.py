@@ -63,6 +63,23 @@ def _fmt_pass(num: int, denom: int) -> str:
     return f"{num}/{denom} ({pct:.0f}%)"
 
 
+def _agent_key(ev) -> str:
+    """The aggregation key for one candidate run: model name + eval mode."""
+    model = ev.candidate_model or UNKNOWN_MODEL
+    mode = ev.evaluation_mode
+    if mode is None:
+        return model
+    return f"{model} [{mode}]"
+
+
+def _short(label: str) -> str:
+    """Short display form: last path segment + mode tag preserved."""
+    if " [" in label:
+        head, _, tail = label.partition(" [")
+        return f"{head.split('/')[-1]} [{tail}"
+    return label.split("/")[-1]
+
+
 def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
     specs = _load_specs(specs_path)
     evals = _load_evals(eval_paths)
@@ -71,10 +88,10 @@ def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
     if not evals:
         return "# DynamicMCPBench Report\n\n(no evaluation results)\n"
 
-    models = sorted({ev.candidate_model or UNKNOWN_MODEL for ev in evals})
+    models = sorted({_agent_key(ev) for ev in evals})
     by_model_task: dict[str, dict[UUID, bool]] = defaultdict(dict)
     for ev in evals:
-        by_model_task[ev.candidate_model or UNKNOWN_MODEL][ev.task_id] = ev.passed
+        by_model_task[_agent_key(ev)][ev.task_id] = ev.passed
 
     lines: list[str] = []
     lines.append("# DynamicMCPBench Report")
@@ -99,7 +116,7 @@ def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
     # ---- per-task matrix ----
     lines.append("## Per-task results")
     lines.append("")
-    header = ["task", "dynamism", "depth", "cs", "sc"] + [m.split("/")[-1] for m in models]
+    header = ["task", "dynamism", "depth", "cs", "sc"] + [_short(m) for m in models]
     lines.append("| " + " | ".join(header) + " |")
     lines.append("|" + "|".join(["---"] * len(header)) + "|")
     for task_id, spec in specs.items():
