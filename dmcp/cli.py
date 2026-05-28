@@ -36,6 +36,7 @@ from dmcp.recorder import (
     StreamableHttpServer,
     TraceRecorder,
 )
+from dmcp.refresh import decay_summary, refresh_one
 from dmcp.replay import TraceReplayRecorder
 from dmcp.report import aggregate_markdown
 from dmcp.spec import TaskSpec
@@ -124,6 +125,72 @@ def record(
                 typer.echo(json.dumps(result, indent=2)[:2000])
         recorder.write_jsonl(output)
         typer.echo(f"wrote trace → {output}")
+
+    asyncio.run(_run())
+
+
+@app.command()
+def refresh(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL")],
+    reference_traces: Annotated[Path, typer.Option("--reference-traces", help="JSONL of reference traces")],
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    refresh_stateful: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-stateful",
+            help="Also re-run stateful_write servers (DANGEROUS — may mutate live state).",
+        ),
+    ] = False,
+    output: Annotated[
+        Path, typer.Option("--output", "-o", help="RefreshReport JSONL output")
+    ] = Path("evals/refresh.jsonl"),
+) -> None:
+    """Re-execute each spec's reference trace against live servers and report drift.
+
+    Classifies every reference tool call as identical / drifted / broken / skipped.
+    Skips stateful_write servers by default — re-running git_create_branch with
+    the same name would just fail; pass --refresh-stateful to override only when
+    you know the server is sandboxed for refresh.
+    """
+    m = Manifest.load(manifest)
+    refs = _load_traces_by_id(reference_traces)
+
+    async def _run() -> None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        reports = []
+        with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
+            for raw in fin:
+                raw = raw.strip()
+                if not raw:
+                    continue
+                spec = TaskSpec.model_validate_json(raw)
+                ref = refs.get(str(spec.source_trace_id))
+                if ref is None:
+                    typer.echo(f"[task {spec.task_id}] skip: no reference trace")
+                    continue
+                report = await refresh_one(
+                    reference=ref,
+                    task_id=spec.task_id,
+                    manifest=m,
+                    refresh_stateful=refresh_stateful,
+                )
+                fout.write(report.to_jsonl())
+                fout.write("\n")
+                reports.append(report)
+                c = report.counts
+                flag = "STALE" if report.spec_likely_stale else "ok"
+                typer.echo(
+                    f"[task {spec.task_id}] {flag}  "
+                    f"identical={c['identical']} drifted={c['drifted']} "
+                    f"broken={c['broken']} skipped={c['skipped']}"
+                )
+        summary = decay_summary(reports)
+        typer.echo("")
+        typer.echo("decay summary:")
+        typer.echo(f"  specs refreshed : {summary['specs_refreshed']}")
+        typer.echo(f"  specs stale     : {summary['specs_stale']} ({summary['stale_rate']*100:.0f}%)")
+        typer.echo(f"  call outcomes   : {summary['call_outcomes']}")
+        typer.echo(f"\nwrote refresh report → {output}")
 
     asyncio.run(_run())
 
