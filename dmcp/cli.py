@@ -27,6 +27,7 @@ from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
+from dmcp.goal_gen import generate_goals as run_goal_gen
 from dmcp.goals import Goals
 from dmcp.install import InstallStatus, install_server
 from dmcp.judge import upgrade_with_judge
@@ -194,6 +195,51 @@ def refresh(
         typer.echo(f"  specs stale     : {summary['specs_stale']} ({summary['stale_rate']*100:.0f}%)")
         typer.echo(f"  call outcomes   : {summary['call_outcomes']}")
         typer.echo(f"\nwrote refresh report → {output}")
+
+    asyncio.run(_run())
+
+
+@app.command(name="goal-gen")
+def goal_gen(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    servers: Annotated[
+        list[str] | None,
+        typer.Option("--server", help="Repeatable: restrict to specific server_ids (default all)"),
+    ] = None,
+    single_per_server: Annotated[
+        int, typer.Option("--per-server", help="Single-server goals to generate per server")
+    ] = 2,
+    cross_pairs: Annotated[
+        int, typer.Option("--cross-pairs", help="Cross-server pairs to generate goals for")
+    ] = 5,
+    model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
+    seed: Annotated[int, typer.Option("--seed")] = 0,
+    output: Annotated[
+        Path, typer.Option("--output", "-o", help="Goals JSON output")
+    ] = Path("goals/auto.json"),
+) -> None:
+    """Auto-generate goals.json from a manifest by feeding each server's tool
+    surface to an LLM. Default: 2 single-server + 5 cross-server pairs."""
+    m = Manifest.load(manifest)
+    chosen = servers or [s.server_id for s in m.servers]
+    llm = OpenRouterClient(model=model)
+
+    async def _run() -> None:
+        typer.echo(f"generating goals for {len(chosen)} server(s) via {model}")
+        goals = await run_goal_gen(
+            manifest=m,
+            server_ids=chosen,
+            llm=llm,
+            single_per_server=single_per_server,
+            cross_pairs=cross_pairs,
+            seed=seed,
+        )
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(goals.model_dump_json(indent=2), encoding="utf-8")
+        typer.echo(f"wrote {len(goals.entries)} goals → {output}")
+        single = sum(1 for g in goals.entries if len(g.servers) == 1)
+        cross = sum(1 for g in goals.entries if len(g.servers) > 1)
+        typer.echo(f"  single-server: {single}   cross-server: {cross}")
 
     asyncio.run(_run())
 
