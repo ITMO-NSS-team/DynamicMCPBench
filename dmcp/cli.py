@@ -21,12 +21,14 @@ from typing import Annotated
 
 import typer
 
+from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
 from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goals import Goals
+from dmcp.install import InstallStatus, install_server
 from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
 from dmcp.manifest import Manifest
@@ -41,6 +43,7 @@ from dmcp.replay import TraceReplayRecorder
 from dmcp.report import aggregate_markdown
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
+from dmcp.vet import VetStatus, vet_one, vet_result_summary
 
 app = typer.Typer(
     name="dmcp",
@@ -217,9 +220,123 @@ def _not_yet(name: str) -> None:
 
 
 @app.command()
-def crawl() -> None:
-    """[planned] Vet live MCP servers from the registry."""
-    _not_yet("crawl")
+def crawl(
+    limit: Annotated[
+        int,
+        typer.Option("--limit", help="Max number of no-creds installable servers to attempt"),
+    ] = 50,
+    discovered_out: Annotated[
+        Path,
+        typer.Option("--discovered-out", help="Raw discovery JSONL output"),
+    ] = Path("crawled/discovered.jsonl"),
+    vet_out: Annotated[
+        Path,
+        typer.Option("--vet-out", help="Vet result JSONL output"),
+    ] = Path("crawled/vetted.jsonl"),
+    manifest_out: Annotated[
+        Path,
+        typer.Option("--manifest-out", help="Generated runnable manifest"),
+    ] = Path("manifests/crawled.json"),
+    install_timeout_s: Annotated[
+        float,
+        typer.Option("--install-timeout", help="Per-server install timeout"),
+    ] = 120.0,
+    smoke_timeout_s: Annotated[
+        float,
+        typer.Option("--smoke-timeout", help="Per-server initialize+list_tools timeout"),
+    ] = 30.0,
+    no_install: Annotated[
+        bool,
+        typer.Option(
+            "--no-install",
+            help="Discovery only — do not install or smoke-test servers (safe preview)",
+        ),
+    ] = False,
+) -> None:
+    """Crawl the official MCP Registry, install + smoke-test no-creds servers,
+    emit a runnable manifest of those that initialize and expose ≥1 tool.
+
+    Security note: this runs `uv pip install` and `npx -y` on third-party
+    code identified by the public catalog. Package install scripts and the
+    server processes themselves can execute arbitrary code. Use --no-install
+    for safe discovery preview; only run the full pipeline when you've
+    decided the catalog is acceptable.
+    """
+    discovered_out.parent.mkdir(parents=True, exist_ok=True)
+    vet_out.parent.mkdir(parents=True, exist_ok=True)
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
+
+    typer.echo("phase 1 — discovering servers from registry.modelcontextprotocol.io")
+    client = MCPRegistryClient()
+    discovered: list = []
+    seen_packages: set[tuple[str, str]] = set()  # dedup by (pkg_kind, identifier)
+    n_examined = 0
+    with discovered_out.open("w", encoding="utf-8") as fd:
+        for srv in client.iter_all():
+            n_examined += 1
+            fd.write(srv.to_jsonl())
+            fd.write("\n")
+            picks = srv.no_creds_installable_packages
+            if not picks:
+                continue
+            p = picks[0]
+            key = (p.kind.value, p.identifier)
+            if key in seen_packages:
+                continue
+            seen_packages.add(key)
+            discovered.append(srv)
+            if len(discovered) >= limit:
+                break
+    typer.echo(
+        f"  examined {n_examined} server records; selected {len(discovered)} "
+        f"unique no-creds installable candidates"
+    )
+
+    if no_install:
+        typer.echo("--no-install set: stopping after discovery.")
+        return
+
+    typer.echo("\nphase 2 — install + smoke")
+    vet_results = []
+    with vet_out.open("w", encoding="utf-8") as fv:
+        for i, srv in enumerate(discovered, 1):
+            inst = install_server(srv, install_timeout_s=install_timeout_s)
+            typer.echo(
+                f"  [{i:>3}/{len(discovered)}] {srv.name:<55s} install={inst.status.value}"
+                + (f" ({inst.reason})" if inst.status is not InstallStatus.success else "")
+            )
+            if inst.status is not InstallStatus.success:
+                vr = vet_one(srv, inst, smoke_timeout_s=smoke_timeout_s)
+                vet_results.append(vr)
+                fv.write(json.dumps(vet_result_summary(vr)) + "\n")
+                continue
+            vr = vet_one(srv, inst, smoke_timeout_s=smoke_timeout_s)
+            vet_results.append(vr)
+            fv.write(json.dumps(vet_result_summary(vr)) + "\n")
+            flag = "✓" if vr.status is VetStatus.success else "✗"
+            typer.echo(
+                f"           ↳ smoke {flag} {vr.status.value} "
+                f"tools={vr.tool_count} dynamism={vr.dynamism.value if vr.dynamism else '-'} "
+                f"({vr.elapsed_s:.1f}s) {vr.reason[:80]}"
+            )
+
+    entries = [vr.manifest_entry for vr in vet_results if vr.manifest_entry]
+    typer.echo(
+        f"\nphase 3 — manifest: {len(entries)} servers passed smoke "
+        f"(of {len(discovered)} attempted)"
+    )
+
+    from dmcp.manifest import Manifest
+
+    manifest = Manifest(servers=entries)
+    manifest.dump(manifest_out)
+    by_dyn: dict[str, int] = {}
+    for e in entries:
+        by_dyn[e.dynamism.value] = by_dyn.get(e.dynamism.value, 0) + 1
+    typer.echo(f"  by dynamism: {by_dyn}")
+    typer.echo(f"\nwrote manifest → {manifest_out}")
+    typer.echo(f"wrote vet log  → {vet_out}")
+    typer.echo(f"wrote discovery → {discovered_out}")
 
 
 @app.command()

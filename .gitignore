@@ -226,3 +226,6 @@ tmp.md
 /specs/
 /evals/
 /reports/
+/crawled/
+# auto-generated manifests; only manifests/local.json (hand-curated) is tracked
+/manifests/crawled*.json
