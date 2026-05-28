@@ -28,6 +28,37 @@
       "sandbox": true,
       "description": "Git operations confined to /tmp/dmcp-sandbox-repo (mcp-server-git).",
       "tags": ["git", "vcs", "sandboxed"]
+    },
+    {
+      "server_id": "sqlite",
+      "transport": "stdio",
+      "command": ".venv/bin/mcp-server-sqlite",
+      "args": ["--db-path", "/tmp/dmcp-sandbox/bench.db"],
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "SQLite database CRUD against /tmp/dmcp-sandbox/bench.db (mcp-server-sqlite).",
+      "tags": ["database", "sql", "sandboxed"]
+    },
+    {
+      "server_id": "fs",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/private/tmp/dmcp-fs-sandbox"],
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Filesystem read/write/move confined to /private/tmp/dmcp-fs-sandbox (Node MCP server).",
+      "tags": ["filesystem", "files", "sandboxed"]
+    },
+    {
+      "server_id": "memory",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {"MEMORY_FILE_PATH": "/private/tmp/dmcp-memory/store.json"},
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Knowledge graph (entities/relations/observations) persisted at /private/tmp/dmcp-memory/store.json.",
+      "tags": ["memory", "knowledge-graph", "sandboxed"]
     }
   ]
 }

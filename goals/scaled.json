@@ -1,0 +1,175 @@
+{
+  "goals_version": "0.1.0",
+  "entries": [
+    {
+      "goal_id": "time-now-utc",
+      "goal": "What is the current UTC time?",
+      "servers": ["time"],
+      "tags": ["single-server", "static", "shallow"]
+    },
+    {
+      "goal_id": "time-three-cities-furthest",
+      "goal": "Get the current time in Tokyo, London, and New York. Tell me which one is the furthest ahead of UTC.",
+      "servers": ["time"],
+      "tags": ["single-server", "static", "parallel-calls"]
+    },
+    {
+      "goal_id": "time-convert-meeting",
+      "goal": "It is 09:00 in Tokyo. What time is that in New York and in London? Use the convert_time tool to get exact answers.",
+      "servers": ["time"],
+      "tags": ["single-server", "static"]
+    },
+
+    {
+      "goal_id": "fetch-example-purpose",
+      "goal": "Fetch https://example.com and tell me the single sentence that describes what the domain is reserved for.",
+      "servers": ["fetch"],
+      "tags": ["single-server", "live_read"]
+    },
+    {
+      "goal_id": "fetch-iana-rfc",
+      "goal": "Fetch https://www.iana.org/help/example-domains and quote one sentence that mentions which RFC reserves the example.com domain.",
+      "servers": ["fetch"],
+      "tags": ["single-server", "live_read"]
+    },
+
+    {
+      "goal_id": "git-status-and-log",
+      "goal": "Check the status and last 3 commits of the git repository at /tmp/dmcp-sandbox-repo. Tell me whether the working tree is clean and what the most recent commit message was.",
+      "servers": ["git"],
+      "tags": ["single-server", "stateful_write", "read-only-usage"]
+    },
+    {
+      "goal_id": "git-branch-named-feature",
+      "goal": "In the git repository at /tmp/dmcp-sandbox-repo create a branch named 'feature/scaled-run' and confirm it appears in the branch list.",
+      "servers": ["git"],
+      "tags": ["single-server", "stateful_write"]
+    },
+
+    {
+      "goal_id": "sqlite-create-and-query",
+      "goal": "In the sqlite database, create a table called 'people' with columns id INTEGER PRIMARY KEY and name TEXT NOT NULL. Insert one row (id=1, name='Ada'). Then read back all rows and tell me the name you stored.",
+      "servers": ["sqlite"],
+      "tags": ["single-server", "stateful_write", "deep"]
+    },
+    {
+      "goal_id": "sqlite-schema-survey",
+      "goal": "List all tables currently in the sqlite database. If there are any, describe the schema of the first one. If there are none, say so explicitly.",
+      "servers": ["sqlite"],
+      "tags": ["single-server", "stateful_write", "read-only-usage"]
+    },
+
+    {
+      "goal_id": "fs-write-and-read-back",
+      "goal": "In the filesystem sandbox at /private/tmp/dmcp-fs-sandbox, write a file called 'hello.txt' containing the text 'hello from dmcp'. Then read the file back and confirm the contents match.",
+      "servers": ["fs"],
+      "tags": ["single-server", "stateful_write"]
+    },
+    {
+      "goal_id": "fs-list-tree",
+      "goal": "List all files and directories under /private/tmp/dmcp-fs-sandbox and tell me how many entries you found at the top level.",
+      "servers": ["fs"],
+      "tags": ["single-server", "stateful_write", "read-only-usage"]
+    },
+
+    {
+      "goal_id": "memory-add-entity",
+      "goal": "In the knowledge graph, create an entity named 'Ada Lovelace' of type 'person' with the observation 'wrote the first algorithm intended for a machine'. Then read the full graph and confirm the entity is there.",
+      "servers": ["memory"],
+      "tags": ["single-server", "stateful_write"]
+    },
+    {
+      "goal_id": "memory-related-pair",
+      "goal": "In the knowledge graph, create two entities ('Alan Turing' of type 'person', 'Bombe' of type 'machine') and a relation 'designed' from Turing to the Bombe. Then read the graph back and report the relation you see.",
+      "servers": ["memory"],
+      "tags": ["single-server", "stateful_write", "deep"]
+    },
+
+    {
+      "goal_id": "x-time-fetch-summary",
+      "goal": "Fetch the page at https://example.com, then get the current UTC time, and report both in one summary that includes the current timestamp and the single sentence describing what example.com is reserved for.",
+      "servers": ["fetch", "time"],
+      "tags": ["cross-server", "live_read"]
+    },
+    {
+      "goal_id": "x-time-git-snapshot-branch",
+      "goal": "Get the current UTC time, then in the git repository at /tmp/dmcp-sandbox-repo create a new branch whose name follows the pattern 'snapshot-YYYYMMDD-HHMMSS' using the timestamp you just retrieved. Confirm the branch was created by listing local branches.",
+      "servers": ["time", "git"],
+      "tags": ["cross-server", "stateful_write", "runtime-branching"]
+    },
+    {
+      "goal_id": "x-time-sqlite-timestamped-row",
+      "goal": "In the sqlite database, create a table 'events' with columns id INTEGER PRIMARY KEY AUTOINCREMENT and observed_at TEXT. Then get the current UTC time and insert one row whose observed_at value is exactly the timestamp string the time tool returned. Read back the rows and confirm.",
+      "servers": ["time", "sqlite"],
+      "tags": ["cross-server", "stateful_write", "runtime-branching", "deep"]
+    },
+    {
+      "goal_id": "x-time-fs-timestamped-file",
+      "goal": "Get the current UTC time, then in /private/tmp/dmcp-fs-sandbox write a file whose name follows the pattern 'snapshot-YYYYMMDD-HHMMSS.txt' (using the timestamp you retrieved) and whose contents are the full timestamp string. List the directory to confirm the file exists.",
+      "servers": ["time", "fs"],
+      "tags": ["cross-server", "stateful_write", "runtime-branching"]
+    },
+    {
+      "goal_id": "x-fetch-sqlite-titles",
+      "goal": "Create a sqlite table 'pages' with columns id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, summary TEXT. Then fetch https://example.com and insert one row where url is 'https://example.com' and summary is the single descriptive sentence you find on the page. Read the rows back to confirm.",
+      "servers": ["fetch", "sqlite"],
+      "tags": ["cross-server", "stateful_write", "deep"]
+    },
+    {
+      "goal_id": "x-fetch-fs-save",
+      "goal": "Fetch https://example.com and save its content to /private/tmp/dmcp-fs-sandbox/example.md. Then list the directory and confirm the file is there.",
+      "servers": ["fetch", "fs"],
+      "tags": ["cross-server", "stateful_write"]
+    },
+    {
+      "goal_id": "x-fetch-memory-entity",
+      "goal": "Fetch https://example.com and create one knowledge-graph entity named 'example.com' of type 'website' with one observation summarizing what the page says about the domain.",
+      "servers": ["fetch", "memory"],
+      "tags": ["cross-server", "stateful_write"]
+    },
+    {
+      "goal_id": "x-fs-git-add-commit",
+      "goal": "In /private/tmp/dmcp-fs-sandbox write a new file called 'note.txt' containing 'tracked by git'. Then in the git repository at /tmp/dmcp-sandbox-repo create a branch called 'add-note' to keep this work isolated. Confirm the branch exists.",
+      "servers": ["fs", "git"],
+      "tags": ["cross-server", "stateful_write"]
+    },
+    {
+      "goal_id": "x-sqlite-fs-export",
+      "goal": "In sqlite, create a table 'snapshots' with columns id INTEGER PRIMARY KEY AUTOINCREMENT and label TEXT, insert one row with label='first', and read it back. Then in /private/tmp/dmcp-fs-sandbox write a file called 'snapshots.txt' whose contents are exactly the label you stored.",
+      "servers": ["sqlite", "fs"],
+      "tags": ["cross-server", "stateful_write", "runtime-branching", "deep"]
+    },
+    {
+      "goal_id": "x-memory-fs-dump",
+      "goal": "Create two knowledge-graph entities 'Project X' (project) and 'Owner Y' (person), plus a relation 'owns' from Y to X. Then read the graph and write its JSON representation to /private/tmp/dmcp-fs-sandbox/graph.json.",
+      "servers": ["memory", "fs"],
+      "tags": ["cross-server", "stateful_write", "deep"]
+    },
+
+    {
+      "goal_id": "deep-fetch-sqlite-fs",
+      "goal": "Fetch https://example.com. Create a sqlite table 'fetched_pages' (id INTEGER PK AUTOINCREMENT, url TEXT, body_excerpt TEXT). Insert one row where url='https://example.com' and body_excerpt is the first sentence of the page. Read the row back, and also write a small text file to /private/tmp/dmcp-fs-sandbox/fetched_pages_summary.txt that says how many rows you stored.",
+      "servers": ["fetch", "sqlite", "fs"],
+      "tags": ["deep", "cross-server", "stateful_write"]
+    },
+    {
+      "goal_id": "deep-time-fs-git",
+      "goal": "Get the current UTC time. Write a file called 'snapshot.txt' into /private/tmp/dmcp-fs-sandbox whose contents are the timestamp string. Then in the git repository at /tmp/dmcp-sandbox-repo create a branch whose name encodes the same timestamp ('snapshot-' + compact-timestamp) and confirm it appears in the branch list.",
+      "servers": ["time", "fs", "git"],
+      "tags": ["deep", "cross-server", "stateful_write", "runtime-branching"]
+    },
+
+    {
+      "goal_id": "recovery-sqlite-table-missing",
+      "goal": "Read all rows from a sqlite table called 'definitely_does_not_exist_yet'. If that fails, create the table with columns id INTEGER PRIMARY KEY and value TEXT, insert one row (id=1, value='recovered'), and read it back.",
+      "servers": ["sqlite"],
+      "tags": ["recovery", "stateful_write"]
+    },
+    {
+      "goal_id": "recovery-fs-wrong-then-right",
+      "goal": "Try to write a file to /tmp/not-allowed/forbidden.txt. If that path is rejected, fall back to writing the file to /private/tmp/dmcp-fs-sandbox/recovery.txt with contents 'recovered'.",
+      "servers": ["fs"],
+      "tags": ["recovery", "stateful_write"]
+    }
+  ]
+}
