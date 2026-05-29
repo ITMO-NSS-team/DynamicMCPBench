@@ -59,6 +59,34 @@
       "sandbox": true,
       "description": "Knowledge graph (entities/relations/observations) persisted at /private/tmp/dmcp-memory/store.json.",
       "tags": ["memory", "knowledge-graph", "sandboxed"]
+    },
+    {
+      "server_id": "wikipedia",
+      "transport": "stdio",
+      "command": ".venv/bin/wikipedia-mcp",
+      "args": [],
+      "dynamism": "live_read",
+      "description": "Wikipedia search, page retrieval, summaries, links, and coordinates (wikipedia-mcp).",
+      "tags": ["wikipedia", "knowledge", "public-api"]
+    },
+    {
+      "server_id": "arxiv",
+      "transport": "stdio",
+      "command": ".venv/bin/arxiv-mcp-server",
+      "args": ["--storage-path", "/private/tmp/dmcp-arxiv"],
+      "dynamism": "live_read",
+      "sandbox": true,
+      "description": "arXiv paper search, abstract retrieval, and PDF download to /private/tmp/dmcp-arxiv (arxiv-mcp-server).",
+      "tags": ["arxiv", "papers", "research", "public-api"]
+    },
+    {
+      "server_id": "yfinance",
+      "transport": "stdio",
+      "command": ".venv/bin/yfinance-mcp",
+      "args": [],
+      "dynamism": "live_read",
+      "description": "Yahoo Finance ticker search, lookup, historical data, earnings, options, sector data (yfinance-mcp).",
+      "tags": ["finance", "stocks", "public-api"]
     }
   ]
 }

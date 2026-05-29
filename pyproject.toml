@@ -17,6 +17,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+servers = [
+    "mcp-server-time>=2025.1",
+    "mcp-server-fetch>=2025.1",
+    "mcp-server-git>=2025.1",
+    "mcp-server-sqlite>=0.1",
+    "wikipedia-mcp>=2.0",
+    "arxiv-mcp-server>=0.2",
+    "yfinance-mcp>=0.1",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
