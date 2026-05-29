@@ -24,6 +24,7 @@ Out of scope for v0:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import random
@@ -45,7 +46,10 @@ GOAL_GEN_SYSTEM = """You are designing realistic user goals for an MCP-agent ben
 You will be shown one or more MCP servers, each with:
   - server_id (use this exact string in `servers`)
   - dynamism class (static / live_read / stateful_write)
-  - sandbox path or relevant context, when applicable
+  - sandbox_resources: a list of concrete resources we HAVE actually set up
+    for this server (paths, file specs, env-provided IDs). Empty means we
+    have set up nothing — design the goal around discovery/exploration of
+    whatever the tools expose by default.
   - tool surface: name + short description + input schema
 
 Your job: call `emit_goals` exactly once with N realistic user goals that
@@ -58,27 +62,72 @@ exercise these servers. Hard rules:
   2. Each goal must be solvable using ONLY the servers shown. Do not
      reference tools or capabilities that aren't in the provided surface.
 
-  3. Include concrete context the agent needs to act on: sandbox paths,
-     file names, URLs, identifiers. A goal that mentions "the database"
-     without saying which path / which table is unsolvable at eval time.
+  3. NEVER INVENT concrete external resources. This is the most common
+     failure mode. Specifically:
+       - DO NOT invent file paths (e.g. /tmp/contract.docx, ~/data/foo.json)
+         unless the exact path appears in sandbox_resources.
+       - DO NOT invent IDs, wallet addresses, API keys, account numbers,
+         user names, or order numbers. These are not real and the tool
+         call will fail.
+       - DO NOT invent URLs except for well-known public sites
+         (example.com, iana.org, wikipedia.org).
+     If sandbox_resources is empty and you'd otherwise need to invent a
+     resource, design the goal around DISCOVERY instead: "list the tables",
+     "what categories does this expose", "describe the schema". Such goals
+     work without external resources and still exercise the tool surface.
 
-  4. Vary complexity: include a mix of single-call and multi-step goals
+  4. When sandbox_resources is non-empty, use those exact strings verbatim
+     in the goal — paths and IDs the agent will need.
+
+  5. Vary complexity: include a mix of single-call and multi-step goals
      (2-5 successful tool calls is the sweet spot).
 
-  5. For stateful_write servers, prefer goals that produce verifiable
-     effects (created records, written files, new branches). Avoid
-     destructive operations (drop / delete / reset) unless the task is
-     explicitly an undo or recovery scenario.
+  6. For stateful_write servers WITH sandbox_resources, prefer goals that
+     produce verifiable effects (created records, written files, new
+     branches) using only the provided resources. For stateful_write servers
+     WITHOUT sandbox_resources, prefer read-only / discovery-shaped goals —
+     don't invent new resource names to write into.
 
-  6. For cross-server goals, design genuine data dependencies — the
+  7. For cross-server goals, design genuine data dependencies — the
      output of one server's call must feed another's input or be
      summarized with it. A goal that "uses both" but each call is
      independent is weak; reject that shape.
 
-  7. Choose tags from:
+  8. Avoid destructive operations (drop / delete / reset) unless the task
+     is explicitly an undo or recovery scenario.
+
+  9. Choose tags from:
      ['shallow','single-server','cross-server','deep','runtime-branching',
-      'recovery','read-only-usage','parallel-calls']
+      'recovery','read-only-usage','parallel-calls','discovery']
 """.strip()
+
+
+# Argument flags whose value is a usable concrete resource.
+_RESOURCE_ARG_FLAGS = {
+    "--repository",
+    "--repo",
+    "--db-path",
+    "--database",
+    "--db",
+    "--path",
+    "--root",
+    "--workspace",
+    "--data-dir",
+    "--config",
+    "--file",
+    "--input",
+    "--output-dir",
+    "--local-timezone",
+}
+
+# Env variable name → "kind" hint shown to the LLM.
+_RESOURCE_ENV_HINTS = {
+    "MEMORY_FILE_PATH": "knowledge-graph file path",
+    "DATABASE_URI": "database connection string",
+    "DATABASE_URL": "database connection string",
+    "WORKSPACE_PATH": "workspace path",
+    "DATA_DIR": "data directory",
+}
 
 
 def _emit_goals_tool_schema() -> dict[str, Any]:
@@ -141,30 +190,59 @@ def _tool_view(specs: list[ToolSpec], max_tools: int = 20) -> list[dict[str, Any
     return out
 
 
+def _extract_sandbox_resources(entry: ServerEntry) -> list[dict[str, str]]:
+    """Pull concrete resources we know exist for this server, for the LLM.
+
+    Walks `args` looking for `--flag value` pairs whose flag is in our
+    known resource-flag set, then any env vars whose name is in the
+    resource-env hint set. Returns [{"kind": ..., "value": ...}, ...].
+    """
+    resources: list[dict[str, str]] = []
+    args = list(entry.args or [])
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if isinstance(a, str) and a in _RESOURCE_ARG_FLAGS and i + 1 < len(args):
+            v = args[i + 1]
+            if isinstance(v, str):
+                resources.append({"kind": a.lstrip("-"), "value": v})
+            i += 2
+            continue
+        if isinstance(a, str) and a.startswith("/") and len(a) > 1:
+            resources.append({"kind": "path", "value": a})
+        i += 1
+    for env_name, kind_hint in _RESOURCE_ENV_HINTS.items():
+        v = (entry.env or {}).get(env_name)
+        if v:
+            resources.append({"kind": kind_hint, "value": v})
+    return resources
+
+
 def _server_view(
     entry: ServerEntry, specs: list[ToolSpec]
 ) -> dict[str, Any]:
-    sandbox_path: str | None = None
-    for arg in entry.args:
-        if isinstance(arg, str) and arg.startswith("/"):
-            sandbox_path = arg
-            break
     return {
         "server_id": entry.server_id,
         "dynamism": entry.dynamism.value,
         "sandbox": entry.sandbox,
-        "sandbox_path": sandbox_path,
+        "sandbox_resources": _extract_sandbox_resources(entry),
         "description": entry.description,
         "tools": _tool_view(specs),
     }
 
 
-async def _fetch_tool_specs(entry: ServerEntry) -> list[ToolSpec]:
+async def _fetch_tool_specs(
+    entry: ServerEntry, *, timeout_s: float = 25.0
+) -> list[ToolSpec]:
     """Open a stdio session just long enough to capture the tool surface."""
     cfg = entry.to_config()
     rec = TraceRecorder(servers=[cfg], goal=f"goal-gen:{entry.server_id}")
-    async with rec:
-        return list(rec.trace.tool_specs.get(entry.server_id, []))
+
+    async def _do() -> list[ToolSpec]:
+        async with rec:
+            return list(rec.trace.tool_specs.get(entry.server_id, []))
+
+    return await asyncio.wait_for(_do(), timeout=timeout_s)
 
 
 async def _ask_for_goals(

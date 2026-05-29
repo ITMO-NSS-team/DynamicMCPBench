@@ -229,5 +229,6 @@ tmp.md
 /crawled/
 # auto-generated manifests; only manifests/local.json (hand-curated) is tracked
 /manifests/crawled*.json
+/manifests/merged*.json
 # auto-generated goals; only hand-authored goals/{local,scaled,recovery}.json are tracked
 /goals/auto*.json
