@@ -630,6 +630,13 @@ def evaluate(
             help="After tier-1, run a tier-2 LLM effect-equivalence judge over failed tool_effect checkpoints.",
         ),
     ] = False,
+    tier2_threshold: Annotated[
+        float,
+        typer.Option(
+            "--tier2-threshold",
+            help="Replay Tier-2 fuzzy-match threshold (0..1). Set to 1.0 to disable Tier-2 fallback.",
+        ),
+    ] = 0.75,
     judge_model: Annotated[
         str,
         typer.Option("--judge-model", help="LLM used by the tier-2 judge"),
@@ -699,6 +706,7 @@ def evaluate(
                         cand_recorder = TraceReplayRecorder(
                             cache_traces=[ref],
                             goal=spec.prompt,
+                            tier2_threshold=tier2_threshold,
                         )
                         result = await run_exploration(
                             goal=spec.prompt,
