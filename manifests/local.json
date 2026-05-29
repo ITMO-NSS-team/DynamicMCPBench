@@ -87,6 +87,69 @@
       "dynamism": "live_read",
       "description": "Yahoo Finance ticker search, lookup, historical data, earnings, options, sector data (yfinance-mcp).",
       "tags": ["finance", "stocks", "public-api"]
+    },
+    {
+      "server_id": "osm",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/openstreetmap-mcp-server"],
+      "dynamism": "live_read",
+      "description": "OpenStreetMap geocoding, reverse geocoding, lookup, nearby/bbox/raw Overpass queries (cyanheads).",
+      "tags": ["maps", "geocoding", "public-api"]
+    },
+    {
+      "server_id": "wikidata",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/wikidata-mcp-server"],
+      "dynamism": "live_read",
+      "description": "Wikidata entity search, statements, labels, sitelinks, and SPARQL query (cyanheads).",
+      "tags": ["wikidata", "knowledge-graph", "public-api"]
+    },
+    {
+      "server_id": "worldbank",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/worldbank-mcp-server"],
+      "dynamism": "live_read",
+      "description": "World Bank Open Data: topics, countries, indicators, time series (cyanheads).",
+      "tags": ["economics", "open-data", "public-api"]
+    },
+    {
+      "server_id": "eurostat",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/eurostat-mcp-server"],
+      "dynamism": "live_read",
+      "description": "Eurostat dataset search, themes, dimensions, and query (cyanheads).",
+      "tags": ["economics", "open-data", "europe", "public-api"]
+    },
+    {
+      "server_id": "crossref",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/crossref-mcp-server"],
+      "dynamism": "live_read",
+      "description": "Crossref scholarly works, references, journals, funders (cyanheads).",
+      "tags": ["citations", "research", "public-api"]
+    },
+    {
+      "server_id": "openlibrary",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/openlibrary-mcp-server"],
+      "dynamism": "live_read",
+      "description": "Open Library books/works/editions/authors/subjects/covers (cyanheads).",
+      "tags": ["books", "library", "public-api"]
+    },
+    {
+      "server_id": "pubmed",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/pubmed-mcp-server"],
+      "dynamism": "live_read",
+      "description": "PubMed article search, fetch, full text, citations, MeSH lookup (cyanheads).",
+      "tags": ["medicine", "research", "public-api"]
     }
   ]
 }

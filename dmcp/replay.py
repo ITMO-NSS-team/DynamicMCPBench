@@ -1,4 +1,4 @@
-"""Deterministic replay recorder (Phase 1B, Tier 1 of the rev. 3 plan).
+"""Deterministic replay recorder (Phase 1B, Tier 1 + Tier 2 of the rev. 3 plan).
 
 `TraceReplayRecorder` mimics the live `TraceRecorder` surface
 (``__aenter__`` / ``__aexit__`` / ``list_tools`` / ``call_tool`` / ``.trace``),
@@ -11,19 +11,26 @@ the same world, otherwise rankings are confounded by upstream nondeterminism
 etc.). Replay is the substrate that lets DynamicMCPBench claim its scores
 are reproducible.
 
-v0 scope (Tier 1 only):
-  - Exact-match cache keyed on (server_id, tool_name, canonical_args).
-  - On cache miss: returns a synthetic error result. The candidate sees a
-    real tool error and may try different arguments. This is the simplest
-    correctness-preserving fallback — semantic-cache (Tier 2) and an LLM
-    simulator (Tier 3) come later.
+Tier 1 — exact-match cache keyed on (server_id, tool_name, canonical_args).
+Tier 2 — fuzzy-match fallback: if a candidate's args don't match exactly but
+         are close enough to a cached call (same tool, normalized field values
+         within a similarity threshold), the cached result is replayed and the
+         step is marked `replay_tier=2`. Deterministic — uses field-level
+         normalization + difflib.SequenceMatcher, no external models or API
+         calls. The threshold and matching algorithm are fully data-driven so
+         the same candidate trace produces the same hits on every machine.
+Tier 3 — LLM simulator (not yet implemented). On miss the step falls through
+         to a synthetic isError result, same as before.
 """
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 from collections.abc import Iterable
 from datetime import UTC, datetime
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +59,73 @@ CACHE_MISS_MESSAGE = (
 )
 
 
+_WS_RE = re.compile(r"\s+")
+
+
+def _normalize_value(v: Any) -> Any:
+    """Cheap deterministic normalization for fuzzy-match comparison only.
+
+    Lowercase + collapse whitespace + strip surrounding quotes/punctuation for
+    strings; pass numbers/bools through unchanged so 5 vs "5" doesn't collapse.
+    """
+    if isinstance(v, str):
+        return _WS_RE.sub(" ", v.strip().lower())
+    if isinstance(v, list):
+        return tuple(_normalize_value(x) for x in v)
+    if isinstance(v, dict):
+        return tuple(sorted((k, _normalize_value(val)) for k, val in v.items()))
+    return v
+
+
+def _field_match_score(candidate: dict[str, Any], cached: dict[str, Any]) -> float:
+    """Field-level similarity in [0,1] between two arg dicts.
+
+    Scoring: average over the union of keys.
+      - missing key on either side → 0
+      - identical normalized values → 1
+      - substring containment between two strings → 0.7
+      - both numeric → 1 if equal, 0 otherwise
+      - otherwise 0
+    """
+    keys = set(candidate) | set(cached)
+    if not keys:
+        return 1.0
+    total = 0.0
+    for k in keys:
+        if k not in candidate or k not in cached:
+            continue
+        cv = _normalize_value(candidate[k])
+        rv = _normalize_value(cached[k])
+        if cv == rv:
+            total += 1.0
+        elif isinstance(cv, str) and isinstance(rv, str) and cv and rv and (cv in rv or rv in cv):
+            total += 0.7
+    return total / len(keys)
+
+
+def _tier2_score(candidate_canonical: str, cached_canonical: str) -> float:
+    """Return a similarity score in [0,1] between two canonical-arg JSON strings.
+
+    Tries structured field-level matching first; falls back to a string-level
+    difflib ratio for non-dict args (positional, plain strings, etc.).
+    """
+    try:
+        cand = json.loads(candidate_canonical)
+        ref = json.loads(cached_canonical)
+    except (json.JSONDecodeError, ValueError):
+        return SequenceMatcher(None, candidate_canonical, cached_canonical).ratio()
+
+    if isinstance(cand, dict) and isinstance(ref, dict):
+        return _field_match_score(cand, ref)
+
+    # Non-dict args (e.g. positional list, raw string): fall back to string ratio.
+    return SequenceMatcher(
+        None,
+        json.dumps(cand, sort_keys=True),
+        json.dumps(ref, sort_keys=True),
+    ).ratio()
+
+
 class TraceReplayRecorder:
     """Same surface as `TraceRecorder`, backed by cached reference trace(s).
 
@@ -67,11 +141,22 @@ class TraceReplayRecorder:
         *,
         goal: str | None = None,
         seed_metadata: dict[str, Any] | None = None,
+        tier2_threshold: float = 0.75,
     ) -> None:
+        """Construct a replay recorder.
+
+        tier2_threshold: minimum field-match score in [0,1] for the fuzzy
+        fallback to serve a cached result. Set to 1.0 to disable Tier-2.
+        Default 0.75 — empirically tight enough that "covid" → "covid-19"
+        style near-matches hit, but unrelated calls don't piggy-back.
+        """
         self._cache: dict[tuple[str, str, str], dict[str, Any]] = {}
         self._tool_specs_by_server: dict[str, list[ToolSpec]] = {}
         self._fingerprints: list[ServerFingerprint] = []
         self._available_args_by_tool: dict[tuple[str, str], list[str]] = {}
+        self._tier2_threshold = tier2_threshold
+        self._tier2_hits = 0
+        self._cache_miss_count = 0
 
         seen_servers: set[str] = set()
         for ref in cache_traces:
@@ -104,7 +189,7 @@ class TraceReplayRecorder:
             "replay": {
                 "cache_size": len(self._cache),
                 "tool_specs_servers": sorted(self._tool_specs_by_server.keys()),
-                "tier": 1,
+                "tier2_threshold": tier2_threshold,
             }
         }
         if seed_metadata:
@@ -126,6 +211,11 @@ class TraceReplayRecorder:
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         self.trace.ended_at = _utcnow()
+        # Stash final replay stats so they survive serialization.
+        replay_meta = dict(self.trace.seed_metadata.get("replay", {}))
+        replay_meta["tier2_hits"] = self._tier2_hits
+        replay_meta["cache_miss_count"] = self._cache_miss_count
+        self.trace.seed_metadata["replay"] = replay_meta
 
     async def list_tools(self, server_id: str) -> list[ToolSpec]:
         specs = self._tool_specs_by_server.get(server_id, [])
@@ -157,6 +247,7 @@ class TraceReplayRecorder:
         cached = self._cache.get(key)
         if cached is not None:
             ended_at = _utcnow()
+            result_tagged = {**cached, "replay_tier": 1}
             step = Step.build(
                 step_id=self.trace.next_step_id(),
                 kind=StepKind.call_tool_agent,
@@ -166,12 +257,46 @@ class TraceReplayRecorder:
                 started_at=started_at,
                 ended_at=ended_at,
                 status=StepStatus.success,
-                result=cached,
+                result=result_tagged,
             )
             self.trace.steps.append(step)
-            return cached
+            return result_tagged
+
+        # Tier 2 — fuzzy match against same-tool cached calls.
+        if self._tier2_threshold < 1.0:
+            best_score = 0.0
+            best_args: str | None = None
+            for known_args in self._available_args_by_tool.get((server_id, tool_name), []):
+                score = _tier2_score(canonical, known_args)
+                if score > best_score:
+                    best_score = score
+                    best_args = known_args
+            if best_args is not None and best_score >= self._tier2_threshold:
+                cached2 = self._cache[(server_id, tool_name, best_args)]
+                self._tier2_hits += 1
+                ended_at = _utcnow()
+                tier2_result = {
+                    **cached2,
+                    "replay_tier": 2,
+                    "replay_tier2_source_args": best_args,
+                    "replay_tier2_score": round(best_score, 4),
+                }
+                step = Step.build(
+                    step_id=self.trace.next_step_id(),
+                    kind=StepKind.call_tool_agent,
+                    server_id=server_id,
+                    tool_name=tool_name,
+                    arguments=arguments,
+                    started_at=started_at,
+                    ended_at=ended_at,
+                    status=StepStatus.success,
+                    result=tier2_result,
+                )
+                self.trace.steps.append(step)
+                return tier2_result
 
         # Cache miss → synthetic isError=true result.
+        self._cache_miss_count += 1
         hint_lines = self._available_args_by_tool.get((server_id, tool_name), [])
         hint = ""
         if hint_lines:
