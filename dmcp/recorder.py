@@ -15,11 +15,13 @@ Scope of v0:
 from __future__ import annotations
 
 import logging
+import os
+import sys
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 from mcp import ClientSession
 from mcp.client.sse import sse_client
@@ -116,7 +118,16 @@ class TraceRecorder:
         *,
         goal: str | None = None,
         seed_metadata: dict[str, Any] | None = None,
+        server_stderr: TextIO | str | None = "suppress",
     ) -> None:
+        """Construct a recorder over one or more MCP servers.
+
+        server_stderr: where the spawned servers' stderr goes. Defaults to
+        "suppress" (→ /dev/null) because most servers print banners and
+        npm-vulnerability noise on every startup, which makes scaled crawls
+        unreadable. Pass None to let stderr inherit (Python's sys.stderr),
+        or pass a TextIO / file path string for diagnostic logging.
+        """
         self._configs: dict[str, ServerConfig] = {s.server_id: s for s in servers}
         self.trace = Trace(
             recorder_version=__version__,
@@ -126,10 +137,27 @@ class TraceRecorder:
         self._stack: AsyncExitStack | None = None
         self._sessions: dict[str, ClientSession] = {}
         self._init_results: dict[str, Any] = {}
+        self._server_stderr_spec = server_stderr
+        self._server_stderr_file: TextIO | None = None
+
+    def _resolve_server_stderr(self) -> TextIO:
+        spec = self._server_stderr_spec
+        if spec is None:
+            return sys.stderr
+        if spec == "suppress":
+            f = open(os.devnull, "w", encoding="utf-8")  # noqa: SIM115 — managed by __aexit__
+            self._server_stderr_file = f
+            return f
+        if isinstance(spec, str):
+            f = open(spec, "a", encoding="utf-8")  # noqa: SIM115 — managed by __aexit__
+            self._server_stderr_file = f
+            return f
+        return spec
 
     async def __aenter__(self) -> TraceRecorder:
         self._stack = AsyncExitStack()
         await self._stack.__aenter__()
+        self._stderr_sink = self._resolve_server_stderr()
         for server_id, cfg in self._configs.items():
             session, init_result = await self._open_session(cfg)
             self._sessions[server_id] = session
@@ -145,12 +173,18 @@ class TraceRecorder:
         await self._stack.__aexit__(exc_type, exc, tb)
         self._stack = None
         self._sessions.clear()
+        if self._server_stderr_file is not None:
+            import contextlib
+            with contextlib.suppress(Exception):
+                self._server_stderr_file.close()
+            self._server_stderr_file = None
 
     async def _open_session(self, cfg: ServerConfig) -> tuple[ClientSession, Any]:
         assert self._stack is not None
         if isinstance(cfg, StdioServer):
             transport_cm = stdio_client(
-                StdioServerParameters(command=cfg.command, args=cfg.args, env=cfg.env)
+                StdioServerParameters(command=cfg.command, args=cfg.args, env=cfg.env),
+                errlog=self._stderr_sink,
             )
             read, write = await self._stack.enter_async_context(transport_cm)
             session = await self._stack.enter_async_context(ClientSession(read, write))
