@@ -99,9 +99,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E2 — Sampling / SAE / degradation curves (trace-frame; MVP + PDF)
 
 ### E2.1 — Eval-side tool-pool sampler (`dmcp/sampling.py`)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T15:12:37Z
 - deps: E0.1
 - source: simple_approach §5.2 / PDF
 - done-when: new module implements 6 strategies (random, hard_neg, cross_domain, same_name, sibling, stratified) selecting distractors around a spec's required tools from the manifest pool; deterministic with a seed; unit tests per strategy.
