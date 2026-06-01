@@ -139,7 +139,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: failed evaluations are classified into the 7-type taxonomy with the documented default weights; report shows the weighted error breakdown; unit tests.
 
 ### E2.6 — Description normalization Level A / Level B
-- status: claimed
+- status: in_review (#17)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T16:21:52Z
 - deps: E0.1
