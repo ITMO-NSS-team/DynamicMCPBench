@@ -4,13 +4,18 @@ description: Pick up the next unclaimed step in docs/PLAN.md and drive it to a m
 
 You are advancing DynamicMCPBench autonomously. Follow this loop **exactly**.
 Read `CLAUDE.md`, `docs/CONCEPT.md`, `docs/AUTONOMY.md`, and every `memory/*.md`
-first — the hard invariants there are non-negotiable. The plan is **dynamic**:
-you may refine `docs/PLAN.md` (append / split / re-sequence steps, promote ideas
-from the Idea backlog) when the work warrants it, but the goal is to realize the
+first — the hard invariants there are non-negotiable. The goal is to realize the
 ideas from **all** the docs and reach a finished paper.
 
-Do **one** step per `/continue` invocation unless the user asked for more. Stop
-and report if you hit a blocker.
+**Cadence (strict):** do **exactly one** step per `/continue`. Announce your plan
+*before* you start, and at the end report what you did, say what you'd do next, and
+**ask the human before continuing** — never auto-advance to the next step. Stop and
+report immediately if you hit a blocker.
+
+**Plan changes need a human.** The plan may evolve, but if the work suggests new,
+split, or re-sequenced steps (or promoting an Idea from the backlog), **propose it
+and wait for confirmation** before editing the step set in `docs/PLAN.md`. Atomic
+status updates via `claim.py`/`mark.py` are not plan changes.
 
 ### 0. Sync & bootstrap
 ```
@@ -29,6 +34,8 @@ python3 scripts/claim.py
 - `claim.py` already handles the parallel-agent race: it commits the claim to
   `main` and pushes; if another agent won the race it re-syncs and re-picks. Trust
   its output — the step it printed is yours.
+- **Then announce** (before any code): post 2–4 lines — the claimed step id and how
+  you'll satisfy its `done-when`.
 
 ### 2. Branch & implement
 ```
@@ -72,6 +79,7 @@ python3 scripts/mark.py <id> done
 Optionally refine `docs/PLAN.md` (new/again-sequenced steps, promoted ideas) — use
 the same claim-style commit-and-push so concurrent agents stay consistent.
 
-### 6. Report & loop
-Summarize what merged (step id, PR #, what changed). If the user asked to keep
-going and steps remain eligible, loop to step 0; otherwise stop.
+### 6. Report & ask
+Summarize what merged (step id, PR #, what changed), state what you'd do next (the
+next eligible step), and **ask whether to continue. Do not auto-proceed** to the
+next step — wait for the human's «продолжи».

@@ -9,12 +9,15 @@ and the helpers in `scripts/`. Full spec: `docs/AUTONOMY.md`.
 **Key rules to remember:**
 - Saying «продолжи» / `/continue` = claim the next eligible step, implement its
   `done-when`, gate (`scripts/check.sh`), open a PR, **auto-merge only when green**,
-  then `mark.py <id> done`. One step per invocation unless asked otherwise.
+  then `mark.py <id> done`. **Exactly one step per invocation**, with human
+  checkpoints: **announce the plan before starting**, and at the end **report +
+  ask before continuing** (never auto-advance).
 - **Never hand-edit step statuses** while working — `scripts/claim.py` /
   `scripts/mark.py` do it atomically (git push is the lock; losers re-pick). This is
   what makes parallel agents safe.
-- **The plan is dynamic.** Append/split/re-sequence steps and promote ideas from the
-  Idea backlog as needed; the aim is to realize ideas from *all* docs → a paper.
+- **Plan changes need a human.** Adding/splitting/re-sequencing steps or promoting an
+  Idea must be *proposed and confirmed* before editing `docs/PLAN.md`'s step set; the
+  loop only updates statuses automatically. Aim: realize ideas from *all* docs → a paper.
 - **Blocked > forced.** Unresolvable conflict / failing upstream / ambiguous spec →
   `mark.py <id> blocked "<reason>"` and stop for a human. Never force a merge.
 - Graph/sampling are **baselines only**, never the headline — see

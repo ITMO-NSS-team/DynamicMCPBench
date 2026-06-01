@@ -6,11 +6,13 @@ that lets several Claude Code agents work in parallel without colliding. The loo
 that drives it is `/continue`; the full protocol is in `docs/AUTONOMY.md`.
 
 **How to work this file:** don't hand-edit statuses during the loop — the scripts
-do it atomically. To advance the project, run `/continue` (or say «продолжи»). The
-plan is **dynamic**: as steps complete or reality shifts, the loop may append,
-re-sequence, split, or promote steps from the *Idea backlog*. Realize the ideas
-from *all* the planning docs (`docs/CONCEPT.md`), and generate new steps where it
-helps — while keeping the headline thesis (`memory/feedback_agb_orthogonality.md`).
+do it atomically. To advance the project, run `/continue` (or say «продолжи»),
+which does **exactly one step** then asks before continuing. The plan evolves
+toward realizing the ideas from *all* the planning docs (`docs/CONCEPT.md`) while
+keeping the headline thesis (`memory/feedback_agb_orthogonality.md`), but **changes
+to the step set (adding / splitting / re-sequencing steps, promoting an Idea) must
+be proposed to a human and confirmed before they are applied** — the loop never
+self-edits the plan's structure.
 
 ## Step format (machine-parsed by scripts/claim.py & scripts/mark.py)
 

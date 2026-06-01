@@ -146,7 +146,9 @@ PR, and **auto-merges when green**, then marks the step done.
 Conventions that keep parallel agents safe:
 - **Never hand-edit step statuses** in `docs/PLAN.md` — `scripts/claim.py` and
   `scripts/mark.py` update them atomically (git push is the lock; the loser re-picks).
-- One claimed step per agent; stay within its scope; the plan is dynamic (you may
-  append/split/promote steps).
+- One claimed step per agent; stay within its scope. **Plan changes (new / split /
+  re-sequenced steps) need human confirmation** — propose them, don't self-edit.
+- **Cadence:** one step per `/continue`; announce before you start; then report and
+  **ask before continuing** (no auto-advance).
 - **Blocked > forced**: unresolvable conflicts or ambiguity → `scripts/mark.py <id>
   blocked` and stop for a human. Never force a merge.

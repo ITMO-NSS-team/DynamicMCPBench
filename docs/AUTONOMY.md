@@ -24,10 +24,22 @@ with `status / owner / claimed_at / deps / source / done-when`. The
 what. **Don't hand-edit statuses while the loop runs** — `scripts/claim.py` and
 `scripts/mark.py` update them atomically.
 
-The plan is **dynamic**: the loop may append, split, re-sequence, or promote
-steps from the *Idea backlog* as work reveals new needs. The objective is to
-realize the ideas from **all** the planning docs (`docs/CONCEPT.md`) and reach a
-publishable result.
+The plan may evolve toward realizing the ideas from **all** the planning docs
+(`docs/CONCEPT.md`), but **changes to the step set need a human**: the loop
+*proposes* new / split / re-sequenced steps (or promoting an Idea) and applies
+them only after confirmation. The loop never self-edits the plan's structure — it
+only updates step **statuses** atomically (claim / in_review / done / blocked).
+
+## Cadence & human checkpoints
+
+`/continue` runs **exactly one step**, with a human checkpoint on each side:
+
+1. **Announce first.** After claiming, the agent states (2–4 lines) which step it
+   took and how it will satisfy the `done-when` — *before* writing code.
+2. **Implement → gate → PR → auto-merge** (below).
+3. **Report & ask.** The agent summarizes what merged, says what it would do next,
+   and **asks whether to continue** — it does not auto-advance. Progress resumes
+   only when a human says «продолжи».
 
 ## How parallel agents stay out of each other's way
 
