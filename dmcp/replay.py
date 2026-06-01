@@ -19,8 +19,12 @@ Tier 2 — fuzzy-match fallback: if a candidate's args don't match exactly but
          normalization + difflib.SequenceMatcher, no external models or API
          calls. The threshold and matching algorithm are fully data-driven so
          the same candidate trace produces the same hits on every machine.
-Tier 3 — LLM simulator (not yet implemented). On miss the step falls through
-         to a synthetic isError result, same as before.
+Tier 3 — LLM simulator (opt-in). If a `simulator_llm` is supplied AND Tier-1/2
+         both miss, an LLM generates a plausible result tagged `simulated=true`
+         + `replay_tier=3`. OFF by default — enabling it trades the determinism
+         guarantee above for coverage on offline servers, so simulated steps are
+         flagged and must be discounted in fair comparisons. With no simulator
+         (the default) a miss still falls through to a synthetic isError result.
 """
 
 from __future__ import annotations
@@ -57,6 +61,38 @@ CACHE_MISS_MESSAGE = (
     "Tool call has no cached result in this evaluation environment. "
     "Try different arguments or a different tool — the world has not changed."
 )
+
+
+SIM_SYSTEM = (
+    "You simulate the output of an MCP tool for an OFFLINE benchmark replay. "
+    "Given a tool, its description, and arguments, return ONLY a short, plausible "
+    "result text the tool would produce — no commentary, no apologies. The output "
+    "is explicitly flagged as simulated."
+)
+
+
+async def _simulate_via_llm(
+    llm: Any,
+    server_id: str,
+    tool_name: str,
+    canonical_args: str,
+    tool_specs: list[ToolSpec],
+) -> str:
+    """Tier-3: ask an LLM for a plausible result on a cache miss. temperature=0
+    for as much determinism as the model allows. Returns the result text."""
+    desc = next((s.description for s in tool_specs if s.name == tool_name), None) or ""
+    user = (
+        f"Server: {server_id}\nTool: {tool_name}\nDescription: {desc}\n"
+        f"Arguments (JSON): {canonical_args}\n\nProduce a plausible tool result."
+    )
+    resp = await llm.chat(
+        messages=[
+            {"role": "system", "content": SIM_SYSTEM},
+            {"role": "user", "content": user},
+        ],
+        temperature=0.0,
+    )
+    return resp.content or ""
 
 
 _WS_RE = re.compile(r"\s+")
@@ -142,6 +178,7 @@ class TraceReplayRecorder:
         goal: str | None = None,
         seed_metadata: dict[str, Any] | None = None,
         tier2_threshold: float = 0.75,
+        simulator_llm: Any = None,
     ) -> None:
         """Construct a replay recorder.
 
@@ -157,6 +194,8 @@ class TraceReplayRecorder:
         self._tier2_threshold = tier2_threshold
         self._tier2_hits = 0
         self._cache_miss_count = 0
+        self._simulator_llm = simulator_llm
+        self._tier3_count = 0
 
         seen_servers: set[str] = set()
         for ref in cache_traces:
@@ -190,6 +229,7 @@ class TraceReplayRecorder:
                 "cache_size": len(self._cache),
                 "tool_specs_servers": sorted(self._tool_specs_by_server.keys()),
                 "tier2_threshold": tier2_threshold,
+                "tier3_enabled": simulator_llm is not None,
             }
         }
         if seed_metadata:
@@ -214,6 +254,7 @@ class TraceReplayRecorder:
         # Stash final replay stats so they survive serialization.
         replay_meta = dict(self.trace.seed_metadata.get("replay", {}))
         replay_meta["tier2_hits"] = self._tier2_hits
+        replay_meta["tier3_count"] = self._tier3_count
         replay_meta["cache_miss_count"] = self._cache_miss_count
         self.trace.seed_metadata["replay"] = replay_meta
 
@@ -294,6 +335,39 @@ class TraceReplayRecorder:
                 )
                 self.trace.steps.append(step)
                 return tier2_result
+
+        # Tier 3 — LLM simulator (opt-in; flagged, non-deterministic).
+        if self._simulator_llm is not None:
+            text = await _simulate_via_llm(
+                self._simulator_llm,
+                server_id,
+                tool_name,
+                canonical,
+                self._tool_specs_by_server.get(server_id, []),
+            )
+            self._tier3_count += 1
+            ended_at = _utcnow()
+            simulated = {
+                "meta": None,
+                "content": [{"type": "text", "text": text}],
+                "structuredContent": None,
+                "isError": False,
+                "simulated": True,
+                "replay_tier": 3,
+            }
+            step = Step.build(
+                step_id=self.trace.next_step_id(),
+                kind=StepKind.call_tool_agent,
+                server_id=server_id,
+                tool_name=tool_name,
+                arguments=arguments,
+                started_at=started_at,
+                ended_at=ended_at,
+                status=StepStatus.success,
+                result=simulated,
+            )
+            self.trace.steps.append(step)
+            return simulated
 
         # Cache miss → synthetic isError=true result.
         self._cache_miss_count += 1
