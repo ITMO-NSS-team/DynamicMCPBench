@@ -131,9 +131,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `evaluator.py` reports SAE (right tool type per equivalence_set, wrong server), split expected vs random, plus SAE conditional rate; only meaningful in Target/Full modes; unit test with a synthetic confused trace.
 
 ### E2.5 — Error taxonomy E1–E7 with weights
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T16:13:22Z
 - deps: E2.4
 - source: PDF §5.2 / simple_approach §7.2
 - done-when: failed evaluations are classified into the 7-type taxonomy with the documented default weights; report shows the weighted error breakdown; unit tests.
