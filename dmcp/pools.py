@@ -83,6 +83,24 @@ def build_eval_pool(
     return req_entries + alts + others
 
 
+def build_strategy_pool(
+    spec: TaskSpec,
+    catalog: ToolCatalog,
+    *,
+    strategy: str,
+    pool_size: int = 8,
+    seed: int = 0,
+    embeddings=None,
+) -> list[ToolEntry]:
+    """Required tools + a single-strategy distractor set (for the ablation harness)."""
+    required = required_tool_refs(spec)
+    req = _required_entries(required, catalog)
+    distractors = sample_distractors(
+        strategy, required, catalog, n=pool_size, seed=seed, embeddings=embeddings
+    )
+    return req + distractors
+
+
 def pool_to_tool_surface(
     pool: list[ToolEntry],
     reference_specs: dict[str, list[ToolSpec]],

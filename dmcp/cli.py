@@ -21,6 +21,7 @@ from typing import Annotated
 
 import typer
 
+from dmcp.ablation import compare_strategies, power_n
 from dmcp.baselines.direct_generation import GenerationError
 from dmcp.baselines.direct_generation import generate_direct as run_direct_gen
 from dmcp.baselines.graph_sampling import (
@@ -46,7 +47,7 @@ from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
 from dmcp.manifest import Manifest
 from dmcp.normalize import apply_normalization
-from dmcp.pools import build_eval_pool, pool_to_tool_surface
+from dmcp.pools import build_eval_pool, build_strategy_pool, pool_to_tool_surface
 from dmcp.recorder import (
     SseServer,
     StdioServer,
@@ -1277,6 +1278,102 @@ def curve(
         output.write_text(text, encoding="utf-8")
         typer.echo("\n" + text)
         typer.echo(f"wrote curve -> {output}")
+
+    asyncio.run(_run())
+
+
+@app.command()
+def ablate(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL")],
+    reference_traces: Annotated[
+        Path, typer.Option("--reference-traces", help="JSONL of reference traces (required)")
+    ],
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
+    budget: Annotated[int, typer.Option("--budget")] = 12,
+    pool_size: Annotated[int, typer.Option("--pool-size")] = 8,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/ablation.md"),
+) -> None:
+    """Run the 6 distractor strategies in replay; compare SAE rates with Holm."""
+    m = Manifest.load(manifest)
+    server_tags = {e.server_id: list(e.tags) for e in m.servers}
+    refs = _load_traces_by_id(reference_traces)
+    catalog = ToolCatalog.from_traces(refs.values(), manifest=m)
+    llm = OpenRouterClient(model=model)
+    strategies = ["random", "hard_neg", "cross_domain", "same_name", "sibling", "stratified"]
+    spec_list = [
+        TaskSpec.model_validate_json(line)
+        for line in specs.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    async def _run() -> None:
+        sae_stats = {s: [0, 0] for s in strategies}
+        acc_stats = {s: [0, 0] for s in strategies}
+        for strat in strategies:
+            for spec in spec_list:
+                ref = refs.get(str(spec.source_trace_id))
+                if ref is None:
+                    continue
+                pool = build_strategy_pool(
+                    spec, catalog, strategy=strat, pool_size=pool_size,
+                    seed=spec.task_id.int % (2**31),
+                )
+                surface = pool_to_tool_surface(pool, ref.tool_specs)
+                rec = TraceReplayRecorder(cache_traces=[ref], goal=spec.prompt)
+                result = await run_exploration(
+                    goal=spec.prompt, recorder=rec, llm=llm, budget=budget, tool_surface=surface
+                )
+                stash_exploration_in_trace(result)
+                ev = run_eval(
+                    spec, result.trace, candidate_model=model,
+                    evaluation_mode=f"ablate:{strat}", server_tags=server_tags,
+                )
+                sae_stats[strat][0] += int(ev.had_sae)
+                sae_stats[strat][1] += 1
+                acc_stats[strat][0] += int(ev.passed)
+                acc_stats[strat][1] += 1
+            typer.echo(
+                f"{strat}: SAE {sae_stats[strat][0]}/{sae_stats[strat][1]}  "
+                f"pass {acc_stats[strat][0]}/{acc_stats[strat][1]}"
+            )
+
+        contrasts = compare_strategies({s: (sae_stats[s][0], sae_stats[s][1]) for s in strategies})
+        output.parent.mkdir(parents=True, exist_ok=True)
+        lines = [
+            "# Sampling-strategy ablation (SAE)",
+            "",
+            f"specs={len(spec_list)} model=`{model}` pool_size={pool_size}",
+            "",
+            "Mixed-effects logistic regression is deferred (needs statsmodels); "
+            "per-contrast Fisher/chi-square + Holm below.",
+            "",
+            "| strategy | SAE rate | accuracy |",
+            "|---|---|---|",
+        ]
+        for s in strategies:
+            sae = sae_stats[s][0] / sae_stats[s][1] if sae_stats[s][1] else 0.0
+            ac = acc_stats[s][0] / acc_stats[s][1] if acc_stats[s][1] else 0.0
+            lines.append(f"| {s} | {sae * 100:.0f}% ({sae_stats[s][0]}/{sae_stats[s][1]}) | {ac * 100:.0f}% |")
+        lines += [
+            "",
+            "| contrast | SAE A | SAE B | test | p | p(Holm) | sig |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for c in contrasts:
+            lines.append(
+                f"| {c['a']} vs {c['b']} | {c['sae_rate_a'] * 100:.0f}% | {c['sae_rate_b'] * 100:.0f}% | "
+                f"{c['test']} | {c['p']:.3g} | {c['p_holm']:.3g} | {'yes' if c['significant'] else 'no'} |"
+            )
+        lines += [
+            "",
+            f"Power note: ~{power_n(0.5, 0.65)} specs/cell to detect a 15pp SAE difference "
+            "(0.50 vs 0.65, two-sided α=0.05, power=0.80).",
+        ]
+        text = "\n".join(lines) + "\n"
+        output.write_text(text, encoding="utf-8")
+        typer.echo("\n" + text)
+        typer.echo(f"wrote ablation -> {output}")
 
     asyncio.run(_run())
 
