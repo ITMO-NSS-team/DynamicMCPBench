@@ -71,9 +71,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories without re-running an agent; unit test.
 
 ### E1.4 — Persona-seeding library for goal-gen
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T14:48:31Z
 - deps: E0.1
 - source: README Phase 2 / research_plan 2A
 - done-when: a curated persona/intent set feeds `goal_gen.py`; generated goals show measurably higher diversity than the free-form baseline on a small sample; unit test.
