@@ -220,9 +220,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a comparison-only generator builds a tool graph from schemas and back-instructs tasks; clearly labeled a baseline (not the headline) per memory/feedback_agb_orthogonality.md; emits TaskSpecs comparable to the forward path.
 
 ### E4.2 — Direct-generation generator (RQ2 baseline)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T19:35:26Z
 - deps: E1.1
 - source: research_plan RQ2 / MCPEval
 - done-when: a generate-then-verify baseline emits TaskSpecs from tool specs directly; comparable output format.
