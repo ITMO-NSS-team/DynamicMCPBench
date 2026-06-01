@@ -60,6 +60,7 @@ from dmcp.report import aggregate_markdown
 from dmcp.sampling import ToolCatalog
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
+from dmcp.verify import verify_server
 from dmcp.vet import VetStatus, vet_one, vet_result_summary
 
 app = typer.Typer(
@@ -1374,6 +1375,82 @@ def ablate(
         output.write_text(text, encoding="utf-8")
         typer.echo("\n" + text)
         typer.echo(f"wrote ablation -> {output}")
+
+    asyncio.run(_run())
+
+
+@app.command()
+def verify(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    servers: Annotated[
+        list[str] | None, typer.Option("--server", help="Repeatable: restrict to specific server_ids")
+    ] = None,
+    server_timeout: Annotated[float, typer.Option("--server-timeout")] = 90.0,
+    min_pass_rate: Annotated[float, typer.Option("--min-pass-rate")] = 0.5,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/verification.md"),
+    json_out: Annotated[Path | None, typer.Option("--json-out")] = Path("reports/verification.jsonl"),
+) -> None:
+    """Boot each manifest server and exercise every tool; report pass/fail.
+
+    A server passes if it initializes, exposes >=1 tool, and >= --min-pass-rate of
+    its non-skipped tools return without error (destructive tools are skipped
+    unless sandboxed)."""
+    m = Manifest.load(manifest)
+    configs = m.configs(servers)
+    sandbox_by_id = {e.server_id: e.sandbox for e in m.servers}
+
+    async def _run() -> None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if json_out:
+            json_out.parent.mkdir(parents=True, exist_ok=True)
+        reps: list[dict] = []
+        jf = json_out.open("w", encoding="utf-8") if json_out else None
+        try:
+            for cfg in configs:
+                try:
+                    rep = await asyncio.wait_for(
+                        verify_server(
+                            cfg,
+                            sandbox=sandbox_by_id.get(cfg.server_id, False),
+                            min_tool_pass_rate=min_pass_rate,
+                        ),
+                        timeout=server_timeout,
+                    )
+                except TimeoutError:
+                    rep = {
+                        "server_id": cfg.server_id, "ok": False, "initialized": False,
+                        "tools": [], "reason": f"server timeout >{server_timeout:.0f}s",
+                    }
+                except Exception as e:
+                    rep = {
+                        "server_id": cfg.server_id, "ok": False, "initialized": False,
+                        "tools": [], "reason": f"{type(e).__name__}: {str(e)[:140]}",
+                    }
+                reps.append(rep)
+                if jf:
+                    jf.write(json.dumps(rep) + "\n")
+                typer.echo(
+                    f"  {'PASS' if rep['ok'] else 'FAIL'}  {cfg.server_id:18s} {rep.get('reason', '')}"
+                )
+        finally:
+            if jf:
+                jf.close()
+        npass = sum(1 for r in reps if r["ok"])
+        lines = [
+            "# Server verification",
+            "",
+            f"{npass}/{len(reps)} servers passed (initialized + tools exercised).",
+            "",
+            "| server | ok | tools ok | reason |",
+            "|---|---|---|---|",
+        ]
+        for r in reps:
+            lines.append(
+                f"| `{r['server_id']}` | {'OK' if r['ok'] else 'X'} | "
+                f"{r.get('ok_count', 0)}/{r.get('tool_count', 0)} | {r.get('reason', '')} |"
+            )
+        output.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        typer.echo(f"\n{npass}/{len(reps)} passed -> {output}")
 
     asyncio.run(_run())
 
