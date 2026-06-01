@@ -637,6 +637,13 @@ def evaluate(
             help="Replay Tier-2 fuzzy-match threshold (0..1). Set to 1.0 to disable Tier-2 fallback.",
         ),
     ] = 0.75,
+    simulate_misses: Annotated[
+        bool,
+        typer.Option(
+            "--simulate-misses",
+            help="Replay Tier-3: on a cache miss, an LLM synthesizes a plausible result flagged simulated=true (OFF by default; non-deterministic).",
+        ),
+    ] = False,
     judge_model: Annotated[
         str,
         typer.Option("--judge-model", help="LLM used by the tier-2 judge"),
@@ -700,7 +707,10 @@ def evaluate(
                 if ref is None:
                     return None
                 cand_recorder = TraceReplayRecorder(
-                    cache_traces=[ref], goal=spec.prompt, tier2_threshold=tier2_threshold
+                    cache_traces=[ref],
+                    goal=spec.prompt,
+                    tier2_threshold=tier2_threshold,
+                    simulator_llm=(llm if simulate_misses else None),
                 )
                 result = await run_exploration(
                     goal=spec.prompt, recorder=cand_recorder, llm=llm, budget=budget
