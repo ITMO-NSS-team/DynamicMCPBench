@@ -22,6 +22,17 @@ from typing import Annotated
 import typer
 
 from dmcp.ablation import compare_strategies, power_n
+from dmcp.baselines.compare import (
+    catalog_from_trace_jsonl,
+    compare_methods,
+    load_catalog,
+)
+from dmcp.baselines.compare import (
+    render_markdown as render_compare_markdown,
+)
+from dmcp.baselines.compare import (
+    report_to_json as compare_report_to_json,
+)
 from dmcp.baselines.direct_generation import GenerationError
 from dmcp.baselines.direct_generation import generate_direct as run_direct_gen
 from dmcp.baselines.graph_sampling import (
@@ -487,6 +498,121 @@ def baseline_direct(
         typer.echo(f"\nwrote {kept}/{attempted} baseline specs → {output}")
 
     asyncio.run(_run())
+
+
+@app.command(name="compare-generators")
+def compare_generators(
+    forward: Annotated[
+        Path | None,
+        typer.Option("--forward", help="Forward-distilled TaskSpec JSONL"),
+    ] = None,
+    graph: Annotated[
+        Path | None,
+        typer.Option("--graph", help="Graph-sampling baseline TaskSpec JSONL"),
+    ] = None,
+    direct: Annotated[
+        Path | None,
+        typer.Option("--direct", help="Direct-generation baseline TaskSpec JSONL"),
+    ] = None,
+    reference_traces: Annotated[
+        Path | None,
+        typer.Option(
+            "--reference-traces",
+            help="JSONL of reference traces; tool_specs are unioned to build the catalog.",
+        ),
+    ] = None,
+    catalog: Annotated[
+        Path | None,
+        typer.Option(
+            "--catalog",
+            help="JSON list of [server_id, tool_name] pairs (alternative to --reference-traces).",
+        ),
+    ] = None,
+    proposals_forward: Annotated[
+        int | None,
+        typer.Option(
+            "--proposals-forward",
+            help="Total forward proposals attempted (for the filter pass rate).",
+        ),
+    ] = None,
+    proposals_graph: Annotated[
+        int | None,
+        typer.Option("--proposals-graph", help="Total graph proposals attempted."),
+    ] = None,
+    proposals_direct: Annotated[
+        int | None,
+        typer.Option("--proposals-direct", help="Total direct proposals attempted."),
+    ] = None,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown comparison report"),
+    ] = Path("reports/rq2_comparison.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ2: compare forward distillation vs the graph and direct baselines.
+
+    Reads TaskSpec JSONL for whichever methods you supply and emits a
+    self-contained markdown report. Per `memory/feedback_agb_orthogonality.md`,
+    this is a comparison-only tool — the headline scoring path does not
+    consume its output.
+
+    The harness only computes axes that are a pure function of the spec files
+    + an optional tool catalog. Live re-execution axes (executable-on-first-try
+    for baselines; the trace-grounded unnecessary-tool rate; the execution-side
+    error-type taxonomy) are reported as deferred — see the report's "Deferred
+    axes" section.
+    """
+    spec_paths: dict[str, Path] = {}
+    if forward is not None:
+        spec_paths["forward"] = forward
+    if graph is not None:
+        spec_paths["graph"] = graph
+    if direct is not None:
+        spec_paths["direct"] = direct
+    if not spec_paths:
+        raise typer.BadParameter("supply at least one of --forward/--graph/--direct")
+
+    catalog_set: set[tuple[str, str]] | None = None
+    if catalog is not None:
+        catalog_set = load_catalog(catalog)
+    elif reference_traces is not None:
+        catalog_set = catalog_from_trace_jsonl(reference_traces)
+
+    proposals = {
+        "forward": proposals_forward,
+        "graph": proposals_graph,
+        "direct": proposals_direct,
+    }
+    proposals_clean = {k: v for k, v in proposals.items() if v is not None}
+
+    report = compare_methods(
+        spec_paths,
+        catalog=catalog_set,
+        proposals_attempted=proposals_clean or None,
+    )
+    md = render_compare_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"wrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(compare_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
 
 
 def _not_yet(name: str) -> None:
