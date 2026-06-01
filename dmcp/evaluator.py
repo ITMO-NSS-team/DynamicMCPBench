@@ -323,6 +323,80 @@ def _eval_ordering(
 # ---------------------------------------------------------------------------
 
 
+ERROR_WEIGHTS: dict[str, float] = {
+    "E1": 1.0,  # missing prerequisite
+    "E2": 0.8,  # wrong branch (not auto-classified in v0)
+    "E3": 0.6,  # incomplete aggregation
+    "E4": 1.0,  # server confusion (SAE)
+    "E5": 0.4,  # order violation
+    "E6": 1.0,  # tool blindness
+    "E7": 0.7,  # argument hallucination
+}
+ERROR_NAMES: dict[str, str] = {
+    "E1": "missing_prerequisite",
+    "E2": "wrong_branch",
+    "E3": "incomplete_aggregation",
+    "E4": "server_confusion",
+    "E5": "order_violation",
+    "E6": "tool_blindness",
+    "E7": "argument_hallucination",
+}
+
+
+def _classify_errors(
+    spec: TaskSpec,
+    agent_calls: list[Step],
+    checkpoint_results: list[CheckpointResult],
+    ordering_ok: bool,
+) -> dict[str, Any]:
+    """Classify a failed evaluation into the 7-type error taxonomy (PDF §5.2).
+
+    Per failed tool_effect checkpoint: E4 if its tool was called on a wrong
+    server (SAE); else E7 if an acceptable (server,tool) was attempted but did
+    not satisfy (bad args / errored); else E1 if the checkpoint is a prerequisite
+    (a `before_id` in the ordering); else E6 (tool never reached for). Failed
+    value_produced → E3. A broken partial order → E5. E2 (wrong branch) is not
+    auto-classified in v0 (needs plan-branch annotations) and stays 0.
+    """
+    counts: dict[str, int] = dict.fromkeys(ERROR_WEIGHTS, 0)
+    prereqs = {oc.before_id for oc in spec.ordering}
+    cp_by_id = {cp.checkpoint_id: cp for cp in spec.checkpoints}
+    success_calls = [s for s in agent_calls if s.status is StepStatus.success and s.tool_name]
+    for cr in checkpoint_results:
+        if cr.passed:
+            continue
+        cp = cp_by_id.get(cr.checkpoint_id)
+        if isinstance(cp, ToolEffectCheckpoint):
+            acceptable = {(r.server_id, r.tool_name) for r in cp.equivalence_set}
+            names = {r.tool_name for r in cp.equivalence_set}
+            sae = any(
+                s.tool_name in names and (s.server_id, s.tool_name) not in acceptable
+                for s in success_calls
+            )
+            attempted = any(
+                (s.server_id, s.tool_name) in acceptable for s in agent_calls if s.tool_name
+            )
+            if sae:
+                counts["E4"] += 1
+            elif attempted:
+                counts["E7"] += 1
+            elif cr.checkpoint_id in prereqs:
+                counts["E1"] += 1
+            else:
+                counts["E6"] += 1
+        elif isinstance(cp, ValueProducedCheckpoint):
+            counts["E3"] += 1
+    if not ordering_ok:
+        counts["E5"] += 1
+    weighted = sum(counts[c] * ERROR_WEIGHTS[c] for c in counts)
+    return {
+        "counts": counts,
+        "weights": ERROR_WEIGHTS,
+        "names": ERROR_NAMES,
+        "weighted_score": round(weighted, 3),
+    }
+
+
 def _shares_tag(server: str, others: set[str], server_tags: dict[str, list[str]] | None) -> bool:
     if not server_tags:
         return False
@@ -400,6 +474,7 @@ def evaluate(
     ]
     minefield_results = [_eval_minefield(mf, agent_calls) for mf in spec.minefields]
     ordering_ok, ordering_failures = _eval_ordering(spec.ordering, checkpoint_results)
+    errors = _classify_errors(spec, agent_calls, checkpoint_results, ordering_ok)
 
     all_checkpoints_pass = all(cr.passed for cr in checkpoint_results)
     no_minefield_hit = not any(mr.hit for mr in minefield_results)
@@ -415,6 +490,7 @@ def evaluate(
             1 for s in agent_calls if s.status is StepStatus.success
         ),
         "sae": sae,
+        "error_taxonomy": errors,
     }
 
     return EvaluationResult(
