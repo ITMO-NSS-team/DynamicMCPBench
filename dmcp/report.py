@@ -18,7 +18,7 @@ from collections import defaultdict
 from pathlib import Path
 from uuid import UUID
 
-from dmcp.evaluator import EvaluationResult
+from dmcp.evaluator import ERROR_WEIGHTS, EvaluationResult
 from dmcp.refresh import RefreshReport, decay_summary, per_server_decay
 from dmcp.spec import TaskSpec
 
@@ -264,6 +264,34 @@ def aggregate_markdown(
             f"| {st['passk_no_sae'] * 100:.0f}% | {st['pass1'] * 100:.0f}% |"
         )
     lines.append("")
+
+    # ---- error taxonomy ----
+    codes = list(ERROR_WEIGHTS)
+    err_by_model: dict[str, dict[str, float]] = defaultdict(
+        lambda: dict.fromkeys([*codes, "weighted"], 0.0)
+    )
+    have_tax = False
+    for ev in evals:
+        et = ev.summary.get("error_taxonomy")
+        if not et:
+            continue
+        have_tax = True
+        key = _agent_key(ev)
+        for c in codes:
+            err_by_model[key][c] += et["counts"].get(c, 0)
+        err_by_model[key]["weighted"] += et.get("weighted_score", 0.0)
+    if have_tax:
+        lines.append("## Error taxonomy (weighted)")
+        lines.append("")
+        lines.append("Counts of each error type across tasks; E2 (wrong branch) is not auto-classified yet.")
+        lines.append("")
+        lines.append("| Model | " + " | ".join(codes) + " | weighted |")
+        lines.append("|" + "|".join(["---"] * (len(codes) + 2)) + "|")
+        for m in models:
+            row = [f"`{m}`", *[str(int(err_by_model[m][c])) for c in codes]]
+            row.append(f"{err_by_model[m]['weighted']:.1f}")
+            lines.append("| " + " | ".join(row) + " |")
+        lines.append("")
 
     # ---- per-task matrix ----
     lines.append("## Per-task results")
