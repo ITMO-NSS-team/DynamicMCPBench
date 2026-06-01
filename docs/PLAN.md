@@ -155,7 +155,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a driver sweeps P_alt ∈ {0,.25,.5,.75,1} per (strategy, level) and emits accuracy/SAE-vs-P_alt with CIs; results normalized by complexity bin (1 / 2 / 3–4+ required tools), micro+macro averaged.
 
 ### E2.8 — Ablation harness + statistics
-- status: claimed
+- status: in_review (#21)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T17:09:12Z
 - deps: E2.7 E2.5
