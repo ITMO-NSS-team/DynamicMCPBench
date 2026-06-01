@@ -81,12 +81,10 @@ def record(
         str | None,
         typer.Option("--tool", help="Optional tool name to invoke after listing tools"),
     ] = None,
-    arguments_json: Annotated[
-        str, typer.Option("--args", help="JSON object of tool arguments")
-    ] = "{}",
-    output: Annotated[
-        Path, typer.Option("--output", "-o", help="Destination JSONL file")
-    ] = Path("traces.jsonl"),
+    arguments_json: Annotated[str, typer.Option("--args", help="JSON object of tool arguments")] = "{}",
+    output: Annotated[Path, typer.Option("--output", "-o", help="Destination JSONL file")] = Path(
+        "traces.jsonl"
+    ),
     goal: Annotated[str | None, typer.Option("--goal", help="Free-text session goal")] = None,
     header: Annotated[
         list[str] | None,
@@ -145,9 +143,20 @@ def refresh(
             help="Also re-run stateful_write servers (DANGEROUS — may mutate live state).",
         ),
     ] = False,
-    output: Annotated[
-        Path, typer.Option("--output", "-o", help="RefreshReport JSONL output")
-    ] = Path("evals/refresh.jsonl"),
+    transient_retries: Annotated[
+        int,
+        typer.Option(
+            "--retries",
+            help="Retry exception-raising live calls this many times with exponential backoff before classifying as broken.",
+        ),
+    ] = 2,
+    initial_backoff_s: Annotated[
+        float,
+        typer.Option("--retry-backoff", help="Initial backoff in seconds (doubles each retry)"),
+    ] = 0.5,
+    output: Annotated[Path, typer.Option("--output", "-o", help="RefreshReport JSONL output")] = Path(
+        "evals/refresh.jsonl"
+    ),
 ) -> None:
     """Re-execute each spec's reference trace against live servers and report drift.
 
@@ -177,6 +186,8 @@ def refresh(
                     task_id=spec.task_id,
                     manifest=m,
                     refresh_stateful=refresh_stateful,
+                    transient_retries=transient_retries,
+                    initial_backoff_s=initial_backoff_s,
                 )
                 fout.write(report.to_jsonl())
                 fout.write("\n")
@@ -192,7 +203,7 @@ def refresh(
         typer.echo("")
         typer.echo("decay summary:")
         typer.echo(f"  specs refreshed : {summary['specs_refreshed']}")
-        typer.echo(f"  specs stale     : {summary['specs_stale']} ({summary['stale_rate']*100:.0f}%)")
+        typer.echo(f"  specs stale     : {summary['specs_stale']} ({summary['stale_rate'] * 100:.0f}%)")
         typer.echo(f"  call outcomes   : {summary['call_outcomes']}")
         typer.echo(f"\nwrote refresh report → {output}")
 
@@ -218,9 +229,9 @@ def goal_gen(
         bool,
         typer.Option("--no-personas", help="Disable persona seeding (free-form baseline)."),
     ] = False,
-    output: Annotated[
-        Path, typer.Option("--output", "-o", help="Goals JSON output")
-    ] = Path("goals/auto.json"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="Goals JSON output")] = Path(
+        "goals/auto.json"
+    ),
 ) -> None:
     """Auto-generate goals.json from a manifest by feeding each server's tool
     surface to an LLM. Default: 2 single-server + 5 cross-server pairs."""
@@ -251,12 +262,26 @@ def goal_gen(
 
 @app.command()
 def report(
-    specs: Annotated[Path, typer.Option("--specs", help="TaskSpec JSONL produced by `dmcp distill` or `dmcp generate`")],
-    evals: Annotated[list[Path], typer.Option("--evals", help="Repeatable: EvaluationResult JSONL files (one per candidate model)")],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Markdown output path")] = Path("reports/leaderboard.md"),
+    specs: Annotated[
+        Path, typer.Option("--specs", help="TaskSpec JSONL produced by `dmcp distill` or `dmcp generate`")
+    ],
+    evals: Annotated[
+        list[Path],
+        typer.Option("--evals", help="Repeatable: EvaluationResult JSONL files (one per candidate model)"),
+    ],
+    output: Annotated[Path, typer.Option("--output", "-o", help="Markdown output path")] = Path(
+        "reports/leaderboard.md"
+    ),
+    refresh: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--refresh",
+            help="Repeatable: RefreshReport JSONL file(s) from `dmcp refresh` (one per refresh run); appends a per-server decay table.",
+        ),
+    ] = None,
 ) -> None:
     """Aggregate one or more `dmcp eval` runs into a markdown leaderboard."""
-    md = aggregate_markdown(specs_path=specs, eval_paths=evals)
+    md = aggregate_markdown(specs_path=specs, eval_paths=evals, refresh_paths=refresh)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(md, encoding="utf-8")
     typer.echo(f"wrote report → {output}")
@@ -372,10 +397,7 @@ def crawl(
             )
 
     entries = [vr.manifest_entry for vr in vet_results if vr.manifest_entry]
-    typer.echo(
-        f"\nphase 3 — manifest: {len(entries)} servers passed smoke "
-        f"(of {len(discovered)} attempted)"
-    )
+    typer.echo(f"\nphase 3 — manifest: {len(entries)} servers passed smoke (of {len(discovered)} attempted)")
 
     from dmcp.manifest import Manifest
 
@@ -403,9 +425,9 @@ def explore(
     model: Annotated[str, typer.Option("--model", help="OpenRouter model id")] = DEFAULT_MODEL,
     budget: Annotated[int, typer.Option("--budget", help="Max LLM turns")] = 12,
     persona: Annotated[str | None, typer.Option("--persona", help="Optional persona prefix")] = None,
-    output: Annotated[
-        Path, typer.Option("--output", "-o", help="Trace JSONL output path")
-    ] = Path("traces/explore.jsonl"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="Trace JSONL output path")] = Path(
+        "traces/explore.jsonl"
+    ),
 ) -> None:
     """Run goal-seeded forward exploration and write the trace as JSONL."""
     m = Manifest.load(manifest)
@@ -442,9 +464,9 @@ def explore(
 @app.command()
 def distill(
     traces: Annotated[Path, typer.Argument(help="Traces JSONL input")],
-    manifest: Annotated[Path, typer.Option("--manifest", "-m", help="Manifest used for dynamism tagging")] = Path(
-        "manifests/local.json"
-    ),
+    manifest: Annotated[
+        Path, typer.Option("--manifest", "-m", help="Manifest used for dynamism tagging")
+    ] = Path("manifests/local.json"),
     model: Annotated[str, typer.Option("--model", help="OpenRouter model for distillation")] = DEFAULT_MODEL,
     output: Annotated[Path, typer.Option("--output", "-o", help="TaskSpec JSONL output")] = Path(
         "specs/specs.jsonl"
@@ -485,11 +507,19 @@ def distill(
 def generate(
     goals: Annotated[Path, typer.Argument(help="Goals seed JSON")],
     manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
-    explore_model: Annotated[str, typer.Option("--explore-model", help="LLM for exploration")] = DEFAULT_MODEL,
-    distill_model: Annotated[str, typer.Option("--distill-model", help="LLM for distillation")] = DEFAULT_MODEL,
+    explore_model: Annotated[
+        str, typer.Option("--explore-model", help="LLM for exploration")
+    ] = DEFAULT_MODEL,
+    distill_model: Annotated[
+        str, typer.Option("--distill-model", help="LLM for distillation")
+    ] = DEFAULT_MODEL,
     budget: Annotated[int, typer.Option("--budget", help="Default per-goal LLM turn budget")] = 12,
-    traces_out: Annotated[Path, typer.Option("--traces-out", help="JSONL: every recorded trace, success or not")] = Path("traces/generated.jsonl"),
-    specs_out: Annotated[Path, typer.Option("--specs-out", help="JSONL: distilled TaskSpecs only")] = Path("specs/generated.jsonl"),
+    traces_out: Annotated[
+        Path, typer.Option("--traces-out", help="JSONL: every recorded trace, success or not")
+    ] = Path("traces/generated.jsonl"),
+    specs_out: Annotated[Path, typer.Option("--specs-out", help="JSONL: distilled TaskSpecs only")] = Path(
+        "specs/generated.jsonl"
+    ),
 ) -> None:
     """Batch: for each goal, explore → distill → emit a TaskSpec.
 
@@ -509,8 +539,7 @@ def generate(
                 m.by_id(sid)
             except KeyError as e:
                 raise typer.BadParameter(
-                    f"goal {entry.goal_id!r} references unknown server {sid!r} "
-                    f"(not in manifest {manifest})"
+                    f"goal {entry.goal_id!r} references unknown server {sid!r} (not in manifest {manifest})"
                 ) from e
 
     async def _run() -> None:
@@ -546,8 +575,7 @@ def generate(
                 ft.write("\n")
                 trace_count += 1
                 typer.echo(
-                    f"  explored: outcome={result.outcome} successful_calls="
-                    f"{result.successful_tool_calls}"
+                    f"  explored: outcome={result.outcome} successful_calls={result.successful_tool_calls}"
                 )
                 if result.successful_tool_calls == 0:
                     typer.echo("  skip distill: no successful tool calls")
@@ -683,9 +711,9 @@ def evaluate(
             help="Run each spec K times and report pass^k (fraction of specs whose K runs all pass).",
         ),
     ] = 1,
-    output: Annotated[
-        Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")
-    ] = Path("evals/results.jsonl"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")] = Path(
+        "evals/results.jsonl"
+    ),
     candidate_traces: Annotated[
         Path | None,
         typer.Option(
@@ -802,9 +830,7 @@ def evaluate(
                     goal=spec.prompt, recorder=cand_recorder, llm=llm, budget=budget
                 )
             else:
-                result = await run_exploration(
-                    goal=spec.prompt, servers=configs, llm=llm, budget=budget
-                )
+                result = await run_exploration(goal=spec.prompt, servers=configs, llm=llm, budget=budget)
             stash_exploration_in_trace(result)
             mode_tag = "replay" if replay else "live"
             if judge:
@@ -823,9 +849,7 @@ def evaluate(
                     1 for cr in ev.checkpoint_results if cr.tier == 2 and cr.passed
                 )
             miss_count = sum(
-                1
-                for s in result.trace.steps
-                if s.result is not None and s.result.get("replay_cache_miss")
+                1 for s in result.trace.steps if s.result is not None and s.result.get("replay_cache_miss")
             )
             return ev, result.trace, miss_count
 

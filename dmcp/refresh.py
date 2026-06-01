@@ -14,6 +14,11 @@ tool calls against the LIVE servers in the manifest, and classify each call:
                 tool would either fail (duplicate side effect) or pollute
                 state, neither of which is a useful drift signal.
 
+Live calls are retried with exponential backoff before being classified as
+broken (transient network flakes shouldn't pollute the decay signal). Per-
+server drift rate across many refresh runs is exposed via `per_server_decay`,
+which `dmcp.report` renders as the paper's decay table.
+
 The output is a `RefreshReport` per spec plus an aggregate decay summary.
 Concrete answer to AGB's static-cache staleness: we measure decay rather
 than freeze the world.
@@ -21,6 +26,7 @@ than freeze the world.
 
 from __future__ import annotations
 
+import asyncio
 import json
 from collections.abc import Iterable
 from datetime import UTC, datetime
@@ -33,7 +39,10 @@ from dmcp.manifest import Dynamism, Manifest
 from dmcp.recorder import TraceRecorder
 from dmcp.trace import StepKind, StepStatus, Trace
 
-REFRESH_VERSION = "0.1.0"
+REFRESH_VERSION = "0.2.0"
+
+DEFAULT_TRANSIENT_RETRIES = 2
+DEFAULT_INITIAL_BACKOFF_S = 0.5
 
 
 def _utcnow() -> datetime:
@@ -63,6 +72,10 @@ class CallRefreshOutcome(BaseModel):
     live_text_len: int = 0
     reference_text_sample: str | None = None
     live_text_sample: str | None = None
+    # Number of retries actually consumed before this outcome was recorded
+    # (0 means the first attempt produced this result). Surfaces transient
+    # flakiness in the decay table even when retries eventually succeed.
+    retry_count: int = 0
 
 
 class RefreshReport(BaseModel):
@@ -80,6 +93,38 @@ class RefreshReport(BaseModel):
         return self.model_dump_json(exclude_none=False)
 
 
+async def _call_with_backoff(
+    recorder: TraceRecorder | Any,
+    server_id: str,
+    tool_name: str,
+    arguments: dict[str, Any],
+    *,
+    transient_retries: int,
+    initial_backoff_s: float,
+    sleep: Any = asyncio.sleep,
+) -> tuple[dict[str, Any] | None, Exception | None, int]:
+    """Call a tool with exponential-backoff retry on exceptions.
+
+    Returns (result, last_exception, retries_consumed). When the call eventually
+    succeeds the exception is None; when it never does, `result` is None and
+    `last_exception` holds the final error. Retries fire only on raised
+    exceptions (treated as transient flakes); a tool that returns isError=true
+    is a real server response and is not retried.
+    """
+    last_exc: Exception | None = None
+    attempts = max(0, transient_retries) + 1
+    for i in range(attempts):
+        try:
+            result = await recorder.call_tool(server_id, tool_name, arguments)
+            return result, None, i
+        except Exception as e:  # transient network/process flake → back off
+            last_exc = e
+            if i + 1 >= attempts:
+                break
+            await sleep(initial_backoff_s * (2**i))
+    return None, last_exc, max(0, attempts - 1)
+
+
 async def refresh_one(
     *,
     reference: Trace,
@@ -87,14 +132,16 @@ async def refresh_one(
     manifest: Manifest,
     refresh_stateful: bool = False,
     sample_chars: int = 240,
+    transient_retries: int = DEFAULT_TRANSIENT_RETRIES,
+    initial_backoff_s: float = DEFAULT_INITIAL_BACKOFF_S,
+    recorder: Any = None,
+    sleep: Any = asyncio.sleep,
 ) -> RefreshReport:
     """Re-execute one reference trace's successful tool calls against live."""
     calls_to_run = [
         s
         for s in reference.steps
-        if s.kind is StepKind.call_tool_agent
-        and s.status is StepStatus.success
-        and s.tool_name is not None
+        if s.kind is StepKind.call_tool_agent and s.status is StepStatus.success and s.tool_name is not None
     ]
     # Group by server so we open one session per server.
     server_ids = sorted({s.server_id for s in calls_to_run})
@@ -123,81 +170,92 @@ async def refresh_one(
                     tool_name=s.tool_name or "",
                     arguments_canonical=s.arguments_canonical or "{}",
                     classification="skipped",
-                    reason=(
-                        f"server {s.server_id} is stateful_write "
-                        "(pass --refresh-stateful to override)"
-                    ),
+                    reason=(f"server {s.server_id} is stateful_write (pass --refresh-stateful to override)"),
                 )
             )
 
-    if servers_for_run:
-        configs = manifest.configs(servers_for_run)
-        async with TraceRecorder(servers=configs, goal=f"refresh:{task_id}") as recorder:
-            for s in calls_to_run:
-                if s.server_id in skipped_servers:
-                    continue
-                try:
-                    live_result = await recorder.call_tool(
-                        s.server_id, s.tool_name or "", s.arguments or {}
-                    )
-                except Exception as e:
-                    outcomes.append(
-                        CallRefreshOutcome(
-                            reference_step_id=s.step_id,
-                            server_id=s.server_id,
-                            tool_name=s.tool_name or "",
-                            arguments_canonical=s.arguments_canonical or "{}",
-                            classification="broken",
-                            reason=f"live call raised {type(e).__name__}: {e}",
-                        )
-                    )
-                    continue
-
-                live_text = _result_text(live_result)
-                ref_text = _result_text(s.result)
-                is_error = bool(live_result.get("isError"))
-                if is_error:
-                    outcomes.append(
-                        CallRefreshOutcome(
-                            reference_step_id=s.step_id,
-                            server_id=s.server_id,
-                            tool_name=s.tool_name or "",
-                            arguments_canonical=s.arguments_canonical or "{}",
-                            classification="broken",
-                            reason="live call returned isError=true",
-                            reference_text_len=len(ref_text),
-                            live_text_len=len(live_text),
-                            reference_text_sample=ref_text[:sample_chars],
-                            live_text_sample=live_text[:sample_chars],
-                        )
-                    )
-                    continue
-
-                classification = "identical" if live_text == ref_text else "drifted"
+    async def _drive(rec: Any) -> None:
+        for s in calls_to_run:
+            if s.server_id in skipped_servers:
+                continue
+            live_result, exc, retries = await _call_with_backoff(
+                rec,
+                s.server_id,
+                s.tool_name or "",
+                s.arguments or {},
+                transient_retries=transient_retries,
+                initial_backoff_s=initial_backoff_s,
+                sleep=sleep,
+            )
+            if exc is not None:
                 outcomes.append(
                     CallRefreshOutcome(
                         reference_step_id=s.step_id,
                         server_id=s.server_id,
                         tool_name=s.tool_name or "",
                         arguments_canonical=s.arguments_canonical or "{}",
-                        classification=classification,
+                        classification="broken",
                         reason=(
-                            "byte-equal"
-                            if classification == "identical"
-                            else (
-                                f"text differs (ref={len(ref_text)}ch, live={len(live_text)}ch)"
-                            )
+                            f"live call raised {type(exc).__name__}: {exc} "
+                            f"(after {retries} retr{'y' if retries == 1 else 'ies'})"
+                            if retries
+                            else f"live call raised {type(exc).__name__}: {exc}"
                         ),
-                        reference_text_len=len(ref_text),
-                        live_text_len=len(live_text),
-                        reference_text_sample=(
-                            ref_text[:sample_chars] if classification == "drifted" else None
-                        ),
-                        live_text_sample=(
-                            live_text[:sample_chars] if classification == "drifted" else None
-                        ),
+                        retry_count=retries,
                     )
                 )
+                continue
+
+            assert live_result is not None
+            live_text = _result_text(live_result)
+            ref_text = _result_text(s.result)
+            is_error = bool(live_result.get("isError"))
+            if is_error:
+                outcomes.append(
+                    CallRefreshOutcome(
+                        reference_step_id=s.step_id,
+                        server_id=s.server_id,
+                        tool_name=s.tool_name or "",
+                        arguments_canonical=s.arguments_canonical or "{}",
+                        classification="broken",
+                        reason="live call returned isError=true",
+                        reference_text_len=len(ref_text),
+                        live_text_len=len(live_text),
+                        reference_text_sample=ref_text[:sample_chars],
+                        live_text_sample=live_text[:sample_chars],
+                        retry_count=retries,
+                    )
+                )
+                continue
+
+            classification = "identical" if live_text == ref_text else "drifted"
+            outcomes.append(
+                CallRefreshOutcome(
+                    reference_step_id=s.step_id,
+                    server_id=s.server_id,
+                    tool_name=s.tool_name or "",
+                    arguments_canonical=s.arguments_canonical or "{}",
+                    classification=classification,
+                    reason=(
+                        "byte-equal"
+                        if classification == "identical"
+                        else (f"text differs (ref={len(ref_text)}ch, live={len(live_text)}ch)")
+                    ),
+                    reference_text_len=len(ref_text),
+                    live_text_len=len(live_text),
+                    reference_text_sample=(ref_text[:sample_chars] if classification == "drifted" else None),
+                    live_text_sample=(live_text[:sample_chars] if classification == "drifted" else None),
+                    retry_count=retries,
+                )
+            )
+
+    if servers_for_run:
+        if recorder is not None:
+            await _drive(recorder)
+        else:
+            configs = manifest.configs(servers_for_run)
+            async with TraceRecorder(servers=configs, goal=f"refresh:{task_id}") as rec:
+                await _drive(rec)
 
     counts = {
         "identical": sum(1 for o in outcomes if o.classification == "identical"),
@@ -221,6 +279,7 @@ async def refresh_one(
 
 def decay_summary(reports: Iterable[RefreshReport]) -> dict[str, Any]:
     """Aggregate one or more RefreshReports into a decay summary dict."""
+    reports = list(reports)
     n = total_calls = identical = drifted = broken = skipped = stale = 0
     for r in reports:
         n += 1
@@ -243,4 +302,50 @@ def decay_summary(reports: Iterable[RefreshReport]) -> dict[str, Any]:
             "broken": broken,
             "skipped": skipped,
         },
+        "per_server": per_server_decay(reports),
     }
+
+
+def per_server_decay(reports: Iterable[RefreshReport]) -> dict[str, dict[str, Any]]:
+    """Per-server drift rate aggregated across one or more refresh runs.
+
+    `refreshes` counts the distinct RefreshReports that touched the server
+    (one per spec-refresh). `total` includes skipped; the rates exclude it,
+    matching how the decay table should be read: drift_rate = drifted / live
+    where live = identical + drifted + broken.
+    """
+    by_server: dict[str, dict[str, Any]] = {}
+    for r in reports:
+        seen: set[str] = set()
+        for o in r.call_outcomes:
+            bucket = by_server.setdefault(
+                o.server_id,
+                {
+                    "refreshes": 0,
+                    "total": 0,
+                    "identical": 0,
+                    "drifted": 0,
+                    "broken": 0,
+                    "skipped": 0,
+                    "retries": 0,
+                    "first_seen": r.refreshed_at,
+                    "last_seen": r.refreshed_at,
+                },
+            )
+            if o.server_id not in seen:
+                bucket["refreshes"] += 1
+                seen.add(o.server_id)
+            bucket["total"] += 1
+            bucket[o.classification] += 1
+            bucket["retries"] += o.retry_count
+            if r.refreshed_at < bucket["first_seen"]:
+                bucket["first_seen"] = r.refreshed_at
+            if r.refreshed_at > bucket["last_seen"]:
+                bucket["last_seen"] = r.refreshed_at
+    for b in by_server.values():
+        live = b["identical"] + b["drifted"] + b["broken"]
+        b["live_calls"] = live
+        b["drift_rate"] = (b["drifted"] / live) if live else 0.0
+        b["broken_rate"] = (b["broken"] / live) if live else 0.0
+        b["identical_rate"] = (b["identical"] / live) if live else 0.0
+    return by_server
