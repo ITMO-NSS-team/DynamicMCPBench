@@ -97,3 +97,14 @@ everyone on the next `git pull`.
 | `scripts/check.sh` | the gate: ruff check + ruff format --check + pytest |
 | `scripts/claim.py` | atomically claim the next eligible step (race-safe) |
 | `scripts/mark.py` | set a step's status on main (`in_review` / `done` / `blocked`) |
+
+## Results rule
+
+Experiments commit their findings. Any experiment / RQ / validation step writes a
+report under `docs/experiments/<id>-<slug>.md` and commits it — **negative and
+failed results included** (a fail is a finding, never silently dropped). Each
+report states the question, method + reproduce command, a **pre-registered
+decision rule**, the data, a `positive | neutral | negative` result, and the
+conclusion. Raw artifacts stay git-ignored; only the report + distilled numbers
+are committed. An empirical-claim step is not `done` until its report exists. Full
+convention: `docs/experiments/README.md`.
