@@ -21,6 +21,7 @@ from typing import Annotated
 
 import typer
 
+from dmcp.curves import aggregate_curve, complexity_bin
 from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
 from dmcp.distiller import distill as run_distill
@@ -976,6 +977,101 @@ def evaluate(
         suffix = f" (cache misses total: {cache_miss_steps})" if replay else ""
         label = f"pass^{repeat}" if repeat > 1 else "passed"
         typer.echo(f"done: {passed}/{total} specs {label} → {output}{suffix}")
+
+    asyncio.run(_run())
+
+
+@app.command()
+def curve(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL")],
+    reference_traces: Annotated[
+        Path, typer.Option("--reference-traces", help="JSONL of reference traces (required)")
+    ],
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    model: Annotated[str, typer.Option("--model", help="Candidate LLM")] = DEFAULT_MODEL,
+    budget: Annotated[int, typer.Option("--budget")] = 12,
+    p_alts: Annotated[
+        str, typer.Option("--p-alts", help="Comma-separated P_alt grid")
+    ] = "0,0.25,0.5,0.75,1.0",
+    pool_size: Annotated[int, typer.Option("--pool-size")] = 8,
+    desc_level: Annotated[str | None, typer.Option("--desc-level", help="a | b | (raw)")] = None,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/curve.md"),
+) -> None:
+    """Sweep P_alt in Target-pool replay and emit accuracy/SAE degradation curves.
+
+    For each P_alt point, every spec is run with a target pool of that alternative
+    density and scored; results aggregate into accuracy/SAE-vs-P_alt with Wilson
+    CIs, complexity-bin normalized. Replay-only (deterministic world)."""
+    m = Manifest.load(manifest)
+    server_tags = {e.server_id: list(e.tags) for e in m.servers}
+    refs = _load_traces_by_id(reference_traces)
+    catalog = ToolCatalog.from_traces(refs.values(), manifest=m)
+    llm = OpenRouterClient(model=model)
+    grid = [float(x) for x in p_alts.split(",") if x.strip()]
+    spec_list = [
+        TaskSpec.model_validate_json(line)
+        for line in specs.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    async def _run() -> None:
+        samples: list[dict] = []
+        for p in grid:
+            ran = passed = 0
+            for spec in spec_list:
+                ref = refs.get(str(spec.source_trace_id))
+                if ref is None:
+                    continue
+                pool_entries = build_eval_pool(
+                    spec, catalog, mode="target", p_alt=p, pool_size=pool_size,
+                    seed=spec.task_id.int % (2**31),
+                )
+                surface = pool_to_tool_surface(pool_entries, ref.tool_specs)
+                if desc_level is not None:
+                    surface = await apply_normalization(surface, desc_level, llm)
+                rec = TraceReplayRecorder(cache_traces=[ref], goal=spec.prompt)
+                result = await run_exploration(
+                    goal=spec.prompt, recorder=rec, llm=llm, budget=budget, tool_surface=surface
+                )
+                stash_exploration_in_trace(result)
+                ev = run_eval(
+                    spec, result.trace, candidate_model=model,
+                    evaluation_mode="curve", server_tags=server_tags,
+                )
+                samples.append(
+                    {
+                        "p_alt": p,
+                        "passed": ev.passed,
+                        "had_sae": ev.had_sae,
+                        "bin": complexity_bin(spec.complexity.trace_depth),
+                    }
+                )
+                ran += 1
+                passed += int(ev.passed)
+            typer.echo(f"P_alt={p:.2f}: {passed}/{ran} passed")
+
+        cv = aggregate_curve(samples)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        lines = [
+            "# P_alt degradation curve",
+            "",
+            f"specs={len(spec_list)} model=`{model}` desc_level={desc_level or 'raw'} pool_size={pool_size}",
+            "",
+            "| P_alt | n | accuracy [95% CI] | SAE rate [95% CI] | macro-acc |",
+            "|---|---|---|---|---|",
+        ]
+        for pt in cv["points"]:
+            lo, hi = pt["accuracy_ci"]
+            slo, shi = pt["sae_ci"]
+            lines.append(
+                f"| {pt['p_alt']:.2f} | {pt['n']} | {pt['accuracy'] * 100:.0f}% "
+                f"[{lo * 100:.0f}-{hi * 100:.0f}] | {pt['sae_rate'] * 100:.0f}% "
+                f"[{slo * 100:.0f}-{shi * 100:.0f}] | {pt['macro_accuracy'] * 100:.0f}% |"
+            )
+        text = "\n".join(lines) + "\n"
+        output.write_text(text, encoding="utf-8")
+        typer.echo("\n" + text)
+        typer.echo(f"wrote curve -> {output}")
 
     asyncio.run(_run())
 
