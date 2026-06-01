@@ -35,6 +35,15 @@ uv run dmcp eval specs/run.jsonl --replay --reference-traces traces/run.jsonl --
 uv run dmcp report --specs specs/run.jsonl --evals evals/run_haiku45.jsonl -o reports/leaderboard.md
 ```
 
+## Autonomous development
+
+This repo can drive itself toward the paper, one reviewed step at a time, with
+multiple Claude Code agents in parallel. Clone, run `claude`, and say `/continue`
+(or «продолжи»): it claims the next step in [`docs/PLAN.md`](docs/PLAN.md),
+implements it, opens a PR, and auto-merges when the gate (`ruff` + `pytest`) is
+green. Protocol: [`docs/AUTONOMY.md`](docs/AUTONOMY.md). Background:
+[`docs/CONCEPT.md`](docs/CONCEPT.md).
+
 ## Roadmap to EMNLP Industry Track
 
 Aiming for **EMNLP 2026 Industry Track** (typical deadline: late July 2026; conference November 2026). Industry track favors applied/practical contributions over pure novelty, which fits this work: a real, runnable, reproducible benchmarking pipeline that generalizes to arbitrary MCP servers.

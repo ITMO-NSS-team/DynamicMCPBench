@@ -134,3 +134,21 @@ deliberately, not as casual checks.
 For any non-trivial change (3+ steps or an architectural decision), plan before
 editing and keep the diff reviewable. Prefer the smallest change that satisfies
 the task. When something goes sideways, stop and re-plan rather than pushing on.
+
+## Autonomous development
+
+This repo advances via a self-driving loop. The plan and claim ledger is
+`docs/PLAN.md`; the runbook is the `/continue` slash command; the full protocol is
+`docs/AUTONOMY.md`. To make progress, run `/continue` (or say «продолжи»): Claude
+claims the next eligible step, implements its `done-when`, runs the gate, opens a
+PR, and **auto-merges when green**, then marks the step done.
+
+Conventions that keep parallel agents safe:
+- **Never hand-edit step statuses** in `docs/PLAN.md` — `scripts/claim.py` and
+  `scripts/mark.py` update them atomically (git push is the lock; the loser re-picks).
+- One claimed step per agent; stay within its scope. **Plan changes (new / split /
+  re-sequenced steps) need human confirmation** — propose them, don't self-edit.
+- **Cadence:** one step per `/continue`; announce before you start; then report and
+  **ask before continuing** (no auto-advance).
+- **Blocked > forced**: unresolvable conflicts or ambiguity → `scripts/mark.py <id>
+  blocked` and stop for a human. Never force a merge.
