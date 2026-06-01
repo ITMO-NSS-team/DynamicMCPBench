@@ -139,9 +139,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: failed evaluations are classified into the 7-type taxonomy with the documented default weights; report shows the weighted error breakdown; unit tests.
 
 ### E2.6 — Description normalization Level A / Level B
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T16:21:52Z
 - deps: E0.1
 - source: PDF §4.2 / simple_approach §6.2
 - done-when: a normalizer produces Level A (surface) / Level B (semantic-augmented, rubric-templated) descriptions; eval runs A vs B; unit test on templating.
