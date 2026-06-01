@@ -212,7 +212,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E4 — Baselines & experiments (RQ1–RQ4)
 
 ### E4.1 — Backward graph-sampling generator (RQ2 baseline)
-- status: in_review (#19)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T18:48:19Z
 - deps: E1.1
