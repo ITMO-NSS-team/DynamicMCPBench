@@ -214,6 +214,10 @@ def goal_gen(
     ] = 5,
     model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
     seed: Annotated[int, typer.Option("--seed")] = 0,
+    no_personas: Annotated[
+        bool,
+        typer.Option("--no-personas", help="Disable persona seeding (free-form baseline)."),
+    ] = False,
     output: Annotated[
         Path, typer.Option("--output", "-o", help="Goals JSON output")
     ] = Path("goals/auto.json"),
@@ -233,6 +237,7 @@ def goal_gen(
             single_per_server=single_per_server,
             cross_pairs=cross_pairs,
             seed=seed,
+            use_personas=not no_personas,
         )
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(goals.model_dump_json(indent=2), encoding="utf-8")

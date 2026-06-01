@@ -34,6 +34,7 @@ from typing import Any
 from dmcp.goals import GoalEntry, Goals
 from dmcp.llm import OpenRouterClient
 from dmcp.manifest import Manifest, ServerEntry
+from dmcp.personas import select_personas
 from dmcp.recorder import TraceRecorder
 from dmcp.trace import ToolSpec
 
@@ -250,7 +251,16 @@ async def _ask_for_goals(
     server_views: list[dict[str, Any]],
     n_goals: int,
     scope_label: str,
+    personas: list[dict[str, str]] | None = None,
 ) -> list[dict[str, Any]]:
+    persona_block = ""
+    if personas:
+        listed = "\n".join(f"  - {p['label']}: {p['intent']}" for p in personas)
+        persona_block = (
+            "\n\nAdopt a DISTINCT user persona/intent for each goal — vary them across "
+            "the goals, drawn from this set. Do NOT name the persona in the goal text; "
+            f"just let it shape what the user asks for:\n{listed}"
+        )
     messages = [
         {"role": "system", "content": GOAL_GEN_SYSTEM},
         {
@@ -258,7 +268,8 @@ async def _ask_for_goals(
             "content": (
                 f"Generate {n_goals} goal(s) for this {scope_label}.\n\n"
                 "Servers and tool surfaces:\n"
-                f"```json\n{json.dumps(server_views, indent=2, default=str)}\n```\n\n"
+                f"```json\n{json.dumps(server_views, indent=2, default=str)}\n```"
+                f"{persona_block}\n\n"
                 "Call `emit_goals` exactly once."
             ),
         },
@@ -302,6 +313,7 @@ async def generate_goals(
     single_per_server: int = 2,
     cross_pairs: int = 5,
     seed: int = 0,
+    use_personas: bool = True,
 ) -> Goals:
     """Generate goals for the requested servers.
 
@@ -340,7 +352,11 @@ async def generate_goals(
         view = [_server_view(entries[sid], surfaces[sid])]
         try:
             raw_goals = await _ask_for_goals(
-                llm, view, single_per_server, f"single server '{sid}'"
+                llm,
+                view,
+                single_per_server,
+                f"single server '{sid}'",
+                personas=select_personas(single_per_server, seed) if use_personas else None,
             )
         except Exception as e:
             log.warning("goal-gen for server %s failed: %s", sid, e)
@@ -377,7 +393,11 @@ async def generate_goals(
         view = [_server_view(entries[a], surfaces[a]), _server_view(entries[b], surfaces[b])]
         try:
             raw_goals = await _ask_for_goals(
-                llm, view, 1, f"cross-server pair '{a} + {b}'"
+                llm,
+                view,
+                1,
+                f"cross-server pair '{a} + {b}'",
+                personas=select_personas(1, seed) if use_personas else None,
             )
         except Exception as e:
             log.warning("goal-gen for pair (%s, %s) failed: %s", a, b, e)
