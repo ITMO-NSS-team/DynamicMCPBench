@@ -768,6 +768,7 @@ def evaluate(
     configs = m.configs(servers)
     llm = OpenRouterClient(model=model)
     judge_llm = OpenRouterClient(model=judge_model) if judge else None
+    server_tags = {e.server_id: list(e.tags) for e in m.servers}
 
     reference_index: dict[str, Trace] = {}
     if replay:
@@ -808,6 +809,7 @@ def evaluate(
                             ctrace,
                             candidate_model=ctrace.seed_metadata.get("llm_model") or model,
                             evaluation_mode="ingested",
+                            server_tags=server_tags,
                         )
                         if judge_llm is not None:
                             ev.checkpoint_results = await upgrade_with_judge(
@@ -875,7 +877,13 @@ def evaluate(
             mode_tag = "replay" if replay else "live"
             if judge:
                 mode_tag = f"{mode_tag}+judge"
-            ev = run_eval(spec, result.trace, candidate_model=model, evaluation_mode=mode_tag)
+            ev = run_eval(
+                spec,
+                result.trace,
+                candidate_model=model,
+                evaluation_mode=mode_tag,
+                server_tags=server_tags,
+            )
             if judge_llm is not None:
                 ev.checkpoint_results = await upgrade_with_judge(
                     spec.checkpoints, result.trace, ev.checkpoint_results, llm=judge_llm
