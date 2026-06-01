@@ -232,3 +232,6 @@ tmp.md
 /manifests/merged*.json
 # auto-generated goals; only hand-authored goals/{local,scaled,recovery}.json are tracked
 /goals/auto*.json
+
+# Per-user Claude Code overrides (shared settings live in .claude/settings.json)
+.claude/settings.local.json
