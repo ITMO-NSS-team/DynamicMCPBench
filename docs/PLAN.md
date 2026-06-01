@@ -87,7 +87,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: the pre-registered experiment in `docs/experiments/e1.4a-persona-diversity.md` is run (richer servers, >=3 seeds, semantic primary metric) and that report is committed with a result classified positive/neutral/negative. Per the Results rule, a committed negative result is an acceptable outcome.
 
 ### E1.5 — Decay metrics over time + refresh backoff
-- status: in_review (#9)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T15:01:52Z
 - deps: E0.1
