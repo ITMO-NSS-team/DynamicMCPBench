@@ -323,16 +323,78 @@ def _eval_ordering(
 # ---------------------------------------------------------------------------
 
 
+def _shares_tag(server: str, others: set[str], server_tags: dict[str, list[str]] | None) -> bool:
+    if not server_tags:
+        return False
+    tags = set(server_tags.get(server, []))
+    return bool(tags) and any(tags & set(server_tags.get(o, [])) for o in others)
+
+
+def _detect_sae(
+    spec: TaskSpec,
+    agent_calls: list[Step],
+    server_tags: dict[str, list[str]] | None,
+) -> dict[str, Any]:
+    """Server Attribution Error: a successful call of a required tool-NAME on a
+    server that is NOT acceptable for it (right tool type, wrong server).
+
+    Subtypes: `expected` if the wrong server shares a domain tag with a correct
+    server (a GitHub/GitLab-style alternative), else `random` (more serious — an
+    unrelated server). `conditional_rate` = SAE / (SAE + correct-type calls): of
+    the calls that hit the right tool type, the fraction on the wrong server.
+    Only meaningful when distractor servers are offered (Target/Full pool).
+    """
+    name_to_servers: dict[str, set[str]] = {}
+    for cp in spec.checkpoints:
+        if isinstance(cp, ToolEffectCheckpoint):
+            for r in cp.equivalence_set:
+                name_to_servers.setdefault(r.tool_name, set()).add(r.server_id)
+
+    events: list[dict[str, Any]] = []
+    correct_type_calls = 0
+    for s in agent_calls:
+        if s.status is not StepStatus.success or s.tool_name is None:
+            continue
+        correct_servers = name_to_servers.get(s.tool_name)
+        if not correct_servers:
+            continue
+        if s.server_id in correct_servers:
+            correct_type_calls += 1
+            continue
+        subtype = "expected" if _shares_tag(s.server_id, correct_servers, server_tags) else "random"
+        events.append(
+            {
+                "tool_name": s.tool_name,
+                "called_server": s.server_id,
+                "correct_servers": sorted(correct_servers),
+                "subtype": subtype,
+            }
+        )
+    total = len(events)
+    expected = sum(1 for e in events if e["subtype"] == "expected")
+    denom = total + correct_type_calls
+    return {
+        "total": total,
+        "expected": expected,
+        "random": total - expected,
+        "correct_type_calls": correct_type_calls,
+        "conditional_rate": round(total / denom, 4) if denom else 0.0,
+        "events": events,
+    }
+
+
 def evaluate(
     spec: TaskSpec,
     candidate: Trace,
     *,
     candidate_model: str | None = None,
     evaluation_mode: str | None = None,
+    server_tags: dict[str, list[str]] | None = None,
 ) -> EvaluationResult:
     agent_calls = [
         s for s in candidate.steps if s.kind is StepKind.call_tool_agent
     ]
+    sae = _detect_sae(spec, agent_calls, server_tags)
     checkpoint_results = [
         _eval_checkpoint(cp, agent_calls, candidate) for cp in spec.checkpoints
     ]
@@ -352,6 +414,7 @@ def evaluate(
         "agent_call_success_count": sum(
             1 for s in agent_calls if s.status is StepStatus.success
         ),
+        "sae": sae,
     }
 
     return EvaluationResult(
@@ -365,4 +428,5 @@ def evaluate(
         ordering_ok=ordering_ok,
         ordering_failures=ordering_failures,
         summary=summary,
+        had_sae=sae["total"] > 0,
     )
