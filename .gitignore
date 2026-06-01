@@ -235,3 +235,6 @@ tmp.md
 
 # Per-user Claude Code overrides (shared settings live in .claude/settings.json)
 .claude/settings.local.json
+
+# uv lockfile — env side-effect; lockfile policy undecided
+uv.lock

@@ -53,3 +53,16 @@ was actually invoked). Cite AGB approvingly; never re-implement it.
 - Do **not** replace the live substrate with a frozen catalog as the *source of
   truth* (caching for deterministic replay is fine and expected).
 - Do **not** annotate or score a ground-truth *tool list*.
+
+## Baselines vs headline (update 2026-06-01)
+
+"Realize ideas from all docs" includes building the **graph** (PDF) and
+**sampling** (MVP) approaches — but **only as clearly-labeled comparison
+baselines / experimental arms**, never as the project's headline. RQ2 explicitly
+needs a backward graph-sampling generator and a direct-generation generator to
+compare against forward exploration, so building them is expected. Sampling also
+re-enters as an **eval-side distractor / tool-pool sampler** (controls semantic
+density around a trace's required tools), which is what makes SAE and P_alt
+degradation curves measurable — without making graph-based *task generation* the
+primary path. The headline/positioning is unchanged: **trace, not graph; forward,
+not backward; effect, not answer; live, not static cache.**
