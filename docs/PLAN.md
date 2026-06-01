@@ -167,9 +167,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E3 — Scale the server substrate to 100+ (paper-critical)
 
 ### E3.1 — Large-scale crawl + vet to ≥100 vetted servers
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T17:20:19Z
 - deps: E0.1
 - source: research_plan Phase 1 / user 2026-06-01 (100+ target)
 - done-when: the crawler ingests the full registry and (with parallel, timeout-bounded install + smoke-vet) produces a curated manifest of **≥100 vetted servers** (target several hundred) spanning static / live_read / stateful_write and many domains; deduped; each tagged + sandboxed where stateful; a funnel report (registry size → installable → vetted) is emitted.
