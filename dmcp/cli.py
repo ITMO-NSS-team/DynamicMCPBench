@@ -33,6 +33,7 @@ from dmcp.install import InstallStatus, install_server
 from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
 from dmcp.manifest import Manifest
+from dmcp.pools import build_eval_pool, pool_to_tool_surface
 from dmcp.recorder import (
     SseServer,
     StdioServer,
@@ -42,6 +43,7 @@ from dmcp.recorder import (
 from dmcp.refresh import decay_summary, refresh_one
 from dmcp.replay import TraceReplayRecorder
 from dmcp.report import aggregate_markdown
+from dmcp.sampling import ToolCatalog
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
 from dmcp.vet import VetStatus, vet_one, vet_result_summary
@@ -711,6 +713,21 @@ def evaluate(
             help="Run each spec K times and report pass^k (fraction of specs whose K runs all pass).",
         ),
     ] = 1,
+    pool: Annotated[
+        str | None,
+        typer.Option(
+            "--pool",
+            help="Candidate tool-pool mode (replay only): gold | target | full. Default: the reference trace's own tools.",
+        ),
+    ] = None,
+    p_alt: Annotated[
+        float,
+        typer.Option("--p-alt", help="Target pool: fraction of distractors that are direct alternatives (same name, other server)."),
+    ] = 0.5,
+    pool_size: Annotated[
+        int,
+        typer.Option("--pool-size", help="Target pool: number of distractor tools."),
+    ] = 8,
     output: Annotated[Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")] = Path(
         "evals/results.jsonl"
     ),
@@ -744,6 +761,8 @@ def evaluate(
     """
     if replay and reference_traces is None and candidate_traces is None:
         raise typer.BadParameter("--replay requires --reference-traces")
+    if pool is not None and pool not in ("gold", "target", "full"):
+        raise typer.BadParameter("--pool must be gold | target | full")
 
     m = Manifest.load(manifest)
     configs = m.configs(servers)
@@ -814,6 +833,12 @@ def evaluate(
             typer.echo(f"done (ingested): {passed}/{total} specs passed → {output}")
             return
 
+        catalog = (
+            ToolCatalog.from_traces(reference_index.values(), manifest=m)
+            if (pool is not None and replay)
+            else None
+        )
+
         async def _single_run(spec: TaskSpec):
             """One candidate run for `spec`. Returns (ev, trace, miss_count) or None to skip."""
             if replay:
@@ -826,8 +851,23 @@ def evaluate(
                     tier2_threshold=tier2_threshold,
                     simulator_llm=(llm if simulate_misses else None),
                 )
+                tool_surface = None
+                if pool is not None and catalog is not None:
+                    pool_entries = build_eval_pool(
+                        spec,
+                        catalog,
+                        mode=pool,
+                        p_alt=p_alt,
+                        pool_size=pool_size,
+                        seed=spec.task_id.int % (2**31),
+                    )
+                    tool_surface = pool_to_tool_surface(pool_entries, ref.tool_specs)
                 result = await run_exploration(
-                    goal=spec.prompt, recorder=cand_recorder, llm=llm, budget=budget
+                    goal=spec.prompt,
+                    recorder=cand_recorder,
+                    llm=llm,
+                    budget=budget,
+                    tool_surface=tool_surface,
                 )
             else:
                 result = await run_exploration(goal=spec.prompt, servers=configs, llm=llm, budget=budget)

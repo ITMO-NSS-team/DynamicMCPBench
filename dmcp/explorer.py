@@ -27,7 +27,7 @@ from dmcp.llm import (
     specs_to_openai_tools,
 )
 from dmcp.recorder import ServerConfig, TraceRecorder
-from dmcp.trace import Trace
+from dmcp.trace import ToolSpec, Trace
 
 DEFAULT_SYSTEM_PROMPT = """You are an exploration agent driving MCP tools to satisfy a user goal.
 
@@ -86,6 +86,7 @@ async def explore(
     persona: str | None = None,
     extra_seed: dict[str, Any] | None = None,
     tool_result_truncation: int = DEFAULT_TOOL_RESULT_TRUNCATION,
+    tool_surface: dict[str, list[ToolSpec]] | None = None,
 ) -> ExplorationResult:
     """Run one goal-seeded exploration session and return a Trace + summary.
 
@@ -129,7 +130,9 @@ async def explore(
     successful_tool_calls = 0
 
     async with recorder:
-        openai_tools = specs_to_openai_tools(recorder.trace.tool_specs)
+        openai_tools = specs_to_openai_tools(
+            tool_surface if tool_surface is not None else recorder.trace.tool_specs
+        )
         valid_qualified = {t["function"]["name"] for t in openai_tools}
 
         for _ in range(budget):
