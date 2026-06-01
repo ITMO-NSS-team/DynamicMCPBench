@@ -79,9 +79,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a curated persona library + deterministic selection feed `goal_gen.py` (`use_personas`, `--no-personas` baseline); unit tests cover the library, selection, and persona prompt-injection. (Diversity validation moved to E1.4a.)
 
 ### E1.4a — Validate persona effect on goal diversity
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T15:11:24Z
 - deps: E1.4
 - source: user 2026-06-01 (investigate the E1.4 null result)
 - done-when: the pre-registered experiment in `docs/experiments/e1.4a-persona-diversity.md` is run (richer servers, >=3 seeds, semantic primary metric) and that report is committed with a result classified positive/neutral/negative. Per the Results rule, a committed negative result is an acceptable outcome.
