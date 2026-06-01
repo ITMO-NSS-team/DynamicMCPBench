@@ -63,9 +63,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: on a replay cache miss AND Tier-2 miss, an LLM produces a plausible result flagged `simulated=true`; off by default behind a flag; deterministic seed/prompt; unit test on the miss→simulate path.
 
 ### E1.3 — External candidate-trace ingestion in `dmcp eval`
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T14:42:54Z
 - deps: E0.1
 - source: README Phase 3
 - done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories without re-running an agent; unit test.
