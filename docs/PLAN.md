@@ -34,7 +34,7 @@ self-edits the plan's structure.
 ## E0 — Bootstrap the autonomous loop
 
 ### E0.1 — Plan ledger, /continue runbook, scripts, env
-- status: claimed
+- status: done
 - owner: bootstrap
 - claimed_at: 2026-06-01
 - deps: —
