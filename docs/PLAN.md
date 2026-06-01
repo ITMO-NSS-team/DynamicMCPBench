@@ -63,17 +63,17 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: on a replay cache miss AND Tier-2 miss, an LLM produces a plausible result flagged `simulated=true`; off by default behind a flag; deterministic seed/prompt; unit test on the miss→simulate path.
 
 ### E1.3 — External candidate-trace ingestion in `dmcp eval`
-- status: claimed
-- owner: Teammate-Bob@roman-desktop
-- claimed_at: 2026-06-01T14:34:15Z
+- status: todo
+- owner: —
+- claimed_at: —
 - deps: E0.1
 - source: README Phase 3
 - done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories without re-running an agent; unit test.
 
 ### E1.4 — Persona-seeding library for goal-gen
-- status: claimed
-- owner: Ilya-Galyukshev@roman-desktop
-- claimed_at: 2026-06-01T14:34:15Z
+- status: todo
+- owner: —
+- claimed_at: —
 - deps: E0.1
 - source: README Phase 2 / research_plan 2A
 - done-when: a curated persona/intent set feeds `goal_gen.py`; generated goals show measurably higher diversity than the free-form baseline on a small sample; unit test.
