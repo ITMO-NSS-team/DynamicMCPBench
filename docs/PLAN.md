@@ -123,9 +123,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --pool gold|target|full [--p-alt X --pool-size N]` builds the candidate tool pool accordingly via the sampler; replay still deterministic; unit test on pool construction.
 
 ### E2.4 — SAE metric + expected/random subtypes + conditional rate
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T15:57:31Z
 - deps: E2.3
 - source: PDF §5.1 / simple_approach §7.1
 - done-when: `evaluator.py` reports SAE (right tool type per equivalence_set, wrong server), split expected vs random, plus SAE conditional rate; only meaningful in Target/Full modes; unit test with a synthetic confused trace.
