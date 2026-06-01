@@ -107,9 +107,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: new module implements 6 strategies (random, hard_neg, cross_domain, same_name, sibling, stratified) selecting distractors around a spec's required tools from the manifest pool; deterministic with a seed; unit tests per strategy.
 
 ### E2.2 — Embedding index for hard-negative mining
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T15:26:30Z
 - deps: E2.1
 - source: simple_approach §3.3/§5.2
 - done-when: tool descriptions embedded + cached (pinned model+seed); hard_neg/cross_domain use cosine similarity with denoising; lexical fallback when no embedding key; unit test on ranking.
