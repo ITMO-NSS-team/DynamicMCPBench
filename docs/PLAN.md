@@ -147,7 +147,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a normalizer produces Level A (surface) / Level B (semantic-augmented, rubric-templated) descriptions; eval runs A vs B; unit test on templating.
 
 ### E2.7 — P_alt degradation-curve driver + complexity bins
-- status: claimed
+- status: in_review (#18)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T16:43:40Z
 - deps: E2.3 E2.4
