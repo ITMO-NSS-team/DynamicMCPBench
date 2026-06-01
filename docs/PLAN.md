@@ -79,7 +79,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a curated persona library + deterministic selection feed `goal_gen.py` (`use_personas`, `--no-personas` baseline); unit tests cover the library, selection, and persona prompt-injection. (Diversity validation moved to E1.4a.)
 
 ### E1.4a — Validate persona effect on goal diversity
-- status: claimed
+- status: in_review (#11)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T15:11:24Z
 - deps: E1.4
