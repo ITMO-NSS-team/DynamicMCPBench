@@ -131,7 +131,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `evaluator.py` reports SAE (right tool type per equivalence_set, wrong server), split expected vs random, plus SAE conditional rate; only meaningful in Target/Full modes; unit test with a synthetic confused trace.
 
 ### E2.5 — Error taxonomy E1–E7 with weights
-- status: claimed
+- status: in_review (#16)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T16:13:22Z
 - deps: E2.4
