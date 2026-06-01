@@ -47,7 +47,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E1 — Finish the trace-native rev.3 (README roadmap)
 
 ### E1.1 — pass^k reliability metric
-- status: claimed
+- status: in_review (#4)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T14:13:37Z
 - deps: E0.1
