@@ -21,6 +21,14 @@ from typing import Annotated
 
 import typer
 
+from dmcp.baselines.graph_sampling import (
+    VALID_MOTIFS,
+    ToolGraph,
+    sample_subgraph,
+)
+from dmcp.baselines.graph_sampling import (
+    back_instruct as run_back_instruct,
+)
 from dmcp.curves import aggregate_curve, complexity_bin
 from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
@@ -28,6 +36,7 @@ from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
+from dmcp.goal_gen import _fetch_tool_specs
 from dmcp.goal_gen import generate_goals as run_goal_gen
 from dmcp.goals import Goals
 from dmcp.install import InstallStatus, install_server
@@ -291,6 +300,117 @@ def report(
     typer.echo(f"wrote report → {output}")
     typer.echo("")
     typer.echo(md)
+
+
+@app.command(name="baseline-graph")
+def baseline_graph(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    servers: Annotated[
+        list[str] | None,
+        typer.Option("--server", help="Repeatable: restrict to specific server_ids (default all)"),
+    ] = None,
+    motif: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--motif",
+            help="Repeatable: subgraph motif (chain|hub). Default: both.",
+        ),
+    ] = None,
+    size: Annotated[
+        int, typer.Option("--size", help="Tools per sampled subgraph (default 3)")
+    ] = 3,
+    samples: Annotated[
+        int,
+        typer.Option("--samples", help="Subgraphs to sample per motif (default 5)"),
+    ] = 5,
+    seed: Annotated[int, typer.Option("--seed", help="Base RNG seed")] = 0,
+    model: Annotated[str, typer.Option("--model", help="LLM for back-instruction")] = DEFAULT_MODEL,
+    output: Annotated[Path, typer.Option("--output", "-o", help="TaskSpec JSONL output")] = Path(
+        "specs/baseline_graph.jsonl"
+    ),
+) -> None:
+    """Generate TaskSpecs via the RQ2 graph-sampling baseline (NOT the headline).
+
+    Reads the manifest, captures each server's live tool surface (one stdio
+    session per server), builds an inferred tool-dependency graph from JSON
+    Schema property-name overlap, samples connected subgraphs per motif, and
+    asks an LLM to back-instruct a user prompt for each. Emits TaskSpec JSONL
+    in the same format as `dmcp distill`, but every spec is tagged
+    `distiller_version="baseline-graph-sampling-…"` so reports cannot confuse
+    forward-distilled and baseline specs.
+
+    Per `memory/feedback_agb_orthogonality.md`: this exists ONLY to make RQ2
+    comparable; nothing on the headline path consumes its output.
+    """
+    motifs = motif or list(VALID_MOTIFS)
+    for mname in motifs:
+        if mname not in VALID_MOTIFS:
+            raise typer.BadParameter(f"--motif must be one of {VALID_MOTIFS}; got {mname!r}")
+    m = Manifest.load(manifest)
+    chosen = servers or [s.server_id for s in m.servers]
+    entries = []
+    for sid in chosen:
+        try:
+            entries.append(m.by_id(sid))
+        except KeyError as e:
+            raise typer.BadParameter(f"unknown server_id {sid!r}") from e
+    llm = OpenRouterClient(model=model)
+
+    async def _run() -> None:
+        typer.echo(
+            f"baseline-graph: {len(entries)} server(s), motifs={motifs}, size={size}, "
+            f"samples={samples}, seed={seed}"
+        )
+        surfaces = {}
+        for entry in entries:
+            try:
+                specs = await _fetch_tool_specs(entry)
+            except Exception as e:
+                typer.echo(f"  skip {entry.server_id}: tool-surface fetch failed: {e}")
+                continue
+            if not specs:
+                typer.echo(f"  skip {entry.server_id}: 0 tools")
+                continue
+            surfaces[entry.server_id] = specs
+            typer.echo(f"  {entry.server_id}: {len(specs)} tools")
+        if not surfaces:
+            typer.echo("no tool surfaces available; nothing to sample.")
+            return
+        graph = ToolGraph.from_tool_surfaces(surfaces)
+        edge_count = sum(len(v) for v in graph.adj.values()) // 2
+        typer.echo(f"graph: {len(graph)} nodes, {edge_count} edges")
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        kept = attempted = 0
+        with output.open("a", encoding="utf-8") as fout:
+            for mname in motifs:
+                for s_idx in range(samples):
+                    attempted += 1
+                    sample_seed = seed * 1000 + hash(mname) % 1000 + s_idx
+                    try:
+                        subgraph = sample_subgraph(
+                            graph, size=size, motif=mname, seed=sample_seed
+                        )
+                    except Exception as e:
+                        typer.echo(f"  [{mname}#{s_idx}] sample error: {e}")
+                        continue
+                    try:
+                        spec = await run_back_instruct(
+                            subgraph, graph, llm=llm, manifest=m
+                        )
+                    except Exception as e:
+                        typer.echo(f"  [{mname}#{s_idx}] back-instruct error: {e}")
+                        continue
+                    fout.write(spec.to_jsonl())
+                    fout.write("\n")
+                    kept += 1
+                    typer.echo(
+                        f"  [{mname}#{s_idx}] task {spec.task_id} "
+                        f"servers={spec.servers_used} cps={len(spec.checkpoints)}"
+                    )
+        typer.echo(f"\nwrote {kept}/{attempted} baseline specs → {output}")
+
+    asyncio.run(_run())
 
 
 def _not_yet(name: str) -> None:
