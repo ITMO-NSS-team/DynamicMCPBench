@@ -71,7 +71,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories without re-running an agent; unit test.
 
 ### E1.4 — Persona-seeding library for goal-gen
-- status: in_review (#7)
+- status: done
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T14:48:31Z
 - deps: E0.1
