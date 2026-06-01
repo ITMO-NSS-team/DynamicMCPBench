@@ -3,10 +3,10 @@
 Joins one-or-more evaluation JSONL files (each tagged with a `candidate_model`)
 against a specs JSONL file and emits a markdown report with:
 
-  - per-agent overall pass rate
+  - per-agent overall pass rate (a task counts as passed only if ALL its runs pass)
+  - a reliability section: pass^k, pass^k(no-SAE), pass@1 (when --repeat K > 1)
   - per-task pass/fail matrix
-  - per-property breakdowns (dynamism, depth bucket, cross_server,
-    state_coupling)
+  - per-property breakdowns (dynamism, depth bucket, cross_server, state_coupling)
 
 This is the v0 substrate for Phase 5's Table 2 in the rev. 3 plan (per-agent
 capability profile incl. dynamism handling).
@@ -46,6 +46,45 @@ def _load_evals(paths: list[Path]) -> list[EvaluationResult]:
                     continue
                 out.append(EvaluationResult.model_validate_json(line))
     return out
+
+
+def passk_stats(
+    runs_by_task: dict[UUID, list[bool]],
+    sae_tasks: set[UUID] | None = None,
+) -> dict[str, float | int]:
+    """Reliability stats over repeated runs (pass^k semantics, tau-bench).
+
+    runs_by_task: task_id -> list of per-run `passed` booleans (one entry per repeat).
+    sae_tasks:    task_ids where any run exhibited server-attribution error (E2.4).
+
+    Returns:
+      passk         fraction of tasks whose runs ALL passed
+      passk_no_sae  same, restricted to tasks not in sae_tasks
+      pass1         fraction of individual runs that passed (pass@1)
+      tasks, runs, max_runs
+    """
+    sae_tasks = sae_tasks or set()
+    tasks = list(runs_by_task)
+    if not tasks:
+        return {"passk": 0.0, "passk_no_sae": 0.0, "pass1": 0.0, "tasks": 0, "runs": 0, "max_runs": 0}
+
+    def _all_pass(t: UUID) -> bool:
+        runs = runs_by_task[t]
+        return bool(runs) and all(runs)
+
+    all_pass = sum(1 for t in tasks if _all_pass(t))
+    no_sae = [t for t in tasks if t not in sae_tasks]
+    no_sae_pass = sum(1 for t in no_sae if _all_pass(t))
+    total_runs = sum(len(v) for v in runs_by_task.values())
+    run_passes = sum(1 for v in runs_by_task.values() for x in v if x)
+    return {
+        "passk": all_pass / len(tasks),
+        "passk_no_sae": (no_sae_pass / len(no_sae)) if no_sae else 0.0,
+        "pass1": (run_passes / total_runs) if total_runs else 0.0,
+        "tasks": len(tasks),
+        "runs": total_runs,
+        "max_runs": max((len(v) for v in runs_by_task.values()), default=0),
+    }
 
 
 def _depth_bucket(d: int) -> str:
@@ -89,9 +128,24 @@ def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
         return "# DynamicMCPBench Report\n\n(no evaluation results)\n"
 
     models = sorted({_agent_key(ev) for ev in evals})
-    by_model_task: dict[str, dict[UUID, bool]] = defaultdict(dict)
+
+    # Collect every run per (model, task) so repeated --repeat K runs aggregate
+    # into pass^k. SAE tracking is OR-ed across a task's runs (gated by E2.4).
+    runs_by_model_task: dict[str, dict[UUID, list[bool]]] = defaultdict(lambda: defaultdict(list))
+    sae_by_model_task: dict[str, set[UUID]] = defaultdict(set)
     for ev in evals:
-        by_model_task[_agent_key(ev)][ev.task_id] = ev.passed
+        key = _agent_key(ev)
+        runs_by_model_task[key][ev.task_id].append(ev.passed)
+        if getattr(ev, "had_sae", False):
+            sae_by_model_task[key].add(ev.task_id)
+
+    # A task is "passed" for the per-property tables iff ALL its runs passed
+    # (== single-run pass when --repeat 1, so existing output is unchanged).
+    by_model_task: dict[str, dict[UUID, bool]] = {
+        m: {tid: bool(runs) and all(runs) for tid, runs in tasks.items()}
+        for m, tasks in runs_by_model_task.items()
+    }
+    max_runs = max((len(r) for t in runs_by_model_task.values() for r in t.values()), default=1)
 
     lines: list[str] = []
     lines.append("# DynamicMCPBench Report")
@@ -111,6 +165,31 @@ def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
         passed = sum(1 for v in by_model_task[m].values() if v)
         total = len(by_model_task[m])
         lines.append(f"| `{m}` | {_fmt_pass(passed, total)} |")
+    lines.append("")
+
+    # ---- reliability (pass^k) ----
+    lines.append("## Reliability (pass^k)")
+    lines.append("")
+    if max_runs > 1:
+        lines.append(
+            "pass^k = fraction of tasks whose k independent runs ALL pass; "
+            "pass@1 = fraction of individual runs that pass. pass^k(no-SAE) "
+            "excludes tasks with server-attribution errors (active once E2.4 lands)."
+        )
+    else:
+        lines.append(
+            "Single run per task (`--repeat 1`); pass^k == pass@1. Re-run "
+            "`dmcp eval --repeat K` for reliability spread."
+        )
+    lines.append("")
+    lines.append("| Model | repeats | pass^k | pass^k (no-SAE) | pass@1 |")
+    lines.append("|---|---|---|---|---|")
+    for m in models:
+        st = passk_stats(runs_by_model_task[m], sae_by_model_task[m])
+        lines.append(
+            f"| `{m}` | {st['max_runs']} | {st['passk'] * 100:.0f}% "
+            f"| {st['passk_no_sae'] * 100:.0f}% | {st['pass1'] * 100:.0f}% |"
+        )
     lines.append("")
 
     # ---- per-task matrix ----

@@ -641,6 +641,13 @@ def evaluate(
         str,
         typer.Option("--judge-model", help="LLM used by the tier-2 judge"),
     ] = DEFAULT_MODEL,
+    repeat: Annotated[
+        int,
+        typer.Option(
+            "--repeat",
+            help="Run each spec K times and report pass^k (fraction of specs whose K runs all pass).",
+        ),
+    ] = 1,
     output: Annotated[
         Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")
     ] = Path("evals/results.jsonl"),
@@ -685,6 +692,47 @@ def evaluate(
         output.parent.mkdir(parents=True, exist_ok=True)
         if candidate_traces_out:
             candidate_traces_out.parent.mkdir(parents=True, exist_ok=True)
+
+        async def _single_run(spec: TaskSpec):
+            """One candidate run for `spec`. Returns (ev, trace, miss_count) or None to skip."""
+            if replay:
+                ref = reference_index.get(str(spec.source_trace_id))
+                if ref is None:
+                    return None
+                cand_recorder = TraceReplayRecorder(
+                    cache_traces=[ref], goal=spec.prompt, tier2_threshold=tier2_threshold
+                )
+                result = await run_exploration(
+                    goal=spec.prompt, recorder=cand_recorder, llm=llm, budget=budget
+                )
+            else:
+                result = await run_exploration(
+                    goal=spec.prompt, servers=configs, llm=llm, budget=budget
+                )
+            stash_exploration_in_trace(result)
+            mode_tag = "replay" if replay else "live"
+            if judge:
+                mode_tag = f"{mode_tag}+judge"
+            ev = run_eval(spec, result.trace, candidate_model=model, evaluation_mode=mode_tag)
+            if judge_llm is not None:
+                ev.checkpoint_results = await upgrade_with_judge(
+                    spec.checkpoints, result.trace, ev.checkpoint_results, llm=judge_llm
+                )
+                all_cps_pass = all(cr.passed for cr in ev.checkpoint_results)
+                no_mines = not any(mr.hit for mr in ev.minefield_results)
+                ev.passed = all_cps_pass and no_mines and ev.ordering_ok
+                ev.summary["checkpoints_passed"] = sum(1 for cr in ev.checkpoint_results if cr.passed)
+                ev.summary["tier2_judgments"] = sum(1 for cr in ev.checkpoint_results if cr.tier == 2)
+                ev.summary["tier2_upgrades"] = sum(
+                    1 for cr in ev.checkpoint_results if cr.tier == 2 and cr.passed
+                )
+            miss_count = sum(
+                1
+                for s in result.trace.steps
+                if s.result is not None and s.result.get("replay_cache_miss")
+            )
+            return ev, result.trace, miss_count
+
         passed = total = 0
         cache_miss_steps = 0
         with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
@@ -696,88 +744,52 @@ def evaluate(
                         continue
                     total += 1
                     spec = TaskSpec.model_validate_json(raw)
-                    typer.echo(f"[task {spec.task_id}] prompt: {spec.prompt[:90]}{'…' if len(spec.prompt) > 90 else ''}")
-
-                    if replay:
-                        ref = reference_index.get(str(spec.source_trace_id))
-                        if ref is None:
-                            typer.echo(f"  skip: no reference trace for source_trace_id={spec.source_trace_id}")
-                            continue
-                        cand_recorder = TraceReplayRecorder(
-                            cache_traces=[ref],
-                            goal=spec.prompt,
-                            tier2_threshold=tier2_threshold,
-                        )
-                        result = await run_exploration(
-                            goal=spec.prompt,
-                            recorder=cand_recorder,
-                            llm=llm,
-                            budget=budget,
-                        )
-                    else:
-                        result = await run_exploration(
-                            goal=spec.prompt,
-                            servers=configs,
-                            llm=llm,
-                            budget=budget,
-                        )
-                    stash_exploration_in_trace(result)
-                    mode_tag = "replay" if replay else "live"
-                    if judge:
-                        mode_tag = f"{mode_tag}+judge"
-                    ev = run_eval(
-                        spec,
-                        result.trace,
-                        candidate_model=model,
-                        evaluation_mode=mode_tag,
-                    )
-                    if judge_llm is not None:
-                        ev.checkpoint_results = await upgrade_with_judge(
-                            spec.checkpoints,
-                            result.trace,
-                            ev.checkpoint_results,
-                            llm=judge_llm,
-                        )
-                        # Re-derive passed + summary after tier-2 upgrades.
-                        all_cps_pass = all(cr.passed for cr in ev.checkpoint_results)
-                        no_mines = not any(mr.hit for mr in ev.minefield_results)
-                        ev.passed = all_cps_pass and no_mines and ev.ordering_ok
-                        ev.summary["checkpoints_passed"] = sum(
-                            1 for cr in ev.checkpoint_results if cr.passed
-                        )
-                        ev.summary["tier2_judgments"] = sum(
-                            1 for cr in ev.checkpoint_results if cr.tier == 2
-                        )
-                        ev.summary["tier2_upgrades"] = sum(
-                            1 for cr in ev.checkpoint_results if cr.tier == 2 and cr.passed
-                        )
-                    fout.write(ev.to_jsonl())
-                    fout.write("\n")
-                    if cand_fh is not None:
-                        cand_fh.write(result.trace.to_jsonl())
-                        cand_fh.write("\n")
-                    if ev.passed:
-                        passed += 1
-                    miss_count = sum(
-                        1 for s in result.trace.steps
-                        if s.result is not None and s.result.get("replay_cache_miss")
-                    )
-                    cache_miss_steps += miss_count
                     typer.echo(
-                        f"  → {'PASS' if ev.passed else 'FAIL'} "
-                        f"checkpoints={ev.summary['checkpoints_passed']}/{ev.summary['checkpoints_total']} "
-                        f"minefields={ev.summary['minefields_hit']}/{ev.summary['minefields_total']} "
-                        f"ordering={'ok' if ev.ordering_ok else 'fail'}"
-                        + (f" misses={miss_count}" if replay and miss_count else "")
+                        f"[task {spec.task_id}] prompt: {spec.prompt[:90]}{'…' if len(spec.prompt) > 90 else ''}"
                     )
-                    for cr in ev.checkpoint_results:
-                        flag = "✓" if cr.passed else "✗"
-                        typer.echo(f"    {flag} [{cr.kind}] {cr.checkpoint_id}: {cr.reason}")
+                    run_passes: list[bool] = []
+                    for _rep in range(max(1, repeat)):
+                        out = await _single_run(spec)
+                        if out is None:
+                            typer.echo(
+                                f"  skip: no reference trace for source_trace_id={spec.source_trace_id}"
+                            )
+                            break
+                        ev, ctrace, miss_count = out
+                        ev.repeat_index = _rep
+                        fout.write(ev.to_jsonl())
+                        fout.write("\n")
+                        if cand_fh is not None:
+                            cand_fh.write(ctrace.to_jsonl())
+                            cand_fh.write("\n")
+                        cache_miss_steps += miss_count
+                        run_passes.append(ev.passed)
+                        rep_tag = f" [run {_rep + 1}/{repeat}]" if repeat > 1 else ""
+                        typer.echo(
+                            f"  → {'PASS' if ev.passed else 'FAIL'}{rep_tag} "
+                            f"checkpoints={ev.summary['checkpoints_passed']}/{ev.summary['checkpoints_total']} "
+                            f"minefields={ev.summary['minefields_hit']}/{ev.summary['minefields_total']} "
+                            f"ordering={'ok' if ev.ordering_ok else 'fail'}"
+                            + (f" misses={miss_count}" if replay and miss_count else "")
+                        )
+                        if repeat == 1:
+                            for cr in ev.checkpoint_results:
+                                flag = "✓" if cr.passed else "✗"
+                                typer.echo(f"    {flag} [{cr.kind}] {cr.checkpoint_id}: {cr.reason}")
+                    spec_passk = bool(run_passes) and all(run_passes)
+                    if spec_passk:
+                        passed += 1
+                    if repeat > 1:
+                        c = sum(1 for p in run_passes if p)
+                        typer.echo(
+                            f"  pass^{repeat} = {'PASS' if spec_passk else 'fail'} ({c}/{repeat} runs passed)"
+                        )
             finally:
                 if cand_fh is not None:
                     cand_fh.close()
         suffix = f" (cache misses total: {cache_miss_steps})" if replay else ""
-        typer.echo(f"done: {passed}/{total} specs passed → {output}{suffix}")
+        label = f"pass^{repeat}" if repeat > 1 else "passed"
+        typer.echo(f"done: {passed}/{total} specs {label} → {output}{suffix}")
 
     asyncio.run(_run())
 
