@@ -33,6 +33,7 @@ from dmcp.install import InstallStatus, install_server
 from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
 from dmcp.manifest import Manifest
+from dmcp.normalize import apply_normalization
 from dmcp.pools import build_eval_pool, pool_to_tool_surface
 from dmcp.recorder import (
     SseServer,
@@ -728,6 +729,13 @@ def evaluate(
         int,
         typer.Option("--pool-size", help="Target pool: number of distractor tools."),
     ] = 8,
+    desc_level: Annotated[
+        str | None,
+        typer.Option(
+            "--desc-level",
+            help="Normalize offered tool descriptions (replay): a (surface) | b (semantic, LLM). Default: raw.",
+        ),
+    ] = None,
     output: Annotated[Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")] = Path(
         "evals/results.jsonl"
     ),
@@ -763,6 +771,8 @@ def evaluate(
         raise typer.BadParameter("--replay requires --reference-traces")
     if pool is not None and pool not in ("gold", "target", "full"):
         raise typer.BadParameter("--pool must be gold | target | full")
+    if desc_level is not None and desc_level not in ("a", "b"):
+        raise typer.BadParameter("--desc-level must be a | b")
 
     m = Manifest.load(manifest)
     configs = m.configs(servers)
@@ -864,6 +874,13 @@ def evaluate(
                         seed=spec.task_id.int % (2**31),
                     )
                     tool_surface = pool_to_tool_surface(pool_entries, ref.tool_specs)
+                if desc_level is not None:
+                    base = (
+                        tool_surface
+                        if tool_surface is not None
+                        else {sid: list(specs) for sid, specs in ref.tool_specs.items()}
+                    )
+                    tool_surface = await apply_normalization(base, desc_level, llm)
                 result = await run_exploration(
                     goal=spec.prompt,
                     recorder=cand_recorder,
