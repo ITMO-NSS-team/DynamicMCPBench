@@ -123,7 +123,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --pool gold|target|full [--p-alt X --pool-size N]` builds the candidate tool pool accordingly via the sampler; replay still deterministic; unit test on pool construction.
 
 ### E2.4 — SAE metric + expected/random subtypes + conditional rate
-- status: in_review (#15)
+- status: done
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T15:57:31Z
 - deps: E2.3
