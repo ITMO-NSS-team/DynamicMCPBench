@@ -228,7 +228,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a generate-then-verify baseline emits TaskSpecs from tool specs directly; comparable output format.
 
 ### E4.3 — RQ2 generation-quality comparison
-- status: in_review (#22)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T19:40:53Z
 - deps: E4.1 E4.2
