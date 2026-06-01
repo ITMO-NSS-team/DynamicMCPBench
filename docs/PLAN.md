@@ -79,9 +79,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a curated persona/intent set feeds `goal_gen.py`; generated goals show measurably higher diversity than the free-form baseline on a small sample; unit test.
 
 ### E1.5 — Decay metrics over time + refresh backoff
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T15:01:52Z
 - deps: E0.1
 - source: README Phase 4 / research_plan 4B
 - done-when: `refresh.py` records per-server drift rate across runs and `report.py` surfaces a decay table; retry-with-backoff for transient flakes; unit test on classification.
