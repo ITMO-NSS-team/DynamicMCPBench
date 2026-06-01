@@ -41,10 +41,17 @@ uv pip install -e ".[servers,dev]" || {
   uv pip install -e ".[dev]"
 }
 
-# 4. sandboxed working dirs for stateful_write servers (portable /tmp paths)
+# 4. sandboxed working dirs for stateful_write servers (portable /tmp paths),
+#    seeded with sample content so their read tools have something to act on.
 mkdir -p /tmp/dmcp-fs-sandbox /tmp/dmcp-memory /tmp/dmcp-sandbox /tmp/dmcp-arxiv
+[ -f /tmp/dmcp-fs-sandbox/sample.txt ] || printf 'hello from the dmcp sandbox\n' > /tmp/dmcp-fs-sandbox/sample.txt
 if [ ! -d /tmp/dmcp-sandbox-repo/.git ]; then
   git init -q /tmp/dmcp-sandbox-repo 2>/dev/null || true
+fi
+if [ -d /tmp/dmcp-sandbox-repo/.git ] && [ -z "$(git -C /tmp/dmcp-sandbox-repo log -1 --oneline 2>/dev/null)" ]; then
+  printf '# dmcp sandbox repo\n' > /tmp/dmcp-sandbox-repo/README.md
+  git -C /tmp/dmcp-sandbox-repo add -A 2>/dev/null || true
+  git -C /tmp/dmcp-sandbox-repo -c user.email=dmcp@example.com -c user.name=dmcp commit -q -m "seed sandbox repo" 2>/dev/null || true
 fi
 
 # 5. soft prerequisites (warn, don't fail)
