@@ -19,6 +19,7 @@ from pathlib import Path
 from uuid import UUID
 
 from dmcp.evaluator import EvaluationResult
+from dmcp.refresh import RefreshReport, decay_summary, per_server_decay
 from dmcp.spec import TaskSpec
 
 UNKNOWN_MODEL = "<unknown>"
@@ -46,6 +47,71 @@ def _load_evals(paths: list[Path]) -> list[EvaluationResult]:
                     continue
                 out.append(EvaluationResult.model_validate_json(line))
     return out
+
+
+def load_refresh_reports(paths: list[Path]) -> list[RefreshReport]:
+    """Load RefreshReport JSONL files (multiple files = multiple refresh runs)."""
+    out: list[RefreshReport] = []
+    for p in paths:
+        with p.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                out.append(RefreshReport.model_validate_json(line))
+    return out
+
+
+def decay_markdown(refresh_paths: list[Path]) -> str:
+    """Render the per-server decay table from one or more RefreshReport JSONL files.
+
+    A single file holds reports for one refresh sweep; passing multiple files
+    aggregates across runs over time, which is how `drift_rate` becomes a
+    meaningful "decay rate" rather than a single snapshot.
+    """
+    reports = load_refresh_reports(refresh_paths)
+    if not reports:
+        return "## Decay\n\n(no refresh reports)\n"
+
+    summary = decay_summary(reports)
+    per_server = per_server_decay(reports)
+
+    lines: list[str] = []
+    lines.append("## Decay")
+    lines.append("")
+    when_first = min(r.refreshed_at for r in reports).isoformat()
+    when_last = max(r.refreshed_at for r in reports).isoformat()
+    lines.append(
+        f"Aggregated {len(reports)} refresh report(s) covering "
+        f"{summary['specs_refreshed']} spec(s), {summary['call_outcomes']['total']} call(s). "
+        f"Window: {when_first} → {when_last}."
+    )
+    co = summary["call_outcomes"]
+    live = co["identical"] + co["drifted"] + co["broken"]
+    overall_drift = (co["drifted"] / live * 100.0) if live else 0.0
+    overall_broken = (co["broken"] / live * 100.0) if live else 0.0
+    lines.append(
+        f"Spec staleness: {summary['specs_stale']}/{summary['specs_refreshed']} "
+        f"({summary['stale_rate'] * 100:.0f}%). "
+        f"Overall drift {overall_drift:.0f}%, broken {overall_broken:.0f}% "
+        f"(skipped {co['skipped']}, retries {sum(b['retries'] for b in per_server.values())})."
+    )
+    lines.append("")
+    lines.append(
+        "| Server | Refreshes | Live calls | Identical | Drifted | Broken | "
+        "Skipped | Drift rate | Broken rate | Retries |"
+    )
+    lines.append("|---|---|---|---|---|---|---|---|---|---|")
+    for sid in sorted(per_server):
+        b = per_server[sid]
+        lines.append(
+            f"| `{sid}` | {b['refreshes']} | {b['live_calls']} | "
+            f"{b['identical']} | {b['drifted']} | {b['broken']} | {b['skipped']} | "
+            f"{b['drift_rate'] * 100:.0f}% | {b['broken_rate'] * 100:.0f}% | "
+            f"{b['retries']} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
 
 
 def passk_stats(
@@ -119,13 +185,20 @@ def _short(label: str) -> str:
     return label.split("/")[-1]
 
 
-def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
+def aggregate_markdown(
+    specs_path: Path,
+    eval_paths: list[Path],
+    refresh_paths: list[Path] | None = None,
+) -> str:
     specs = _load_specs(specs_path)
     evals = _load_evals(eval_paths)
+    refresh_section = decay_markdown(refresh_paths) if refresh_paths else ""
     if not specs:
-        return "# DynamicMCPBench Report\n\n(no specs)\n"
+        head = "# DynamicMCPBench Report\n\n(no specs)\n"
+        return head + ("\n" + refresh_section if refresh_section else "")
     if not evals:
-        return "# DynamicMCPBench Report\n\n(no evaluation results)\n"
+        head = "# DynamicMCPBench Report\n\n(no evaluation results)\n"
+        return head + ("\n" + refresh_section if refresh_section else "")
 
     models = sorted({_agent_key(ev) for ev in evals})
 
@@ -262,5 +335,8 @@ def aggregate_markdown(specs_path: Path, eval_paths: list[Path]) -> str:
             row.append(_fmt_pass(passed, len(ids)))
         lines.append("| " + " | ".join(row) + " |")
     lines.append("")
+
+    if refresh_section:
+        lines.append(refresh_section)
 
     return "\n".join(lines)
