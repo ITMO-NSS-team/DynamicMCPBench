@@ -599,6 +599,29 @@ def _load_traces_by_id(path: Path) -> dict[str, Trace]:
     return index
 
 
+def index_candidate_traces(path: Path) -> tuple[dict[str, list[Trace]], dict[str, list[Trace]]]:
+    """Index externally-produced candidate traces for `dmcp eval --candidate-traces`.
+
+    Returns (by_task, by_prompt): by_task maps str(seed_metadata['task_id']) -> traces;
+    by_prompt maps trace.goal -> traces. A spec is matched to its candidates by task_id
+    first, falling back to its prompt. Multiple traces per task are kept (→ pass^k).
+    """
+    by_task: dict[str, list[Trace]] = {}
+    by_prompt: dict[str, list[Trace]] = {}
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            t = Trace.model_validate_json(line)
+            tid = t.seed_metadata.get("task_id")
+            if tid is not None:
+                by_task.setdefault(str(tid), []).append(t)
+            if t.goal is not None:
+                by_prompt.setdefault(t.goal, []).append(t)
+    return by_task, by_prompt
+
+
 @app.command(name="eval")
 def evaluate(
     specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL input")],
@@ -658,6 +681,13 @@ def evaluate(
     output: Annotated[
         Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")
     ] = Path("evals/results.jsonl"),
+    candidate_traces: Annotated[
+        Path | None,
+        typer.Option(
+            "--candidate-traces",
+            help="Score externally-produced candidate trajectories from this JSONL instead of running an agent (matched to specs by seed_metadata.task_id, else by prompt).",
+        ),
+    ] = None,
     candidate_traces_out: Annotated[
         Path | None,
         typer.Option(
@@ -679,7 +709,7 @@ def evaluate(
                           reproducible across re-runs and across candidates.
                           Required for fair multi-agent comparison.
     """
-    if replay and reference_traces is None:
+    if replay and reference_traces is None and candidate_traces is None:
         raise typer.BadParameter("--replay requires --reference-traces")
 
     m = Manifest.load(manifest)
@@ -699,6 +729,57 @@ def evaluate(
         output.parent.mkdir(parents=True, exist_ok=True)
         if candidate_traces_out:
             candidate_traces_out.parent.mkdir(parents=True, exist_ok=True)
+
+        # ---- ingestion mode: score external candidate traces, no agent run ----
+        if candidate_traces is not None:
+            by_task, by_prompt = index_candidate_traces(candidate_traces)
+            typer.echo(
+                f"ingestion mode: indexed candidate traces "
+                f"({len(by_task)} by task_id, {len(by_prompt)} by prompt)"
+            )
+            passed = total = 0
+            with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
+                for raw in fin:
+                    raw = raw.strip()
+                    if not raw:
+                        continue
+                    spec = TaskSpec.model_validate_json(raw)
+                    cands = by_task.get(str(spec.task_id)) or by_prompt.get(spec.prompt) or []
+                    if not cands:
+                        typer.echo(f"[task {spec.task_id}] skip: no candidate trace provided")
+                        continue
+                    total += 1
+                    run_passes: list[bool] = []
+                    for i, ctrace in enumerate(cands):
+                        ev = run_eval(
+                            spec,
+                            ctrace,
+                            candidate_model=ctrace.seed_metadata.get("llm_model") or model,
+                            evaluation_mode="ingested",
+                        )
+                        if judge_llm is not None:
+                            ev.checkpoint_results = await upgrade_with_judge(
+                                spec.checkpoints, ctrace, ev.checkpoint_results, llm=judge_llm
+                            )
+                            all_cps_pass = all(cr.passed for cr in ev.checkpoint_results)
+                            no_mines = not any(mr.hit for mr in ev.minefield_results)
+                            ev.passed = all_cps_pass and no_mines and ev.ordering_ok
+                            ev.summary["checkpoints_passed"] = sum(
+                                1 for cr in ev.checkpoint_results if cr.passed
+                            )
+                        ev.repeat_index = i
+                        fout.write(ev.to_jsonl())
+                        fout.write("\n")
+                        run_passes.append(ev.passed)
+                        typer.echo(
+                            f"[task {spec.task_id}] trace {i + 1}/{len(cands)} → "
+                            f"{'PASS' if ev.passed else 'FAIL'} "
+                            f"checkpoints={ev.summary['checkpoints_passed']}/{ev.summary['checkpoints_total']}"
+                        )
+                    if run_passes and all(run_passes):
+                        passed += 1
+            typer.echo(f"done (ingested): {passed}/{total} specs passed → {output}")
+            return
 
         async def _single_run(spec: TaskSpec):
             """One candidate run for `spec`. Returns (ev, trace, miss_count) or None to skip."""
@@ -767,6 +848,7 @@ def evaluate(
                             break
                         ev, ctrace, miss_count = out
                         ev.repeat_index = _rep
+                        ctrace.seed_metadata.setdefault("task_id", str(spec.task_id))
                         fout.write(ev.to_jsonl())
                         fout.write("\n")
                         if cand_fh is not None:
