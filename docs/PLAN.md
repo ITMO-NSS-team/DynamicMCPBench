@@ -228,9 +228,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a generate-then-verify baseline emits TaskSpecs from tool specs directly; comparable output format.
 
 ### E4.3 — RQ2 generation-quality comparison
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T19:40:53Z
 - deps: E4.1 E4.2
 - source: research_plan RQ2 / simple_approach §8 (3 comparison axes)
 - done-when: forward vs graph-sampling vs direct compared on executable-on-first-try, human realism, distinct valid paths, coverage, unnecessary-tool rate, filter pass rate, and error-type diversity; report.
