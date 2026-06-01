@@ -55,7 +55,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --repeat K` runs each spec K times against replay and records per-spec pass^k (= fraction of K runs that fully pass); report.py shows a pass^k column; a pass^k_no_SAE vs pass^k_overall split is recorded; unit test on the aggregation.
 
 ### E1.2 — Tier-3 LLM tool simulator
-- status: in_review (#5)
+- status: done
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T14:25:38Z
 - deps: E0.1
