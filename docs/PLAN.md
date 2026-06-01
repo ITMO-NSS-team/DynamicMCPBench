@@ -212,9 +212,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E4 — Baselines & experiments (RQ1–RQ4)
 
 ### E4.1 — Backward graph-sampling generator (RQ2 baseline)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-01T18:48:19Z
 - deps: E1.1
 - source: PDF / research_plan RQ2 / AGB
 - done-when: a comparison-only generator builds a tool graph from schemas and back-instructs tasks; clearly labeled a baseline (not the headline) per memory/feedback_agb_orthogonality.md; emits TaskSpecs comparable to the forward path.
