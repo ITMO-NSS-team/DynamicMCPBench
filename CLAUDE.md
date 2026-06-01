@@ -152,3 +152,16 @@ Conventions that keep parallel agents safe:
   **ask before continuing** (no auto-advance).
 - **Blocked > forced**: unresolvable conflicts or ambiguity → `scripts/mark.py <id>
   blocked` and stop for a human. Never force a merge.
+
+## Results & experiments
+
+Empirical results are committed, never discarded. Any step that runs an
+experiment / RQ / validation writes a short report to
+`docs/experiments/<id>-<slug>.md` and commits it — **including negative or failed
+results** (a fail is a finding; silently dropping it is forbidden). The report
+carries: question/hypothesis, method + exact reproduce command, a
+**pre-registered decision rule**, the data, a result classified
+**positive / neutral / negative**, and the conclusion. Raw artifacts
+(`traces/ specs/ evals/ reports/ crawled/`) stay git-ignored and regenerable —
+commit only the report + distilled numbers. A step that makes an empirical claim
+is **not `done` until its report is committed**. See `docs/experiments/README.md`.
