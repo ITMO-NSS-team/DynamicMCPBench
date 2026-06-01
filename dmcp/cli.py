@@ -1387,6 +1387,8 @@ def verify(
     ] = None,
     server_timeout: Annotated[float, typer.Option("--server-timeout")] = 90.0,
     min_pass_rate: Annotated[float, typer.Option("--min-pass-rate")] = 0.5,
+    use_llm: Annotated[bool, typer.Option("--llm", help="Synthesize tool args with an LLM (realistic values)")] = False,
+    model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/verification.md"),
     json_out: Annotated[Path | None, typer.Option("--json-out")] = Path("reports/verification.jsonl"),
 ) -> None:
@@ -1398,6 +1400,7 @@ def verify(
     m = Manifest.load(manifest)
     configs = m.configs(servers)
     sandbox_by_id = {e.server_id: e.sandbox for e in m.servers}
+    vllm = OpenRouterClient(model=model) if use_llm else None
 
     async def _run() -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -1413,6 +1416,7 @@ def verify(
                             cfg,
                             sandbox=sandbox_by_id.get(cfg.server_id, False),
                             min_tool_pass_rate=min_pass_rate,
+                            llm=vllm,
                         ),
                         timeout=server_timeout,
                     )

@@ -13,9 +13,11 @@ Used to vet crawled servers before they enter the manifest (no-creds focus).
 from __future__ import annotations
 
 import asyncio
+import json
 import re
 from typing import Any
 
+from dmcp.llm import OpenRouterClient
 from dmcp.recorder import ServerConfig, TraceRecorder
 
 _DESTRUCTIVE_WORDS = {
@@ -77,6 +79,59 @@ def synthesize_args(input_schema: dict | None) -> dict[str, Any]:
     return {name: _value_for(props.get(name, {})) for name in props if name in required}
 
 
+_LLM_ARGS_SYSTEM = (
+    "You produce a realistic JSON arguments object to successfully CALL an MCP "
+    "tool for a simple read/query. Use plausible REAL values (a real city or IANA "
+    "timezone like 'Europe/London', a real URL such as https://example.com, a "
+    "common query like 'Alan Turing'). Respect the schema's required fields and "
+    "types. Prefer small/cheap requests. Return via the emit_args tool."
+)
+
+
+def _emit_args_schema() -> dict[str, Any]:
+    return {
+        "type": "function",
+        "function": {
+            "name": "emit_args",
+            "description": "Emit the JSON arguments object to call the tool.",
+            "parameters": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["arguments"],
+                "properties": {"arguments": {"type": "object", "additionalProperties": True}},
+            },
+        },
+    }
+
+
+async def llm_synthesize_args(
+    tool_name: str, description: str, input_schema: dict | None, llm: OpenRouterClient
+) -> dict[str, Any]:
+    """Ask an LLM for realistic call arguments; fall back to schema-based synthesis."""
+    user = (
+        f"Tool: {tool_name}\nDescription: {description or '(none)'}\n"
+        f"Input JSON schema:\n{json.dumps(input_schema or {})[:1500]}\n\n"
+        "Produce realistic arguments to call this tool once."
+    )
+    try:
+        resp = await llm.chat(
+            messages=[
+                {"role": "system", "content": _LLM_ARGS_SYSTEM},
+                {"role": "user", "content": user},
+            ],
+            tools=[_emit_args_schema()],
+            tool_choice={"type": "function", "function": {"name": "emit_args"}},
+            temperature=0.0,
+        )
+        if resp.tool_calls:
+            a = resp.tool_calls[0].arguments.get("arguments")
+            if isinstance(a, dict):
+                return a
+    except Exception:
+        pass
+    return synthesize_args(input_schema)
+
+
 def _result_text(result: dict[str, Any]) -> str:
     parts = [
         c.get("text", "")
@@ -92,6 +147,7 @@ async def verify_server(
     sandbox: bool = False,
     per_tool_timeout: float = 20.0,
     min_tool_pass_rate: float = 0.5,
+    llm: OpenRouterClient | None = None,
 ) -> dict[str, Any]:
     """Boot one server and exercise every tool. Returns a structured report."""
     report: dict[str, Any] = {
@@ -112,7 +168,11 @@ async def verify_server(
                         {"tool": ts.name, "status": "skipped", "reason": "destructive, not sandboxed"}
                     )
                     continue
-                args = synthesize_args(ts.input_schema)
+                args = (
+                    await llm_synthesize_args(ts.name, ts.description or "", ts.input_schema, llm)
+                    if llm is not None
+                    else synthesize_args(ts.input_schema)
+                )
                 try:
                     res = await asyncio.wait_for(
                         recorder.call_tool(config.server_id, ts.name, args),
