@@ -167,8 +167,8 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E3 — Scale the server substrate to 100+ (paper-critical)
 
 ### E3.1 — Large-scale crawl + vet to ≥100 vetted servers
-- status: blocked
-- note: needs human direction: done-when expects parallel installer (currently sequential, that's E3.2 dep'd on E3.1 — circular), and crawl-install of arbitrary registry packages is high-risk and was not pre-authorized
+- status: claimed
+- note: re-claimed by Ilya per user direction 2026-06-01; infra+server-collection in progress on a branch; NO merge until user approves
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T17:20:19Z
 - deps: E0.1
