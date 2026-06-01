@@ -115,9 +115,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: tool descriptions embedded + cached (pinned model+seed); hard_neg/cross_domain use cosine similarity with denoising; lexical fallback when no embedding key; unit test on ranking.
 
 ### E2.3 — Gold/Target/Full pool modes wired into eval
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T15:40:49Z
 - deps: E2.1
 - source: simple_approach §6.1 / PDF §4.5
 - done-when: `dmcp eval --pool gold|target|full [--p-alt X --pool-size N]` builds the candidate tool pool accordingly via the sampler; replay still deterministic; unit test on pool construction.
