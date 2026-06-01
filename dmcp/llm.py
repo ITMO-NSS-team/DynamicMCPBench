@@ -24,6 +24,7 @@ from openai import AsyncOpenAI
 from dmcp.trace import ToolSpec
 
 DEFAULT_MODEL = "anthropic/claude-haiku-4.5"
+DEFAULT_EMBED_MODEL = "openai/text-embedding-3-small"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 TOOL_NAMESPACE_SEP = "__"
 
@@ -174,3 +175,16 @@ class OpenRouterClient:
             usage=usage_dict,
             raw=completion.model_dump(mode="json"),
         )
+
+    async def embed(
+        self, texts: list[str], *, model: str = DEFAULT_EMBED_MODEL
+    ) -> list[list[float]]:
+        """Embed texts via OpenRouter's OpenAI-compatible embeddings endpoint.
+
+        Same key/base_url as chat. Model pinned for reproducibility (embeddings
+        are deterministic per snapshot). Returns one vector per input text.
+        """
+        if not texts:
+            return []
+        resp = await self._client.embeddings.create(model=model, input=texts)
+        return [d.embedding for d in resp.data]

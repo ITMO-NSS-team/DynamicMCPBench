@@ -42,12 +42,14 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 
+from dmcp.embeddings import EmbeddingIndex
 from dmcp.manifest import Manifest
 from dmcp.spec import ToolReference
 from dmcp.trace import Trace
 
 VALID_STRATEGIES = ("random", "hard_neg", "cross_domain", "same_name", "sibling", "stratified")
 NEAR_COLLISION_RATIO = 0.85  # SequenceMatcher threshold for same_name's edit-distance fold-in
+HARD_NEG_DENOISE = 0.97  # cosine >= this => near-duplicate, dropped from hard_neg (E2.2 denoising)
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
@@ -157,18 +159,26 @@ def _sample_hard_neg(
     required_entries: list[ToolEntry],
     n: int,
     rng: random.Random,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
-    """Rank candidates by max Jaccard similarity over required descriptions.
+    """Rank candidates by similarity to the required tools.
 
-    Tie-break is deterministic (server_id, tool_name); the seed only shuffles
-    the zero-similarity tail so a fully unrelated catalog still gets a
-    deterministic but seed-varied pick.
+    With an `embeddings` index, similarity is cosine over tool-description
+    vectors and near-duplicates (cos >= HARD_NEG_DENOISE) are dropped (denoising,
+    simple_approach §5.2). Without it, falls back to token Jaccard. Tie-break is
+    deterministic (server_id, tool_name); the seed only shuffles the zero tail.
     """
+    req_keys = [r.key for r in required_entries]
     req_tokens = [_tokens(r.description + " " + r.tool_name) for r in required_entries]
     scored: list[tuple[float, tuple[str, str], ToolEntry]] = []
     for e in candidates:
-        ct = _tokens(e.description + " " + e.tool_name)
-        sim = max((_jaccard(ct, rt) for rt in req_tokens), default=0.0)
+        if embeddings is not None:
+            sim = embeddings.max_sim(e.key, req_keys)
+            if sim >= HARD_NEG_DENOISE:
+                continue
+        else:
+            ct = _tokens(e.description + " " + e.tool_name)
+            sim = max((_jaccard(ct, rt) for rt in req_tokens), default=0.0)
         scored.append((sim, e.key, e))
     # Highest similarity first, deterministic on ties.
     scored.sort(key=lambda x: (-x[0], x[1]))
@@ -183,6 +193,7 @@ def _sample_cross_domain(
     required_entries: list[ToolEntry],
     n: int,
     rng: random.Random,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
     req_tags: set[str] = set()
     req_servers: set[str] = set()
@@ -198,8 +209,12 @@ def _sample_cross_domain(
             # server the required set does not use."
             continue
         out.append(e)
-    out.sort(key=_stable_sort_key)
-    rng.shuffle(out)
+    if embeddings is not None:
+        req_keys = [r.key for r in required_entries]
+        out.sort(key=lambda c: (-embeddings.max_sim(c.key, req_keys), c.key))
+    else:
+        out.sort(key=_stable_sort_key)
+        rng.shuffle(out)
     return _take(out, n)
 
 
@@ -254,13 +269,14 @@ def _strategy_dispatch(
     required_entries: list[ToolEntry],
     n: int,
     rng: random.Random,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
     if strategy == "random":
         return _sample_random(candidates, n, rng)
     if strategy == "hard_neg":
-        return _sample_hard_neg(candidates, required_entries, n, rng)
+        return _sample_hard_neg(candidates, required_entries, n, rng, embeddings)
     if strategy == "cross_domain":
-        return _sample_cross_domain(candidates, required_entries, n, rng)
+        return _sample_cross_domain(candidates, required_entries, n, rng, embeddings)
     if strategy == "same_name":
         return _sample_same_name(candidates, required_entries, n, rng)
     if strategy == "sibling":
@@ -273,6 +289,7 @@ def _sample_stratified(
     required_entries: list[ToolEntry],
     n: int,
     rng: random.Random,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
     """Round-robin draw from the five non-stratified strategies.
 
@@ -285,7 +302,7 @@ def _sample_stratified(
     queues: dict[str, list[ToolEntry]] = {}
     for i, name in enumerate(sub_order):
         queues[name] = _strategy_dispatch(
-            name, candidates, required_entries, n, _seeded(rng.randrange(2**31) + i)
+            name, candidates, required_entries, n, _seeded(rng.randrange(2**31) + i), embeddings
         )
     picked: list[ToolEntry] = []
     seen: set[tuple[str, str]] = set()
@@ -315,6 +332,7 @@ def sample_distractors(
     *,
     n: int,
     seed: int = 0,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
     """Build an `n`-tool distractor set around `required` using `strategy`.
 
@@ -331,8 +349,8 @@ def sample_distractors(
     req_entries = _required_entries(required, catalog)
     rng = _seeded(seed)
     if strategy == "stratified":
-        return _sample_stratified(candidates, req_entries, n, rng)
-    return _strategy_dispatch(strategy, candidates, req_entries, n, rng)
+        return _sample_stratified(candidates, req_entries, n, rng, embeddings)
+    return _strategy_dispatch(strategy, candidates, req_entries, n, rng, embeddings)
 
 
 def build_pool(
@@ -342,6 +360,7 @@ def build_pool(
     strategy: str,
     n_distractors: int,
     seed: int = 0,
+    embeddings: EmbeddingIndex | None = None,
 ) -> list[ToolEntry]:
     """Convenience: required tools (resolved against the catalog) + a
     distractor set of the requested size. The output is what `dmcp eval`
@@ -349,5 +368,7 @@ def build_pool(
     (E2.3 wires it; this module just builds the pool).
     """
     req_entries = _required_entries(required, catalog)
-    distractors = sample_distractors(strategy, required, catalog, n=n_distractors, seed=seed)
+    distractors = sample_distractors(
+        strategy, required, catalog, n=n_distractors, seed=seed, embeddings=embeddings
+    )
     return req_entries + distractors
