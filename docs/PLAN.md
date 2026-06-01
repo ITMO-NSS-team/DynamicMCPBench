@@ -155,9 +155,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a driver sweeps P_alt ∈ {0,.25,.5,.75,1} per (strategy, level) and emits accuracy/SAE-vs-P_alt with CIs; results normalized by complexity bin (1 / 2 / 3–4+ required tools), micro+macro averaged.
 
 ### E2.8 — Ablation harness + statistics
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T17:09:12Z
 - deps: E2.7 E2.5
 - source: simple_approach §8
 - done-when: runs the 5 contrasts (random/hard-neg/cross-domain/same-name/sibling/stratified) and tests H1–H3 with paired χ²/Fisher per cell + a mixed-effects logistic regression `correct ~ strategy + P_alt + level + (1|task) + (1|model)`, with Bonferroni/Holm correction; power-analysis note (≥150/cell); writes an ablation report.
