@@ -3,7 +3,8 @@
 This is the **single living source of truth** for the road to a finished paper.
 It is both the roadmap (ordered, dependency-aware steps) and the **claim ledger**
 that lets several Claude Code agents work in parallel without colliding. The loop
-that drives it is `/continue`; the full protocol is in `docs/AUTONOMY.md`.
+that drives it is `/continue`; the full protocol is in `docs/AUTONOMY.md`; the
+reasoning and the complete experiment catalogue are in `docs/CONCEPT.md`.
 
 **How to work this file:** don't hand-edit statuses during the loop — the scripts
 do it atomically. To advance the project, run `/continue` (or say «продолжи»),
@@ -13,6 +14,9 @@ keeping the headline thesis (`memory/feedback_agb_orthogonality.md`), but **chan
 to the step set (adding / splitting / re-sequencing steps, promoting an Idea) must
 be proposed to a human and confirmed before they are applied** — the loop never
 self-edits the plan's structure.
+
+**Paper-critical scale target:** the substrate must reach **100+ vetted MCP
+servers** (ideally several hundred) — this is a headline differentiator (epic E3).
 
 ## Step format (machine-parsed by scripts/claim.py & scripts/mark.py)
 
@@ -26,9 +30,6 @@ self-edits the plan's structure.
 - done-when: <concrete, checkable acceptance criteria>
 ```
 
-`status` legend — **todo**: free to claim. **claimed**: an agent owns it.
-**in_review**: PR open. **done**: merged. **blocked**: needs a human (see note).
-
 ---
 
 ## E0 — Bootstrap the autonomous loop
@@ -39,7 +40,7 @@ self-edits the plan's structure.
 - claimed_at: 2026-06-01
 - deps: —
 - source: user request 2026-06-01
-- done-when: docs/PLAN.md + docs/AUTONOMY.md + .claude/commands/continue.md + scripts/{bootstrap,agent_id,check}.sh + scripts/{claim,mark}.py + tests/test_smoke.py merged; CLAUDE.md/README link the loop; memory updated; env on itmo-laba bootstrapped; gate green; this PR merged via the loop itself.
+- done-when: docs/PLAN.md + docs/AUTONOMY.md + .claude/commands/continue.md + scripts/{bootstrap,agent_id,check}.sh + scripts/{claim,mark}.py + tests/test_smoke.py merged; CLAUDE.md/README link the loop; memory updated; dev env bootstrapped; gate green.
 
 ---
 
@@ -50,8 +51,8 @@ self-edits the plan's structure.
 - owner: —
 - claimed_at: —
 - deps: E0.1
-- source: README Phase 3 / research_plan RQ4 / tau-bench
-- done-when: `dmcp eval --repeat K` runs each spec K times against replay and records per-spec pass^k (= fraction of K runs that fully pass); report.py shows a pass^k column; unit test covers the aggregation.
+- source: simple_approach §6.4/7.4 / research_plan RQ4 / tau-bench
+- done-when: `dmcp eval --repeat K` runs each spec K times against replay and records per-spec pass^k (= fraction of K runs that fully pass); report.py shows a pass^k column; a pass^k_no_SAE vs pass^k_overall split is recorded; unit test on the aggregation.
 
 ### E1.2 — Tier-3 LLM tool simulator
 - status: todo
@@ -59,7 +60,7 @@ self-edits the plan's structure.
 - claimed_at: —
 - deps: E0.1
 - source: README Phase 1 / research_landscape (MirrorAPI / StableToolBench)
-- done-when: on a replay cache miss AND Tier-2 miss, an LLM produces a plausible tool result flagged `simulated=true` in the step; off by default behind a flag; deterministic seed/prompt; unit test on the miss→simulate path.
+- done-when: on a replay cache miss AND Tier-2 miss, an LLM produces a plausible result flagged `simulated=true`; off by default behind a flag; deterministic seed/prompt; unit test on the miss→simulate path.
 
 ### E1.3 — External candidate-trace ingestion in `dmcp eval`
 - status: todo
@@ -67,7 +68,7 @@ self-edits the plan's structure.
 - claimed_at: —
 - deps: E0.1
 - source: README Phase 3
-- done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories (so others can score their own runs against our specs) without re-running an agent; unit test.
+- done-when: `dmcp eval --candidate-traces <file>` scores externally-produced trajectories without re-running an agent; unit test.
 
 ### E1.4 — Persona-seeding library for goal-gen
 - status: todo
@@ -75,9 +76,9 @@ self-edits the plan's structure.
 - claimed_at: —
 - deps: E0.1
 - source: README Phase 2 / research_plan 2A
-- done-when: a curated persona/intent set feeds `goal_gen.py`; generated goals show measurably higher diversity than the free-form baseline on a small sample; unit test that personas flow through.
+- done-when: a curated persona/intent set feeds `goal_gen.py`; generated goals show measurably higher diversity than the free-form baseline on a small sample; unit test.
 
-### E1.5 — Decay metrics over time in refresh
+### E1.5 — Decay metrics over time + refresh backoff
 - status: todo
 - owner: —
 - claimed_at: —
@@ -94,76 +95,108 @@ self-edits the plan's structure.
 - owner: —
 - claimed_at: —
 - deps: E0.1
-- source: simple_approach.md §5.2 / PDF
-- done-when: new module implements 6 strategies (random, hard_neg, cross_domain, same_name, sibling, stratified) selecting distractor tools/servers from `manifest.configs()` around a spec's required tools; deterministic with a seed; unit tests per strategy.
+- source: simple_approach §5.2 / PDF
+- done-when: new module implements 6 strategies (random, hard_neg, cross_domain, same_name, sibling, stratified) selecting distractors around a spec's required tools from the manifest pool; deterministic with a seed; unit tests per strategy.
 
 ### E2.2 — Embedding index for hard-negative mining
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E2.1
-- source: simple_approach.md §3.3, §5.2
-- done-when: tool descriptions embedded + cached; hard_neg/cross_domain strategies use cosine similarity with a pinned model+seed; fallback to lexical similarity when no embedding key; unit test on ranking.
+- source: simple_approach §3.3/§5.2
+- done-when: tool descriptions embedded + cached (pinned model+seed); hard_neg/cross_domain use cosine similarity with denoising; lexical fallback when no embedding key; unit test on ranking.
 
-### E2.3 — SAE metric + expected/random subtypes
+### E2.3 — Gold/Target/Full pool modes wired into eval
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E2.1
-- source: PDF §5.1 / simple_approach.md §7.1
-- done-when: `evaluator.py` reports Server Attribution Error (right tool type from the spec's equivalence_set, wrong server) split into expected vs random; only meaningful in Target/Full pool modes; unit test with a synthetic confused trace.
+- source: simple_approach §6.1 / PDF §4.5
+- done-when: `dmcp eval --pool gold|target|full [--p-alt X --pool-size N]` builds the candidate tool pool accordingly via the sampler; replay still deterministic; unit test on pool construction.
 
-### E2.4 — P_alt degradation curves + Gold/Target/Full modes
+### E2.4 — SAE metric + expected/random subtypes + conditional rate
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E2.1 E2.3
-- source: PDF §4.3-4.5 / simple_approach.md §6
-- done-when: `dmcp eval --pool gold|target|full --p-alt X` controls distractor density; a driver sweeps P_alt ∈ {0,.25,.5,.75,1} and emits accuracy/SAE-vs-P_alt curves; report includes the curve table.
+- deps: E2.3
+- source: PDF §5.1 / simple_approach §7.1
+- done-when: `evaluator.py` reports SAE (right tool type per equivalence_set, wrong server), split expected vs random, plus SAE conditional rate; only meaningful in Target/Full modes; unit test with a synthetic confused trace.
 
 ### E2.5 — Error taxonomy E1–E7 with weights
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E2.3
-- source: PDF §5.2
-- done-when: failed evaluations are classified into the 7-type taxonomy with the documented default weights; report shows the error-type breakdown; unit tests on classification.
+- deps: E2.4
+- source: PDF §5.2 / simple_approach §7.2
+- done-when: failed evaluations are classified into the 7-type taxonomy with the documented default weights; report shows the weighted error breakdown; unit tests.
 
 ### E2.6 — Description normalization Level A / Level B
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E0.1
-- source: PDF §4.2 / simple_approach.md §6.2
-- done-when: a normalizer rewrites tool descriptions to Level A (surface) / Level B (semantic augmentation); eval can run A vs B; documents the effect as a controlled variable; unit test on the templating.
+- source: PDF §4.2 / simple_approach §6.2
+- done-when: a normalizer produces Level A (surface) / Level B (semantic-augmented, rubric-templated) descriptions; eval runs A vs B; unit test on templating.
+
+### E2.7 — P_alt degradation-curve driver + complexity bins
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E2.3 E2.4
+- source: simple_approach §7.3/§7.5 / PDF §4.3
+- done-when: a driver sweeps P_alt ∈ {0,.25,.5,.75,1} per (strategy, level) and emits accuracy/SAE-vs-P_alt with CIs; results normalized by complexity bin (1 / 2 / 3–4+ required tools), micro+macro averaged.
+
+### E2.8 — Ablation harness + statistics
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E2.7 E2.5
+- source: simple_approach §8
+- done-when: runs the 5 contrasts (random/hard-neg/cross-domain/same-name/sibling/stratified) and tests H1–H3 with paired χ²/Fisher per cell + a mixed-effects logistic regression `correct ~ strategy + P_alt + level + (1|task) + (1|model)`, with Bonferroni/Holm correction; power-analysis note (≥150/cell); writes an ablation report.
 
 ---
 
-## E3 — Scale the server substrate
+## E3 — Scale the server substrate to 100+ (paper-critical)
 
-### E3.1 — Expand the curated manifest
+### E3.1 — Large-scale crawl + vet to ≥100 vetted servers
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E0.1
-- source: research_plan Phase 1 / README Phase 1
-- done-when: `manifests/local.json` grows with more vetted public-API + sandboxed servers (each tagged dynamism + sandbox), all smoke-passing; manifest validates.
+- source: research_plan Phase 1 / user 2026-06-01 (100+ target)
+- done-when: the crawler ingests the full registry and (with parallel, timeout-bounded install + smoke-vet) produces a curated manifest of **≥100 vetted servers** (target several hundred) spanning static / live_read / stateful_write and many domains; deduped; each tagged + sandboxed where stateful; a funnel report (registry size → installable → vetted) is emitted.
 
-### E3.2 — Wire the docker-compose stack as a manifest
+### E3.2 — Scale-out hardening of crawl/install/vet
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.1
+- source: README Phase 1
+- done-when: install/vet run concurrently with per-server timeouts and failure isolation; oci/docker packages supported where feasible; resumable crawl (checkpoint discovered/vetted JSONL); throughput documented.
+
+### E3.3 — Wire the docker-compose stack as a manifest
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E3.1
 - source: docker-compose-mcp.yaml
-- done-when: a `manifests/compose.json` targets the compose-launched MCP servers (postgres/mongo/neo4j/qdrant/redis/... via http/sse); a documented `docker compose up` brings them up; smoke-vet passes for the reachable ones.
+- done-when: a `manifests/compose.json` targets the compose-launched servers (postgres/mongo/neo4j/qdrant/redis/...); documented `docker compose up`; smoke-vet passes for reachable ones; adds stateful_write breadth.
 
-### E3.3 — Credentialed manifest tier (Bucket A)
+### E3.4 — Credentialed manifest tier (Bucket A)
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E3.1
 - source: docs/credentials_bucket_a.md / README Phase 1
-- done-when: servers needing keys are env-plumbed from `.env` (never committed); a `manifests/credentialed.json` is gated on present keys; missing keys skip the server gracefully.
+- done-when: servers needing keys are env-plumbed from `.env` (never committed); a `manifests/credentialed.json` is gated on present keys; missing keys skip gracefully.
+
+### E3.5 — Substrate coverage report
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.1
+- source: research_plan §3 (substrate table)
+- done-when: `report.py` (or a script) emits the paper's substrate table: server count, by dynamism, by domain, tool counts, mining funnel.
 
 ---
 
@@ -175,7 +208,7 @@ self-edits the plan's structure.
 - claimed_at: —
 - deps: E1.1
 - source: PDF / research_plan RQ2 / AGB
-- done-when: a comparison-only generator builds a tool graph from schemas and back-instructs tasks; clearly labeled a *baseline* (not the headline path) per memory/feedback_agb_orthogonality.md; produces TaskSpecs comparable to the forward path.
+- done-when: a comparison-only generator builds a tool graph from schemas and back-instructs tasks; clearly labeled a baseline (not the headline) per memory/feedback_agb_orthogonality.md; emits TaskSpecs comparable to the forward path.
 
 ### E4.2 — Direct-generation generator (RQ2 baseline)
 - status: todo
@@ -183,9 +216,17 @@ self-edits the plan's structure.
 - claimed_at: —
 - deps: E1.1
 - source: research_plan RQ2 / MCPEval
-- done-when: a generate-then-verify baseline produces TaskSpecs from tool specs directly; comparable output format.
+- done-when: a generate-then-verify baseline emits TaskSpecs from tool specs directly; comparable output format.
 
-### E4.3 — RQ1 headline: answer-match vs trace-align
+### E4.3 — RQ2 generation-quality comparison
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E4.1 E4.2
+- source: research_plan RQ2 / simple_approach §8 (3 comparison axes)
+- done-when: forward vs graph-sampling vs direct compared on executable-on-first-try, human realism, distinct valid paths, coverage, unnecessary-tool rate, filter pass rate, and error-type diversity; report.
+
+### E4.4 — RQ1 headline: answer-match vs trace-align
 - status: todo
 - owner: —
 - claimed_at: —
@@ -193,49 +234,65 @@ self-edits the plan's structure.
 - source: research_plan RQ1
 - done-when: a harness scores the same agents two ways (final-answer string match vs trace/effect alignment) on live_read/stateful tasks, re-run over time; reports ranking instability (Kendall's τ) and false-fail rate.
 
-### E4.4 — RQ3 trace-property failure model
+### E4.5 — RQ3 trace-property failure model
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E2.4
+- deps: E2.7
 - source: research_plan RQ3
-- done-when: fit a model on (depth, branching, state_coupling, cross_server, dynamism) → pass/fail per model; report feature importances.
+- done-when: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model; report feature importances.
 
-### E4.5 — RQ4 scorer-vs-human + 200-task validation subset
+### E4.6 — RQ4 scorer-vs-human + 200-task validation subset
 - status: todo
 - owner: —
 - claimed_at: —
 - deps: E1.1
-- source: research_plan RQ4
-- done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α).
+- source: research_plan RQ4 / simple_approach §5.6
+- done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α ≥ 0.7); false-pass/false-fail; replay determinism <5%.
 
-### E4.6 — ≥5-model leaderboard
+### E4.7 — ≥5-model leaderboard
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E1.1
-- source: README Phase 3
-- done-when: leaderboard covers ≥5 candidate models (GPT-4o, Gemini, Sonnet 4.x, an open-weight 70B+, plus current set) in replay mode; report regenerated.
+- deps: E1.1 E3.1
+- source: README Phase 3 / simple_approach §9
+- done-when: leaderboard covers ≥5 models (a GPT-class, Gemini, Claude Sonnet/Opus, an open-weight 70B+, a tool-specialized model) in replay, 3× per task; report regenerated.
+
+### E4.8 — Architecture comparison (flat / RAG-MCP / hierarchical)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E4.7
+- source: simple_approach §12 / research_landscape
+- done-when: the same benchmark is run against a flat agent, a RAG-MCP retrieval agent, and a hierarchical router+specialist agent; report compares them.
 
 ---
 
 ## E5 — Paper & release
 
-### E5.1 — Paper scaffold (LaTeX, §1–§7 skeleton)
+### E5.1 — Paper scaffold (§1–§7 skeleton)
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E4.3
-- source: research_plan Phase 5
-- done-when: `paper/` holds a NeurIPS/EMNLP-style skeleton with the section plan, the AGB-contrast paragraph, and auto-pulled figure/table placeholders.
+- deps: E4.4
+- source: research_plan Phase 5 (paper outline)
+- done-when: `paper/` holds a NeurIPS/EMNLP-style skeleton with the section plan, the AGB-contrast paragraph, and figure/table placeholders (Fig: pipeline; example trace→checkpoints; answer-match vs trace-align; perf by dynamism/depth; decay curve; comparison table; capability profile; scorer-vs-human).
 
-### E5.2 — HuggingFace dataset release packaging
+### E5.2 — Auto-generated figures & tables
 - status: todo
 - owner: —
 - claimed_at: —
-- deps: E4.6
+- deps: E5.1 E2.7 E4.3
 - source: research_plan Phase 5
-- done-when: a `dmcp release` packages specs + reference traces into a HF-loadable dataset layout (under a tracked `datasets/` path, not the git-ignored working dirs) with a datasheet.
+- done-when: a script regenerates the paper's figures/tables from eval/report artifacts (substrate table, degradation curves, leaderboard, decay curve, ablation).
+
+### E5.3 — HuggingFace dataset release + datasheet
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E4.7
+- source: research_plan Phase 5
+- done-when: a `dmcp release` packages specs + reference traces into a HF-loadable layout (tracked `datasets/` path, not the git-ignored working dirs) with a datasheet; a living-leaderboard description.
 
 ---
 
@@ -267,11 +324,12 @@ self-edits the plan's structure.
 
 ---
 
-## Idea backlog (un-sequenced; loop may promote to steps)
+## Idea backlog (un-sequenced; promote to steps only with human sign-off)
 
-- Semantic-cache (Tier-2) tuning study: threshold sweep vs human-judged equivalence.
-- LLM dynamism reclassification when heuristic disagrees with observed drift (vet.py).
-- Mine the full registry discovery scan for more no-creds public-API servers (Bucket B).
-- Cross-server credentialed scenarios once E3.3 lands.
-- Architecture comparison: flat agent vs RAG-MCP vs hierarchical router (research_landscape).
-- Empirical calibration of error-taxonomy weights via pairwise human severity judgments.
+- Adversarial spec filters (naturalness / leakage / trivial-task) on the distiller output.
+- Empirical calibration of error-taxonomy weights via pairwise human severity (Bradley-Terry).
+- Semantic-cache (Tier-2) threshold sweep vs human-judged equivalence.
+- LLM dynamism reclassification when the heuristic disagrees with observed drift (vet.py).
+- Mine the full discovery scan for more no-creds public-API servers (Bucket B).
+- Continual/live re-evaluation to track model-quality drift over time.
+- Cross-server credentialed scenarios once E3.4 lands.
