@@ -242,7 +242,7 @@ self-edits the plan's structure.
 ## CC — Cross-cutting (ongoing)
 
 ### CC.1 — Grow the test suite
-- status: in_review
+- status: done
 - owner: bootstrap
 - claimed_at: 2026-06-01
 - deps: —
