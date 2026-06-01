@@ -147,9 +147,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a normalizer produces Level A (surface) / Level B (semantic-augmented, rubric-templated) descriptions; eval runs A vs B; unit test on templating.
 
 ### E2.7 — P_alt degradation-curve driver + complexity bins
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T16:43:40Z
 - deps: E2.3 E2.4
 - source: simple_approach §7.3/§7.5 / PDF §4.3
 - done-when: a driver sweeps P_alt ∈ {0,.25,.5,.75,1} per (strategy, level) and emits accuracy/SAE-vs-P_alt with CIs; results normalized by complexity bin (1 / 2 / 3–4+ required tools), micro+macro averaged.
