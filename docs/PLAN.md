@@ -115,7 +115,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: tool descriptions embedded + cached (pinned model+seed); hard_neg/cross_domain use cosine similarity with denoising; lexical fallback when no embedding key; unit test on ranking.
 
 ### E2.3 — Gold/Target/Full pool modes wired into eval
-- status: claimed
+- status: in_review (#14)
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-01T15:40:49Z
 - deps: E2.1
