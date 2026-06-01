@@ -55,9 +55,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `dmcp eval --repeat K` runs each spec K times against replay and records per-spec pass^k (= fraction of K runs that fully pass); report.py shows a pass^k column; a pass^k_no_SAE vs pass^k_overall split is recorded; unit test on the aggregation.
 
 ### E1.2 — Tier-3 LLM tool simulator
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-01T14:25:38Z
 - deps: E0.1
 - source: README Phase 1 / research_landscape (MirrorAPI / StableToolBench)
 - done-when: on a replay cache miss AND Tier-2 miss, an LLM produces a plausible result flagged `simulated=true`; off by default behind a flag; deterministic seed/prompt; unit test on the miss→simulate path.
