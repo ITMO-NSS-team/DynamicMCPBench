@@ -3,16 +3,18 @@
 Runs goal generation in both conditions (persona-seeded vs free-form) over
 several seeds on a set of read-only servers, then scores each goal set on:
 
-  - PRIMARY  : semantic intent diversity = (# distinct user intents) / (# goals),
-               judged by an LLM (OpenRouter, temperature 0). Directly tests
-               whether personas diversify *intent* — the signal the lexical
-               metric missed in the E1.4 null result.
-  - SECONDARY: lexical diversity (dmcp.personas.diversity_score).
+  - PRIMARY  : semantic *embedding* diversity = mean pairwise cosine DISTANCE
+               of goal embeddings (OpenRouterClient.embed, pinned model). This is
+               the originally pre-registered primary, enabled once E2.2 added
+               embeddings. Higher = more diverse.
+  - SEMANTIC-2: LLM-judge distinct-intent ratio (the interim primary used before
+               embeddings were available).
+  - LEXICAL  : dmcp.personas.diversity_score (token Jaccard).
 
 Decision rule (pre-registered): on the PRIMARY metric, persona-seeding is
 positive iff its seed-mean exceeds free-form with non-overlapping ±stdev bands;
-otherwise neutral (or negative if free-form is higher beyond the bands). With
-only 3 seeds the ±stdev band is a rough CI proxy — reported as such.
+else neutral (or negative if free-form is higher beyond the bands). With 3 seeds
+the ±stdev band is a rough CI proxy.
 
 Run: uv run python docs/experiments/e1.4a_run.py   (needs OPENROUTER_API_KEY)
 """
@@ -24,6 +26,7 @@ import re
 import statistics
 from pathlib import Path
 
+from dmcp.embeddings import cosine
 from dmcp.goal_gen import generate_goals
 from dmcp.llm import OpenRouterClient
 from dmcp.manifest import Manifest
@@ -41,7 +44,6 @@ INTENT_SYS = (
 
 
 async def intent_ratio(goals: list[str], llm: OpenRouterClient) -> float:
-    """Distinct-intent ratio in (0, 1]: distinct intents / number of goals."""
     if len(goals) < 2:
         return 0.0
     listed = "\n".join(f"{i + 1}. {g}" for i, g in enumerate(goals))
@@ -64,12 +66,24 @@ async def intent_ratio(goals: list[str], llm: OpenRouterClient) -> float:
     return min(max(k, 1), len(goals)) / len(goals)
 
 
+async def embedding_diversity(goals: list[str], llm: OpenRouterClient) -> float:
+    """Mean pairwise cosine DISTANCE (1 - cosine) over goal embeddings."""
+    if len(goals) < 2:
+        return 0.0
+    vecs = await llm.embed(goals)
+    dists: list[float] = []
+    for i in range(len(vecs)):
+        for j in range(i + 1, len(vecs)):
+            dists.append(1.0 - cosine(vecs[i], vecs[j]))
+    return sum(dists) / len(dists) if dists else 0.0
+
+
 async def main() -> None:
     manifest = Manifest.load(Path("manifests/local.json"))
     have = {e.server_id for e in manifest.servers}
     servers = [s for s in CANDIDATE_SERVERS if s in have]
     llm = OpenRouterClient()
-    results: dict[bool, list[tuple[int, float, float]]] = {True: [], False: []}
+    results: dict[bool, list[tuple[int, float, float, float]]] = {True: [], False: []}
 
     for seed in SEEDS:
         for use_p in (True, False):
@@ -89,8 +103,12 @@ async def main() -> None:
             texts = [entry.goal for entry in g.entries if entry.goal]
             lex = diversity_score(texts)
             intent = await intent_ratio(texts, llm)
-            results[use_p].append((len(texts), lex, intent))
-            print(f"seed={seed} personas={use_p} n={len(texts)} lexical={lex:.4f} intent={intent:.4f}")
+            emb = await embedding_diversity(texts, llm)
+            results[use_p].append((len(texts), lex, intent, emb))
+            print(
+                f"seed={seed} personas={use_p} n={len(texts)} "
+                f"embed={emb:.4f} intent={intent:.4f} lexical={lex:.4f}"
+            )
 
     def summarize(idx: int, use_p: bool) -> tuple[float, float]:
         vals = [r[idx] for r in results[use_p]]
@@ -100,7 +118,7 @@ async def main() -> None:
 
     print("\n=== summary (mean ± stdev over seeds) ===")
     print(f"servers used: {servers}  seeds: {SEEDS}  per_server: {PER_SERVER}")
-    for label, idx in (("intent (PRIMARY)", 2), ("lexical (secondary)", 1)):
+    for label, idx in (("embed (PRIMARY)", 3), ("intent (semantic-2)", 2), ("lexical", 1)):
         pm, ps = summarize(idx, True)
         fm, fs = summarize(idx, False)
         if pm - ps > fm + fs:
@@ -109,7 +127,7 @@ async def main() -> None:
             verdict = "NEGATIVE (free > persona)"
         else:
             verdict = "NEUTRAL (bands overlap)"
-        print(f"{label:22s} persona={pm:.4f}±{ps:.4f}  free={fm:.4f}±{fs:.4f}  -> {verdict}")
+        print(f"{label:20s} persona={pm:.4f}±{ps:.4f}  free={fm:.4f}±{fs:.4f}  -> {verdict}")
 
 
 if __name__ == "__main__":
