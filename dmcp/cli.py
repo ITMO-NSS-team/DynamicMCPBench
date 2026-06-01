@@ -21,6 +21,8 @@ from typing import Annotated
 
 import typer
 
+from dmcp.baselines.direct_generation import GenerationError
+from dmcp.baselines.direct_generation import generate_direct as run_direct_gen
 from dmcp.baselines.graph_sampling import (
     VALID_MOTIFS,
     ToolGraph,
@@ -316,9 +318,7 @@ def baseline_graph(
             help="Repeatable: subgraph motif (chain|hub). Default: both.",
         ),
     ] = None,
-    size: Annotated[
-        int, typer.Option("--size", help="Tools per sampled subgraph (default 3)")
-    ] = 3,
+    size: Annotated[int, typer.Option("--size", help="Tools per sampled subgraph (default 3)")] = 3,
     samples: Annotated[
         int,
         typer.Option("--samples", help="Subgraphs to sample per motif (default 5)"),
@@ -388,16 +388,12 @@ def baseline_graph(
                     attempted += 1
                     sample_seed = seed * 1000 + hash(mname) % 1000 + s_idx
                     try:
-                        subgraph = sample_subgraph(
-                            graph, size=size, motif=mname, seed=sample_seed
-                        )
+                        subgraph = sample_subgraph(graph, size=size, motif=mname, seed=sample_seed)
                     except Exception as e:
                         typer.echo(f"  [{mname}#{s_idx}] sample error: {e}")
                         continue
                     try:
-                        spec = await run_back_instruct(
-                            subgraph, graph, llm=llm, manifest=m
-                        )
+                        spec = await run_back_instruct(subgraph, graph, llm=llm, manifest=m)
                     except Exception as e:
                         typer.echo(f"  [{mname}#{s_idx}] back-instruct error: {e}")
                         continue
@@ -406,6 +402,85 @@ def baseline_graph(
                     kept += 1
                     typer.echo(
                         f"  [{mname}#{s_idx}] task {spec.task_id} "
+                        f"servers={spec.servers_used} cps={len(spec.checkpoints)}"
+                    )
+        typer.echo(f"\nwrote {kept}/{attempted} baseline specs → {output}")
+
+    asyncio.run(_run())
+
+
+@app.command(name="baseline-direct")
+def baseline_direct(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/local.json"),
+    servers: Annotated[
+        list[str] | None,
+        typer.Option("--server", help="Repeatable: restrict to specific server_ids (default all)"),
+    ] = None,
+    samples: Annotated[int, typer.Option("--samples", help="Direct-generated proposals per server")] = 3,
+    max_attempts: Annotated[
+        int,
+        typer.Option(
+            "--max-attempts",
+            help="Per-sample attempts: LLM proposes, verifier checks, retry on failure.",
+        ),
+    ] = 2,
+    model: Annotated[str, typer.Option("--model", help="LLM for direct generation")] = DEFAULT_MODEL,
+    output: Annotated[Path, typer.Option("--output", "-o", help="TaskSpec JSONL output")] = Path(
+        "specs/baseline_direct.jsonl"
+    ),
+) -> None:
+    """Generate TaskSpecs via the RQ2 direct generate-then-verify baseline (NOT the headline).
+
+    Captures each server's live tool surface, asks an LLM to propose a task
+    using only those tools, and mechanically verifies the proposal (every tool
+    exists; every argument key is a real top-level parameter) before emitting
+    a TaskSpec. Specs are tagged `distiller_version="baseline-direct-generation-…"`
+    and `notes` start with `[BASELINE:direct_generation]` so reports cannot
+    conflate them with forward-distilled specs.
+
+    Per `memory/feedback_agb_orthogonality.md`: comparison-only; nothing on
+    the headline path consumes this module's output.
+    """
+    m = Manifest.load(manifest)
+    chosen = servers or [s.server_id for s in m.servers]
+    entries = []
+    for sid in chosen:
+        try:
+            entries.append(m.by_id(sid))
+        except KeyError as e:
+            raise typer.BadParameter(f"unknown server_id {sid!r}") from e
+    llm = OpenRouterClient(model=model)
+
+    async def _run() -> None:
+        typer.echo(
+            f"baseline-direct: {len(entries)} server(s), samples/server={samples}, "
+            f"max_attempts={max_attempts}"
+        )
+        output.parent.mkdir(parents=True, exist_ok=True)
+        kept = attempted = 0
+        with output.open("a", encoding="utf-8") as fout:
+            for entry in entries:
+                try:
+                    specs = await _fetch_tool_specs(entry)
+                except Exception as e:
+                    typer.echo(f"  skip {entry.server_id}: tool-surface fetch failed: {e}")
+                    continue
+                if not specs:
+                    typer.echo(f"  skip {entry.server_id}: 0 tools")
+                    continue
+                surfaces = {entry.server_id: specs}
+                for s_idx in range(samples):
+                    attempted += 1
+                    try:
+                        spec = await run_direct_gen(surfaces, llm=llm, manifest=m, max_attempts=max_attempts)
+                    except GenerationError as e:
+                        typer.echo(f"  [{entry.server_id}#{s_idx}] generation error: {e}")
+                        continue
+                    fout.write(spec.to_jsonl())
+                    fout.write("\n")
+                    kept += 1
+                    typer.echo(
+                        f"  [{entry.server_id}#{s_idx}] task {spec.task_id} "
                         f"servers={spec.servers_used} cps={len(spec.checkpoints)}"
                     )
         typer.echo(f"\nwrote {kept}/{attempted} baseline specs → {output}")
@@ -844,7 +919,10 @@ def evaluate(
     ] = None,
     p_alt: Annotated[
         float,
-        typer.Option("--p-alt", help="Target pool: fraction of distractors that are direct alternatives (same name, other server)."),
+        typer.Option(
+            "--p-alt",
+            help="Target pool: fraction of distractors that are direct alternatives (same name, other server).",
+        ),
     ] = 0.5,
     pool_size: Annotated[
         int,
@@ -1143,7 +1221,11 @@ def curve(
                 if ref is None:
                     continue
                 pool_entries = build_eval_pool(
-                    spec, catalog, mode="target", p_alt=p, pool_size=pool_size,
+                    spec,
+                    catalog,
+                    mode="target",
+                    p_alt=p,
+                    pool_size=pool_size,
                     seed=spec.task_id.int % (2**31),
                 )
                 surface = pool_to_tool_surface(pool_entries, ref.tool_specs)
@@ -1155,8 +1237,11 @@ def curve(
                 )
                 stash_exploration_in_trace(result)
                 ev = run_eval(
-                    spec, result.trace, candidate_model=model,
-                    evaluation_mode="curve", server_tags=server_tags,
+                    spec,
+                    result.trace,
+                    candidate_model=model,
+                    evaluation_mode="curve",
+                    server_tags=server_tags,
                 )
                 samples.append(
                     {
