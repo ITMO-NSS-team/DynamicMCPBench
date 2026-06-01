@@ -73,6 +73,8 @@ class EvaluationResult(BaseModel):
     candidate_trace_id: UUID
     candidate_model: str | None = None
     evaluation_mode: str | None = None  # "live" | "replay"
+    repeat_index: int = 0  # which repeat produced this run (pass^k); 0 when --repeat 1
+    had_sae: bool = False  # set once SAE detection lands (E2.4); gates pass^k_no_SAE
     passed: bool
     checkpoint_results: list[CheckpointResult]
     minefield_results: list[MinefieldResult]
