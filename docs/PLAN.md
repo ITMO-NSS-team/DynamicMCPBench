@@ -184,9 +184,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: install/vet run concurrently with per-server timeouts and failure isolation; oci/docker packages supported where feasible; resumable crawl (checkpoint discovered/vetted JSONL); throughput documented.
 
 ### E3.3 — Wire the docker-compose stack as a manifest
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-02T13:28:56Z
 - deps: E3.1
 - source: docker-compose-mcp.yaml
 - done-when: a `manifests/compose.json` targets the compose-launched servers (postgres/mongo/neo4j/qdrant/redis/...); documented `docker compose up`; smoke-vet passes for reachable ones; adds stateful_write breadth.
