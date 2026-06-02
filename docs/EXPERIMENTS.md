@@ -165,3 +165,90 @@ uv run dmcp subset -m manifests/servers.json --exclude-tag tier:compose -o manif
 ```
 
 The full smoke-vet of the 13-server stack is in `reports/compose_verify.md`.
+
+## 7. Strategy-diverse generation (compose tasks by tool *relationship*)
+
+Random per-server goals under-sample the interesting space. The generator can
+instead pick the **seed tool-set by relationship**, reusing the eval-side sampler
+(`dmcp/sampling.py`) so the *same* relationship logic that builds eval distractors
+also drives forward exploration. The explorer still explores live and the distiller
+distills the real trace — the trace-native invariant holds (graph/direct stay RQ2
+baselines).
+
+```bash
+# one strategy, one difficulty, intra/inter tagged automatically
+uv run dmcp goal-gen -m manifests/servers.json --strategy same_name \
+    --per-strategy 4 --complexity medium -o data/goals_samename.json
+```
+
+**15 generation strategies** (each tags its goals `strategy:<s>` + `intra/cross-server`
++ `complexity:<level>`):
+
+| group | strategies | probes |
+|---|---|---|
+| base (6, from `sampling.py`) | random, hard_neg, cross_domain, same_name, sibling, stratified | diversity, near-miss, SAE primitive, intra-chains |
+| corner (7) | long_similar_chain, homonym_trap, decoy, prerequisite_strict, recovery_required, destructive_adjacent, ambiguous_intent | max SAE+depth, E1/E5, minefields, equivalence stress |
+| special (2) | cross_server_alt (from `direct_alt.json`), complementary (output→input edges via `baselines/graph_sampling`) | true cross-server equivalents, genuine data-dependency chains |
+
+The **stratified corpus runner** sweeps strategies × complexity over the full set
+(detached + phase-resumable) and emits a coverage report:
+
+```bash
+uv run python scripts/build_corpus.py --manifest manifests/servers.json \
+    --complexities simple,medium,hard --per-strategy 12 --out data/corpus
+# → data/corpus/{goals_full,traces,specs}.jsonl + data/corpus/coverage.md
+#   (binned by strategy / measured trace_depth / dynamism / intra-vs-inter / tier)
+```
+
+## 8. `dmcp bench` — the whole pipeline in one command (test an agent on YOUR servers)
+
+The repo *is* the product: point `dmcp bench` at **any** manifest and it runs
+generation → multi-model agent eval (replay) → ablations + difficulty curve →
+graph/direct RQ2 baselines → a single report bundle.
+
+```bash
+uv run dmcp bench -m manifests/servers.json \
+    --models openai/gpt-4o,google/gemini-2.0-flash,anthropic/claude-sonnet-4-6 \
+    --strategies same_name,sibling,long_similar_chain --complexities simple,medium,hard \
+    --per-strategy 8 --pools gold,target,full --p-alts 0,0.5,1.0 --repeat 5 \
+    --out reports/bench
+# bundle: corpus/, leaderboard/leaderboard.md, strategy_ablation.md, difficulty_curve.md,
+#         coverage.md, baseline_{graph,direct}.jsonl, rq2_comparison.md
+```
+
+Flags: `--skip-generate` reuses an existing `<out>/corpus`; `--no-baselines` skips
+the RQ2 generators; `--server` restricts the server set. Under the hood it reuses
+`build_corpus.py`, `run_leaderboard.py`, `strategy_ablation.py`, `difficulty_curve.py`,
+`corpus_coverage.py`, and the `baseline-graph` / `baseline-direct` /
+`compare-generators` commands — no orphan module.
+
+## 9. The full experiment-run plan (paper)
+
+Everything below is **code-complete and smoke-tested**; this is the run recipe.
+Each phase writes a `docs/experiments/<id>_numbers.json` that the paper regenerator
+(`paper/regenerate.py`) consumes. Run on the box with `docker compose up` (for the
+compose tier) and `OPENROUTER_API_KEY` set.
+
+**Models (≥5, agent mode, via OpenRouter):** a GPT-class (`openai/gpt-4o`), Gemini
+(`google/gemini-2.0-flash`), Claude Sonnet + Opus (`anthropic/claude-sonnet-4-6`,
+`anthropic/claude-opus-4-1`), an open-weight 70B+ (`meta-llama/llama-3.3-70b-instruct`),
+and a tool-specialised model (e.g. `qwen/qwen-2.5-72b-instruct`).
+
+| phase | command | output |
+|---|---|---|
+| **A. Full corpus** (E3.9) | `scripts/build_corpus.py -m servers.json --complexities simple,medium,hard --per-strategy 12 --out data/corpus` (detached; ≥150/cell, ~750–1000 specs) | `data/corpus/{specs,traces}.jsonl`, `coverage.md` |
+| **B. Leaderboard** (E4.7) | `scripts/run_leaderboard.py --specs data/corpus/specs.jsonl --models <5+> --pools gold,target,full --p-alts 0,.25,.5,.75,1 --repeat 5 --reference-traces data/corpus/traces.jsonl --json docs/experiments/e4.7_numbers.json` | leaderboard + `e4.7_numbers.json` |
+| **C. SAE ablation** (E2.8) | `dmcp ablate data/corpus/specs.jsonl -m servers.json --reference-traces …` → `docs/experiments/e2.8_numbers.json` | 6-strategy SAE table |
+| **C. P_alt curves** (E2.7) | `dmcp curve data/corpus/specs.jsonl -m servers.json --p-alts 0,.25,.5,.75,1` → `docs/experiments/e2.7_numbers.json` | degradation curves |
+| **C. Gen-strategy ablation** (E4.9) | `scripts/strategy_ablation.py --evals 'reports/leaderboard/eval_*.jsonl' --specs … --traces … --json docs/experiments/e4.9_numbers.json` | gen ablation + gen×eval SAE matrix |
+| **C. Difficulty curve** (E4.10) | `scripts/difficulty_curve.py --evals 'reports/leaderboard/eval_*.jsonl' --specs … --json docs/experiments/e4.10_numbers.json` | perf vs depth bin |
+| **D. RQ2 baselines** (E4.3) | `dmcp baseline-graph` + `dmcp baseline-direct` + `dmcp compare-generators --json-out docs/experiments/e4.3_numbers.json` | forward vs graph vs direct |
+| **D. RQ1 / RQ3** | `dmcp` RQ1 (answer-match vs trace-align) → `e4.4_numbers.json`; RQ3 failure model → `e4.5_numbers.json` | Kendall τ; failure drivers |
+| **E. Paper** | `uv run python -c 'from paper.regenerate import regenerate; regenerate(verbose=True)'` (or `dmcp paper-figures`); then compile `paper/main.tex` | all figures/tables filled |
+| **F. Release** (E5.3) | `scripts/release_hf.py --specs data/corpus/specs.jsonl --traces data/corpus/traces.jsonl --direct-alt manifests/direct_alt.json --repo-id <ORG>/DynamicMCPBench --push` | HF dataset + datasheet |
+| **G. RQ4** (E4.6) | gated on the human annotation pass (200-task subset) → `e4.6_numbers.json` | scorer-vs-human κ |
+
+All long phases are detached + resumable. Smaller smoke before each full run:
+swap `servers.json` for a `dmcp subset … --server <2-3>` manifest and tiny
+`--per-strategy 1 --repeat 1`. `dmcp bench` runs A→D in one shot for a quick
+end-to-end check or a user's own manifest.

@@ -2256,11 +2256,19 @@ def bench(
     skip_generate: Annotated[
         bool, typer.Option("--skip-generate", help="Reuse an existing corpus under <out>/corpus")
     ] = False,
+    baselines: Annotated[
+        bool,
+        typer.Option(
+            "--baselines/--no-baselines", help="Also run the RQ2 graph/direct generators + comparison"
+        ),
+    ] = True,
+    baseline_samples: Annotated[int, typer.Option("--baseline-samples")] = 3,
 ) -> None:
     """End-to-end benchmark on ANY manifest (E7.1): generate a strategy-diverse corpus,
     evaluate candidate models IN AGENT MODE (deterministic replay for comparability), and
     emit ablations + difficulty curves + a leaderboard. Point it at your own MCP servers.
-    Reuses build_corpus / run_leaderboard / strategy_ablation / difficulty_curve / coverage."""
+    Reuses build_corpus / run_leaderboard / strategy_ablation / difficulty_curve / coverage
+    plus the RQ2 graph/direct baselines (--no-baselines to skip)."""
     import subprocess
     import sys
 
@@ -2362,6 +2370,60 @@ def bench(
             out_abs / "coverage.md",
         ]
     )
+    if baselines:
+        dmcp_bin = str(repo / ".venv" / "bin" / "dmcp")
+        if not Path(dmcp_bin).exists():
+            dmcp_bin = "dmcp"
+        gen_model = models.split(",")[0] if models else DEFAULT_MODEL
+        bg = out_abs / "baseline_graph.jsonl"
+        bd = out_abs / "baseline_direct.jsonl"
+        _run(
+            [
+                dmcp_bin,
+                "baseline-graph",
+                "--manifest",
+                manifest,
+                *server_args,
+                "--samples",
+                str(baseline_samples),
+                "--model",
+                gen_model,
+                "--output",
+                bg,
+            ]
+        )
+        _run(
+            [
+                dmcp_bin,
+                "baseline-direct",
+                "--manifest",
+                manifest,
+                *server_args,
+                "--samples",
+                str(baseline_samples),
+                "--model",
+                gen_model,
+                "--output",
+                bd,
+            ]
+        )
+        _run(
+            [
+                dmcp_bin,
+                "compare-generators",
+                "--forward",
+                specs,
+                "--graph",
+                bg,
+                "--direct",
+                bd,
+                "--reference-traces",
+                traces,
+                "--output",
+                out_abs / "rq2_comparison.md",
+            ]
+        )
+
     typer.echo(f"bench complete -> {out_abs}")
 
 
