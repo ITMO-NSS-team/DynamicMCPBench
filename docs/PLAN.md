@@ -281,9 +281,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E5 — Paper & release
 
 ### E5.1 — Paper scaffold (§1–§7 skeleton)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:56:50Z
 - deps: E4.4
 - source: research_plan Phase 5 (paper outline)
 - done-when: `paper/` holds a NeurIPS/EMNLP-style skeleton with the section plan, the AGB-contrast paragraph, and figure/table placeholders (Fig: pipeline; example trace→checkpoints; answer-match vs trace-align; perf by dynamism/depth; decay curve; comparison table; capability profile; scorer-vs-human).
