@@ -325,7 +325,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a GitHub Actions workflow runs the gate on PRs (only when the team opts in — currently the local gate is the guard).
 
 ### CC.3 — Ruff-format baseline + strict format gate
-- status: in_review (#27)
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E0.1
