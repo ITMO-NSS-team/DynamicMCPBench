@@ -265,7 +265,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: `long_similar_chain` (N≥4 pairwise-similar tools → max SAE+depth), `decoy`/`shortcut_trap` (E6), `prerequisite_strict` (E1/E5), `recovery_required`, `destructive_adjacent` (minefield), `ambiguous_intent` (path-agnostic), `homonym_trap` (same name/different semantics) are implemented and produce the targeted structure.
 
 ### E6.3 — Difficulty controls + depth stratification + coverage
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E6.1
