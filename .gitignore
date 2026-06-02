@@ -272,3 +272,6 @@ paper/main.toc
 /.duckdb/
 /.olane/
 /.meilisearch/
+
+# corpus working dir (intermediate goals/specs/traces; release via datasets/ or HF — E5.3)
+/data/

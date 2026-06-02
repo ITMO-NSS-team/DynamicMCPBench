@@ -235,9 +235,50 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - status: claimed
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-02T15:19:07Z
-- deps: E3.7
-- source: user 2026-06-02 ("записать в план … полные данные"); research_plan Phase 2
-- done-when: `goal-gen` + `generate` (explore+distill) run over all `servers.json` servers (detached, resumable) producing the FULL goals + reference traces + TaskSpecs corpus (`data/goals_full.json`, `data/specs_full.jsonl`) with a coverage/quality report; the small `examples/demo/` path already proves the pipeline end-to-end.
+- deps: E3.7 E6.1
+- source: user 2026-06-02 (diverse generation / "полные данные"); research_plan Phase 2
+- done-when: a STRATEGY-DIVERSE, stratified corpus over the full `servers.json` (docker stack up) — per generation-strategy (E6) × difficulty bin, intra ∪ inter-server, binned by MEASURED `trace_depth` — toward the power-analysis scale (≥150 tasks/cell, ~750–1000 total; simple_approach §6.3); resumable + detached; emits `data/specs_full.jsonl` + a coverage report (per strategy / depth-bin / dynamism / intra-vs-inter / server-tier).
+
+---
+
+## E6 — Strategy-diverse task generation (forward; headline)
+
+Tasks must be composed by tool RELATIONSHIP, not at random. Reuse the eval-side sampler
+(`dmcp/sampling.py:sample_distractors`) to also pick the SEED tool-set for forward
+exploration; the explorer still explores live and the distiller distills from the real
+trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
+
+### E6.1 — Strategy-driven goal seeding
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-02
+- deps: E2.1 E3.7
+- source: user 2026-06-02 (diverse generation setups); simple_approach §5.2
+- done-when: `dmcp goal-gen --strategy {random,hard_neg,cross_domain,same_name,sibling,cross_server_alt,complementary,stratified}` picks the seed tool-set via `sample_distractors(strategy,[anchor],catalog)` (+ `direct_alt.json` for alternatives); the LLM writes a human goal exercising exactly that set; goals carry the strategy + intra/inter-server tag; forward-explore+distill yield traces with the intended structure.
+
+### E6.2 — Corner-case generation strategies
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E6.1
+- source: user 2026-06-02 (corner cases); PDF §1.4 edges / §5.2 error taxonomy
+- done-when: `long_similar_chain` (N≥4 pairwise-similar tools → max SAE+depth), `decoy`/`shortcut_trap` (E6), `prerequisite_strict` (E1/E5), `recovery_required`, `destructive_adjacent` (minefield), `ambiguous_intent` (path-agnostic), `homonym_trap` (same name/different semantics) are implemented and produce the targeted structure.
+
+### E6.3 — Difficulty controls + depth stratification + coverage
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E6.1
+- source: research_plan Phase 3 (stratification); simple_approach §7.5
+- done-when: a `--complexity {simple,medium,hard}` knob (required-tool count × chain length × cross-server count) shapes seeds; the corpus is binned by MEASURED `trace_depth`; a coverage report tabulates tasks per strategy / depth-bin / dynamism / intra-vs-inter / server-tier.
+
+### E6.4 — DirectAlt curation + complementary-I/O edge mining
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.8 E4.1
+- source: simple_approach §5.3 (DirectAlt κ≥0.7); PDF §1.4 (complementary edge)
+- done-when: `direct_alt.json` same-name groups are reviewed/scored (target κ≥0.7) and used for `cross_server_alt` seeding; complementary (output→input) edges are mined by reusing `baselines/graph_sampling` typed-overlap and used for `complementary` seeding.
 
 ---
 
@@ -310,6 +351,24 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 
 ---
 
+### E4.9 — Generation-strategy ablation + gen×eval SAE heatmap
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.9 E2.8
+- source: user 2026-06-02 (all ablations); simple_approach §8
+- done-when: per generation-strategy, report SAE / pass^k / `trace_depth` of the produced tasks; plus a 2-D generation-strategy × eval-distractor-strategy SAE heatmap (which gen × eval setup maximises server confusion) — a headline figure.
+
+### E4.10 — Difficulty curve (simple → long-similar-chain)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.9 E6.3
+- source: user 2026-06-02 (simple → max-complex); research_plan RQ3
+- done-when: agent accuracy / SAE / pass^k plotted vs difficulty bin (simple/medium/hard incl. long-similar-chain), per model; shows the expected monotone degradation.
+
+---
+
 ## E5 — Paper & release
 
 ### E5.1 — Paper scaffold (§1–§7 skeleton)
@@ -335,6 +394,21 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - deps: E4.7
 - source: research_plan Phase 5
 - done-when: a `dmcp release` packages specs + reference traces into a HF-loadable layout (tracked `datasets/` path, not the git-ignored working dirs) with a datasheet; a living-leaderboard description.
+
+---
+
+## E7 — Reusable framework (test an agent on YOUR MCP servers)
+
+The whole pipeline must run on ANY user manifest — the repo IS the product: point it at your
+MCP servers → diverse benchmark → multi-model agent eval + baselines → ablations → report.
+
+### E7.1 — `dmcp bench` end-to-end orchestrator
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E6.1 E4.7
+- source: user 2026-06-02 (framework for own MCP servers)
+- done-when: `dmcp bench --manifest <any> --models … --strategies …` runs generate (E6) → multi-model agent eval + graph/direct baselines → ablations/curves → a single report on an arbitrary manifest; documented in `docs/EXPERIMENTS.md`; reuses every existing command (no orphan module).
 
 ---
 
