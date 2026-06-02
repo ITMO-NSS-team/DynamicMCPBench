@@ -264,3 +264,11 @@ paper/main.toc
 
 # docker-compose git-mcp bind-mount sandbox (root-owned, container-created)
 /repos/
+/manifests/subset.json
+# server-created junk dirs in the repo root (verify/explore run servers from CWD)
+/.dollhousemcp/
+/mcp-all/
+/.brand/
+/.duckdb/
+/.olane/
+/.meilisearch/

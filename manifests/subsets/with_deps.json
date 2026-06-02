@@ -27,7 +27,8 @@
         "identifier": "@trustrails/mcp-server",
         "version": "1.0.7"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__belgian_law_mcp",
@@ -55,7 +56,8 @@
         "identifier": "@ansvar/belgian-law-mcp",
         "version": "1.0.0"
       },
-      "tool_count": 15
+      "tool_count": 15,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__india_law_mcp",
@@ -83,7 +85,8 @@
         "identifier": "@ansvar/india-law-mcp",
         "version": "1.1.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__ghana_law_mcp",
@@ -111,7 +114,8 @@
         "identifier": "@ansvar/ghana-law-mcp",
         "version": "1.1.2"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__japan_law_mcp",
@@ -139,7 +143,8 @@
         "identifier": "@ansvar/japan-law-mcp",
         "version": "1.1.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__asic_mcp",
@@ -169,7 +174,8 @@
         "version": "0.6.18",
         "entrypoint": "asic-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_bam_devcrew__maxential_thinking_mcp",
@@ -197,7 +203,8 @@
         "identifier": "@bam-devcrew/maxential-thinking-mcp",
         "version": "2.0.1"
       },
-      "tool_count": 11
+      "tool_count": 11,
+      "requires_env": []
     },
     {
       "server_id": "io_github_embassy_of_the_free_mind__source_library",
@@ -225,7 +232,8 @@
         "identifier": "@source-library/mcp-server",
         "version": "4.3.0"
       },
-      "tool_count": 11
+      "tool_count": 11,
+      "requires_env": []
     }
   ]
 }

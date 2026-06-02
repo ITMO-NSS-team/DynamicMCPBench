@@ -27,7 +27,8 @@
         "identifier": "autonomad-travel",
         "version": "1.4.0"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "ai_wild_card__deepcontext",
@@ -55,7 +56,8 @@
         "identifier": "@wildcard-ai/deepcontext",
         "version": "0.1.15"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "bid_scope__aec",
@@ -83,7 +85,8 @@
         "identifier": "@scope-bid/scope-aec-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "bid_scope__claims",
@@ -111,7 +114,8 @@
         "identifier": "@scope-bid/scope-claims-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "app_trustrails__server",
@@ -139,7 +143,8 @@
         "identifier": "@trustrails/mcp-server",
         "version": "1.0.7"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "ai_tensorfeed__x402_base_mcp",
@@ -167,7 +172,8 @@
         "identifier": "@tensorfeed/x402-base-mcp",
         "version": "0.2.1"
       },
-      "tool_count": 15
+      "tool_count": 15,
+      "requires_env": []
     },
     {
       "server_id": "ai_ravenmcp__raven_mcp",
@@ -195,7 +201,8 @@
         "identifier": "raven-mcp",
         "version": "1.3.3"
       },
-      "tool_count": 27
+      "tool_count": 27,
+      "requires_env": []
     },
     {
       "server_id": "com_bellwethermetrics__bellwether_mcp",
@@ -223,7 +230,8 @@
         "identifier": "bellwether-mcp",
         "version": "0.1.0"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "com_ibitlabs_www__ibitlabs_mcp",
@@ -251,7 +259,8 @@
         "identifier": "ibitlabs-mcp",
         "version": "0.2.2"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "com_gradusmusic__notation",
@@ -279,7 +288,8 @@
         "identifier": "@gradusmusic/notation-mcp",
         "version": "0.2.2"
       },
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     },
     {
       "server_id": "com_pulsemcp__google_flights",
@@ -307,7 +317,8 @@
         "identifier": "google-flights-mcp-server",
         "version": "0.2.4"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "com_promptibus__mcp",
@@ -335,7 +346,8 @@
         "identifier": "@promptibus/mcp",
         "version": "0.9.0"
       },
-      "tool_count": 12
+      "tool_count": 12,
+      "requires_env": []
     },
     {
       "server_id": "com_pulsemcp__pulse_fetch",
@@ -363,7 +375,8 @@
         "identifier": "@pulsemcp/pulse-fetch",
         "version": "0.3.2"
       },
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "com_savvly__savvly",
@@ -391,7 +404,8 @@
         "identifier": "@savvly/mcp-server",
         "version": "1.0.20"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "com_seanwinslow__vault_knowledge",
@@ -419,7 +433,8 @@
         "identifier": "@swins/vault-knowledge-mcp",
         "version": "0.1.0"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "com_scopeblind__verify_mcp",
@@ -447,7 +462,8 @@
         "identifier": "@scopeblind/verify-mcp",
         "version": "0.1.3"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "dev_e18e__e18e",
@@ -475,7 +491,8 @@
         "identifier": "@e18e/mcp",
         "version": "0.0.5"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "dev_cz_agents__cnb",
@@ -503,7 +520,8 @@
         "identifier": "@czagents/cnb",
         "version": "0.1.5"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "dev_openfeature__mcp",
@@ -531,7 +549,8 @@
         "identifier": "@openfeature/mcp",
         "version": "0.0.22"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "digital_shineup__appcn",
@@ -559,7 +578,8 @@
         "identifier": "@app-cn/mcp",
         "version": "0.1.2"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "dev_svelte__mcp",
@@ -587,7 +607,8 @@
         "identifier": "@sveltejs/mcp",
         "version": "0.1.23"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "dev_depscope__mcp",
@@ -615,7 +636,8 @@
         "identifier": "depscope-mcp",
         "version": "0.9.0"
       },
-      "tool_count": 22
+      "tool_count": 22,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__canadian_law_mcp",
@@ -643,7 +665,8 @@
         "identifier": "@ansvar/canadian-law-mcp",
         "version": "1.1.2"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__belgian_law_mcp",
@@ -671,7 +694,8 @@
         "identifier": "@ansvar/belgian-law-mcp",
         "version": "1.0.0"
       },
-      "tool_count": 15
+      "tool_count": 15,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__brazil_law_mcp",
@@ -699,7 +723,8 @@
         "identifier": "@ansvar/brazil-law-mcp",
         "version": "1.0.3"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__icelandic_law_mcp",
@@ -727,7 +752,8 @@
         "identifier": "@ansvar/icelandic-law-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__india_law_mcp",
@@ -755,7 +781,8 @@
         "identifier": "@ansvar/india-law-mcp",
         "version": "1.1.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__ghana_law_mcp",
@@ -783,7 +810,8 @@
         "identifier": "@ansvar/ghana-law-mcp",
         "version": "1.1.2"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__italian_law_mcp",
@@ -811,7 +839,8 @@
         "identifier": "@ansvar/italian-law-mcp",
         "version": "1.1.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__japan_law_mcp",
@@ -839,7 +868,8 @@
         "identifier": "@ansvar/japan-law-mcp",
         "version": "1.1.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "finance_orbt__intelligence",
@@ -867,7 +897,8 @@
         "identifier": "@orbt-finance/mcp-server",
         "version": "3.2.3"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__slovenian_law_mcp",
@@ -895,7 +926,8 @@
         "identifier": "@ansvar/slovenian-law-mcp",
         "version": "1.1.0"
       },
-      "tool_count": 14
+      "tool_count": 14,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__thailand_law_mcp",
@@ -923,7 +955,8 @@
         "identifier": "@ansvar/thailand-law-mcp",
         "version": "1.1.2"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "eu_ansvar__zimbabwe_law_mcp",
@@ -951,7 +984,8 @@
         "identifier": "@ansvar/zimbabwe-law-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 13
+      "tool_count": 13,
+      "requires_env": []
     },
     {
       "server_id": "io_allourthings__mcp_server",
@@ -979,7 +1013,8 @@
         "identifier": "@allourthings/mcp-server",
         "version": "0.2.0"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_fixyourdocs__mcp_server",
@@ -1007,7 +1042,8 @@
         "identifier": "@fixyourdocs/mcp-server",
         "version": "0.1.0"
       },
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "io_github_10iii__air",
@@ -1035,7 +1071,8 @@
         "identifier": "@10iii/air-mcp-server",
         "version": "0.2.8"
       },
-      "tool_count": 12
+      "tool_count": 12,
+      "requires_env": []
     },
     {
       "server_id": "io_github_420247jake__session_forge",
@@ -1063,7 +1100,8 @@
         "identifier": "session-forge",
         "version": "2.0.3"
       },
-      "tool_count": 15
+      "tool_count": 15,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aiweather_anurag__ottasia",
@@ -1091,7 +1129,8 @@
         "identifier": "@ottasia/mcp-server",
         "version": "0.1.3"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aakashbhardwaj27__ai_scanner",
@@ -1119,7 +1158,8 @@
         "identifier": "ai-scanner-mcp",
         "version": "1.0.3"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "io_github_alvaroramirezcastillo__greeting_mcp_server",
@@ -1147,7 +1187,8 @@
         "identifier": "@jinba-ittai/greeting-mcp-server",
         "version": "1.0.8"
       },
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "io_github_andyanh174__vibe_hnindex",
@@ -1175,7 +1216,8 @@
         "identifier": "vibe-hnindex",
         "version": "0.1.2"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_ansvar_systems__eu_regulations_mcp",
@@ -1203,7 +1245,8 @@
         "identifier": "@ansvar/eu-regulations-mcp",
         "version": "0.7.1"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "io_github_antonytm__mcp_all",
@@ -1231,7 +1274,8 @@
         "identifier": "@antonytm/mcp-all",
         "version": "0.1.20"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aungmyokyaw__betterprompt_mcp",
@@ -1259,7 +1303,8 @@
         "identifier": "betterprompt-mcp",
         "version": "0.2.1"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_github_bam_devcrew__maxential_thinking_mcp",
@@ -1287,7 +1332,8 @@
         "identifier": "@bam-devcrew/maxential-thinking-mcp",
         "version": "2.0.1"
       },
-      "tool_count": 11
+      "tool_count": 11,
+      "requires_env": []
     },
     {
       "server_id": "io_github_bahamas1717__aibvf_mcp",
@@ -1315,7 +1361,8 @@
         "identifier": "aibvf-mcp",
         "version": "0.3.3"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_brand_system__brandsystem_mcp",
@@ -1343,7 +1390,8 @@
         "identifier": "@brandsystem/mcp",
         "version": "0.4.3"
       },
-      "tool_count": 34
+      "tool_count": 34,
+      "requires_env": []
     },
     {
       "server_id": "io_github_cscsoftware__aidex",
@@ -1371,7 +1419,8 @@
         "identifier": "aidex-mcp",
         "version": "1.8.0"
       },
-      "tool_count": 20
+      "tool_count": 20,
+      "requires_env": []
     },
     {
       "server_id": "io_github_daichi_kudo__llm_advisor",
@@ -1399,7 +1448,8 @@
         "identifier": "llm-advisor-mcp",
         "version": "0.4.2"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dave_london__make",
@@ -1427,7 +1477,8 @@
         "identifier": "@paretools/make",
         "version": "0.7.1"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dave_london__pare_test",
@@ -1455,7 +1506,8 @@
         "identifier": "@paretools/test",
         "version": "0.8.1"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dejo90__nace_mcp",
@@ -1483,7 +1535,8 @@
         "identifier": "nace-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dingdawg_dev__dingdawg_healthcare_agent",
@@ -1511,7 +1564,8 @@
         "identifier": "dingdawg-healthcare-agent",
         "version": "2.0.4"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dollhousemcp__mcp_server",
@@ -1539,7 +1593,8 @@
         "identifier": "@dollhousemcp/mcp-server",
         "version": "2.0.32"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_dswane__sports_context_protocol",
@@ -1567,7 +1622,8 @@
         "identifier": "sports-context-protocol",
         "version": "0.1.2"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "io_github_easysend_co__easysend",
@@ -1595,7 +1651,8 @@
         "identifier": "easysend-mcp",
         "version": "1.0.1"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_embassy_of_the_free_mind__source_library",
@@ -1623,7 +1680,8 @@
         "identifier": "@source-library/mcp-server",
         "version": "4.3.0"
       },
-      "tool_count": 11
+      "tool_count": 11,
+      "requires_env": []
     },
     {
       "server_id": "io_github_expertvagabond__mega",
@@ -1651,7 +1709,8 @@
         "identifier": "mega-mcp-server",
         "version": "1.0.1"
       },
-      "tool_count": 20
+      "tool_count": 20,
+      "requires_env": []
     }
   ]
 }

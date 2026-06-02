@@ -25,7 +25,8 @@
         "--local-timezone",
         "UTC"
       ],
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "compose_time",
@@ -45,7 +46,8 @@
       ],
       "args": [],
       "endpoint": "http://localhost:8020/sse",
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     }
   ]
 }

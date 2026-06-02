@@ -16,7 +16,8 @@
         "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8001/sse"
+      "endpoint": "http://localhost:8001/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_mongo",
@@ -33,7 +34,8 @@
         "verify:partial"
       ],
       "args": [],
-      "endpoint": "http://localhost:8002/mcp"
+      "endpoint": "http://localhost:8002/mcp",
+      "requires_env": []
     },
     {
       "server_id": "compose_neo4j",
@@ -50,7 +52,8 @@
         "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8003/sse"
+      "endpoint": "http://localhost:8003/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_qdrant",
@@ -67,7 +70,8 @@
         "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8005/sse"
+      "endpoint": "http://localhost:8005/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_redis",
@@ -84,7 +88,8 @@
         "verify:fail"
       ],
       "args": [],
-      "endpoint": "http://localhost:8006/sse"
+      "endpoint": "http://localhost:8006/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_duckdb",
@@ -101,11 +106,12 @@
         "verify:fail"
       ],
       "args": [],
-      "endpoint": "http://localhost:8008/sse"
+      "endpoint": "http://localhost:8008/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_elasticsearch",
-      "transport": "streamable_http",
+      "transport": "sse",
       "dynamism": "stateful_write",
       "sandbox": true,
       "description": "elasticsearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
@@ -115,14 +121,15 @@
         "pkg:docker",
         "dyn:stateful_write",
         "domain:search",
-        "verify:fail"
+        "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8010/mcp"
+      "endpoint": "http://localhost:8010/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_meilisearch",
-      "transport": "streamable_http",
+      "transport": "sse",
       "dynamism": "stateful_write",
       "sandbox": true,
       "description": "meilisearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
@@ -132,10 +139,11 @@
         "pkg:docker",
         "dyn:stateful_write",
         "domain:search",
-        "verify:fail"
+        "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8011/mcp"
+      "endpoint": "http://localhost:8011/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_grafana",
@@ -152,7 +160,8 @@
         "verify:partial"
       ],
       "args": [],
-      "endpoint": "http://localhost:8012/sse"
+      "endpoint": "http://localhost:8012/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_prometheus",
@@ -166,10 +175,11 @@
         "pkg:docker",
         "dyn:live_read",
         "domain:cloud-infra",
-        "verify:fail"
+        "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8013/sse"
+      "endpoint": "http://localhost:8013/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_kafka",
@@ -186,7 +196,8 @@
         "verify:partial"
       ],
       "args": [],
-      "endpoint": "http://localhost:8018/mcp"
+      "endpoint": "http://localhost:8018/mcp",
+      "requires_env": []
     },
     {
       "server_id": "compose_git",
@@ -203,7 +214,8 @@
         "verify:partial"
       ],
       "args": [],
-      "endpoint": "http://localhost:8019/sse"
+      "endpoint": "http://localhost:8019/sse",
+      "requires_env": []
     },
     {
       "server_id": "compose_time",
@@ -220,7 +232,8 @@
         "verify:full"
       ],
       "args": [],
-      "endpoint": "http://localhost:8020/sse"
+      "endpoint": "http://localhost:8020/sse",
+      "requires_env": []
     }
   ]
 }
