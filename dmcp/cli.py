@@ -1089,6 +1089,57 @@ def rq4_agreement(
     typer.echo(md)
 
 
+@app.command(name="paper-figures")
+def paper_figures(
+    root: Annotated[
+        Path,
+        typer.Option(
+            "--root",
+            help="Repository root (default: derived from the paper/ directory).",
+        ),
+    ] = Path("."),
+    out_dir: Annotated[
+        Path,
+        typer.Option("--out-dir", help="Where to write paper/figures/<id>.md."),
+    ] = Path("paper/figures"),
+    fail_on_pending: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-pending",
+            help="Exit non-zero if any figures.md row is still pending after a run.",
+        ),
+    ] = False,
+) -> None:
+    """Regenerate the paper's figure/table artifacts from committed data.
+
+    Reads `paper/figures.md`, dispatches each row to a renderer (see
+    `paper/regenerate.py`), and writes one markdown file per row under
+    `paper/figures/`. Rows whose backing data isn't on disk yet emit a
+    clearly-marked "pending" placeholder pointing at the gating plan step.
+
+    A cross-reference validator confirms every `[Fig … here]` / `[Tbl …
+    here]` marker in `paper/draft.md` resolves to a `figures.md` row —
+    violations are printed but do not by themselves fail the run unless
+    `--fail-on-pending` is set.
+    """
+    # Imported lazily so importing dmcp.cli on a minimal install doesn't
+    # require the paper/ directory to exist.
+    from paper.regenerate import regenerate
+
+    outcome = regenerate(root=root.resolve(), out_dir=out_dir.resolve(), verbose=True)
+    typer.echo("")
+    typer.echo(
+        f"rendered={len(outcome.rendered)} ・ pending={len(outcome.pending)} ・ manual={len(outcome.manual)}"
+    )
+    if outcome.cross_ref_errors:
+        typer.echo("cross-reference errors:")
+        for e in outcome.cross_ref_errors:
+            typer.echo(f"  - {e}")
+    failed = (fail_on_pending and outcome.pending) or outcome.cross_ref_errors
+    if failed:
+        raise typer.Exit(code=1)
+
+
 def _not_yet(name: str) -> None:
     raise typer.Exit(
         code=2,

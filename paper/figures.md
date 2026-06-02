@@ -36,10 +36,12 @@ artifact by its id.
 
 | id | caption | status | gating step | data source / notes |
 |---|---|---|---|---|
-| `tab:rq2_comparison` | Forward distillation vs graph-sampling vs direct generate-then-verify, on the offline-derivable axes (mean / max |eq_set|, singleton rate, missing-arg-predicate rate, coverage, filter pass rate, executable-by-construction, ordering density). | ready | — | `docs/experiments/e4.3_numbers.json`. Decision rule in `e4.3-rq2-comparison.md`. |
+| `tab:rq2_comparison` | Forward distillation vs graph-sampling vs direct generate-then-verify, on the offline-derivable axes (mean / max &#124;eq_set&#124;, singleton rate, missing-arg-predicate rate, coverage, filter pass rate, executable-by-construction, ordering density). | ready | — | `docs/experiments/e4.3_numbers.json`. Decision rule in `e4.3-rq2-comparison.md`. |
 | `tab:capability_profile` | Per-model accuracy stratified by (dynamism × complexity bin × recovery_required × runtime_branching); ≥ 5 models. | pending | E4.7 (leaderboard) — itself gated on E3.1 | Built from per-model `evals/*.jsonl` once E4.7 produces them. Same input as `fig:perf_by_dynamism_depth`. |
 | `tab:rq4_agreement` | Per-tier (Tier-1 / Tier-2) Cohen's κ vs human consensus; Krippendorff's α over the full grid; per-tier false-pass / false-fail rates; replay flip rate. | pending | E4.6 annotation pass | `docs/experiments/e4.6_numbers.json` once the human annotation pass completes. Pre-registered protocol in `e4.6-rq4-scorer-vs-human.md`. |
 | `tab:substrate` | Substrate breakdown: server count, by dynamism, by domain (tags), tool counts, mining funnel (registry size → installable → vetted). | partial | E3.5 (substrate coverage report) — itself gated on E3.1 | Built from `manifests/local.json` + future `manifests/crawled.json`. Funnel data lives in `crawled/discovered.jsonl` + `crawled/vetted.jsonl`. |
+| `tab:rq3_failure_drivers` | Pooled coefficients + odds ratios + drop-loglik importance for the RQ3 failure model. | ready | — | `docs/experiments/e4.5_numbers.json` (pooled fit). Decision rule in `e4.5-rq3-failure-model.md`. |
+| `tab:ablation` | RQ2 / §5 sampling-strategy ablation (random / hard_neg / cross_domain / same_name / sibling / stratified) — accuracy + SAE rate per cell with paired tests. | pending | an experiment doc that exercises `dmcp/ablation.py` (E2.8) on the full substrate | Built from a future `docs/experiments/e2.8_numbers.json` once an ablation report lands. |
 
 ## Cross-reference contract
 
