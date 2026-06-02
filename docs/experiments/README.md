@@ -46,3 +46,4 @@ finding, not something to bury: silently dropping a negative result is forbidden
 - `e1.4a-persona-diversity.md` — does persona seeding raise goal diversity?
 - `e4.3-rq2-comparison.md` — RQ2 forward vs graph vs direct generation-quality.
 - `e4.4-rq1-comparison.md` — RQ1 answer-match vs trace-align (Kendall's τ, false-pass / false-fail).
+- `e4.5-rq3-failure-model.md` — RQ3 trace-property failure model (coefficients + permutation importance).
