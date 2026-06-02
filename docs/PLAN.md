@@ -236,7 +236,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: forward vs graph-sampling vs direct compared on executable-on-first-try, human realism, distinct valid paths, coverage, unnecessary-tool rate, filter pass rate, and error-type diversity; report.
 
 ### E4.4 — RQ1 headline: answer-match vs trace-align
-- status: claimed
+- status: in_review (#23)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-02T10:08:50Z
 - deps: E1.1
