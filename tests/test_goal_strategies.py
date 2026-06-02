@@ -166,3 +166,67 @@ def test_complexity_hard_tag_and_larger_seed(monkeypatch):
     assert all("complexity:hard" in g.tags for g in goals.entries)
     # hard seed-set (6) over the 4-tool universe spans both servers
     assert any("cross-server" in g.tags for g in goals.entries)
+
+
+def test_cross_server_alt_seeds_from_direct_alt(monkeypatch, tmp_path):
+    import json as _json
+
+    m = _setup(monkeypatch)  # github + gitlab both expose search_issues
+    da = tmp_path / "direct_alt.json"
+    da.write_text(
+        _json.dumps(
+            [
+                {
+                    "normalized_tool": "search_issues",
+                    "members": [
+                        {"server_id": "github", "tool": "search_issues"},
+                        {"server_id": "gitlab", "tool": "search_issues"},
+                    ],
+                }
+            ]
+        )
+    )
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="cross_server_alt",
+            n_goals=2,
+            direct_alt_path=da,
+            seed=1,
+        )
+    )
+    assert goals.entries
+    assert all("strategy:cross_server_alt" in x.tags for x in goals.entries)
+    assert all("cross-server" in x.tags for x in goals.entries)
+
+
+def test_complementary_seeds_from_io_edges(monkeypatch):
+    producer = ToolSpec(name="search_repository", description="", input_schema={})  # name token 'id'
+    consumer = ToolSpec(name="open", description="", input_schema={"properties": {"repository": {}}})
+    m = Manifest(manifest_version="0.1.0", servers=[_entry("github", []), _entry("gitlab", [])])
+    surfaces = {"github": [producer], "gitlab": [consumer]}
+    entries = {"github": m.by_id("github"), "gitlab": m.by_id("gitlab")}
+
+    async def fc(manifest, server_ids):
+        return surfaces, entries
+
+    async def fa(llm, views, n, label, personas=None):
+        return [{"goal_id": "g", "goal": "x", "servers": [v["server_id"] for v in views], "tags": []}]
+
+    monkeypatch.setattr(gg, "_capture_surfaces", fc)
+    monkeypatch.setattr(gg, "_ask_for_goals", fa)
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="complementary",
+            n_goals=2,
+            seed=1,
+        )
+    )
+    assert goals.entries
+    assert all("strategy:complementary" in x.tags for x in goals.entries)
+    assert all("cross-server" in x.tags for x in goals.entries)  # the I/O edge crosses servers

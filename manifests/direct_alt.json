@@ -11,7 +11,8 @@
         "tool": "search_flights"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "codebase_index",
@@ -25,7 +26,8 @@
         "tool": "index_codebase"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "knowledge_search",
@@ -39,7 +41,8 @@
         "tool": "knowledge_search"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "model_recommend",
@@ -53,7 +56,8 @@
         "tool": "recommend_model"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "compare_models",
@@ -67,7 +71,8 @@
         "tool": "compare_models"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "article_get",
@@ -85,7 +90,8 @@
         "tool": "get_article"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "legislation_search",
@@ -135,7 +141,8 @@
         "tool": "search_legislation"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "get_provision",
@@ -185,7 +192,8 @@
         "tool": "get_provision"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "citation_validate",
@@ -235,7 +243,8 @@
         "tool": "validate_citation"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "build_legal_stance",
@@ -285,7 +294,8 @@
         "tool": "build_legal_stance"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "citation_format",
@@ -335,7 +345,8 @@
         "tool": "format_citation"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "check_currency",
@@ -385,7 +396,8 @@
         "tool": "check_currency"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "basis_eu_get",
@@ -431,7 +443,8 @@
         "tool": "get_eu_basis"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "eu_implementations_search",
@@ -477,7 +490,8 @@
         "tool": "search_eu_implementations"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "basis_eu_get_provision",
@@ -523,7 +537,8 @@
         "tool": "get_provision_eu_basis"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "compliance_eu_validate",
@@ -569,7 +584,8 @@
         "tool": "validate_eu_compliance"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "list_sources",
@@ -615,7 +631,8 @@
         "tool": "list_sources"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "about",
@@ -661,7 +678,8 @@
         "tool": "about"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "case_law_search",
@@ -679,7 +697,8 @@
         "tool": "search_case_law"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "definitions_get",
@@ -693,7 +712,8 @@
         "tool": "get_definitions"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "get_preparatory_works",
@@ -707,7 +727,8 @@
         "tool": "get_preparatory_works"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "datasets_search",
@@ -741,7 +762,8 @@
         "tool": "search_datasets"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "dataset_describe",
@@ -775,7 +797,8 @@
         "tool": "describe_dataset"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "data_get",
@@ -809,7 +832,8 @@
         "tool": "get_data"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "latest",
@@ -847,7 +871,8 @@
         "tool": "latest"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "curated_list",
@@ -885,7 +910,8 @@
         "tool": "list_curated"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "n_top",
@@ -911,7 +937,8 @@
         "tool": "top_n"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "search_translations",
@@ -925,7 +952,8 @@
         "tool": "search_translations"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "search",
@@ -951,7 +979,8 @@
         "tool": "search"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "file_get_info",
@@ -965,7 +994,8 @@
         "tool": "get_file_info"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "chain_verify",
@@ -979,7 +1009,8 @@
         "tool": "verify_chain"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "list_rules",
@@ -993,7 +1024,8 @@
         "tool": "list_rules"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "classify_incident",
@@ -1011,7 +1043,8 @@
         "tool": "classify_incident"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "quick_scan",
@@ -1029,7 +1062,8 @@
         "tool": "quick_scan"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "classify_product",
@@ -1043,7 +1077,8 @@
         "tool": "classify_product"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "enforcement_status",
@@ -1069,7 +1104,8 @@
         "tool": "enforcement_status"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "classify_entity",
@@ -1087,7 +1123,8 @@
         "tool": "classify_entity"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "pricing",
@@ -1101,7 +1138,8 @@
         "tool": "pricing"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "reindex",
@@ -1115,7 +1153,8 @@
         "tool": "reindex"
       }
     ],
-    "reviewed": false
+    "reviewed": false,
+    "confidence": "low"
   },
   {
     "normalized_tool": "class_get_reference",
@@ -1129,7 +1168,8 @@
         "tool": "get_class_reference"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "deprecation_get_warnings",
@@ -1143,7 +1183,8 @@
         "tool": "get_deprecation_warnings"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   },
   {
     "normalized_tool": "run",
@@ -1157,6 +1198,7 @@
         "tool": "run"
       }
     ],
-    "reviewed": false
+    "reviewed": true,
+    "confidence": "high"
   }
 ]
