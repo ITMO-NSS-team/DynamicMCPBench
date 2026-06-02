@@ -335,6 +335,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 
 ### E4.7 — ≥5-model leaderboard
 - status: todo
+- note: runner merged PR#43 + numbers JSON PR#46 run_leaderboard.py, smoke-tested, awaiting corpus + 5-model run
 - owner: —
 - claimed_at: —
 - deps: E1.1 E3.1
