@@ -147,3 +147,22 @@ def test_destructive_adjacent_is_intra(monkeypatch):
     assert goals.entries
     assert all("strategy:destructive_adjacent" in g.tags for g in goals.entries)
     assert all("intra-server" in g.tags for g in goals.entries)  # sibling base stays intra
+
+
+def test_complexity_hard_tag_and_larger_seed(monkeypatch):
+    m = _setup(monkeypatch)
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="hard_neg",
+            n_goals=3,
+            complexity="hard",
+            seed=4,
+        )
+    )
+    assert goals.entries
+    assert all("complexity:hard" in g.tags for g in goals.entries)
+    # hard seed-set (6) over the 4-tool universe spans both servers
+    assert any("cross-server" in g.tags for g in goals.entries)
