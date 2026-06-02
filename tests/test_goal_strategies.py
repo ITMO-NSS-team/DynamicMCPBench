@@ -95,3 +95,55 @@ def test_unknown_strategy_raises(monkeypatch):
                 manifest=m, server_ids=["github"], llm=None, strategy="nope", n_goals=1
             )
         )
+
+
+def test_long_similar_chain_tags_and_spans(monkeypatch):
+    m = _setup(monkeypatch)
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="long_similar_chain",
+            n_goals=3,
+            seed=3,
+        )
+    )
+    assert goals.entries
+    assert all("strategy:long_similar_chain" in g.tags for g in goals.entries)
+    # seed-set 6 over a 4-tool universe → spans both servers → at least one cross-server
+    assert any("cross-server" in g.tags for g in goals.entries)
+
+
+def test_homonym_trap_crosses_servers(monkeypatch):
+    m = _setup(monkeypatch)
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="homonym_trap",
+            n_goals=5,
+            seed=1,
+        )
+    )
+    assert goals.entries
+    assert all("strategy:homonym_trap" in g.tags for g in goals.entries)
+    assert any("cross-server" in g.tags for g in goals.entries)
+
+
+def test_destructive_adjacent_is_intra(monkeypatch):
+    m = _setup(monkeypatch)
+    goals = asyncio.run(
+        gg.generate_strategy_goals(
+            manifest=m,
+            server_ids=["github", "gitlab"],
+            llm=None,
+            strategy="destructive_adjacent",
+            n_goals=3,
+            seed=2,
+        )
+    )
+    assert goals.entries
+    assert all("strategy:destructive_adjacent" in g.tags for g in goals.entries)
+    assert all("intra-server" in g.tags for g in goals.entries)  # sibling base stays intra

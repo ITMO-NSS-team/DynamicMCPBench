@@ -450,6 +450,55 @@ async def _capture_surfaces(
     return surfaces, entries
 
 
+# Corner-case generation strategies (E6.2): name -> (base sampling strategy, seed-set size,
+# goal framing). Each combines a seed-set RELATIONSHIP with a prompt that shapes the task.
+CORNER_STRATEGIES: dict[str, tuple[str, int, str]] = {
+    "long_similar_chain": (
+        "hard_neg",
+        6,
+        "a MULTI-STEP task that genuinely requires CHAINING several of these similar tools in "
+        "sequence (each tool's result feeds the next)",
+    ),
+    "homonym_trap": (
+        "same_name",
+        3,
+        "a task that needs a capability exposed under the SAME tool name on multiple servers — "
+        "make clear which source is intended",
+    ),
+    "decoy": (
+        "hard_neg",
+        3,
+        "a task where exactly one tool is correct but a similar-looking tool would be a tempting "
+        "WRONG shortcut",
+    ),
+    "prerequisite_strict": (
+        "hard_neg",
+        4,
+        "a task with a STRICT required order — an earlier tool's output is a prerequisite for a "
+        "later one, and the wrong order fails",
+    ),
+    "recovery_required": (
+        "cross_domain",
+        4,
+        "a task where the obvious first tool is insufficient and a different second tool is needed "
+        "to recover and finish",
+    ),
+    "destructive_adjacent": (
+        "sibling",
+        4,
+        "a careful READ-ONLY task on a server that also exposes destructive tools which must NOT be used",
+    ),
+    "ambiguous_intent": (
+        "hard_neg",
+        3,
+        "a deliberately VAGUE single request that several of these tools could each plausibly satisfy",
+    ),
+}
+
+# all generation strategies = the eval-side relationships + the corner cases
+GEN_STRATEGIES: tuple[str, ...] = (*VALID_STRATEGIES, *CORNER_STRATEGIES)
+
+
 async def generate_strategy_goals(
     *,
     manifest: Manifest,
@@ -466,8 +515,17 @@ async def generate_strategy_goals(
     stratified), then ask the LLM for a realistic human goal exercising exactly those
     tools. Only the seed is strategy-controlled; the explorer still explores forward, so
     the headline stays trace-native."""
-    if strategy not in VALID_STRATEGIES:
-        raise ValueError(f"unknown strategy {strategy!r}; pick from {VALID_STRATEGIES}")
+    if strategy in VALID_STRATEGIES:
+        base_strategy, eff_size, framing = (
+            strategy,
+            seed_set_size,
+            "design ONE realistic single-turn user goal that genuinely REQUIRES using these "
+            "specific tools (chain output->input where natural)",
+        )
+    elif strategy in CORNER_STRATEGIES:
+        base_strategy, eff_size, framing = CORNER_STRATEGIES[strategy]
+    else:
+        raise ValueError(f"unknown strategy {strategy!r}; pick from {GEN_STRATEGIES}")
     surfaces, entries = await _capture_surfaces(manifest, server_ids)
     if not surfaces:
         return Goals(entries=[])
@@ -492,7 +550,7 @@ async def generate_strategy_goals(
             break
         anchor_sid, anchor_ts = rng.choice(all_tools)
         anchor = ToolReference(server_id=anchor_sid, tool_name=anchor_ts.name)
-        related = sample_distractors(strategy, [anchor], catalog, n=max(1, seed_set_size - 1), seed=seed + i)
+        related = sample_distractors(base_strategy, [anchor], catalog, n=max(1, eff_size - 1), seed=seed + i)
         seed_pairs = [(anchor_sid, anchor_ts.name)] + [(e.server_id, e.tool_name) for e in related]
         by_server: dict[str, set[str]] = {}
         for sid, tname in seed_pairs:
@@ -502,10 +560,8 @@ async def generate_strategy_goals(
             for sid, tnames in by_server.items()
         ]
         scope = "intra-server" if len(by_server) == 1 else "cross-server"
-        label = (
-            f"{strategy} seed set ({scope}) — design ONE realistic single-turn user goal that "
-            "genuinely REQUIRES using these specific tools (chain output->input where natural), "
-            "without naming the tools: " + ", ".join(f"{s}::{t}" for s, t in seed_pairs)
+        label = f"{strategy} seed ({scope}) — {framing}, without naming the tools: " + ", ".join(
+            f"{s}::{t}" for s, t in seed_pairs
         )
         try:
             raw = await _ask_for_goals(
