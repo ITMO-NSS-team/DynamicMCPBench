@@ -108,3 +108,24 @@ Docker Hub may throttle a full 25-container parallel pull (large layers stall); 
 services up in small batches. Latest smoke-vet: `reports/compose_verify.md`
 (postgres 9/9, qdrant 2/2, time 2/2 verified over SSE; git partial — its tools need
 repo state, as with the substrate `git`).
+
+## Credentialed tier (`manifests/credentialed.json`)
+
+Servers that need API keys (Bucket A — GitHub, Brave, Tavily, Exa, Firecrawl,
+Linear, Notion, Slack, Supabase; see `docs/credentials_bucket_a.md`). Each entry
+declares `requires_env` (the var NAMES); the secret VALUES come from `.env`
+(gitignored, never committed) and are plumbed into the server at launch.
+
+The tier is **gated on present keys**: servers whose `requires_env` are missing
+skip gracefully. With no keys, `dmcp verify -m manifests/credentialed.json` reports
+`SKIP <server> missing env: <VAR>` for all of them and exits cleanly.
+
+```bash
+# add the keys you have, e.g.:
+echo "GITHUB_PERSONAL_ACCESS_TOKEN=ghp_..." >> .env
+echo "BRAVE_API_KEY=..."                    >> .env
+dmcp verify -m manifests/credentialed.json --llm --strict   # vets only the servers whose keys are set
+```
+
+`Manifest.gate_credentials()` exposes the same split (runnable vs skipped) for use
+in the goal-gen / explore / eval pipeline.
