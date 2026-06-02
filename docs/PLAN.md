@@ -257,7 +257,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: `dmcp goal-gen --strategy {random,hard_neg,cross_domain,same_name,sibling,cross_server_alt,complementary,stratified}` picks the seed tool-set via `sample_distractors(strategy,[anchor],catalog)` (+ `direct_alt.json` for alternatives); the LLM writes a human goal exercising exactly that set; goals carry the strategy + intra/inter-server tag; forward-explore+distill yield traces with the intended structure.
 
 ### E6.2 — Corner-case generation strategies
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E6.1
