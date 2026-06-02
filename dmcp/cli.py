@@ -43,6 +43,23 @@ from dmcp.baselines.graph_sampling import (
 from dmcp.baselines.graph_sampling import (
     back_instruct as run_back_instruct,
 )
+from dmcp.baselines.rq1_compare import (
+    DEFAULT_THRESHOLD as RQ1_DEFAULT_THRESHOLD,
+)
+from dmcp.baselines.rq1_compare import (
+    aggregate_rq1,
+    build_decisions,
+    load_candidate_final_messages,
+    load_evals,
+    load_reference_final_messages_by_trace_id,
+    load_spec_to_reference_trace,
+)
+from dmcp.baselines.rq1_compare import (
+    render_markdown as render_rq1_markdown,
+)
+from dmcp.baselines.rq1_compare import (
+    report_to_json as rq1_report_to_json,
+)
 from dmcp.curves import aggregate_curve, complexity_bin
 from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
@@ -608,6 +625,161 @@ def compare_generators(
         json_out.parent.mkdir(parents=True, exist_ok=True)
         json_out.write_text(
             json.dumps(compare_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+def _parse_pair(raw: str, *, label: str) -> tuple[str, Path]:
+    if ":" not in raw:
+        raise typer.BadParameter(f"--{label} must be 'name:path', got {raw!r}")
+    name, p = raw.split(":", 1)
+    return name.strip(), Path(p.strip())
+
+
+@app.command(name="rq1-compare")
+def rq1_compare(
+    evals: Annotated[
+        list[str],
+        typer.Option(
+            "--evals",
+            help=(
+                "Repeatable: 'model_label:path/to/evals.jsonl' for the trace-align arm. "
+                "Pass once per candidate model."
+            ),
+        ),
+    ],
+    candidate_traces: Annotated[
+        list[str],
+        typer.Option(
+            "--candidate-traces",
+            help="Repeatable: 'model_label:path/to/candidate_traces.jsonl'.",
+        ),
+    ],
+    specs: Annotated[
+        Path,
+        typer.Option("--specs", help="TaskSpec JSONL — used to join task_id → source_trace_id."),
+    ],
+    reference_traces: Annotated[
+        Path,
+        typer.Option(
+            "--reference-traces",
+            help="JSONL of reference traces; provides reference final messages.",
+        ),
+    ],
+    rerun: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rerun",
+            help=(
+                "Optional repeatable: 'model_label:evals_run2.jsonl' to add an "
+                "over-time stability column for that model."
+            ),
+        ),
+    ] = None,
+    rerun_candidate_traces: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rerun-candidate-traces",
+            help="Optional repeatable: 'model_label:candidate_traces_run2.jsonl'.",
+        ),
+    ] = None,
+    threshold: Annotated[
+        float,
+        typer.Option("--threshold", help="Answer-match token-Jaccard threshold."),
+    ] = RQ1_DEFAULT_THRESHOLD,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq1_comparison.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ1: trace/effect alignment vs final-answer string match.
+
+    Joins per-model `EvaluationResult` JSONL (the trace-align arm) with the
+    same model's candidate trace JSONL (for `final_assistant_message`) and
+    the reference traces, then scores each (model, task) cell under both
+    methods. Reports per-model accuracies, Kendall's τ between the two
+    rankings, false-fail / false-pass disagreement rates, and optional
+    over-time stability when `--rerun` is supplied for a model.
+
+    The answer-match scorer (`dmcp/baselines/answer_match.py`) is a labeled
+    comparison baseline per `memory/feedback_agb_orthogonality.md`. It is
+    never imported by the headline scoring path.
+    """
+    spec_to_source = load_spec_to_reference_trace(specs)
+    refs_by_trace_id = load_reference_final_messages_by_trace_id(reference_traces)
+
+    eval_paths: dict[str, Path] = dict(_parse_pair(s, label="evals") for s in evals)
+    cand_paths: dict[str, Path] = dict(_parse_pair(s, label="candidate-traces") for s in candidate_traces)
+    if set(eval_paths) != set(cand_paths):
+        raise typer.BadParameter(
+            "the model labels under --evals and --candidate-traces must match: "
+            f"evals={sorted(eval_paths)}, candidate_traces={sorted(cand_paths)}"
+        )
+
+    decisions_by_model: dict[str, list] = {}
+    for model in sorted(eval_paths):
+        ev_list = load_evals(eval_paths[model])
+        cand_msgs = load_candidate_final_messages(cand_paths[model])
+        decisions_by_model[model] = build_decisions(
+            model=model,
+            evals=ev_list,
+            candidate_final_messages=cand_msgs,
+            reference_final_messages_by_trace_id=refs_by_trace_id,
+            spec_to_source_trace=spec_to_source,
+            threshold=threshold,
+        )
+        typer.echo(f"  [{model}] joined {len(ev_list)} evals, {len(cand_msgs)} candidate final-messages")
+
+    over_time_runs: dict[str, list[list]] = {}
+    if rerun:
+        rerun_paths = dict(_parse_pair(s, label="rerun") for s in rerun)
+        rerun_cand_paths = (
+            dict(_parse_pair(s, label="rerun-candidate-traces") for s in rerun_candidate_traces)
+            if rerun_candidate_traces
+            else {}
+        )
+        for model, run2_path in rerun_paths.items():
+            run1 = decisions_by_model.get(model)
+            if run1 is None:
+                typer.echo(f"  [{model}] --rerun supplied but no run-1 evals; skipping")
+                continue
+            ev2 = load_evals(run2_path)
+            cand2_path = rerun_cand_paths.get(model)
+            cand2_msgs = load_candidate_final_messages(cand2_path) if cand2_path else {}
+            run2 = build_decisions(
+                model=model,
+                evals=ev2,
+                candidate_final_messages=cand2_msgs,
+                reference_final_messages_by_trace_id=refs_by_trace_id,
+                spec_to_source_trace=spec_to_source,
+                threshold=threshold,
+            )
+            over_time_runs[model] = [run1, run2]
+            typer.echo(f"  [{model}] rerun loaded ({len(ev2)} evals)")
+
+    report = aggregate_rq1(decisions_by_model, threshold=threshold, over_time_runs=over_time_runs or None)
+    md = render_rq1_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq1_report_to_json(report), indent=2) + "\n",
             encoding="utf-8",
         )
         typer.echo(f"wrote json   → {json_out}")
@@ -1442,7 +1614,10 @@ def ablate(
                 if ref is None:
                     continue
                 pool = build_strategy_pool(
-                    spec, catalog, strategy=strat, pool_size=pool_size,
+                    spec,
+                    catalog,
+                    strategy=strat,
+                    pool_size=pool_size,
                     seed=spec.task_id.int % (2**31),
                 )
                 surface = pool_to_tool_surface(pool, ref.tool_specs)
@@ -1452,8 +1627,11 @@ def ablate(
                 )
                 stash_exploration_in_trace(result)
                 ev = run_eval(
-                    spec, result.trace, candidate_model=model,
-                    evaluation_mode=f"ablate:{strat}", server_tags=server_tags,
+                    spec,
+                    result.trace,
+                    candidate_model=model,
+                    evaluation_mode=f"ablate:{strat}",
+                    server_tags=server_tags,
                 )
                 sae_stats[strat][0] += int(ev.had_sae)
                 sae_stats[strat][1] += 1
@@ -1480,7 +1658,9 @@ def ablate(
         for s in strategies:
             sae = sae_stats[s][0] / sae_stats[s][1] if sae_stats[s][1] else 0.0
             ac = acc_stats[s][0] / acc_stats[s][1] if acc_stats[s][1] else 0.0
-            lines.append(f"| {s} | {sae * 100:.0f}% ({sae_stats[s][0]}/{sae_stats[s][1]}) | {ac * 100:.0f}% |")
+            lines.append(
+                f"| {s} | {sae * 100:.0f}% ({sae_stats[s][0]}/{sae_stats[s][1]}) | {ac * 100:.0f}% |"
+            )
         lines += [
             "",
             "| contrast | SAE A | SAE B | test | p | p(Holm) | sig |",
