@@ -317,7 +317,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `tests/` seeded (E0) and every code step adds tests; pytest is part of the gate.
 
 ### CC.2 — Optional CI workflow
-- status: in_review (#28)
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E0.1
