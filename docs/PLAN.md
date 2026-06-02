@@ -281,7 +281,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E5 — Paper & release
 
 ### E5.1 — Paper scaffold (§1–§7 skeleton)
-- status: claimed
+- status: in_review (#26)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-02T10:56:50Z
 - deps: E4.4
