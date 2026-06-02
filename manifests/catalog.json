@@ -6498,5 +6498,113 @@
     ],
     "dependencies": [],
     "domain": "search"
+  },
+  "compose_neo4j": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8003/sse",
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get-schema",
+        "status": "ok"
+      },
+      {
+        "name": "read-cypher",
+        "status": "ok"
+      },
+      {
+        "name": "write-cypher",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_postgres": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8001/sse",
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "list_schemas",
+        "status": "ok"
+      },
+      {
+        "name": "list_objects",
+        "status": "ok"
+      },
+      {
+        "name": "get_object_details",
+        "status": "ok"
+      },
+      {
+        "name": "explain_query",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_workload_indexes",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_query_indexes",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_db_health",
+        "status": "ok"
+      },
+      {
+        "name": "get_top_queries",
+        "status": "ok"
+      },
+      {
+        "name": "execute_sql",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_qdrant": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8005/sse",
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "qdrant-find",
+        "status": "ok"
+      },
+      {
+        "name": "qdrant-store",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_time": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8020/sse",
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_current_time",
+        "status": "ok"
+      },
+      {
+        "name": "convert_time",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
   }
 }

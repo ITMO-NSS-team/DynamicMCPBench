@@ -1,0 +1,226 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "compose_postgres",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "postgres MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8001/sse"
+    },
+    {
+      "server_id": "compose_mongo",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "mongo MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8002/mcp"
+    },
+    {
+      "server_id": "compose_neo4j",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "neo4j MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8003/sse"
+    },
+    {
+      "server_id": "compose_qdrant",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "qdrant MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8005/sse"
+    },
+    {
+      "server_id": "compose_redis",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "redis MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:fail"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8006/sse"
+    },
+    {
+      "server_id": "compose_duckdb",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "duckdb MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:fail"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8008/sse"
+    },
+    {
+      "server_id": "compose_elasticsearch",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "elasticsearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:search",
+        "verify:fail"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8010/mcp"
+    },
+    {
+      "server_id": "compose_meilisearch",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "meilisearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:search",
+        "verify:fail"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8011/mcp"
+    },
+    {
+      "server_id": "compose_grafana",
+      "transport": "sse",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "grafana MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:live_read",
+        "domain:cloud-infra",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8012/sse"
+    },
+    {
+      "server_id": "compose_prometheus",
+      "transport": "sse",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "prometheus MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:live_read",
+        "domain:cloud-infra",
+        "verify:fail"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8013/sse"
+    },
+    {
+      "server_id": "compose_kafka",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "kafka MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:cloud-infra",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8018/mcp"
+    },
+    {
+      "server_id": "compose_git",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "git MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:dev",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8019/sse"
+    },
+    {
+      "server_id": "compose_time",
+      "transport": "sse",
+      "dynamism": "static",
+      "sandbox": false,
+      "description": "time MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:static",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8020/sse"
+    }
+  ]
+}

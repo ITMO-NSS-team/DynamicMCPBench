@@ -1,0 +1,85 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "compose_neo4j",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "neo4j MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full",
+        "tier:compose",
+        "requires:docker"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8003/sse",
+      "tool_count": 3
+    },
+    {
+      "server_id": "compose_postgres",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "postgres MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full",
+        "tier:compose",
+        "requires:docker"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8001/sse",
+      "tool_count": 9
+    },
+    {
+      "server_id": "compose_qdrant",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "qdrant MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "verify:full",
+        "tier:compose",
+        "requires:docker"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8005/sse",
+      "tool_count": 2
+    },
+    {
+      "server_id": "compose_time",
+      "transport": "sse",
+      "dynamism": "static",
+      "sandbox": false,
+      "description": "time MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:static",
+        "domain:productivity",
+        "verify:full",
+        "tier:compose",
+        "requires:docker"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8020/sse",
+      "tool_count": 2
+    }
+  ]
+}

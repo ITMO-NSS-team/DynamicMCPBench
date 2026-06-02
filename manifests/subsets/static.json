@@ -26,6 +26,26 @@
         "UTC"
       ],
       "tool_count": 2
+    },
+    {
+      "server_id": "compose_time",
+      "transport": "sse",
+      "dynamism": "static",
+      "sandbox": false,
+      "description": "time MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:static",
+        "domain:productivity",
+        "verify:full",
+        "tier:compose",
+        "requires:docker"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8020/sse",
+      "tool_count": 2
     }
   ]
 }

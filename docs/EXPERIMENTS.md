@@ -151,3 +151,17 @@ See `docs/PLAN.md` (E3 / E4) for the remaining experiment steps (full corpus,
 RQ1–RQ4, leaderboard, human-validation subset).
 
 > **Substrate note:** 4 substrate servers (`git`, `fs`, `arxiv`, `openlibrary`) are tagged `verify:partial` — a few of their tools need preconditions our single-shot verifier cannot synthesize (e.g. an existing branch for `git_checkout`). They are kept because they provide the only `stateful_write` and `static` coverage; in real exploration traces those tools are used in dependency order and work. Use `--tag verify:full` for the strict 132-server set.
+
+## The compose tier in `servers.json`
+
+`servers.json` also includes the docker-compose MCP servers that passed the strict
+gate (tagged `tier:compose` + `requires:docker` — currently postgres, neo4j,
+qdrant, time). They add `stateful_write` breadth (the hardest dynamism class).
+**They only work after `docker compose up`** (see `docs/SETUP.md`); all other
+servers run without docker. To run a **docker-free** experiment set:
+
+```bash
+uv run dmcp subset -m manifests/servers.json --exclude-tag tier:compose -o manifests/subsets/no_docker.json
+```
+
+The full smoke-vet of the 13-server stack is in `reports/compose_verify.md`.
