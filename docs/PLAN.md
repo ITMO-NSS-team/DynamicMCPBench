@@ -289,7 +289,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `paper/` holds a NeurIPS/EMNLP-style skeleton with the section plan, the AGB-contrast paragraph, and figure/table placeholders (Fig: pipeline; example trace→checkpoints; answer-match vs trace-align; perf by dynamism/depth; decay curve; comparison table; capability profile; scorer-vs-human).
 
 ### E5.2 — Auto-generated figures & tables
-- status: in_review (#29)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-02T11:15:35Z
 - deps: E5.1 E2.7 E4.3
