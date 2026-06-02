@@ -232,9 +232,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `manifests/direct_alt.json` seeds same-name cross-server tool groups (`reviewed:false`) that feed the `same_name` sampling strategy + the P_alt grid; flagged for human review.
 
 ### E3.9 — Full goals + TaskSpecs corpus over the 100+ set
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Ilya-Galyukshev@roman-desktop
+- claimed_at: 2026-06-02T15:19:07Z
 - deps: E3.7
 - source: user 2026-06-02 ("записать в план … полные данные"); research_plan Phase 2
 - done-when: `goal-gen` + `generate` (explore+distill) run over all `servers.json` servers (detached, resumable) producing the FULL goals + reference traces + TaskSpecs corpus (`data/goals_full.json`, `data/specs_full.jsonl`) with a coverage/quality report; the small `examples/demo/` path already proves the pipeline end-to-end.
