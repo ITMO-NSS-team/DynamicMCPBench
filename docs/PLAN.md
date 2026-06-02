@@ -252,9 +252,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model; report feature importances.
 
 ### E4.6 — RQ4 scorer-vs-human + 200-task validation subset
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:44:43Z
 - deps: E1.1
 - source: research_plan RQ4 / simple_approach §5.6
 - done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α ≥ 0.7); false-pass/false-fail; replay determinism <5%.
