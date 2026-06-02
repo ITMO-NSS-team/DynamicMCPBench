@@ -362,6 +362,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 
 ### E4.10 — Difficulty curve (simple → long-similar-chain)
 - status: todo
+- note: code merged PR#44 difficulty curve, smoke-tested, awaiting E3.9 corpus run
 - owner: —
 - claimed_at: —
 - deps: E3.9 E6.3
