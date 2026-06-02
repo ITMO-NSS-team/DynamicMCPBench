@@ -29,6 +29,7 @@ import json
 import logging
 import random
 from itertools import combinations
+from pathlib import Path
 from typing import Any
 
 from dmcp.goals import GoalEntry, Goals
@@ -499,6 +500,56 @@ CORNER_STRATEGIES: dict[str, tuple[str, int, str]] = {
 GEN_STRATEGIES: tuple[str, ...] = (*VALID_STRATEGIES, *CORNER_STRATEGIES)
 # difficulty knob (E6.3): seed-set size per level
 COMPLEXITY_SIZE: dict[str, int] = {"simple": 2, "medium": 4, "hard": 6}
+# special seed sources (E6.4): seed from DirectAlt groups / complementary I/O edges
+SPECIAL_STRATEGIES: dict[str, str] = {
+    "cross_server_alt": (
+        "a task needing a capability that several of these servers provide under the SAME tool "
+        "name — be explicit about which server's version is intended"
+    ),
+    "complementary": (
+        "a task where one tool's OUTPUT becomes the INPUT of the next — a genuine data-dependency "
+        "chain across these tools"
+    ),
+}
+GEN_STRATEGIES = (*GEN_STRATEGIES, *SPECIAL_STRATEGIES)
+
+
+def _special_seed_sets(
+    strategy: str,
+    surfaces: dict[str, list[ToolSpec]],
+    direct_alt_path: Path | None,
+) -> list[list[tuple[str, str]]]:
+    """Seed-tool sets for the strategies that bypass the sampler: cross_server_alt
+    (manifests/direct_alt.json same-name groups) and complementary (output->input edges
+    mined via the graph baseline's ToolGraph — reused, not duplicated)."""
+    have = {(sid, ts.name) for sid, specs in surfaces.items() for ts in specs}
+    sets: list[list[tuple[str, str]]] = []
+    if strategy == "cross_server_alt":
+        path = direct_alt_path or (Path(__file__).resolve().parent.parent / "manifests" / "direct_alt.json")
+        try:
+            groups = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError):
+            groups = []
+        for grp in groups:
+            members = [
+                (m["server_id"], m["tool"])
+                for m in grp.get("members", [])
+                if (m["server_id"], m["tool"]) in have
+            ]
+            if len({s for s, _ in members}) >= 2:
+                sets.append(members[:4])
+    elif strategy == "complementary":
+        from dmcp.baselines.graph_sampling import ToolGraph
+
+        graph = ToolGraph.from_tool_surfaces(surfaces, same_server_fallback=False)
+        seen_edge: set[tuple] = set()
+        for a, neigh in graph.adj.items():
+            for b in neigh:
+                e = tuple(sorted((a, b)))
+                if e not in seen_edge:
+                    seen_edge.add(e)
+                    sets.append([a, b])
+    return sets
 
 
 async def generate_strategy_goals(
@@ -510,6 +561,7 @@ async def generate_strategy_goals(
     n_goals: int,
     seed_set_size: int = 4,
     complexity: str | None = None,
+    direct_alt_path: Path | None = None,
     seed: int = 0,
     use_personas: bool = True,
 ) -> Goals:
@@ -527,6 +579,8 @@ async def generate_strategy_goals(
         )
     elif strategy in CORNER_STRATEGIES:
         base_strategy, eff_size, framing = CORNER_STRATEGIES[strategy]
+    elif strategy in SPECIAL_STRATEGIES:
+        base_strategy, eff_size, framing = None, 4, SPECIAL_STRATEGIES[strategy]
     else:
         raise ValueError(f"unknown strategy {strategy!r}; pick from {GEN_STRATEGIES}")
     if complexity:
@@ -547,16 +601,26 @@ async def generate_strategy_goals(
         ]
     )
     all_tools = [(sid, ts) for sid, specs in surfaces.items() for ts in specs]
+    special_sets = (
+        _special_seed_sets(strategy, surfaces, direct_alt_path) if strategy in SPECIAL_STRATEGIES else []
+    )
     rng = random.Random(seed)
     seen: set[str] = set()
     out: list[GoalEntry] = []
     for i in range(n_goals):
         if not all_tools:
             break
-        anchor_sid, anchor_ts = rng.choice(all_tools)
-        anchor = ToolReference(server_id=anchor_sid, tool_name=anchor_ts.name)
-        related = sample_distractors(base_strategy, [anchor], catalog, n=max(1, eff_size - 1), seed=seed + i)
-        seed_pairs = [(anchor_sid, anchor_ts.name)] + [(e.server_id, e.tool_name) for e in related]
+        if strategy in SPECIAL_STRATEGIES:
+            if not special_sets:
+                break
+            seed_pairs = list(rng.choice(special_sets))
+        else:
+            anchor_sid, anchor_ts = rng.choice(all_tools)
+            anchor = ToolReference(server_id=anchor_sid, tool_name=anchor_ts.name)
+            related = sample_distractors(
+                base_strategy, [anchor], catalog, n=max(1, eff_size - 1), seed=seed + i
+            )
+            seed_pairs = [(anchor_sid, anchor_ts.name)] + [(e.server_id, e.tool_name) for e in related]
         by_server: dict[str, set[str]] = {}
         for sid, tname in seed_pairs:
             by_server.setdefault(sid, set()).add(tname)
