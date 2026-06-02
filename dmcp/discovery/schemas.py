@@ -87,8 +87,7 @@ class DiscoveredServer(BaseModel):
         return [
             p
             for p in self.packages
-            if p.kind in (PackageKind.pypi, PackageKind.npm)
-            and p.transport is TransportKind.stdio
+            if p.kind in (PackageKind.pypi, PackageKind.npm) and p.transport is TransportKind.stdio
         ]
 
     @property

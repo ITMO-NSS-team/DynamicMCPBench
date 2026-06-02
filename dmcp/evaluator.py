@@ -110,13 +110,9 @@ def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] 
             not isinstance(value, str) or not value.startswith(matcher.starts_with)
         ):
             return False
-        if matcher.contains is not None and (
-            not isinstance(value, str) or matcher.contains not in value
-        ):
+        if matcher.contains is not None and (not isinstance(value, str) or matcher.contains not in value):
             return False
-        if matcher.regex is not None and (
-            not isinstance(value, str) or not re.search(matcher.regex, value)
-        ):
+        if matcher.regex is not None and (not isinstance(value, str) or not re.search(matcher.regex, value)):
             return False
     return True
 
@@ -155,9 +151,7 @@ def _final_assistant_message(trace: Trace) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _eval_tool_effect(
-    cp: ToolEffectCheckpoint, agent_calls: list[Step]
-) -> CheckpointResult:
+def _eval_tool_effect(cp: ToolEffectCheckpoint, agent_calls: list[Step]) -> CheckpointResult:
     eq = {(r.server_id, r.tool_name) for r in cp.equivalence_set}
     for step in agent_calls:
         if step.tool_name is None:
@@ -172,9 +166,7 @@ def _eval_tool_effect(
             checkpoint_id=cp.checkpoint_id,
             kind=cp.kind.value,
             passed=True,
-            reason=(
-                f"matched step #{step.step_id} {step.server_id}.{step.tool_name}"
-            ),
+            reason=(f"matched step #{step.step_id} {step.server_id}.{step.tool_name}"),
             matched_step_id=step.step_id,
         )
     eq_render = ", ".join(f"{s}.{t}" for s, t in eq)
@@ -311,10 +303,7 @@ def _eval_ordering(
             )
             continue
         if not (b < a):
-            failures.append(
-                f"ordering {oc.before_id} (step #{b}) → {oc.after_id} (step #{a}): "
-                "out of order"
-            )
+            failures.append(f"ordering {oc.before_id} (step #{b}) → {oc.after_id} (step #{a}): out of order")
     return (len(failures) == 0), failures
 
 
@@ -370,12 +359,9 @@ def _classify_errors(
             acceptable = {(r.server_id, r.tool_name) for r in cp.equivalence_set}
             names = {r.tool_name for r in cp.equivalence_set}
             sae = any(
-                s.tool_name in names and (s.server_id, s.tool_name) not in acceptable
-                for s in success_calls
+                s.tool_name in names and (s.server_id, s.tool_name) not in acceptable for s in success_calls
             )
-            attempted = any(
-                (s.server_id, s.tool_name) in acceptable for s in agent_calls if s.tool_name
-            )
+            attempted = any((s.server_id, s.tool_name) in acceptable for s in agent_calls if s.tool_name)
             if sae:
                 counts["E4"] += 1
             elif attempted:
@@ -465,13 +451,9 @@ def evaluate(
     evaluation_mode: str | None = None,
     server_tags: dict[str, list[str]] | None = None,
 ) -> EvaluationResult:
-    agent_calls = [
-        s for s in candidate.steps if s.kind is StepKind.call_tool_agent
-    ]
+    agent_calls = [s for s in candidate.steps if s.kind is StepKind.call_tool_agent]
     sae = _detect_sae(spec, agent_calls, server_tags)
-    checkpoint_results = [
-        _eval_checkpoint(cp, agent_calls, candidate) for cp in spec.checkpoints
-    ]
+    checkpoint_results = [_eval_checkpoint(cp, agent_calls, candidate) for cp in spec.checkpoints]
     minefield_results = [_eval_minefield(mf, agent_calls) for mf in spec.minefields]
     ordering_ok, ordering_failures = _eval_ordering(spec.ordering, checkpoint_results)
     errors = _classify_errors(spec, agent_calls, checkpoint_results, ordering_ok)
@@ -486,9 +468,7 @@ def evaluate(
         "minefields_total": len(minefield_results),
         "minefields_hit": sum(1 for mr in minefield_results if mr.hit),
         "agent_call_count": len(agent_calls),
-        "agent_call_success_count": sum(
-            1 for s in agent_calls if s.status is StepStatus.success
-        ),
+        "agent_call_success_count": sum(1 for s in agent_calls if s.status is StepStatus.success),
         "sae": sae,
         "error_taxonomy": errors,
     }

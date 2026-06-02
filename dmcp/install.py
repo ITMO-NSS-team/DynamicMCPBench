@@ -76,12 +76,8 @@ def _pick_package(server: DiscoveredServer) -> DiscoveredPackage | None:
     return candidates[0]
 
 
-def _install_pypi(
-    package: DiscoveredPackage, timeout_s: float
-) -> tuple[InstallStatus, str, str]:
-    pkg_spec = (
-        f"{package.identifier}=={package.version}" if package.version else package.identifier
-    )
+def _install_pypi(package: DiscoveredPackage, timeout_s: float) -> tuple[InstallStatus, str, str]:
+    pkg_spec = f"{package.identifier}=={package.version}" if package.version else package.identifier
     t0 = time.monotonic()
     try:
         proc = subprocess.run(
@@ -95,7 +91,7 @@ def _install_pypi(
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-500:]
         return InstallStatus.install_error, f"uv pip install exit={proc.returncode}", tail
-    return InstallStatus.success, f"installed in {time.monotonic()-t0:.1f}s", ""
+    return InstallStatus.success, f"installed in {time.monotonic() - t0:.1f}s", ""
 
 
 def _resolve_pypi_invocation(
@@ -114,9 +110,7 @@ def _resolve_npm_invocation(
     package: DiscoveredPackage,
 ) -> tuple[str, list[str]]:
     """Use `npx -y` so we don't have to globally pollute npm."""
-    pkg_spec = (
-        f"{package.identifier}@{package.version}" if package.version else package.identifier
-    )
+    pkg_spec = f"{package.identifier}@{package.version}" if package.version else package.identifier
     return "npx", ["-y", pkg_spec]
 
 

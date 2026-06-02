@@ -51,10 +51,10 @@ git switch -c feat/<id>-<short-slug>
 
 ### 3. Gate
 ```
-bash scripts/check.sh            # ruff check + pytest -q (ruff format advisory until PLAN CC.3)
+bash scripts/check.sh            # ruff check + ruff format --check + pytest -q
 ```
-Fix until green. Run `uv run ruff format <your changed files>` so new code stays
-formatted (a repo-wide format baseline is its own step, CC.3).
+Fix until green. Run `uv run ruff format <your changed files>` before committing
+so the hard format gate stays green.
 
 ### 4. Commit, PR, auto-merge
 ```
