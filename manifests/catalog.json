@@ -6606,5 +6606,589 @@
     ],
     "dependencies": [],
     "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_elasticsearch": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8010/sse",
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "list_indices",
+        "status": "ok"
+      },
+      {
+        "name": "get_mappings",
+        "status": "ok"
+      },
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "get_shards",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_git": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8019/sse",
+    "tool_count": 12,
+    "pass_rate": 0.08333333333333333,
+    "tools": [
+      {
+        "name": "git_status",
+        "status": "ok"
+      },
+      {
+        "name": "git_diff_unstaged",
+        "status": "error"
+      },
+      {
+        "name": "git_diff_staged",
+        "status": "error"
+      },
+      {
+        "name": "git_diff",
+        "status": "error"
+      },
+      {
+        "name": "git_commit",
+        "status": "error"
+      },
+      {
+        "name": "git_add",
+        "status": "error"
+      },
+      {
+        "name": "git_reset",
+        "status": "error"
+      },
+      {
+        "name": "git_log",
+        "status": "error"
+      },
+      {
+        "name": "git_create_branch",
+        "status": "error"
+      },
+      {
+        "name": "git_checkout",
+        "status": "error"
+      },
+      {
+        "name": "git_show",
+        "status": "error"
+      },
+      {
+        "name": "git_branch",
+        "status": "error"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_grafana": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8012/sse",
+    "tool_count": 44,
+    "pass_rate": 0.29545454545454547,
+    "tools": [
+      {
+        "name": "alerting_manage_routing",
+        "status": "ok"
+      },
+      {
+        "name": "alerting_manage_rules",
+        "status": "ok"
+      },
+      {
+        "name": "generate_deeplink",
+        "status": "ok"
+      },
+      {
+        "name": "get_alert_group",
+        "status": "error"
+      },
+      {
+        "name": "get_annotation_tags",
+        "status": "ok"
+      },
+      {
+        "name": "get_annotations",
+        "status": "ok"
+      },
+      {
+        "name": "get_assertions",
+        "status": "error"
+      },
+      {
+        "name": "get_current_oncall_users",
+        "status": "error"
+      },
+      {
+        "name": "get_dashboard_by_uid",
+        "status": "error"
+      },
+      {
+        "name": "get_dashboard_panel_queries",
+        "status": "error"
+      },
+      {
+        "name": "get_dashboard_property",
+        "status": "error"
+      },
+      {
+        "name": "get_dashboard_summary",
+        "status": "error"
+      },
+      {
+        "name": "get_datasource",
+        "status": "error"
+      },
+      {
+        "name": "get_incident",
+        "status": "ok"
+      },
+      {
+        "name": "get_oncall_shift",
+        "status": "error"
+      },
+      {
+        "name": "get_panel_image",
+        "status": "ok"
+      },
+      {
+        "name": "get_plugin",
+        "status": "ok"
+      },
+      {
+        "name": "get_sift_analysis",
+        "status": "error"
+      },
+      {
+        "name": "get_sift_investigation",
+        "status": "error"
+      },
+      {
+        "name": "grafana_api_request",
+        "status": "ok"
+      },
+      {
+        "name": "list_alert_groups",
+        "status": "error"
+      },
+      {
+        "name": "list_datasources",
+        "status": "ok"
+      },
+      {
+        "name": "list_incidents",
+        "status": "ok"
+      },
+      {
+        "name": "list_loki_label_names",
+        "status": "error"
+      },
+      {
+        "name": "list_loki_label_values",
+        "status": "error"
+      },
+      {
+        "name": "list_oncall_schedules",
+        "status": "error"
+      },
+      {
+        "name": "list_oncall_teams",
+        "status": "error"
+      },
+      {
+        "name": "list_oncall_users",
+        "status": "error"
+      },
+      {
+        "name": "list_prometheus_label_names",
+        "status": "error"
+      },
+      {
+        "name": "list_prometheus_label_values",
+        "status": "error"
+      },
+      {
+        "name": "list_prometheus_metric_metadata",
+        "status": "error"
+      },
+      {
+        "name": "list_prometheus_metric_names",
+        "status": "error"
+      },
+      {
+        "name": "list_pyroscope_label_names",
+        "status": "error"
+      },
+      {
+        "name": "list_pyroscope_label_values",
+        "status": "error"
+      },
+      {
+        "name": "list_pyroscope_profile_types",
+        "status": "error"
+      },
+      {
+        "name": "list_sift_investigations",
+        "status": "error"
+      },
+      {
+        "name": "query_loki_logs",
+        "status": "error"
+      },
+      {
+        "name": "query_loki_patterns",
+        "status": "error"
+      },
+      {
+        "name": "query_loki_stats",
+        "status": "error"
+      },
+      {
+        "name": "query_prometheus",
+        "status": "error"
+      },
+      {
+        "name": "query_prometheus_histogram",
+        "status": "error"
+      },
+      {
+        "name": "query_pyroscope",
+        "status": "error"
+      },
+      {
+        "name": "search_dashboards",
+        "status": "ok"
+      },
+      {
+        "name": "search_folders",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_kafka": {
+    "tier": "compose",
+    "transport": "streamable_http",
+    "endpoint": "http://localhost:8018/mcp",
+    "tool_count": 8,
+    "pass_rate": 0.875,
+    "tools": [
+      {
+        "name": "list-topics",
+        "status": "ok"
+      },
+      {
+        "name": "create-topics",
+        "status": "ok"
+      },
+      {
+        "name": "delete-topics",
+        "status": "error"
+      },
+      {
+        "name": "produce-message",
+        "status": "ok"
+      },
+      {
+        "name": "consume-messages",
+        "status": "ok"
+      },
+      {
+        "name": "search-product-docs",
+        "status": "ok"
+      },
+      {
+        "name": "get-product-doc-page",
+        "status": "ok"
+      },
+      {
+        "name": "explain-disabled-tools",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search-product-docs",
+        "consumer": "get-product-doc-page",
+        "field": "url",
+        "via_key": "url"
+      }
+    ],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_meilisearch": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8011/sse",
+    "tool_count": 26,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get-connection-settings",
+        "status": "ok"
+      },
+      {
+        "name": "update-connection-settings",
+        "status": "ok"
+      },
+      {
+        "name": "health-check",
+        "status": "ok"
+      },
+      {
+        "name": "get-version",
+        "status": "ok"
+      },
+      {
+        "name": "get-stats",
+        "status": "ok"
+      },
+      {
+        "name": "create-index",
+        "status": "ok"
+      },
+      {
+        "name": "list-indexes",
+        "status": "ok"
+      },
+      {
+        "name": "delete-index",
+        "status": "ok"
+      },
+      {
+        "name": "get-documents",
+        "status": "ok"
+      },
+      {
+        "name": "add-documents",
+        "status": "ok"
+      },
+      {
+        "name": "get-settings",
+        "status": "ok"
+      },
+      {
+        "name": "update-settings",
+        "status": "ok"
+      },
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "get-task",
+        "status": "ok"
+      },
+      {
+        "name": "get-tasks",
+        "status": "ok"
+      },
+      {
+        "name": "cancel-tasks",
+        "status": "ok"
+      },
+      {
+        "name": "get-keys",
+        "status": "ok"
+      },
+      {
+        "name": "create-key",
+        "status": "ok"
+      },
+      {
+        "name": "delete-key",
+        "status": "ok"
+      },
+      {
+        "name": "get-health-status",
+        "status": "ok"
+      },
+      {
+        "name": "get-index-metrics",
+        "status": "ok"
+      },
+      {
+        "name": "get-system-info",
+        "status": "ok"
+      },
+      {
+        "name": "create-chat-completion",
+        "status": "ok"
+      },
+      {
+        "name": "get-chat-workspaces",
+        "status": "ok"
+      },
+      {
+        "name": "get-chat-workspace-settings",
+        "status": "ok"
+      },
+      {
+        "name": "update-chat-workspace-settings",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_mongo": {
+    "tier": "compose",
+    "transport": "streamable_http",
+    "endpoint": "http://localhost:8002/mcp",
+    "tool_count": 25,
+    "pass_rate": 0.76,
+    "tools": [
+      {
+        "name": "aggregate-db",
+        "status": "ok"
+      },
+      {
+        "name": "aggregate",
+        "status": "ok"
+      },
+      {
+        "name": "collection-indexes",
+        "status": "error"
+      },
+      {
+        "name": "collection-schema",
+        "status": "ok"
+      },
+      {
+        "name": "collection-storage-size",
+        "status": "error"
+      },
+      {
+        "name": "connect",
+        "status": "error"
+      },
+      {
+        "name": "count",
+        "status": "ok"
+      },
+      {
+        "name": "create-collection",
+        "status": "ok"
+      },
+      {
+        "name": "create-index",
+        "status": "ok"
+      },
+      {
+        "name": "db-stats",
+        "status": "ok"
+      },
+      {
+        "name": "delete-many",
+        "status": "ok"
+      },
+      {
+        "name": "drop-collection",
+        "status": "ok"
+      },
+      {
+        "name": "drop-database",
+        "status": "ok"
+      },
+      {
+        "name": "drop-index",
+        "status": "error"
+      },
+      {
+        "name": "explain",
+        "status": "ok"
+      },
+      {
+        "name": "export",
+        "status": "ok"
+      },
+      {
+        "name": "find",
+        "status": "ok"
+      },
+      {
+        "name": "insert-many",
+        "status": "ok"
+      },
+      {
+        "name": "list-collections",
+        "status": "ok"
+      },
+      {
+        "name": "list-databases",
+        "status": "ok"
+      },
+      {
+        "name": "mongodb-logs",
+        "status": "ok"
+      },
+      {
+        "name": "rename-collection",
+        "status": "ok"
+      },
+      {
+        "name": "update-many",
+        "status": "ok"
+      },
+      {
+        "name": "list-knowledge-sources",
+        "status": "timeout"
+      },
+      {
+        "name": "search-knowledge",
+        "status": "timeout"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
+  },
+  "compose_prometheus": {
+    "tier": "compose",
+    "transport": "sse",
+    "endpoint": "http://localhost:8013/sse",
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "health_check",
+        "status": "ok"
+      },
+      {
+        "name": "execute_query",
+        "status": "ok"
+      },
+      {
+        "name": "execute_range_query",
+        "status": "ok"
+      },
+      {
+        "name": "list_metrics",
+        "status": "ok"
+      },
+      {
+        "name": "get_metric_metadata",
+        "status": "ok"
+      },
+      {
+        "name": "get_targets",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "requires": "docker compose -f docker-compose-mcp.yaml up -d"
   }
 }

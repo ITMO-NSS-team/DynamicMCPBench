@@ -29,7 +29,8 @@
         "version": "0.9.6",
         "entrypoint": "mcpcap"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "com_advisorfinder__mcp",
@@ -59,7 +60,8 @@
         "version": "1.1.5",
         "entrypoint": "advisorfinder-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "com_keyboardcrumbs__mcp",
@@ -89,7 +91,8 @@
         "version": "1.0.1",
         "entrypoint": "keyboardcrumbs-mcp"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "com_mcparmory__builtwith",
@@ -119,7 +122,8 @@
         "version": "1.0.3",
         "entrypoint": "mcparmory-builtwith"
       },
-      "tool_count": 34
+      "tool_count": 34,
+      "requires_env": []
     },
     {
       "server_id": "com_mcparmory__globalping",
@@ -149,7 +153,8 @@
         "version": "1.0.3",
         "entrypoint": "mcparmory-globalping"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "com_mcparmory__ip2location_geolocation",
@@ -179,7 +184,8 @@
         "version": "1.0.3",
         "entrypoint": "mcparmory-ip2location-geolocation"
       },
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "com_mcparmory__scrapingant",
@@ -209,7 +215,8 @@
         "version": "1.0.1",
         "entrypoint": "mcparmory-scrapingant"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "com_mcparmory__semrush_appcenter",
@@ -239,7 +246,8 @@
         "version": "1.0.2",
         "entrypoint": "mcparmory-semrush-appcenter"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__aemo_mcp",
@@ -269,7 +277,8 @@
         "version": "0.4.15",
         "entrypoint": "aemo-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__abs_mcp",
@@ -299,7 +308,8 @@
         "version": "0.13.3",
         "entrypoint": "abs-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__au_weather_mcp",
@@ -329,7 +339,8 @@
         "version": "0.4.9",
         "entrypoint": "au-weather-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__apra_mcp",
@@ -359,7 +370,8 @@
         "version": "0.8.21",
         "entrypoint": "apra-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__asic_mcp",
@@ -389,7 +401,8 @@
         "version": "0.6.18",
         "entrypoint": "asic-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__ato_mcp",
@@ -419,7 +432,8 @@
         "version": "0.8.26",
         "entrypoint": "ato-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__aihw_mcp",
@@ -449,7 +463,8 @@
         "version": "0.4.18",
         "entrypoint": "aihw-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_ausdata__wgea_mcp",
@@ -479,7 +494,8 @@
         "version": "0.6.13",
         "entrypoint": "wgea-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_0xsl1m__cerebrus_pulse_mcp",
@@ -509,7 +525,8 @@
         "version": "0.2.0",
         "entrypoint": "cerebrus-pulse-mcp"
       },
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     },
     {
       "server_id": "io_github_1102tools__federal_register_mcp",
@@ -539,7 +556,8 @@
         "version": "0.2.7",
         "entrypoint": "federal-register-mcp"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aguantar__clickhouse_dataops_mcp",
@@ -569,7 +587,8 @@
         "version": "0.1.1",
         "entrypoint": "clickhouse-mcp-server"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aguantar__vibescan_mcp_server",
@@ -599,7 +618,8 @@
         "version": "0.1.0",
         "entrypoint": "vibescan-mcp-server"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "io_github_aguantar__kafka_dataops_mcp",
@@ -629,7 +649,8 @@
         "version": "0.1.0",
         "entrypoint": "kafka-dataops-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_alfanous_team__alfanous",
@@ -659,7 +680,8 @@
         "version": "1.9.2",
         "entrypoint": "alfanous-mcp"
       },
-      "tool_count": 11
+      "tool_count": 11,
+      "requires_env": []
     },
     {
       "server_id": "io_github_ansvar_systems__security_controls",
@@ -689,7 +711,8 @@
         "version": "0.4.0",
         "entrypoint": "scf-mcp"
       },
-      "tool_count": 8
+      "tool_count": 8,
+      "requires_env": []
     },
     {
       "server_id": "io_github_annasmazhar__pyspark_mcp",
@@ -719,7 +742,8 @@
         "version": "0.0.4",
         "entrypoint": "pyspark-mcp"
       },
-      "tool_count": 49
+      "tool_count": 49,
+      "requires_env": []
     },
     {
       "server_id": "io_github_armada735__fake_star_audit",
@@ -749,7 +773,8 @@
         "version": "0.1.1",
         "entrypoint": "fake-star-audit"
       },
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "io_github_blackmount_ai__blackmount_construction_mcp",
@@ -779,7 +804,8 @@
         "version": "0.4.1",
         "entrypoint": "blackmount-construction-mcp"
       },
-      "tool_count": 48
+      "tool_count": 48,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_audit_logger_mcp",
@@ -809,7 +835,8 @@
         "version": "1.0.4",
         "entrypoint": "agent-audit-logger-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_data_residency_mcp",
@@ -839,7 +866,8 @@
         "version": "1.0.2",
         "entrypoint": "agent-data-residency-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_handoff_certified_mcp",
@@ -869,7 +897,8 @@
         "version": "1.0.4",
         "entrypoint": "agent-handoff-certified-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_policy_enforcement_mcp",
@@ -899,7 +928,8 @@
         "version": "1.0.3",
         "entrypoint": "agent-policy-enforcement-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_prompt_injection_firewall_mcp",
@@ -929,7 +959,8 @@
         "version": "1.0.4",
         "entrypoint": "agent-prompt-injection-firewall-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__agent_rate_limiter_mcp",
@@ -959,7 +990,8 @@
         "version": "1.0.3",
         "entrypoint": "agent-rate-limiter-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__ai_bom_mcp",
@@ -989,7 +1021,8 @@
         "version": "1.2.7",
         "entrypoint": "ai-bom-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__ai_incident_reporting_mcp",
@@ -1019,7 +1052,8 @@
         "version": "1.0.2",
         "entrypoint": "ai-incident-reporting-mcp"
       },
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__bias_detection_mcp",
@@ -1049,7 +1083,8 @@
         "version": "1.1.3",
         "entrypoint": "bias-detection-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__construction_iso_19650_mcp",
@@ -1079,7 +1114,8 @@
         "version": "1.0.1",
         "entrypoint": "construction-iso-19650-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__cra_compliance_mcp",
@@ -1109,7 +1145,8 @@
         "version": "1.2.6",
         "entrypoint": "cra-compliance-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__csrd_compliance_mcp",
@@ -1139,7 +1176,8 @@
         "version": "1.2.4",
         "entrypoint": "csrd-compliance-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__dora_nis2_crosswalk_mcp",
@@ -1169,7 +1207,8 @@
         "version": "1.0.2",
         "entrypoint": "dora-nis2-crosswalk-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__dora_compliance_mcp",
@@ -1199,7 +1238,8 @@
         "version": "1.2.9",
         "entrypoint": "dora-compliance-mcp"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__explainability_report_mcp",
@@ -1229,7 +1269,8 @@
         "version": "1.0.4",
         "entrypoint": "explainability-report-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__gods_eye_geospatial_mcp",
@@ -1259,7 +1300,8 @@
         "version": "1.2.3",
         "entrypoint": "gods-eye-geospatial-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__haulage_uk_compliance_mcp",
@@ -1289,7 +1331,8 @@
         "version": "1.0.1",
         "entrypoint": "haulage-uk-compliance-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_cra_annex_iv_classifier_mcp",
@@ -1319,7 +1362,8 @@
         "version": "1.1.2",
         "entrypoint": "meok-cra-annex-iv-classifier-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_nis2_de_register_mcp",
@@ -1349,7 +1393,8 @@
         "version": "1.0.6",
         "entrypoint": "meok-nis2-de-register-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_dpia_edpb_template_mcp",
@@ -1379,7 +1424,8 @@
         "version": "1.0.3",
         "entrypoint": "meok-dpia-edpb-template-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_omnibus_tracker_mcp",
@@ -1409,7 +1455,8 @@
         "version": "1.0.6",
         "entrypoint": "meok-omnibus-tracker-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_mcp_injection_scan_mcp",
@@ -1439,7 +1486,8 @@
         "version": "1.0.6",
         "entrypoint": "meok-mcp-injection-scan-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__meok_watermark_attest_mcp",
@@ -1469,7 +1517,8 @@
         "version": "1.3.2",
         "entrypoint": "meok-watermark-attest-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__iso_42001_ai_mcp",
@@ -1499,7 +1548,8 @@
         "version": "1.0.6",
         "entrypoint": "iso_42001_ai_mcp"
       },
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__nis2_compliance_mcp",
@@ -1529,7 +1579,8 @@
         "version": "1.2.9",
         "entrypoint": "nis2-compliance-mcp"
       },
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__sbom_cyclonedx_mcp",
@@ -1559,7 +1610,8 @@
         "version": "1.0.2",
         "entrypoint": "sbom-cyclonedx-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__skip_hire_ai_mcp",
@@ -1589,7 +1641,8 @@
         "version": "1.0.1",
         "entrypoint": "skip-hire-ai-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__scam_detector_mcp",
@@ -1619,7 +1672,8 @@
         "version": "1.0.4",
         "entrypoint": "scam-detector-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_csoai_org__uk_ai_bill_compliance_mcp",
@@ -1649,7 +1703,8 @@
         "version": "1.0.3",
         "entrypoint": "uk-ai-bill-compliance-mcp"
       },
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "io_github_codeturion__codesurface",
@@ -1679,7 +1734,8 @@
         "version": "0.8.0",
         "entrypoint": "codesurface"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_codeturion__unity_api_mcp",
@@ -1709,7 +1765,8 @@
         "version": "2.0.2",
         "entrypoint": "unity-api-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_chengjiale150__jupyter_mcp_server",
@@ -1739,7 +1796,8 @@
         "version": "1.1.0",
         "entrypoint": "better-jupyter-mcp-server"
       },
-      "tool_count": 12
+      "tool_count": 12,
+      "requires_env": []
     },
     {
       "server_id": "io_github_codeturion__unreal_api_mcp",
@@ -1769,7 +1827,8 @@
         "version": "0.2.0",
         "entrypoint": "unreal-api-mcp"
       },
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "io_github_docminus__decimer_mcp_server",
@@ -1799,7 +1858,8 @@
         "version": "0.1.4",
         "entrypoint": "decimer-mcp-server"
       },
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "io_github_edkarlsson__locus",
@@ -1829,7 +1889,8 @@
         "version": "0.6.2",
         "entrypoint": "locus-mcp"
       },
-      "tool_count": 4
+      "tool_count": 4,
+      "requires_env": []
     },
     {
       "server_id": "time",
@@ -1855,7 +1916,8 @@
         "--local-timezone",
         "UTC"
       ],
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
     },
     {
       "server_id": "fetch",
@@ -1879,7 +1941,8 @@
         "-m",
         "mcp_server_fetch"
       ],
-      "tool_count": 1
+      "tool_count": 1,
+      "requires_env": []
     },
     {
       "server_id": "git",
@@ -1906,7 +1969,8 @@
         "--repository",
         "/tmp/dmcp-sandbox-repo"
       ],
-      "tool_count": 12
+      "tool_count": 12,
+      "requires_env": []
     },
     {
       "server_id": "sqlite",
@@ -1931,7 +1995,8 @@
         "--db-path",
         "/tmp/dmcp-sandbox/bench.db"
       ],
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "fs",
@@ -1957,7 +2022,8 @@
         "@modelcontextprotocol/server-filesystem",
         "/tmp/dmcp-fs-sandbox"
       ],
-      "tool_count": 14
+      "tool_count": 14,
+      "requires_env": []
     },
     {
       "server_id": "memory",
@@ -1985,7 +2051,8 @@
       "env": {
         "MEMORY_FILE_PATH": "/tmp/dmcp-memory/store.json"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "wikipedia",
@@ -2007,7 +2074,8 @@
       ],
       "command": ".venv/bin/wikipedia-mcp",
       "args": [],
-      "tool_count": 22
+      "tool_count": 22,
+      "requires_env": []
     },
     {
       "server_id": "arxiv",
@@ -2033,7 +2101,8 @@
         "--storage-path",
         "/tmp/dmcp-arxiv"
       ],
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     },
     {
       "server_id": "yfinance",
@@ -2055,7 +2124,8 @@
       ],
       "command": ".venv/bin/yfinance-mcp",
       "args": [],
-      "tool_count": 18
+      "tool_count": 18,
+      "requires_env": []
     },
     {
       "server_id": "osm",
@@ -2080,7 +2150,8 @@
         "-y",
         "@cyanheads/openstreetmap-mcp-server"
       ],
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "wikidata",
@@ -2105,7 +2176,8 @@
         "-y",
         "@cyanheads/wikidata-mcp-server"
       ],
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "worldbank",
@@ -2130,7 +2202,8 @@
         "-y",
         "@cyanheads/worldbank-mcp-server"
       ],
-      "tool_count": 7
+      "tool_count": 7,
+      "requires_env": []
     },
     {
       "server_id": "eurostat",
@@ -2156,7 +2229,8 @@
         "-y",
         "@cyanheads/eurostat-mcp-server"
       ],
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "crossref",
@@ -2181,7 +2255,8 @@
         "-y",
         "@cyanheads/crossref-mcp-server"
       ],
-      "tool_count": 5
+      "tool_count": 5,
+      "requires_env": []
     },
     {
       "server_id": "openlibrary",
@@ -2206,7 +2281,8 @@
         "-y",
         "@cyanheads/openlibrary-mcp-server"
       ],
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "pubmed",
@@ -2231,7 +2307,8 @@
         "-y",
         "@cyanheads/pubmed-mcp-server"
       ],
-      "tool_count": 10
+      "tool_count": 10,
+      "requires_env": []
     }
   ]
 }

@@ -26,7 +26,8 @@
         "--repository",
         "/tmp/dmcp-sandbox-repo"
       ],
-      "tool_count": 12
+      "tool_count": 12,
+      "requires_env": []
     },
     {
       "server_id": "sqlite",
@@ -51,7 +52,8 @@
         "--db-path",
         "/tmp/dmcp-sandbox/bench.db"
       ],
-      "tool_count": 6
+      "tool_count": 6,
+      "requires_env": []
     },
     {
       "server_id": "fs",
@@ -77,7 +79,8 @@
         "@modelcontextprotocol/server-filesystem",
         "/tmp/dmcp-fs-sandbox"
       ],
-      "tool_count": 14
+      "tool_count": 14,
+      "requires_env": []
     },
     {
       "server_id": "memory",
@@ -105,7 +108,8 @@
       "env": {
         "MEMORY_FILE_PATH": "/tmp/dmcp-memory/store.json"
       },
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "compose_neo4j",
@@ -125,7 +129,8 @@
       ],
       "args": [],
       "endpoint": "http://localhost:8003/sse",
-      "tool_count": 3
+      "tool_count": 3,
+      "requires_env": []
     },
     {
       "server_id": "compose_postgres",
@@ -145,7 +150,8 @@
       ],
       "args": [],
       "endpoint": "http://localhost:8001/sse",
-      "tool_count": 9
+      "tool_count": 9,
+      "requires_env": []
     },
     {
       "server_id": "compose_qdrant",
@@ -165,7 +171,113 @@
       ],
       "args": [],
       "endpoint": "http://localhost:8005/sse",
-      "tool_count": 2
+      "tool_count": 2,
+      "requires_env": []
+    },
+    {
+      "server_id": "compose_elasticsearch",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "elasticsearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:search",
+        "tier:compose",
+        "requires:docker",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8010/sse",
+      "tool_count": 4,
+      "requires_env": []
+    },
+    {
+      "server_id": "compose_git",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "git MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:dev",
+        "tier:compose",
+        "requires:docker",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8019/sse",
+      "tool_count": 12,
+      "requires_env": []
+    },
+    {
+      "server_id": "compose_kafka",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "kafka MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:cloud-infra",
+        "tier:compose",
+        "requires:docker",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8018/mcp",
+      "tool_count": 8,
+      "requires_env": []
+    },
+    {
+      "server_id": "compose_meilisearch",
+      "transport": "sse",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "meilisearch MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:search",
+        "tier:compose",
+        "requires:docker",
+        "verify:full"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8011/sse",
+      "tool_count": 26,
+      "requires_env": []
+    },
+    {
+      "server_id": "compose_mongo",
+      "transport": "streamable_http",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "mongo MCP server from docker-compose-mcp.yaml (container-sandboxed).",
+      "tags": [
+        "compose",
+        "docker",
+        "pkg:docker",
+        "dyn:stateful_write",
+        "domain:data",
+        "tier:compose",
+        "requires:docker",
+        "verify:partial"
+      ],
+      "args": [],
+      "endpoint": "http://localhost:8002/mcp",
+      "tool_count": 25,
+      "requires_env": []
     }
   ]
 }

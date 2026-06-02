@@ -29,16 +29,20 @@ catalog = json.loads((ROOT / "manifests" / "catalog.json").read_text())
 
 merged, skipped = [], []
 for sid, rep in sorted(results.items()):
-    full = bool(rep.get("ok")) and rep.get("pass_rate") == 1.0
-    if not full:
+    # consistent with the substrate tier: keep every server that BOOTS (init + >=1 tool);
+    # partial pass is fine — exploration traces exercise tools in dependency context.
+    bootable = bool(rep.get("initialized")) and (rep.get("tool_count") or 0) >= 1
+    if not bootable:
         skipped.append((sid, rep.get("pass_rate"), str(rep.get("reason", ""))[:40]))
         continue
     if sid in have or sid not in compose:
         continue
     e = compose[sid]
-    for t in ("tier:compose", "requires:docker", "verify:full"):
+    verify_tag = "verify:full" if rep.get("pass_rate") == 1.0 else "verify:partial"
+    e.tags = [x for x in e.tags if not x.startswith("verify:")]
+    for t in ("tier:compose", "requires:docker", verify_tag):
         if t not in e.tags:
-            e.tags = [x for x in e.tags if not (t.startswith("verify:") and x.startswith("verify:"))] + [t]
+            e.tags.append(t)
     tools = rep.get("tools") or []
     e.tool_count = rep.get("tool_count") or len(tools)
     servers_m.servers.append(e)
