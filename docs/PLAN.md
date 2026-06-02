@@ -252,7 +252,8 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model; report feature importances.
 
 ### E4.6 — RQ4 scorer-vs-human + 200-task validation subset
-- status: in_review (#25)
+- status: blocked
+- note: harness merged in #25; awaiting human annotation pass per e4.6 protocol
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-02T10:44:43Z
 - deps: E1.1
