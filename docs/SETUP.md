@@ -78,3 +78,33 @@ Pick a subset (or use the full set) and run the pipeline — see **`docs/EXPERIM
 uv run dmcp subset --domain finance --dyn live_read -o manifests/subsets/fin.json
 uv run dmcp goal-gen -m manifests/subsets/fin.json --per-server 2 -o data/goals.json
 ```
+
+## Docker-compose MCP stack (`manifests/compose.json`)
+
+`docker-compose-mcp.yaml` brings up DB / infra MCP servers — postgres, mongo, neo4j,
+qdrant, redis, duckdb, elasticsearch, meilisearch, grafana, prometheus, kafka, git,
+time — each exposed over HTTP/SSE. They are wired in `manifests/compose.json` as
+`sse` / `streamable_http` entries (the stateful_write DBs are `sandbox: true` — the
+ephemeral container *is* the sandbox).
+
+Prereqs: docker + the **docker compose v2 plugin** (`bootstrap.sh` installs it
+user-space, no sudo). The compose file uses v2-only features (`profiles`,
+`dockerfile_inline`); the old v1 `docker-compose` binary will not work.
+
+Bring up the core set and verify:
+
+```bash
+touch FEDOT.MAS/.env   # the unused `bifrost` LLM-gateway service references this file
+# core subset (fast, fewer parallel pulls):
+docker compose -f docker-compose-mcp.yaml up -d --build \
+    postgres postgres-mcp qdrant qdrant-mcp git-mcp time-mcp
+# or the whole stack:
+#   docker compose -f docker-compose-mcp.yaml --profile full up -d --build
+dmcp verify -m manifests/compose.json --llm --strict   # vets whatever is reachable
+docker compose -f docker-compose-mcp.yaml --profile full down --remove-orphans
+```
+
+Docker Hub may throttle a full 25-container parallel pull (large layers stall); bring
+services up in small batches. Latest smoke-vet: `reports/compose_verify.md`
+(postgres 9/9, qdrant 2/2, time 2/2 verified over SSE; git partial — its tools need
+repo state, as with the substrate `git`).

@@ -261,3 +261,6 @@ paper/main.out
 paper/main.pdf
 paper/main.synctex.gz
 paper/main.toc
+
+# docker-compose git-mcp bind-mount sandbox (root-owned, container-created)
+/repos/

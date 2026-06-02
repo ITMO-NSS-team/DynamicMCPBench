@@ -62,7 +62,24 @@ else
 fi
 { [ -f .env ] && grep -q '^OPENROUTER_API_KEY=.' .env; } \
   || echo "WARN: OPENROUTER_API_KEY not set in .env — explore/distill/eval/generate/verify will fail"
-command -v docker >/dev/null 2>&1 && echo "docker present ($(docker --version 2>/dev/null | head -1))" \
-  || echo "NOTE: docker absent — the docker-compose MCP stack (E3.3) is unavailable"
+if command -v docker >/dev/null 2>&1; then
+  echo "docker present ($(docker --version 2>/dev/null | head -1))"
+  # docker compose v2 plugin (user-space, no sudo) — needed for the E3.3 compose MCP stack
+  if ! docker compose version >/dev/null 2>&1; then
+    echo "installing docker compose v2 plugin (user-space) ..."
+    mkdir -p "$HOME/.docker/cli-plugins"
+    case "$(uname -m)" in x86_64) ca=x86_64 ;; aarch64 | arm64) ca=aarch64 ;; *) ca="" ;; esac
+    case "$(uname -s)" in Linux) co=linux ;; Darwin) co=darwin ;; *) co="" ;; esac
+    if [ -n "$ca" ] && [ -n "$co" ]; then
+      curl -fsSL -o "$HOME/.docker/cli-plugins/docker-compose" \
+        "https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-${co}-${ca}" \
+        && chmod +x "$HOME/.docker/cli-plugins/docker-compose" || echo "WARN: docker compose plugin install failed"
+    fi
+  fi
+  docker compose version >/dev/null 2>&1 \
+    && echo "  docker compose ready — MCP stack: docker compose -f docker-compose-mcp.yaml --profile minimal up -d --build"
+else
+  echo "NOTE: docker absent — the docker-compose MCP stack (E3.3) is unavailable"
+fi
 
 echo "bootstrap: OK"

@@ -2158,6 +2158,9 @@ def subset(
     tag: Annotated[
         list[str] | None, typer.Option("--tag", help="Repeatable: an arbitrary tag that must be present")
     ] = None,
+    exclude_tag: Annotated[
+        list[str] | None, typer.Option("--exclude-tag", help="Repeatable: drop servers carrying this tag")
+    ] = None,
     limit: Annotated[int | None, typer.Option("--limit", help="Cap to the first N (stable order)")] = None,
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("manifests/subset.json"),
 ) -> None:
@@ -2181,6 +2184,8 @@ def subset(
         if has_alt and "alt:yes" not in tags:
             return False
         if tag and not set(tag) <= tags:
+            return False
+        if exclude_tag and (set(exclude_tag) & tags):
             return False
         return True
 
