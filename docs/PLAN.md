@@ -392,6 +392,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 
 ### E5.3 — HuggingFace dataset release + datasheet
 - status: todo
+- note: release script merged PR#47 release_hf.py, dry-run smoke-tested, awaiting corpus to package and push
 - owner: —
 - claimed_at: —
 - deps: E4.7
