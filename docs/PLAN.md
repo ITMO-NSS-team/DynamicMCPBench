@@ -403,7 +403,7 @@ The whole pipeline must run on ANY user manifest — the repo IS the product: po
 MCP servers → diverse benchmark → multi-model agent eval + baselines → ablations → report.
 
 ### E7.1 — `dmcp bench` end-to-end orchestrator
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E6.1 E4.7
