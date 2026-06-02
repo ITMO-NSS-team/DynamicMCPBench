@@ -236,9 +236,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: forward vs graph-sampling vs direct compared on executable-on-first-try, human realism, distinct valid paths, coverage, unnecessary-tool rate, filter pass rate, and error-type diversity; report.
 
 ### E4.4 — RQ1 headline: answer-match vs trace-align
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:08:50Z
 - deps: E1.1
 - source: research_plan RQ1
 - done-when: a harness scores the same agents two ways (final-answer string match vs trace/effect alignment) on live_read/stateful tasks, re-run over time; reports ranking instability (Kendall's τ) and false-fail rate.
