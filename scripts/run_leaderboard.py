@@ -11,6 +11,7 @@ experiment plan.
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 from pathlib import Path
 
@@ -41,6 +42,9 @@ def main() -> None:
     ap.add_argument("--budget", type=int, default=12)
     ap.add_argument("--reference-traces", default=None, help="enable deterministic replay")
     ap.add_argument("--out", default="reports/leaderboard")
+    ap.add_argument(
+        "--json", default=None, help="also emit per-model leaderboard numbers JSON (paper renderer input)"
+    )
     a = ap.parse_args()
 
     out = ROOT / a.out
@@ -88,6 +92,44 @@ def main() -> None:
         report_cmd += ["--evals", ev]
     _run(report_cmd)
     print(f"[done] {len(eval_files)} eval runs → {out / 'leaderboard.md'}")
+
+    if a.json:
+        import collections
+
+        agg = collections.defaultdict(lambda: {"n": 0, "pass": 0, "sae": 0})
+        passk = collections.defaultdict(list)  # (model, file, task) -> [passed]
+        for ev in eval_files:
+            for ln in Path(ev).read_text(encoding="utf-8").splitlines():
+                if not ln.strip():
+                    continue
+                r = json.loads(ln)
+                m = r.get("candidate_model") or "?"
+                agg[m]["n"] += 1
+                agg[m]["pass"] += bool(r.get("passed"))
+                agg[m]["sae"] += bool(r.get("had_sae"))
+                passk[(m, ev, r.get("task_id"))].append(bool(r.get("passed")))
+        pk = collections.defaultdict(lambda: [0, 0])
+        for (m, _ev, _t), passes in passk.items():
+            pk[m][1] += 1
+            pk[m][0] += all(passes)
+        numbers = {
+            "models": [
+                {
+                    "model": m,
+                    "n": d["n"],
+                    "pass_rate": d["pass"] / d["n"] if d["n"] else None,
+                    "sae_rate": d["sae"] / d["n"] if d["n"] else None,
+                    "pass_k": pk[m][0] / pk[m][1] if pk[m][1] else None,
+                }
+                for m, d in sorted(
+                    agg.items(), key=lambda kv: -(kv[1]["pass"] / kv[1]["n"] if kv[1]["n"] else 0)
+                )
+            ]
+        }
+        jp = ROOT / a.json
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        jp.write_text(json.dumps(numbers, indent=2) + "\n", encoding="utf-8")
+        print(f"numbers → {jp}")
 
 
 if __name__ == "__main__":

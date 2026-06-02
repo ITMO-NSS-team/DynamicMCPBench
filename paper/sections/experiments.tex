@@ -155,3 +155,25 @@ an open-weight 70B+, a tool-specialised model) under replay,
 Pending the substrate scale-up.
 
 \input{tables/capability_profile}
+
+\subsection{Generation-strategy diversity and difficulty}
+\label{sec:rq_gen_strategy}
+
+The benchmark spans 15 generation strategies (six base relationship
+samplers, seven corner cases, and two cross-server specials) and
+difficulty bins ranging from single-tool tasks to long chains of
+pairwise-similar tools. Table~\ref{tab:gen_strategy_ablation} reports,
+per generation strategy, the agent pass-rate, SAE rate, and
+pass\textsuperscript{$k$} reliability --- isolating which strategy
+yields the hardest and most attribution-confusing tasks.
+Figure~\ref{fig:difficulty_curve} traces the expected monotone
+degradation as trace depth grows, and
+Figure~\ref{fig:gen_eval_sae_heatmap} crosses generation strategy with
+eval condition to locate the combinations that most provoke
+server-attribution error.
+
+\input{tables/gen_strategy_ablation}
+
+\input{figures/difficulty_curve}
+
+\input{figures/gen_eval_sae_heatmap}
