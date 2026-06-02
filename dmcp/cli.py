@@ -2043,10 +2043,20 @@ def verify(
     ] = None,
     server_timeout: Annotated[float, typer.Option("--server-timeout")] = 90.0,
     min_pass_rate: Annotated[float, typer.Option("--min-pass-rate")] = 0.5,
-    use_llm: Annotated[bool, typer.Option("--llm", help="Synthesize tool args with an LLM (realistic values)")] = False,
+    use_llm: Annotated[
+        bool, typer.Option("--llm", help="Synthesize tool args with an LLM (realistic values)")
+    ] = False,
     model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
-    strict: Annotated[bool, typer.Option("--strict", help="Treat auth/credential/not-found messages in tool RESULTS as failures")] = False,
-    require_all: Annotated[bool, typer.Option("--require-all", help="Keep a server only if ALL exercised (non-destructive) tools pass")] = False,
+    strict: Annotated[
+        bool,
+        typer.Option("--strict", help="Treat auth/credential/not-found messages in tool RESULTS as failures"),
+    ] = False,
+    require_all: Annotated[
+        bool,
+        typer.Option(
+            "--require-all", help="Keep a server only if ALL exercised (non-destructive) tools pass"
+        ),
+    ] = False,
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/verification.md"),
     json_out: Annotated[Path | None, typer.Option("--json-out")] = Path("reports/verification.jsonl"),
 ) -> None:
@@ -2082,13 +2092,19 @@ def verify(
                     )
                 except TimeoutError:
                     rep = {
-                        "server_id": cfg.server_id, "ok": False, "initialized": False,
-                        "tools": [], "reason": f"server timeout >{server_timeout:.0f}s",
+                        "server_id": cfg.server_id,
+                        "ok": False,
+                        "initialized": False,
+                        "tools": [],
+                        "reason": f"server timeout >{server_timeout:.0f}s",
                     }
                 except Exception as e:
                     rep = {
-                        "server_id": cfg.server_id, "ok": False, "initialized": False,
-                        "tools": [], "reason": f"{type(e).__name__}: {str(e)[:140]}",
+                        "server_id": cfg.server_id,
+                        "ok": False,
+                        "initialized": False,
+                        "tools": [],
+                        "reason": f"{type(e).__name__}: {str(e)[:140]}",
                     }
                 reps.append(rep)
                 if jf:

@@ -123,8 +123,7 @@ def _pick_script(scripts: list[str], identifier: str, module: str) -> str:
     return scripts[0]
 
 
-def _pkg(kind: str, identifier: str | None, version: str | None,
-         entrypoint: str | None) -> dict:
+def _pkg(kind: str, identifier: str | None, version: str | None, entrypoint: str | None) -> dict:
     d = {"kind": kind, "identifier": identifier, "version": version, "entrypoint": entrypoint}
     return {k: v for k, v in d.items() if v is not None}
 
@@ -167,8 +166,13 @@ async def verify_candidate(sid: str, command: str, args: list[str], timeout: flo
     """Verify one server in an isolated killable subprocess with a sandbox cwd
     (so stateful servers can't litter the repo). Returns the report dict."""
     entry = {
-        "server_id": sid, "transport": "stdio", "dynamism": "live_read",
-        "sandbox": False, "command": command, "args": args, "tags": ["crawled"],
+        "server_id": sid,
+        "transport": "stdio",
+        "dynamism": "live_read",
+        "sandbox": False,
+        "command": command,
+        "args": args,
+        "tags": ["crawled"],
     }
     manifest = {"manifest_version": "0.1.0", "servers": [entry]}
     mpath = TMP / f"{sid}.manifest.json"
@@ -179,9 +183,21 @@ async def verify_candidate(sid: str, command: str, args: list[str], timeout: flo
     sbox = SANDBOX_ROOT / sid
     sbox.mkdir(parents=True, exist_ok=True)
     await run_killable(
-        [DMCP_BIN, "verify", "-m", str(mpath), "--llm", "--strict", "--require-all",
-         "--server-timeout", str(int(timeout * 0.7)),
-         "--output", str(TMP / f"{sid}.md"), "--json-out", str(rpath)],
+        [
+            DMCP_BIN,
+            "verify",
+            "-m",
+            str(mpath),
+            "--llm",
+            "--strict",
+            "--require-all",
+            "--server-timeout",
+            str(int(timeout * 0.7)),
+            "--output",
+            str(TMP / f"{sid}.md"),
+            "--json-out",
+            str(rpath),
+        ],
         timeout,
         cwd=str(sbox),
     )
@@ -208,8 +224,11 @@ async def main() -> None:
     ap.add_argument("--out", default="manifests/crawled-strict.json")
     ap.add_argument("--catalog", default=None, help="Catalog sidecar (default: <out>.catalog.json)")
     ap.add_argument("--log", default="collect.log")
-    ap.add_argument("--exclude", default=None,
-                    help="File of already-attempted server_ids (one per line) to skip on a top-up run")
+    ap.add_argument(
+        "--exclude",
+        default=None,
+        help="File of already-attempted server_ids (one per line) to skip on a top-up run",
+    )
     a = ap.parse_args()
 
     out = ROOT / a.out
@@ -242,8 +261,10 @@ async def main() -> None:
         out.write_text(json.dumps({"manifest_version": "0.1.0", "servers": kept}, indent=2), encoding="utf-8")
         catalog_path.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
 
-    log(fh, f"discovering no-creds candidates "
-            f"(target={a.target}, max={a.max_candidates}, conc={a.concurrency})")
+    log(
+        fh,
+        f"discovering no-creds candidates (target={a.target}, max={a.max_candidates}, conc={a.concurrency})",
+    )
     client = MCPRegistryClient()
     candidates = []
     seen_pkg: set[tuple] = set()
@@ -289,14 +310,18 @@ async def main() -> None:
                     tool_count = rep.get("tool_count") or len(tools)
                     deps = rep.get("dependencies") or []
                     entry = {
-                        "server_id": sid, "transport": "stdio",
+                        "server_id": sid,
+                        "transport": "stdio",
                         # crawled servers are exercised WITHOUT a sandbox, so we
                         # only attest read behavior — cap dynamism at live_read.
                         "dynamism": dyn if dyn != "stateful_write" else "live_read",
-                        "sandbox": False, "command": command, "args": args,
+                        "sandbox": False,
+                        "command": command,
+                        "args": args,
                         "description": (disc.description or "")[:200] or None,
                         "tags": [
-                            "crawled", "no-creds",
+                            "crawled",
+                            "no-creds",
                             f"pkg:{cmd_info['package']['kind']}",
                             f"size:{_size_bucket(tool_count)}",
                             f"deps:{'yes' if deps else 'no'}",
@@ -318,8 +343,11 @@ async def main() -> None:
                             stats["kept"] = len(kept)
                             if len(kept) >= a.target:
                                 stop.set()
-                    log(fh, f"  KEEP [{len(kept):>3}/{a.target}] {sid}  "
-                            f"({rep.get('ok_count')}/{tool_count} tools, {len(deps)} deps)")
+                    log(
+                        fh,
+                        f"  KEEP [{len(kept):>3}/{a.target}] {sid}  "
+                        f"({rep.get('ok_count')}/{tool_count} tools, {len(deps)} deps)",
+                    )
                 else:
                     stats["verify_fail"] += 1
                     reason = (rep or {}).get("reason", "no result / killed")
@@ -329,8 +357,11 @@ async def main() -> None:
             finally:
                 stats["done"] += 1
                 if stats["done"] % 25 == 0:
-                    log(fh, f"--- progress: {stats['done']}/{len(candidates)} done, kept={len(kept)}, "
-                            f"install_fail={stats['install_fail']}, verify_fail={stats['verify_fail']} ---")
+                    log(
+                        fh,
+                        f"--- progress: {stats['done']}/{len(candidates)} done, kept={len(kept)}, "
+                        f"install_fail={stats['install_fail']}, verify_fail={stats['verify_fail']} ---",
+                    )
 
     tasks = [asyncio.create_task(worker(d, p, s)) for d, p, s in candidates]
     await asyncio.gather(*tasks, return_exceptions=True)
