@@ -244,9 +244,9 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a harness scores the same agents two ways (final-answer string match vs trace/effect alignment) on live_read/stateful tasks, re-run over time; reports ranking instability (Kendall's τ) and false-fail rate.
 
 ### E4.5 — RQ3 trace-property failure model
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:32:43Z
 - deps: E2.7
 - source: research_plan RQ3
 - done-when: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model; report feature importances.
