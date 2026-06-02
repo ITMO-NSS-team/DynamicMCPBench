@@ -353,6 +353,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 
 ### E4.9 — Generation-strategy ablation + gen×eval SAE heatmap
 - status: todo
+- note: code merged PR#44 gen-strategy ablation + gen-x-eval SAE matrix, smoke-tested, awaiting E3.9 corpus run
 - owner: —
 - claimed_at: —
 - deps: E3.9 E2.8
