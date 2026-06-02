@@ -81,8 +81,7 @@ def specs_to_openai_tools(
                     "function": {
                         "name": namespace_tool(server_id, s.name),
                         "description": s.description or "",
-                        "parameters": s.input_schema
-                        or {"type": "object", "properties": {}},
+                        "parameters": s.input_schema or {"type": "object", "properties": {}},
                     },
                 }
             )
@@ -176,9 +175,7 @@ class OpenRouterClient:
             raw=completion.model_dump(mode="json"),
         )
 
-    async def embed(
-        self, texts: list[str], *, model: str = DEFAULT_EMBED_MODEL
-    ) -> list[list[float]]:
+    async def embed(self, texts: list[str], *, model: str = DEFAULT_EMBED_MODEL) -> list[list[float]]:
         """Embed texts via OpenRouter's OpenAI-compatible embeddings endpoint.
 
         Same key/base_url as chat. Model pinned for reproducibility (embeddings

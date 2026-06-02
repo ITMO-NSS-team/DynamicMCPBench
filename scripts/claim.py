@@ -35,9 +35,10 @@ def git(*args, check=True):
 
 
 def agent_id() -> str:
-    name = subprocess.run(
-        ["git", "config", "user.name"], text=True, capture_output=True
-    ).stdout.strip() or "unknown"
+    name = (
+        subprocess.run(["git", "config", "user.name"], text=True, capture_output=True).stdout.strip()
+        or "unknown"
+    )
     name = re.sub(r"[^A-Za-z0-9_-]", "-", name)
     return f"{name}@{socket.gethostname()}"
 

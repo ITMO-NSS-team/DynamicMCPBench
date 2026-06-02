@@ -75,18 +75,13 @@ class ServerEntry(BaseModel):
             if not self.command:
                 raise ValueError(f"{self.server_id}: stdio transport requires `command`")
             if self.endpoint or self.headers:
-                raise ValueError(
-                    f"{self.server_id}: stdio transport does not take `endpoint`/`headers`"
-                )
+                raise ValueError(f"{self.server_id}: stdio transport does not take `endpoint`/`headers`")
         else:
             if not self.endpoint:
-                raise ValueError(
-                    f"{self.server_id}: {self.transport.value} transport requires `endpoint`"
-                )
+                raise ValueError(f"{self.server_id}: {self.transport.value} transport requires `endpoint`")
             if self.command or self.args or self.env:
                 raise ValueError(
-                    f"{self.server_id}: {self.transport.value} transport does not take "
-                    "`command`/`args`/`env`"
+                    f"{self.server_id}: {self.transport.value} transport does not take `command`/`args`/`env`"
                 )
         if self.dynamism is Dynamism.stateful_write and not self.sandbox:
             raise ValueError(

@@ -59,9 +59,9 @@ everyone on the next `git pull`.
 
 - Work happens on a per-step branch `feat/<id>-<slug>`; **never commit to `main`**
   except the tiny claim/mark ledger commits the scripts make.
-- **Auto-merge requires the gate to be green:** `ruff check .` + `pytest -q`
-  (`scripts/check.sh`). `ruff format` is advisory until the repo is baselined
-  (step CC.3); format your own changed files before committing.
+- **Auto-merge requires the gate to be green:** `ruff check .` + `ruff format --check .`
+  + `pytest -q` (`scripts/check.sh`). Format your changed files with
+  `uv run ruff format <paths>` before committing.
 - Merge is a squash via `gh pr merge --squash --delete-branch`.
 - **Conflicts:** rebase the branch on `origin/main`, resolve, re-gate, re-merge.
 - **Blocked:** anything unresolvable (bad conflict, failing upstream, ambiguous

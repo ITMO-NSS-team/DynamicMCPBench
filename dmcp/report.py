@@ -267,9 +267,7 @@ def aggregate_markdown(
 
     # ---- error taxonomy ----
     codes = list(ERROR_WEIGHTS)
-    err_by_model: dict[str, dict[str, float]] = defaultdict(
-        lambda: dict.fromkeys([*codes, "weighted"], 0.0)
-    )
+    err_by_model: dict[str, dict[str, float]] = defaultdict(lambda: dict.fromkeys([*codes, "weighted"], 0.0))
     have_tax = False
     for ev in evals:
         et = ev.summary.get("error_taxonomy")

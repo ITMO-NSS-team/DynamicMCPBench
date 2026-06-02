@@ -219,9 +219,7 @@ def _extract_sandbox_resources(entry: ServerEntry) -> list[dict[str, str]]:
     return resources
 
 
-def _server_view(
-    entry: ServerEntry, specs: list[ToolSpec]
-) -> dict[str, Any]:
+def _server_view(entry: ServerEntry, specs: list[ToolSpec]) -> dict[str, Any]:
     return {
         "server_id": entry.server_id,
         "dynamism": entry.dynamism.value,
@@ -232,9 +230,7 @@ def _server_view(
     }
 
 
-async def _fetch_tool_specs(
-    entry: ServerEntry, *, timeout_s: float = 25.0
-) -> list[ToolSpec]:
+async def _fetch_tool_specs(entry: ServerEntry, *, timeout_s: float = 25.0) -> list[ToolSpec]:
     """Open a stdio session just long enough to capture the tool surface."""
     cfg = entry.to_config()
     rec = TraceRecorder(servers=[cfg], goal=f"goal-gen:{entry.server_id}")
@@ -403,9 +399,7 @@ async def generate_goals(
             log.warning("goal-gen for pair (%s, %s) failed: %s", a, b, e)
             continue
         for g in raw_goals:
-            gid = _sanitize_goal_id(
-                str(g.get("goal_id") or "auto"), prefix=f"auto-x-{a}-{b}-"
-            )
+            gid = _sanitize_goal_id(str(g.get("goal_id") or "auto"), prefix=f"auto-x-{a}-{b}-")
             gid = _ensure_unique(gid, seen_ids)
             seen_ids.add(gid)
             servers = g.get("servers") or [a, b]

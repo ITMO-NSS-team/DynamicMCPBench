@@ -170,29 +170,19 @@ async def explore(
 
             for tc in resp.tool_calls:
                 tool_call_count += 1
-                qualified = (
-                    namespace_tool(tc.server_id, tc.tool_name)
-                    if tc.server_id
-                    else tc.tool_name
-                )
+                qualified = namespace_tool(tc.server_id, tc.tool_name) if tc.server_id else tc.tool_name
                 if qualified not in valid_qualified or not tc.server_id:
                     err = f"unknown tool {qualified!r}. Valid: {sorted(valid_qualified)[:20]}"
-                    messages.append(
-                        {"role": "tool", "tool_call_id": tc.id, "content": err}
-                    )
+                    messages.append({"role": "tool", "tool_call_id": tc.id, "content": err})
                     continue
                 try:
-                    raw_result = await recorder.call_tool(
-                        tc.server_id, tc.tool_name, tc.arguments
-                    )
+                    raw_result = await recorder.call_tool(tc.server_id, tc.tool_name, tc.arguments)
                     rendered, _ = _tool_result_to_str(raw_result, tool_result_truncation)
                     if not raw_result.get("isError"):
                         successful_tool_calls += 1
                 except Exception as e:
                     rendered = f"[exception] {type(e).__name__}: {e}"
-                messages.append(
-                    {"role": "tool", "tool_call_id": tc.id, "content": rendered}
-                )
+                messages.append({"role": "tool", "tool_call_id": tc.id, "content": rendered})
 
     return ExplorationResult(
         trace=recorder.trace,

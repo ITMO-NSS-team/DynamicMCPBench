@@ -175,6 +175,7 @@ class TraceRecorder:
         self._sessions.clear()
         if self._server_stderr_file is not None:
             import contextlib
+
             with contextlib.suppress(Exception):
                 self._server_stderr_file.close()
             self._server_stderr_file = None
