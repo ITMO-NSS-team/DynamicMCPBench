@@ -61,6 +61,7 @@ Live MCP corpus + dual-mode (record / replay) orchestrator.
 - [x] Auto-install for pypi + npm packages (`dmcp/install.py`)
 - [x] Smoke-vetter that classifies dynamism heuristically (`dmcp/vet.py`)
 - [x] Curated 16-server substrate at `manifests/local.json`: 6 sandboxed + 10 public-API
+- [x] Scaled to a **136-server canonical set** (`manifests/servers.json`): 120 crawled no-creds (portable `npx`/`uvx`, 100%-all-tools-pass, dependency-aware verify) + 16 substrate; tagged for subsetting, with `catalog.json` + `direct_alt.json`. Running experiments on subsets or the full set: **`docs/EXPERIMENTS.md`**.
 - [x] `TraceReplayRecorder` with deterministic Tier-1 exact-match cache (`dmcp/replay.py`)
 - [x] **Tier-2 semantic cache** — field-level normalization + difflib fallback, threshold-tunable, deterministic across machines
 - [ ] **Tier-3 LLM tool simulator** — on cache miss + Tier-2 miss, an LLM generates a plausible response so the candidate can keep going (results flagged as simulated). Substrate is in place; just the simulator class to write

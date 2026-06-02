@@ -1,0 +1,1657 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "ai_autonomad__travel",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI travel agent \u2014 book flights, hotels, activities, and events worldwide via autonomad.ai.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "autonomad-travel@1.4.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "autonomad-travel",
+        "version": "1.4.0"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "ai_wild_card__deepcontext",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Advanced codebase indexing and semantic search MCP server",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wildcard-ai/deepcontext@0.1.15"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@wildcard-ai/deepcontext",
+        "version": "0.1.15"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "bid_scope__aec",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AEC subcontractor vendor procurement plumbing layer. Preview - V3 launches 2027.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@scope-bid/scope-aec-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@scope-bid/scope-aec-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "bid_scope__claims",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Insurance claims-side vendor procurement (IMEs, IA, surveillance). Preview - V2 launches Q3 2026.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@scope-bid/scope-claims-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@scope-bid/scope-claims-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "app_trustrails__server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search UK electronics products across retailers. Real-time prices, stock, and specs.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:yes",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@trustrails/mcp-server@1.0.7"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@trustrails/mcp-server",
+        "version": "1.0.7"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "ai_tensorfeed__x402_base_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Read-only Base mainnet reader. Verifies x402 payment settlements + AFTA federation status.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@tensorfeed/x402-base-mcp@0.2.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@tensorfeed/x402-base-mcp",
+        "version": "0.2.1"
+      },
+      "tool_count": 15
+    },
+    {
+      "server_id": "ai_ravenmcp__raven_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Design intelligence for AI-generated UI \u2014 principles, patterns, content, brand, design tokens.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "raven-mcp@1.3.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "raven-mcp",
+        "version": "1.3.3"
+      },
+      "tool_count": 27
+    },
+    {
+      "server_id": "com_bellwethermetrics__bellwether_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Live prediction market data from Polymarket and Kalshi with VWAP pricing and reportability.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "bellwether-mcp@0.1.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "bellwether-mcp",
+        "version": "0.1.0"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "com_ibitlabs_www__ibitlabs_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "iBitLabs live receipts: real balance, trades, shadow rules & saga from a $1k\u2192$10k AI experiment.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "ibitlabs-mcp@0.2.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "ibitlabs-mcp",
+        "version": "0.2.2"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "com_gradusmusic__notation",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Render music notation (SVG/MusicXML/MIDI), analyze, search music theory. Free, no auth, no GUI.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:media",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@gradusmusic/notation-mcp@0.2.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@gradusmusic/notation-mcp",
+        "version": "0.2.2"
+      },
+      "tool_count": 10
+    },
+    {
+      "server_id": "com_pulsemcp__google_flights",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for searching Google Flights \u2014 flight search, date grid pricing, and airport lookup.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "google-flights-mcp-server@0.2.4"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "google-flights-mcp-server",
+        "version": "0.2.4"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "com_promptibus__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Model intelligence for AI agents \u2014 syntax, params, pricing for 67+ generative AI models.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@promptibus/mcp@0.9.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@promptibus/mcp",
+        "version": "0.9.0"
+      },
+      "tool_count": 12
+    },
+    {
+      "server_id": "com_pulsemcp__pulse_fetch",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for fetching web resources with content extraction and anti-bot bypass.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:web-scraping",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pulsemcp/pulse-fetch@0.3.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@pulsemcp/pulse-fetch",
+        "version": "0.3.2"
+      },
+      "tool_count": 1
+    },
+    {
+      "server_id": "com_savvly__savvly",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Savvly Longevity Benefit Fund: product, comparisons, eligibility, and retirement projections.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@savvly/mcp-server@1.0.20"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@savvly/mcp-server",
+        "version": "1.0.20"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "com_seanwinslow__vault_knowledge",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Read-only MCP over a vault's typed knowledge graph: concept search, contradictions, article fetch.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@swins/vault-knowledge-mcp@0.1.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@swins/vault-knowledge-mcp",
+        "version": "0.1.0"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "com_scopeblind__verify_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Offline Ed25519 verification of signed receipts, bundles, and trust artifacts.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@scopeblind/verify-mcp@0.1.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@scopeblind/verify-mcp",
+        "version": "0.1.3"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "dev_e18e__e18e",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "The official e18e MCP server keeping your agent in check from installing bloated dependencies.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@e18e/mcp@0.0.5"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@e18e/mcp",
+        "version": "0.0.5"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "dev_cz_agents__cnb",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Official \u010cNB exchange rates \u2014 daily & historical CZK vs EUR, USD, 30+ currencies. For accounting.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@czagents/cnb@0.1.5"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@czagents/cnb",
+        "version": "0.1.5"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "dev_openfeature__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server providing OpenFeature SDK installation guides and OFREP flag evaluation",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@openfeature/mcp@0.0.22"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@openfeature/mcp",
+        "version": "0.0.22"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "digital_shineup__appcn",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Install & correctly use appCN React Native / Expo components, streamed from the live registry.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@app-cn/mcp@0.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@app-cn/mcp",
+        "version": "0.1.2"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "dev_svelte__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "The official Svelte MCP server providing docs and autofixing tools for Svelte development",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sveltejs/mcp@0.1.23"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@sveltejs/mcp",
+        "version": "0.1.23"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "dev_depscope__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Package intelligence MCP for AI agents \u2014 22 tools, 19 ecosystems, AGPL SDK, free.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "depscope-mcp@0.9.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "depscope-mcp",
+        "version": "0.9.0"
+      },
+      "tool_count": 22
+    },
+    {
+      "server_id": "eu_ansvar__canadian_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Canadian federal law database \u2014 PIPEDA, CASL, cybercrime, corporate law with full-text search",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/canadian-law-mcp@1.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/canadian-law-mcp",
+        "version": "1.1.2"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__belgian_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Belgian legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/belgian-law-mcp@1.0.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/belgian-law-mcp",
+        "version": "1.0.0"
+      },
+      "tool_count": 15
+    },
+    {
+      "server_id": "eu_ansvar__brazil_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Brazil legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/brazil-law-mcp@1.0.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/brazil-law-mcp",
+        "version": "1.0.3"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__icelandic_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Icelandic legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/icelandic-law-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/icelandic-law-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 10
+    },
+    {
+      "server_id": "eu_ansvar__india_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Indian legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/india-law-mcp@1.1.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/india-law-mcp",
+        "version": "1.1.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__ghana_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Ghana legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/ghana-law-mcp@1.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/ghana-law-mcp",
+        "version": "1.1.2"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__italian_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Italian legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/italian-law-mcp@1.1.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/italian-law-mcp",
+        "version": "1.1.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__japan_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Japan legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/japan-law-mcp@1.1.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/japan-law-mcp",
+        "version": "1.1.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "finance_orbt__intelligence",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Bitcoin-native credit ratings. \u26a1 Lightning pay-per-query (99 sats) or API subscriptions.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@orbt-finance/mcp-server@3.2.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@orbt-finance/mcp-server",
+        "version": "3.2.3"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "eu_ansvar__slovenian_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query Slovenian statutes, court decisions, EU cross-references, and parliamentary materials",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/slovenian-law-mcp@1.1.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/slovenian-law-mcp",
+        "version": "1.1.0"
+      },
+      "tool_count": 14
+    },
+    {
+      "server_id": "eu_ansvar__thailand_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Thai law database \u2014 PDPA, Computer Crime Act, Cybersecurity Act, ETA with full-text search",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/thailand-law-mcp@1.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/thailand-law-mcp",
+        "version": "1.1.2"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__zimbabwe_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Zimbabwe legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/zimbabwe-law-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/zimbabwe-law-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "io_allourthings__mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI-powered household inventory \u2014 query everything you own via natural language",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@allourthings/mcp-server@0.2.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@allourthings/mcp-server",
+        "version": "0.2.0"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_fixyourdocs__mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "File structured docs-feedback reports to the FixYourDocs hub via a file_doc_feedback tool.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@fixyourdocs/mcp-server@0.1.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@fixyourdocs/mcp-server",
+        "version": "0.1.0"
+      },
+      "tool_count": 1
+    },
+    {
+      "server_id": "io_github_10iii__air",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI-optimized tool output compression for read, grep, diff, bash, test, web, search, and more",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@10iii/air-mcp-server@0.2.8"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@10iii/air-mcp-server",
+        "version": "0.2.8"
+      },
+      "tool_count": 12
+    },
+    {
+      "server_id": "io_github_420247jake__session_forge",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Persistent memory and session intelligence for AI coding assistants. Zero config.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "session-forge@2.0.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "session-forge",
+        "version": "2.0.3"
+      },
+      "tool_count": 15
+    },
+    {
+      "server_id": "io_github_aiweather_anurag__ottasia",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Where to watch X in Y? 30 Asian and Middle Eastern streaming markets, via Claude.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:media",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ottasia/mcp-server@0.1.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ottasia/mcp-server",
+        "version": "0.1.3"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "io_github_aakashbhardwaj27__ai_scanner",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Scan codebases for LLM/AI SDK usage, exposed API tokens, and hardcoded secrets.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "ai-scanner-mcp@1.0.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "ai-scanner-mcp",
+        "version": "1.0.3"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "io_github_alvaroramirezcastillo__greeting_mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "An MCP server greeting",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@jinba-ittai/greeting-mcp-server@1.0.8"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@jinba-ittai/greeting-mcp-server",
+        "version": "1.0.8"
+      },
+      "tool_count": 1
+    },
+    {
+      "server_id": "io_github_andyanh174__vibe_hnindex",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Index source code into a local knowledge base, search with keyword + semantic + hybrid modes.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "vibe-hnindex@0.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "vibe-hnindex",
+        "version": "0.1.2"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_ansvar_systems__eu_regulations_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query 47 EU regulations (GDPR, NIS2, DORA, AI Act) - 2,438 articles, 3,712 recitals, ISO 27001",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/eu-regulations-mcp@0.7.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/eu-regulations-mcp",
+        "version": "0.7.1"
+      },
+      "tool_count": 9
+    },
+    {
+      "server_id": "io_github_antonytm__mcp_all",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "A Model Context Protocol server to run other MCP servers",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@antonytm/mcp-all@0.1.20"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@antonytm/mcp-all",
+        "version": "0.1.20"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_aungmyokyaw__betterprompt_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for AI-enhanced prompt engineering and request conversion.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "betterprompt-mcp@0.2.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "betterprompt-mcp",
+        "version": "0.2.1"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_github_bam_devcrew__maxential_thinking_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "11 focused tools for structured thinking, branching, revision, and navigation.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@bam-devcrew/maxential-thinking-mcp@2.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@bam-devcrew/maxential-thinking-mcp",
+        "version": "2.0.1"
+      },
+      "tool_count": 11
+    },
+    {
+      "server_id": "io_github_bahamas1717__aibvf_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI BVF: score AI portfolios Stop/Fix/Accelerate with decision confidence and pace-layer drag.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "aibvf-mcp@0.3.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "aibvf-mcp",
+        "version": "0.3.3"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_brand_system__brandsystem_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Make your brand machine-readable. Extract identity from any website into tokens and policies.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@brandsystem/mcp@0.4.3"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@brandsystem/mcp",
+        "version": "0.4.3"
+      },
+      "tool_count": 34
+    },
+    {
+      "server_id": "io_github_cscsoftware__aidex",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Persistent code indexing for AI assistants. 50x less context than grep. 11 languages.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "aidex-mcp@1.8.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "aidex-mcp",
+        "version": "1.8.0"
+      },
+      "tool_count": 20
+    },
+    {
+      "server_id": "io_github_daichi_kudo__llm_advisor",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Real-time LLM/VLM benchmarks, pricing, and recommendations. 336+ models, 5 sources.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "llm-advisor-mcp@0.4.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "llm-advisor-mcp",
+        "version": "0.4.2"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_dave_london__make",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for Make/Just task runners with structured, token-efficient output",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@paretools/make@0.7.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@paretools/make",
+        "version": "0.7.1"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "io_github_dave_london__pare_test",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Pare Test \u05d2\u20ac\u201d Auto-detects test framework (pytest, jest, vitest, mocha), returns typed JSON.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@paretools/test@0.8.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@paretools/test",
+        "version": "0.8.1"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "io_github_dejo90__nace_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Browse, search and fuzzy-match NACE Rev. 2.1 economic activity classification codes.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "nace-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "nace-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_dingdawg_dev__dingdawg_healthcare_agent",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "HIPAA-aware healthcare AI. Clinical documentation, compliance checks, audit prep. Free local tier.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "dingdawg-healthcare-agent@2.0.4"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "dingdawg-healthcare-agent",
+        "version": "2.0.4"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_dollhousemcp__mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "OSS to create Personas, Skills, Templates, Agents, and Memories to customize your AI experience.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@dollhousemcp/mcp-server@2.0.32"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@dollhousemcp/mcp-server",
+        "version": "2.0.32"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_dswane__sports_context_protocol",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Self-learning operational context layer for AI sports agents. Profile 001: golf.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "sports-context-protocol@0.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "sports-context-protocol",
+        "version": "0.1.2"
+      },
+      "tool_count": 9
+    },
+    {
+      "server_id": "io_github_easysend_co__easysend",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "EasySend file sharing MCP server - upload, download and share files. No authentication required.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "easysend-mcp@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "easysend-mcp",
+        "version": "1.0.1"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_embassy_of_the_free_mind__source_library",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search 22,000+ rare pre-modern texts with AI English translations, summaries, and 73K+ images.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@source-library/mcp-server@4.3.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@source-library/mcp-server",
+        "version": "4.3.0"
+      },
+      "tool_count": 11
+    },
+    {
+      "server_id": "io_github_expertvagabond__mega",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MEGA cloud storage CLI MCP server",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:cloud-infra",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "mega-mcp-server@1.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "mega-mcp-server",
+        "version": "1.0.1"
+      },
+      "tool_count": 20
+    }
+  ]
+}

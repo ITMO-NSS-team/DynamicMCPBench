@@ -1,0 +1,231 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "app_trustrails__server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search UK electronics products across retailers. Real-time prices, stock, and specs.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:small",
+        "deps:yes",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@trustrails/mcp-server@1.0.7"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@trustrails/mcp-server",
+        "version": "1.0.7"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "eu_ansvar__belgian_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Belgian legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/belgian-law-mcp@1.0.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/belgian-law-mcp",
+        "version": "1.0.0"
+      },
+      "tool_count": 15
+    },
+    {
+      "server_id": "eu_ansvar__india_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Indian legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/india-law-mcp@1.1.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/india-law-mcp",
+        "version": "1.1.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__ghana_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Ghana legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/ghana-law-mcp@1.1.2"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/ghana-law-mcp",
+        "version": "1.1.2"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "eu_ansvar__japan_law_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Japan legislation via MCP \u2014 full-text search across statutes and provisions",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ansvar/japan-law-mcp@1.1.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@ansvar/japan-law-mcp",
+        "version": "1.1.1"
+      },
+      "tool_count": 13
+    },
+    {
+      "server_id": "io_ausdata__asic_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query ASIC registers in plain English \u2014 advisers, licensees, banned persons, liquidators.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:yes",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "asic-mcp==0.6.18",
+        "asic-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "asic-mcp",
+        "version": "0.6.18",
+        "entrypoint": "asic-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_bam_devcrew__maxential_thinking_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "11 focused tools for structured thinking, branching, revision, and navigation.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@bam-devcrew/maxential-thinking-mcp@2.0.1"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@bam-devcrew/maxential-thinking-mcp",
+        "version": "2.0.1"
+      },
+      "tool_count": 11
+    },
+    {
+      "server_id": "io_github_embassy_of_the_free_mind__source_library",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search 22,000+ rare pre-modern texts with AI English translations, summaries, and 73K+ images.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:npm",
+        "size:large",
+        "deps:yes",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@source-library/mcp-server@4.3.0"
+      ],
+      "package": {
+        "kind": "npm",
+        "identifier": "@source-library/mcp-server",
+        "version": "4.3.0"
+      },
+      "tool_count": 11
+    }
+  ]
+}

@@ -45,7 +45,7 @@ from dmcp.goals import Goals
 from dmcp.install import InstallStatus, install_server
 from dmcp.judge import upgrade_with_judge
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
-from dmcp.manifest import Manifest
+from dmcp.manifest import Manifest, ServerEntry
 from dmcp.normalize import apply_normalization
 from dmcp.pools import build_eval_pool, build_strategy_pool, pool_to_tool_surface
 from dmcp.recorder import (
@@ -1389,6 +1389,8 @@ def verify(
     min_pass_rate: Annotated[float, typer.Option("--min-pass-rate")] = 0.5,
     use_llm: Annotated[bool, typer.Option("--llm", help="Synthesize tool args with an LLM (realistic values)")] = False,
     model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
+    strict: Annotated[bool, typer.Option("--strict", help="Treat auth/credential/not-found messages in tool RESULTS as failures")] = False,
+    require_all: Annotated[bool, typer.Option("--require-all", help="Keep a server only if ALL exercised (non-destructive) tools pass")] = False,
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("reports/verification.md"),
     json_out: Annotated[Path | None, typer.Option("--json-out")] = Path("reports/verification.jsonl"),
 ) -> None:
@@ -1417,6 +1419,8 @@ def verify(
                             sandbox=sandbox_by_id.get(cfg.server_id, False),
                             min_tool_pass_rate=min_pass_rate,
                             llm=vllm,
+                            strict=strict,
+                            require_all=require_all,
                         ),
                         timeout=server_timeout,
                     )
@@ -1457,6 +1461,63 @@ def verify(
         typer.echo(f"\n{npass}/{len(reps)} passed -> {output}")
 
     asyncio.run(_run())
+
+
+@app.command()
+def subset(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/servers.json"),
+    domain: Annotated[
+        list[str] | None, typer.Option("--domain", help="Repeatable: keep servers tagged domain:<x>")
+    ] = None,
+    dyn: Annotated[
+        list[str] | None,
+        typer.Option("--dyn", help="Repeatable: dynamism in {static,live_read,stateful_write}"),
+    ] = None,
+    pkg: Annotated[str | None, typer.Option("--pkg", help="Package kind: npm | pypi")] = None,
+    size: Annotated[
+        list[str] | None, typer.Option("--size", help="Repeatable: small | medium | large")
+    ] = None,
+    has_deps: Annotated[
+        bool, typer.Option("--has-deps", help="Only servers with discovered tool-dependencies")
+    ] = False,
+    has_alt: Annotated[
+        bool, typer.Option("--has-alt", help="Only servers with a cross-server alternative (SAE)")
+    ] = False,
+    tag: Annotated[
+        list[str] | None, typer.Option("--tag", help="Repeatable: an arbitrary tag that must be present")
+    ] = None,
+    limit: Annotated[int | None, typer.Option("--limit", help="Cap to the first N (stable order)")] = None,
+    output: Annotated[Path, typer.Option("--output", "-o")] = Path("manifests/subset.json"),
+) -> None:
+    """Filter a server manifest by tag axes (domain / dyn / pkg / size / deps / alt)
+    into a subset manifest you can pass to goal-gen / explore / eval via --manifest.
+    All predicates AND together; repeatable options OR within an axis."""
+    m = Manifest.load(manifest)
+
+    def keep(e: ServerEntry) -> bool:
+        tags = set(e.tags)
+        if domain and not ({f"domain:{d}" for d in domain} & tags):
+            return False
+        if dyn and e.dynamism.value not in set(dyn):
+            return False
+        if pkg and f"pkg:{pkg}" not in tags:
+            return False
+        if size and not ({f"size:{s}" for s in size} & tags):
+            return False
+        if has_deps and "deps:yes" not in tags:
+            return False
+        if has_alt and "alt:yes" not in tags:
+            return False
+        if tag and not set(tag) <= tags:
+            return False
+        return True
+
+    chosen = [e for e in m.servers if keep(e)]
+    if limit is not None:
+        chosen = chosen[:limit]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    Manifest(manifest_version=m.manifest_version, servers=chosen).dump(output)
+    typer.echo(f"subset: {len(chosen)}/{len(m.servers)} servers -> {output}")
 
 
 if __name__ == "__main__":

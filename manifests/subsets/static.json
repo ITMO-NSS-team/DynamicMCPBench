@@ -1,0 +1,31 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "time",
+      "transport": "stdio",
+      "dynamism": "static",
+      "sandbox": false,
+      "description": "Time and timezone queries (mcp-server-time).",
+      "tags": [
+        "time",
+        "utility",
+        "substrate",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": ".venv/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_time",
+        "--local-timezone",
+        "UTC"
+      ],
+      "tool_count": 2
+    }
+  ]
+}

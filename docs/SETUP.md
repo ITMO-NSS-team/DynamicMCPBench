@@ -44,3 +44,37 @@ per-server / per-tool pass/fail report. Use it after adding servers.
 
 Paths are kept portable (`/tmp/...`, which resolves correctly on both Linux and
 macOS) so the manifest works on any contributor's machine.
+
+## Canonical experiment manifest (`manifests/servers.json`)
+
+`servers.json` is the **canonical** set used for experiments — **136 servers**
+(120 crawled no-creds + the 16-server substrate), all launched with **no hardcoded
+paths**:
+
+- crawled servers run via `npx -y <pkg>@<ver>` (npm) or `uvx --from <pkg>==<ver>
+  <entry>` (pypi) — fetched on first use; only `node` + `uv` are required;
+- the substrate servers run from the project venv (after `bash scripts/bootstrap.sh`).
+
+Each crawled server passed `dmcp verify --llm --strict --require-all`: it
+initializes and **every exercised non-destructive tool returns ok**, using
+dependency-aware prerequisite resolution (a tool needing an id produced by another
+is satisfied by first calling that producer). Sidecars:
+
+- `manifests/catalog.json` — package coords, tool list, discovered tool-dependencies, `pass_rate`;
+- `manifests/direct_alt.json` — same-name cross-server tool groups (the SAE / P_alt primitive);
+- `manifests/subsets/` — prebuilt subsets (by dynamism / package / deps / alt).
+
+Reproduce or extend the set:
+
+```bash
+uv run python scripts/collect_servers.py --target 120 --max-candidates 2000 --concurrency 10
+uv run dmcp verify -m manifests/local.json --llm --strict --require-all --json-out reports/local_verify.jsonl
+uv run python scripts/enrich_manifest.py --include-local-below-1
+```
+
+Pick a subset (or use the full set) and run the pipeline — see **`docs/EXPERIMENTS.md`**:
+
+```bash
+uv run dmcp subset --domain finance --dyn live_read -o manifests/subsets/fin.json
+uv run dmcp goal-gen -m manifests/subsets/fin.json --per-server 2 -o data/goals.json
+```

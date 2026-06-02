@@ -1,0 +1,1162 @@
+[
+  {
+    "normalized_tool": "flights_search",
+    "members": [
+      {
+        "server_id": "ai_autonomad__travel",
+        "tool": "search_flights"
+      },
+      {
+        "server_id": "com_pulsemcp__google_flights",
+        "tool": "search_flights"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "codebase_index",
+    "members": [
+      {
+        "server_id": "ai_wild_card__deepcontext",
+        "tool": "index_codebase"
+      },
+      {
+        "server_id": "io_github_andyanh174__vibe_hnindex",
+        "tool": "index_codebase"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "knowledge_search",
+    "members": [
+      {
+        "server_id": "ai_ravenmcp__raven_mcp",
+        "tool": "search_knowledge"
+      },
+      {
+        "server_id": "com_gradusmusic__notation",
+        "tool": "knowledge_search"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "model_recommend",
+    "members": [
+      {
+        "server_id": "com_promptibus__mcp",
+        "tool": "recommend_model"
+      },
+      {
+        "server_id": "io_github_daichi_kudo__llm_advisor",
+        "tool": "recommend_model"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "compare_models",
+    "members": [
+      {
+        "server_id": "com_promptibus__mcp",
+        "tool": "compare_models"
+      },
+      {
+        "server_id": "io_github_daichi_kudo__llm_advisor",
+        "tool": "compare_models"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "article_get",
+    "members": [
+      {
+        "server_id": "com_seanwinslow__vault_knowledge",
+        "tool": "get_article"
+      },
+      {
+        "server_id": "io_github_ansvar_systems__eu_regulations_mcp",
+        "tool": "get_article"
+      },
+      {
+        "server_id": "wikipedia",
+        "tool": "get_article"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "legislation_search",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "search_legislation"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "search_legislation"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "get_provision",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "get_provision"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "get_provision"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "citation_validate",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "validate_citation"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "validate_citation"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "build_legal_stance",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "build_legal_stance"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "build_legal_stance"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "citation_format",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "format_citation"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "format_citation"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "check_currency",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "check_currency"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "check_currency"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "basis_eu_get",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "get_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "get_eu_basis"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "eu_implementations_search",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "search_eu_implementations"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "search_eu_implementations"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "basis_eu_get_provision",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "get_provision_eu_basis"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "get_provision_eu_basis"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "compliance_eu_validate",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "validate_eu_compliance"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "validate_eu_compliance"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "list_sources",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "list_sources"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "list_sources"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "about",
+    "members": [
+      {
+        "server_id": "eu_ansvar__canadian_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__brazil_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__india_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__ghana_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__italian_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__japan_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__thailand_law_mcp",
+        "tool": "about"
+      },
+      {
+        "server_id": "eu_ansvar__zimbabwe_law_mcp",
+        "tool": "about"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "case_law_search",
+    "members": [
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "search_case_law"
+      },
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "search_case_law"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "search_case_law"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "definitions_get",
+    "members": [
+      {
+        "server_id": "eu_ansvar__belgian_law_mcp",
+        "tool": "get_definitions"
+      },
+      {
+        "server_id": "io_github_ansvar_systems__eu_regulations_mcp",
+        "tool": "get_definitions"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "get_preparatory_works",
+    "members": [
+      {
+        "server_id": "eu_ansvar__icelandic_law_mcp",
+        "tool": "get_preparatory_works"
+      },
+      {
+        "server_id": "eu_ansvar__slovenian_law_mcp",
+        "tool": "get_preparatory_works"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "datasets_search",
+    "members": [
+      {
+        "server_id": "io_ausdata__aemo_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__asic_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "search_datasets"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "search_datasets"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "dataset_describe",
+    "members": [
+      {
+        "server_id": "io_ausdata__aemo_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__asic_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "describe_dataset"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "describe_dataset"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "data_get",
+    "members": [
+      {
+        "server_id": "io_ausdata__aemo_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__asic_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "get_data"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "get_data"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "latest",
+    "members": [
+      {
+        "server_id": "io_ausdata__aemo_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__au_weather_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__asic_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "latest"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "latest"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "curated_list",
+    "members": [
+      {
+        "server_id": "io_ausdata__aemo_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__au_weather_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__asic_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "list_curated"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "list_curated"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "n_top",
+    "members": [
+      {
+        "server_id": "io_ausdata__abs_mcp",
+        "tool": "top_n"
+      },
+      {
+        "server_id": "io_ausdata__apra_mcp",
+        "tool": "top_n"
+      },
+      {
+        "server_id": "io_ausdata__ato_mcp",
+        "tool": "top_n"
+      },
+      {
+        "server_id": "io_ausdata__aihw_mcp",
+        "tool": "top_n"
+      },
+      {
+        "server_id": "io_ausdata__wgea_mcp",
+        "tool": "top_n"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "search_translations",
+    "members": [
+      {
+        "server_id": "io_github_alfanous_team__alfanous",
+        "tool": "search_translations"
+      },
+      {
+        "server_id": "io_github_embassy_of_the_free_mind__source_library",
+        "tool": "search_translations"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "search",
+    "members": [
+      {
+        "server_id": "io_github_andyanh174__vibe_hnindex",
+        "tool": "search"
+      },
+      {
+        "server_id": "io_github_antonytm__mcp_all",
+        "tool": "search"
+      },
+      {
+        "server_id": "io_github_csoai_org__agent_audit_logger_mcp",
+        "tool": "search"
+      },
+      {
+        "server_id": "io_github_codeturion__codesurface",
+        "tool": "search"
+      },
+      {
+        "server_id": "yfinance",
+        "tool": "search"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "file_get_info",
+    "members": [
+      {
+        "server_id": "io_github_andyanh174__vibe_hnindex",
+        "tool": "get_file_info"
+      },
+      {
+        "server_id": "fs",
+        "tool": "get_file_info"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "chain_verify",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__agent_audit_logger_mcp",
+        "tool": "verify_chain"
+      },
+      {
+        "server_id": "io_github_csoai_org__agent_handoff_certified_mcp",
+        "tool": "verify_chain"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "list_rules",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__agent_prompt_injection_firewall_mcp",
+        "tool": "list_rules"
+      },
+      {
+        "server_id": "io_github_csoai_org__meok_mcp_injection_scan_mcp",
+        "tool": "list_rules"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "classify_incident",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__ai_incident_reporting_mcp",
+        "tool": "classify_incident"
+      },
+      {
+        "server_id": "io_github_csoai_org__dora_compliance_mcp",
+        "tool": "classify_incident"
+      },
+      {
+        "server_id": "io_github_csoai_org__nis2_compliance_mcp",
+        "tool": "classify_incident"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "quick_scan",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__bias_detection_mcp",
+        "tool": "quick_scan"
+      },
+      {
+        "server_id": "io_github_csoai_org__explainability_report_mcp",
+        "tool": "quick_scan"
+      },
+      {
+        "server_id": "io_github_csoai_org__iso_42001_ai_mcp",
+        "tool": "quick_scan"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "classify_product",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__cra_compliance_mcp",
+        "tool": "classify_product"
+      },
+      {
+        "server_id": "io_github_csoai_org__meok_cra_annex_iv_classifier_mcp",
+        "tool": "classify_product"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "enforcement_status",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__cra_compliance_mcp",
+        "tool": "enforcement_status"
+      },
+      {
+        "server_id": "io_github_csoai_org__csrd_compliance_mcp",
+        "tool": "enforcement_status"
+      },
+      {
+        "server_id": "io_github_csoai_org__dora_compliance_mcp",
+        "tool": "enforcement_status"
+      },
+      {
+        "server_id": "io_github_csoai_org__nis2_compliance_mcp",
+        "tool": "enforcement_status"
+      },
+      {
+        "server_id": "io_github_csoai_org__uk_ai_bill_compliance_mcp",
+        "tool": "enforcement_status"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "classify_entity",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__csrd_compliance_mcp",
+        "tool": "classify_entity"
+      },
+      {
+        "server_id": "io_github_csoai_org__dora_compliance_mcp",
+        "tool": "classify_entity"
+      },
+      {
+        "server_id": "io_github_csoai_org__nis2_compliance_mcp",
+        "tool": "classify_entity"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "pricing",
+    "members": [
+      {
+        "server_id": "io_github_csoai_org__meok_dpia_edpb_template_mcp",
+        "tool": "pricing"
+      },
+      {
+        "server_id": "io_github_csoai_org__meok_mcp_injection_scan_mcp",
+        "tool": "pricing"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "reindex",
+    "members": [
+      {
+        "server_id": "io_github_codeturion__codesurface",
+        "tool": "reindex"
+      },
+      {
+        "server_id": "arxiv",
+        "tool": "reindex"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "class_get_reference",
+    "members": [
+      {
+        "server_id": "io_github_codeturion__unity_api_mcp",
+        "tool": "get_class_reference"
+      },
+      {
+        "server_id": "io_github_codeturion__unreal_api_mcp",
+        "tool": "get_class_reference"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "deprecation_get_warnings",
+    "members": [
+      {
+        "server_id": "io_github_codeturion__unity_api_mcp",
+        "tool": "get_deprecation_warnings"
+      },
+      {
+        "server_id": "io_github_codeturion__unreal_api_mcp",
+        "tool": "get_deprecation_warnings"
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "normalized_tool": "run",
+    "members": [
+      {
+        "server_id": "io_github_dave_london__make",
+        "tool": "run"
+      },
+      {
+        "server_id": "io_github_dave_london__pare_test",
+        "tool": "run"
+      }
+    ],
+    "reviewed": false
+  }
+]

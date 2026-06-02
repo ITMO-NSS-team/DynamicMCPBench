@@ -238,3 +238,13 @@ tmp.md
 
 # uv lockfile — env side-effect; lockfile policy undecided
 uv.lock
+
+# overnight no-creds MCP-server collector (scripts/collect_servers.py) outputs
+.venv-servers/
+/collect.log
+/collect.run.log
+/test-collect.log
+/manifests/test-crawled.json
+/collect.attempted
+/assemble.run.log
+/examples/demo/demo.run.log

@@ -167,8 +167,8 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E3 — Scale the server substrate to 100+ (paper-critical)
 
 ### E3.1 — Large-scale crawl + vet to ≥100 vetted servers
-- status: claimed
-- note: re-claimed by Ilya per user direction 2026-06-01; infra+server-collection in progress on a branch; NO merge until user approves
+- status: done
+- note: DONE 2026-06-02 — 136 servers (120 crawled no-creds + 16 substrate) in manifests/servers.json; portable (npx/uvx, no hardcoded paths); crawled set gated at 100%-all-tools-pass; on a branch, NO merge until user approves
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T17:20:19Z
 - deps: E0.1
@@ -176,7 +176,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: the crawler ingests the full registry and (with parallel, timeout-bounded install + smoke-vet) produces a curated manifest of **≥100 vetted servers** (target several hundred) spanning static / live_read / stateful_write and many domains; deduped; each tagged + sandboxed where stateful; a funnel report (registry size → installable → vetted) is emitted.
 
 ### E3.2 — Scale-out hardening of crawl/install/vet
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E3.1
@@ -200,12 +200,44 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: servers needing keys are env-plumbed from `.env` (never committed); a `manifests/credentialed.json` is gated on present keys; missing keys skip gracefully.
 
 ### E3.5 — Substrate coverage report
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E3.1
 - source: research_plan §3 (substrate table)
 - done-when: `report.py` (or a script) emits the paper's substrate table: server count, by dynamism, by domain, tool counts, mining funnel.
+
+### E3.6 — Portable launch + dependency-aware 100% verification gate
+- status: done
+- owner: galyukshev
+- claimed_at: 2026-06-02
+- deps: E3.1
+- source: user 2026-06-02 (no hardcoded paths; all tools must work; tool-dependencies)
+- done-when: manifests launch via npx/uvx (no machine paths); `dmcp verify --require-all` keeps a server only if EVERY exercised non-destructive tool passes; verification is dependency-aware (resolves a tool's prerequisite by reusing an id harvested from a producer tool) with one error-fed arg-retry; discovered producer→consumer edges are recorded in the catalog.
+
+### E3.7 — Canonical merged manifest + catalog + subset selector
+- status: done
+- owner: galyukshev
+- claimed_at: 2026-06-02
+- deps: E3.6
+- source: user 2026-06-02 (merge all; experiments on subsets and full set)
+- done-when: `manifests/servers.json` merges crawled + substrate (deduped), tagged domain/dyn/pkg/size/deps/alt; `manifests/catalog.json` holds package coords + tools + dependencies + pass_rate; `dmcp subset` filters by those axes; prebuilt subsets under `manifests/subsets/`; experiment guide in `docs/EXPERIMENTS.md`.
+
+### E3.8 — DirectAlt seed (SAE / P_alt primitive)
+- status: done
+- owner: galyukshev
+- claimed_at: 2026-06-02
+- deps: E3.7
+- source: simple_approach §5.3 (DirectAlt, κ≥0.7)
+- done-when: `manifests/direct_alt.json` seeds same-name cross-server tool groups (`reviewed:false`) that feed the `same_name` sampling strategy + the P_alt grid; flagged for human review.
+
+### E3.9 — Full goals + TaskSpecs corpus over the 100+ set
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E3.7
+- source: user 2026-06-02 ("записать в план … полные данные"); research_plan Phase 2
+- done-when: `goal-gen` + `generate` (explore+distill) run over all `servers.json` servers (detached, resumable) producing the FULL goals + reference traces + TaskSpecs corpus (`data/goals_full.json`, `data/specs_full.jsonl`) with a coverage/quality report; the small `examples/demo/` path already proves the pipeline end-to-end.
 
 ---
 
