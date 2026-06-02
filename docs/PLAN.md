@@ -192,7 +192,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a `manifests/compose.json` targets the compose-launched servers (postgres/mongo/neo4j/qdrant/redis/...); documented `docker compose up`; smoke-vet passes for reachable ones; adds stateful_write breadth.
 
 ### E3.4 — Credentialed manifest tier (Bucket A)
-- status: claimed
+- status: done
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-02T15:03:38Z
 - deps: E3.1
