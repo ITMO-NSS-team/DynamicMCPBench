@@ -2235,5 +2235,135 @@ def subset(
     typer.echo(f"subset: {len(chosen)}/{len(m.servers)} servers -> {output}")
 
 
+@app.command()
+def bench(
+    manifest: Annotated[Path, typer.Option("--manifest", "-m")] = Path("manifests/servers.json"),
+    models: Annotated[
+        str, typer.Option("--models", help="comma-separated OpenRouter model ids")
+    ] = DEFAULT_MODEL,
+    strategies: Annotated[
+        str, typer.Option("--strategies", help="comma-separated generation strategies (default: all)")
+    ] = "",
+    complexities: Annotated[str, typer.Option("--complexities")] = "simple,medium,hard",
+    per_strategy: Annotated[int, typer.Option("--per-strategy")] = 4,
+    pools: Annotated[str, typer.Option("--pools")] = "gold,target,full",
+    p_alts: Annotated[str, typer.Option("--p-alts")] = "0,0.5,1.0",
+    repeat: Annotated[int, typer.Option("--repeat", help="pass^k repetitions")] = 5,
+    servers: Annotated[
+        list[str] | None, typer.Option("--server", help="Repeatable: restrict to specific server_ids")
+    ] = None,
+    out: Annotated[Path, typer.Option("--out", "-o")] = Path("reports/bench"),
+    skip_generate: Annotated[
+        bool, typer.Option("--skip-generate", help="Reuse an existing corpus under <out>/corpus")
+    ] = False,
+) -> None:
+    """End-to-end benchmark on ANY manifest (E7.1): generate a strategy-diverse corpus,
+    evaluate candidate models IN AGENT MODE (deterministic replay for comparability), and
+    emit ablations + difficulty curves + a leaderboard. Point it at your own MCP servers.
+    Reuses build_corpus / run_leaderboard / strategy_ablation / difficulty_curve / coverage."""
+    import subprocess
+    import sys
+
+    repo = Path(__file__).resolve().parent.parent
+    sc = repo / "scripts"
+    py = sys.executable
+    out_abs = out if out.is_absolute() else repo / out
+    corpus = out_abs / "corpus"
+    out_abs.mkdir(parents=True, exist_ok=True)
+    server_args: list[str] = []
+    for s in servers or []:
+        server_args += ["--server", s]
+
+    def _run(cmd_parts: list) -> None:
+        parts = [str(x) for x in cmd_parts]
+        typer.echo("+ " + " ".join(parts))
+        subprocess.run(parts, check=False)
+
+    if not skip_generate:
+        gen = [
+            py,
+            sc / "build_corpus.py",
+            "--manifest",
+            manifest,
+            *server_args,
+            "--complexities",
+            complexities,
+            "--per-strategy",
+            str(per_strategy),
+            "--out",
+            corpus,
+        ]
+        if strategies:
+            gen += ["--strategies", strategies]
+        _run(gen)
+    specs = corpus / "specs.jsonl"
+    traces = corpus / "traces.jsonl"
+
+    _run(
+        [
+            py,
+            sc / "run_leaderboard.py",
+            "--specs",
+            specs,
+            "--manifest",
+            manifest,
+            "--models",
+            models,
+            "--pools",
+            pools,
+            "--p-alts",
+            p_alts,
+            "--repeat",
+            str(repeat),
+            "--reference-traces",
+            traces,
+            "--out",
+            out_abs / "leaderboard",
+        ]
+    )
+    evals = str(out_abs / "leaderboard" / "eval_*.jsonl")
+    _run(
+        [
+            py,
+            sc / "strategy_ablation.py",
+            "--evals",
+            evals,
+            "--specs",
+            specs,
+            "--traces",
+            traces,
+            "-o",
+            out_abs / "strategy_ablation.md",
+        ]
+    )
+    _run(
+        [
+            py,
+            sc / "difficulty_curve.py",
+            "--evals",
+            evals,
+            "--specs",
+            specs,
+            "-o",
+            out_abs / "difficulty_curve.md",
+        ]
+    )
+    _run(
+        [
+            py,
+            sc / "corpus_coverage.py",
+            "--traces",
+            traces,
+            "--specs",
+            specs,
+            "--manifest",
+            manifest,
+            "-o",
+            out_abs / "coverage.md",
+        ]
+    )
+    typer.echo(f"bench complete -> {out_abs}")
+
+
 if __name__ == "__main__":
     app()
