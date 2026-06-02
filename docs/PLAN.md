@@ -249,7 +249,7 @@ exploration; the explorer still explores live and the distiller distills from th
 trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 
 ### E6.1 — Strategy-driven goal seeding
-- status: claimed
+- status: done
 - owner: Ilya-Galyukshev@roman-desktop
 - claimed_at: 2026-06-02
 - deps: E2.1 E3.7
