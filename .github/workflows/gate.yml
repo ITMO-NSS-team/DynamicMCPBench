@@ -29,8 +29,12 @@ jobs:
       - name: Set up uv (Astral)
         uses: astral-sh/setup-uv@v3
         with:
-          # Match the project's lockfile pin so CI installs are reproducible.
           enable-cache: true
+          # The project deliberately git-ignores `uv.lock` (see .gitignore:
+          # "lockfile policy undecided"). Key the cache on the tracked
+          # `pyproject.toml` instead so setup-uv doesn't fail to find any
+          # cache-dependency file.
+          cache-dependency-glob: pyproject.toml
 
       - name: Set up Python 3.11
         run: uv python install 3.11
