@@ -145,8 +145,7 @@ async def llm_synthesize_args(
         )
     if prior_error:
         user += (
-            f"A previous call FAILED with: {prior_error[:200]}\n"
-            "Fix the arguments so the call succeeds.\n\n"
+            f"A previous call FAILED with: {prior_error[:200]}\nFix the arguments so the call succeeds.\n\n"
         )
     user += "Produce realistic arguments to call this tool once."
     try:
@@ -266,9 +265,7 @@ async def _call_and_classify(
 ) -> tuple[dict[str, Any], dict | None]:
     """Call one tool; return (per-tool entry, result-if-cleanly-ok-else-None)."""
     try:
-        res = await asyncio.wait_for(
-            recorder.call_tool(server_id, tool_name, args), timeout=timeout
-        )
+        res = await asyncio.wait_for(recorder.call_tool(server_id, tool_name, args), timeout=timeout)
     except TimeoutError:
         return {"tool": tool_name, "status": "timeout"}, None
     except Exception as e:
@@ -384,7 +381,7 @@ async def verify_server(
     if not report["reason"]:
         skipped = len(report["tools"]) - len(exercised)
         deps = f", {len(report['dependencies'])} deps" if report["dependencies"] else ""
-        report["reason"] = f"{ok_count}/{len(exercised)} tools ok" + (
-            f" ({skipped} skipped)" if skipped else ""
-        ) + deps
+        report["reason"] = (
+            f"{ok_count}/{len(exercised)} tools ok" + (f" ({skipped} skipped)" if skipped else "") + deps
+        )
     return report

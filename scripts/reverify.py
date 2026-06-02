@@ -51,8 +51,11 @@ async def main() -> None:
                     kept.append(e)
                     wm()
                 r = rep or {}
-                C.log(fh, f"  {'KEEP' if ok else 'drop'} [{len(kept):>3}] {sid} "
-                          f"({r.get('ok_count')}/{r.get('tool_count')}) {str(r.get('reason', ''))[:55]}")
+                C.log(
+                    fh,
+                    f"  {'KEEP' if ok else 'drop'} [{len(kept):>3}] {sid} "
+                    f"({r.get('ok_count')}/{r.get('tool_count')}) {str(r.get('reason', ''))[:55]}",
+                )
 
     await asyncio.gather(*[rv(e) for e in src], return_exceptions=True)
     wm()

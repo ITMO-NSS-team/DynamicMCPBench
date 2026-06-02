@@ -28,8 +28,20 @@ from dmcp.manifest import Manifest, ServerEntry  # noqa: E402
 from dmcp.verify import _name_tokens  # noqa: E402
 
 DOMAINS = [
-    "dev", "web-scraping", "data", "science", "finance", "geo-maps", "productivity",
-    "communication", "media", "security", "cloud-infra", "ai-ml", "search", "other",
+    "dev",
+    "web-scraping",
+    "data",
+    "science",
+    "finance",
+    "geo-maps",
+    "productivity",
+    "communication",
+    "media",
+    "security",
+    "cloud-infra",
+    "ai-ml",
+    "search",
+    "other",
 ]
 
 _CLASSIFY_SYS = (
@@ -103,10 +115,16 @@ def main() -> None:
     ap.add_argument("--crawled", default="manifests/crawled-allpass.json")
     ap.add_argument("--crawled-catalog", default=None)
     ap.add_argument("--local", default="manifests/local.json")
-    ap.add_argument("--local-report", default="reports/local_verify.jsonl",
-                    help="JSONL from `dmcp verify -m local.json --require-all --json-out`")
-    ap.add_argument("--include-local-below-1", action="store_true",
-                    help="Keep substrate servers even if they did not reach pass_rate==1.0")
+    ap.add_argument(
+        "--local-report",
+        default="reports/local_verify.jsonl",
+        help="JSONL from `dmcp verify -m local.json --require-all --json-out`",
+    )
+    ap.add_argument(
+        "--include-local-below-1",
+        action="store_true",
+        help="Keep substrate servers even if they did not reach pass_rate==1.0",
+    )
     ap.add_argument("--out", default="manifests/servers.json")
     ap.add_argument("--catalog-out", default="manifests/catalog.json")
     ap.add_argument("--direct-alt-out", default="manifests/direct_alt.json")
@@ -180,11 +198,13 @@ def main() -> None:
     for nm, owners in by_name.items():
         servers_for_name = {sid for sid, _ in owners}
         if len(servers_for_name) >= 2:
-            direct_alt.append({
-                "normalized_tool": nm,
-                "members": [{"server_id": sid, "tool": tool} for sid, tool in owners],
-                "reviewed": False,
-            })
+            direct_alt.append(
+                {
+                    "normalized_tool": nm,
+                    "members": [{"server_id": sid, "tool": tool} for sid, tool in owners],
+                    "reviewed": False,
+                }
+            )
             alt_servers |= servers_for_name
     for e in servers:
         _set_tag(e.tags, "alt", "yes" if e.server_id in alt_servers else "no")
@@ -224,10 +244,13 @@ def main() -> None:
     (ROOT / a.direct_alt_out).write_text(json.dumps(direct_alt, indent=2), encoding="utf-8")
 
     from collections import Counter
+
     dom_counts = Counter(domains.values())
-    print(f"servers.json: {len(servers)} servers "
-          f"({sum(1 for e in servers if 'substrate' in e.tags)} substrate, "
-          f"{len(servers) - sum(1 for e in servers if 'substrate' in e.tags)} crawled)")
+    print(
+        f"servers.json: {len(servers)} servers "
+        f"({sum(1 for e in servers if 'substrate' in e.tags)} substrate, "
+        f"{len(servers) - sum(1 for e in servers if 'substrate' in e.tags)} crawled)"
+    )
     print(f"domains: {dict(dom_counts)}")
     print(f"direct_alt.json: {len(direct_alt)} same-name groups; alt servers: {len(alt_servers)}")
     if dropped_local:
