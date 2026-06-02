@@ -1,0 +1,59 @@
+\section{Related work and the AGB-orthogonality stance}
+\label{sec:related}
+
+The neighbourhood DynamicMCPBench sits in:
+\textbf{AgentGraphBench (AGB)} for graph-shaped tool-use evaluation;
+\textbf{MCPEval} for generate-then-verify task synthesis over MCP
+servers; \textbf{MCP-Bench} and \textbf{MCP-Atlas} for substrate
+breadth; \textbf{$\tau$-bench} and \textbf{ToolSandbox} for
+state-coupled tool use; \textbf{StableToolBench} for caching as a
+determinism mechanism.
+
+This paper's structural choice is to \textbf{stay orthogonal to AGB}
+along the four pillars below. The headline AGB connective thesis we
+adopt is that they \emph{diagnosed the disease} (GT tool lists are
+$\sim$50\,\% noise) and that DynamicMCPBench offers a \emph{different
+cure} (trace-grounding makes the unnecessary-tool problem impossible by
+construction~--- every tool in a trace was actually invoked).
+
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    dimension & AgentGraphBench (AGB) & DynamicMCPBench (this paper) \\
+    \midrule
+    Organizing object & tool-dependency graph + motifs & \textbf{execution trace} (real trajectory) \\
+    Generation direction & backward: subgraph $\to$ back-instruct & \textbf{forward: explore live $\to$ distill} \\
+    Substrate & static cached catalog (StableToolBench-style) & \textbf{live, stateful, crawled MCP servers} \\
+    Ground truth & GT tool set (denoised) & \textbf{reference trace $\to$ effect checkpoints} \\
+    Eval signal & tool-selection recall on a candidate list & \textbf{trace/effect alignment + state} \\
+    Final answer & checked & \textbf{deliberately not checked} \\
+    Difficulty axis & graph-motif class + subgraph size & \textbf{trace complexity + dynamism level} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Four pillars along which DynamicMCPBench stays orthogonal to AgentGraphBench.}
+  \label{tab:agb_orthogonality}
+\end{table*}
+
+We pre-empt three reviewer objections from the AGB neighbourhood:
+
+\begin{enumerate}
+  \item \emph{``Isn't this just AGB without the graph?''} No~--- removing
+    the graph forces a different \emph{generator} (forward exploration),
+    a different \emph{ground truth} (trace, not tool set), and a
+    different \emph{evaluation} (effect alignment, not recall). The
+    graph re-enters this paper \emph{only} as one of two clearly-labeled
+    RQ2 baselines (\S\ref{sec:rq2}).
+  \item \emph{``Isn't this just MCPEval?''} No~--- MCPEval is
+    generate-then-verify; we are \emph{explore-then-distill}. The trace
+    is the primitive, not a verification afterthought; we score effects
+    and state, not tool-call matching against a generated plan; we
+    refuse to grade the final answer.
+  \item \emph{``Traces have multiple valid paths~--- is that fair?''}
+    Yes, by design. The reference trace compiles into checkpoints with
+    equivalence sets, causal ordering \emph{only where a real
+    dependency exists}, and minefields. Any trajectory satisfying the
+    checkpoints without tripping a minefield passes
+    (\S\ref{sec:method:eval}).
+\end{enumerate}

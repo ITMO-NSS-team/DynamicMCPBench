@@ -260,7 +260,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a generate-then-verify baseline emits TaskSpecs from tool specs directly; comparable output format.
 
 ### E4.3 — RQ2 generation-quality comparison
-- status: claimed
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-01T19:40:53Z
 - deps: E4.1 E4.2
@@ -268,25 +268,26 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: forward vs graph-sampling vs direct compared on executable-on-first-try, human realism, distinct valid paths, coverage, unnecessary-tool rate, filter pass rate, and error-type diversity; report.
 
 ### E4.4 — RQ1 headline: answer-match vs trace-align
-- status: todo
-- owner: —
-- claimed_at: —
+- status: done
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:08:50Z
 - deps: E1.1
 - source: research_plan RQ1
 - done-when: a harness scores the same agents two ways (final-answer string match vs trace/effect alignment) on live_read/stateful tasks, re-run over time; reports ranking instability (Kendall's τ) and false-fail rate.
 
 ### E4.5 — RQ3 trace-property failure model
-- status: todo
-- owner: —
-- claimed_at: —
+- status: done
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:32:43Z
 - deps: E2.7
 - source: research_plan RQ3
 - done-when: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model; report feature importances.
 
 ### E4.6 — RQ4 scorer-vs-human + 200-task validation subset
-- status: todo
-- owner: —
-- claimed_at: —
+- status: blocked
+- note: harness merged in #25; awaiting human annotation pass per e4.6 protocol
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:44:43Z
 - deps: E1.1
 - source: research_plan RQ4 / simple_approach §5.6
 - done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α ≥ 0.7); false-pass/false-fail; replay determinism <5%.
@@ -312,17 +313,17 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 ## E5 — Paper & release
 
 ### E5.1 — Paper scaffold (§1–§7 skeleton)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: done
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T10:56:50Z
 - deps: E4.4
 - source: research_plan Phase 5 (paper outline)
 - done-when: `paper/` holds a NeurIPS/EMNLP-style skeleton with the section plan, the AGB-contrast paragraph, and figure/table placeholders (Fig: pipeline; example trace→checkpoints; answer-match vs trace-align; perf by dynamism/depth; decay curve; comparison table; capability profile; scorer-vs-human).
 
 ### E5.2 — Auto-generated figures & tables
-- status: todo
-- owner: —
-- claimed_at: —
+- status: done
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-02T11:15:35Z
 - deps: E5.1 E2.7 E4.3
 - source: research_plan Phase 5
 - done-when: a script regenerates the paper's figures/tables from eval/report artifacts (substrate table, degradation curves, leaderboard, decay curve, ablation).
@@ -348,7 +349,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: `tests/` seeded (E0) and every code step adds tests; pytest is part of the gate.
 
 ### CC.2 — Optional CI workflow
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E0.1
@@ -356,7 +357,7 @@ servers** (ideally several hundred) — this is a headline differentiator (epic 
 - done-when: a GitHub Actions workflow runs the gate on PRs (only when the team opts in — currently the local gate is the guard).
 
 ### CC.3 — Ruff-format baseline + strict format gate
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E0.1

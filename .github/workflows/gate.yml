@@ -1,0 +1,51 @@
+# DynamicMCPBench mandatory local gate, run in CI.
+# Mirrors `bash scripts/check.sh`: ruff check + ruff format --check + pytest -q.
+# Per `docs/AUTONOMY.md` the local gate is still authoritative — this
+# workflow exists so PRs cannot accidentally land with a red gate when the
+# author forgot to run it locally.
+
+name: gate
+
+# Quoted to keep YAML parsers from interpreting `on` as a boolean.
+"on":
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-flight runs for the same ref when a new push lands.
+concurrency:
+  group: gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv (Astral)
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          # The project deliberately git-ignores `uv.lock` (see .gitignore:
+          # "lockfile policy undecided"). Key the cache on the tracked
+          # `pyproject.toml` instead so setup-uv doesn't fail to find any
+          # cache-dependency file.
+          cache-dependency-glob: pyproject.toml
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Install project (dev extras only)
+        # Skip the [servers] extra — those pull npm-based MCP servers that
+        # need Node and aren't exercised by the gate (`ruff check`, format
+        # check, pytest -q). The headline gate must stay fast.
+        run: |
+          uv venv
+          uv pip install -e ".[dev]"
+
+      - name: Run gate
+        run: bash scripts/check.sh

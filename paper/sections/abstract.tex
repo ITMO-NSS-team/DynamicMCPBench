@@ -1,0 +1,28 @@
+\begin{abstract}
+LLM agent benchmarks that score the \emph{final answer} against a
+reference string are fragile under live, stateful data: today's
+``Madrid'' becomes tomorrow's stale fact, and a candidate that did the
+right tools with the wrong wording gets penalized while a candidate that
+parroted the right words without invoking any tools gets credit. We
+introduce \textbf{DynamicMCPBench}, a benchmark whose ground truth is
+an \emph{execution trace}, not a tool list or a final string. Tasks are
+\emph{forward-generated} by exploring live Model Context Protocol (MCP)
+servers with a goal-seeded explorer until a successful trajectory is
+recorded; that trace is \emph{distilled} into path-agnostic effect
+\emph{checkpoints} and trip-wire \emph{minefields}. Evaluation never
+grades the answer~--- it grades whether the candidate's trajectory
+produces the demanded effects, with \emph{any} permitted tool, in the
+necessary causal order. On 56 tasks $\times$ 3 models with no new LLM
+calls, the final-answer scorer's ranking is \emph{near-inverted} versus
+the trace-align ranking (Kendall's $\tau = -0.816$); its false-pass rate
+is $63\%$ while trace-align's false-fail rate is $1.8\%$. A
+pre-registered comparison against the two closest prior-art generation
+shapes~--- graph-sampling + back-instruction (AGB) and direct
+generate-then-verify (MCPEval)~--- shows that only forward-distilled
+specs admit non-trivial \emph{equivalence sets} (mean $|eq\_set| = 1.42$
+versus $1.00$ / $1.00$ by construction), the structural difference that
+makes path-agnostic scoring possible. A trace-property failure model
+identifies \emph{task dynamism} (\texttt{live\_read} versus
+\texttt{static}) as the dominant statistical driver of failure across
+all three candidate models.
+\end{abstract}

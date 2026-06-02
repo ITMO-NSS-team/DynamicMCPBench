@@ -86,11 +86,7 @@ in equivalence_set.
 
 
 def _successful_agent_calls(trace: Trace) -> list:
-    return [
-        s
-        for s in trace.steps
-        if s.kind is StepKind.call_tool_agent and s.status is StepStatus.success
-    ]
+    return [s for s in trace.steps if s.kind is StepKind.call_tool_agent and s.status is StepStatus.success]
 
 
 def _had_recovery(trace: Trace) -> bool:
@@ -175,19 +171,14 @@ def _trace_view_for_llm(trace: Trace, max_chars_per_result: int = 1200) -> dict[
             }
         )
     tools_view = {
-        sid: [
-            {"name": t.name, "description": t.description}
-            for t in specs
-        ]
+        sid: [{"name": t.name, "description": t.description} for t in specs]
         for sid, specs in trace.tool_specs.items()
     }
     return {
         "goal": trace.goal,
         "available_tools_by_server": tools_view,
         "successful_steps_in_order": steps_view,
-        "final_assistant_message": (
-            (trace.seed_metadata.get("exploration") or {}).get("final_message")
-        ),
+        "final_assistant_message": ((trace.seed_metadata.get("exploration") or {}).get("final_message")),
     }
 
 
@@ -344,9 +335,7 @@ def _parse_minefield(raw: dict[str, Any]) -> Minefield:
     return Minefield(
         minefield_id=raw["minefield_id"],
         description=raw["description"],
-        forbidden_tool=(
-            ToolReference(**raw["forbidden_tool"]) if raw.get("forbidden_tool") else None
-        ),
+        forbidden_tool=(ToolReference(**raw["forbidden_tool"]) if raw.get("forbidden_tool") else None),
         forbidden_arg_predicate=_parse_arg_predicate(raw.get("forbidden_arg_predicate")),
     )
 
@@ -360,9 +349,7 @@ class DistillationError(Exception):
     pass
 
 
-def derive_dynamism(
-    server_ids: list[str], manifest: Manifest | None
-) -> Dynamism:
+def derive_dynamism(server_ids: list[str], manifest: Manifest | None) -> Dynamism:
     """Task dynamism = max over involved servers' dynamism."""
     rank = {Dynamism.static: 0, Dynamism.live_read: 1, Dynamism.stateful_write: 2}
     if manifest is None:
@@ -428,9 +415,7 @@ async def distill(
         temperature=0.0,
     )
     if not resp.tool_calls:
-        raise DistillationError(
-            f"LLM did not call emit_task_spec; content={resp.content!r}"
-        )
+        raise DistillationError(f"LLM did not call emit_task_spec; content={resp.content!r}")
     args = resp.tool_calls[0].arguments
 
     try:

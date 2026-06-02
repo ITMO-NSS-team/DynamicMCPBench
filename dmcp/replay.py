@@ -211,9 +211,9 @@ class TraceReplayRecorder:
                 key = (step.server_id, step.tool_name, step.arguments_canonical or "{}")
                 if key not in self._cache and step.result is not None:
                     self._cache[key] = step.result
-                    self._available_args_by_tool.setdefault(
-                        (step.server_id, step.tool_name), []
-                    ).append(step.arguments_canonical or "{}")
+                    self._available_args_by_tool.setdefault((step.server_id, step.tool_name), []).append(
+                        step.arguments_canonical or "{}"
+                    )
             # Pick up tool surface + server fingerprints from the first
             # reference that exposes each server.
             for sid, specs in ref.tool_specs.items():
@@ -375,9 +375,7 @@ class TraceReplayRecorder:
         hint = ""
         if hint_lines:
             preview = "\n".join(f"  - {h}" for h in hint_lines[:5])
-            hint = (
-                f"\nKnown working argument shapes for {server_id}.{tool_name}:\n{preview}"
-            )
+            hint = f"\nKnown working argument shapes for {server_id}.{tool_name}:\n{preview}"
         synthetic = {
             "meta": None,
             "content": [{"type": "text", "text": CACHE_MISS_MESSAGE + hint}],

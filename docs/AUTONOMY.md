@@ -59,9 +59,12 @@ everyone on the next `git pull`.
 
 - Work happens on a per-step branch `feat/<id>-<slug>`; **never commit to `main`**
   except the tiny claim/mark ledger commits the scripts make.
-- **Auto-merge requires the gate to be green:** `ruff check .` + `pytest -q`
-  (`scripts/check.sh`). `ruff format` is advisory until the repo is baselined
-  (step CC.3); format your own changed files before committing.
+- **Auto-merge requires the gate to be green:** `ruff check .` + `ruff format --check .`
+  + `pytest -q` (`scripts/check.sh`). Format your changed files with
+  `uv run ruff format <paths>` before committing. The same gate is mirrored
+  in CI via `.github/workflows/gate.yml`, which runs on every PR into `main`
+  and every push to `main` — the local gate stays authoritative, but PRs
+  cannot land red.
 - Merge is a squash via `gh pr merge --squash --delete-branch`.
 - **Conflicts:** rebase the branch on `origin/main`, resolve, re-gate, re-merge.
 - **Blocked:** anything unresolvable (bad conflict, failing upstream, ambiguous
@@ -97,6 +100,7 @@ everyone on the next `git pull`.
 | `scripts/check.sh` | the gate: ruff check + ruff format --check + pytest |
 | `scripts/claim.py` | atomically claim the next eligible step (race-safe) |
 | `scripts/mark.py` | set a step's status on main (`in_review` / `done` / `blocked`) |
+| `.github/workflows/gate.yml` | runs `scripts/check.sh` on every PR / push to main |
 
 ## Results rule
 

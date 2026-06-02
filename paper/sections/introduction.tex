@@ -1,0 +1,76 @@
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation}
+
+LLM agents over Model Context Protocol (MCP) servers are an increasingly
+real deployment surface; their benchmarks are not. The two prevailing
+shapes for ``how do we know an agent did the right thing?'' both lean on
+proxies that wobble under live data:
+
+\begin{itemize}
+  \item \textbf{Final-answer string matching} (the common-case ``score
+    the reply against the reference answer''). Works for static
+    fact-recall, breaks the moment the answer depends on the current
+    world: today's weather, this morning's commit, the live database row.
+  \item \textbf{Tool-list recall} (AgentGraphBench and its
+    descendants). The ground truth is the set of tools the agent
+    \emph{should have called}. Diagnosed by AGB itself as $\sim$50\,\%
+    noise~--- \emph{unnecessary tools} drift in because tool lists are
+    not observable from prompts alone.
+\end{itemize}
+
+We propose to \emph{change the organizing primitive} of the benchmark
+from \emph{answer} and \emph{tool set} to the \textbf{execution trace}.
+The trace is the only object that is unambiguously observable (we
+recorded it) and unambiguously faithful (every tool in a trace was
+actually invoked).
+
+\subsection{Claims and contributions}
+
+\begin{enumerate}
+  \item \textbf{A forward generator} (\texttt{dmcp explore} $\to$
+    \texttt{dmcp distill}) that turns a live successful trajectory into
+    a path-agnostic \texttt{TaskSpec} made of effect \emph{checkpoints}
+    and \emph{minefields}, with \emph{equivalence sets} over tools that
+    genuinely substitute (Method, \S\ref{sec:method}). The headline
+    structural property absent in prior-art generators: forward
+    distillation emits mean $|equivalence\_set| > 1.0$, while
+    graph-sampling and direct generate-then-verify are singletons by
+    construction (Experiment~e4.3, \S\ref{sec:rq2}).
+  \item \textbf{Trace/effect alignment} as the scorer
+    (\texttt{evaluator.py}, Tier-1 deterministic) with an optional LLM
+    judge (Tier-2). Never grades the final answer; never requires
+    step-for-step trajectory match (\S\ref{sec:method:eval}). On
+    56\,$\times$\,3 evals: switching from trace-align to answer-match
+    inverts the model ranking, Kendall's $\tau = \mathbf{-0.816}$;
+    answer-match's false-pass rate is $\mathbf{63\%}$ versus
+    trace-align's $\mathbf{1.8\%}$ false-fail rate
+    (Experiment~e4.4, \S\ref{sec:rq1}).
+  \item \textbf{A trace-property failure model} identifying
+    \texttt{dynamism\_live} as the dominant driver of failure across
+    candidate models (pooled $\beta = -3.110$, drop-loglik~$+6.606$,
+    $\approx 70\%$ of pooled importance on the v3 substrate;
+    Experiment~e4.5, \S\ref{sec:rq3}).
+  \item \textbf{A living-bench protocol} for measuring decay between
+    distillation and re-evaluation (\texttt{dmcp refresh},
+    \S\ref{sec:method:refresh}; deployment-time numbers pending an
+    extended run).
+  \item \textbf{A reproducible substrate} of vetted, sandboxed, live
+    MCP servers (currently 16; target $\geq 100$,
+    \S\ref{sec:substrate}; scale gated on the ongoing crawl).
+\end{enumerate}
+
+\subsection{Headline result}
+
+\input{figures/rq1_kendall}
+
+Section~\ref{sec:related} frames the AGB / MCPEval / MCP-Bench /
+$\tau$-bench / StableToolBench landscape and pins down the dimensions
+along which DynamicMCPBench is \emph{deliberately orthogonal} to AGB.
+Section~\ref{sec:method} walks the generation and scoring pipeline.
+Section~\ref{sec:substrate} documents the substrate.
+Section~\ref{sec:experiments} reports RQ1--RQ4 with their pre-registered
+decision rules. Section~\ref{sec:discussion} discusses what the
+empirical pattern implies; the mandatory Limitations section follows the
+Conclusion.

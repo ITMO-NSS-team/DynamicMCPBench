@@ -243,8 +243,21 @@ uv.lock
 .venv-servers/
 /collect.log
 /collect.run.log
+/collect-allpass.log
 /test-collect.log
 /manifests/test-crawled.json
 /collect.attempted
 /assemble.run.log
 /examples/demo/demo.run.log
+
+# LaTeX build outputs from `pdflatex paper/main.tex`. The source .tex
+# files in paper/ (and the regenerator-produced figures/tables) are
+# tracked; the rendered PDF and intermediates are not.
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.log
+paper/main.out
+paper/main.pdf
+paper/main.synctex.gz
+paper/main.toc

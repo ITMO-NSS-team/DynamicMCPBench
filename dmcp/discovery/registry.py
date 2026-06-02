@@ -137,7 +137,10 @@ class MCPRegistryClient:
                 wait = 2.0 * (attempt + 1)
                 log.warning(
                     "registry GET %s attempt %d failed: %s — retrying in %.1fs",
-                    url, attempt + 1, type(e).__name__, wait,
+                    url,
+                    attempt + 1,
+                    type(e).__name__,
+                    wait,
                 )
                 time.sleep(wait)
         raise RuntimeError(f"registry GET {url} failed after {self._max_attempts} attempts: {last_err}")

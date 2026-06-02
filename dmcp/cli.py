@@ -17,13 +17,35 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
 from dmcp.ablation import compare_strategies, power_n
+from dmcp.baselines.compare import (
+    catalog_from_trace_jsonl,
+    compare_methods,
+    load_catalog,
+)
+from dmcp.baselines.compare import (
+    render_markdown as render_compare_markdown,
+)
+from dmcp.baselines.compare import (
+    report_to_json as compare_report_to_json,
+)
 from dmcp.baselines.direct_generation import GenerationError
 from dmcp.baselines.direct_generation import generate_direct as run_direct_gen
+from dmcp.baselines.failure_model import (
+    fit_per_model_and_pooled,
+    load_features_by_task,
+    load_samples_for_model,
+)
+from dmcp.baselines.failure_model import (
+    render_markdown as render_rq3_markdown,
+)
+from dmcp.baselines.failure_model import (
+    report_to_json as rq3_report_to_json,
+)
 from dmcp.baselines.graph_sampling import (
     VALID_MOTIFS,
     ToolGraph,
@@ -31,6 +53,46 @@ from dmcp.baselines.graph_sampling import (
 )
 from dmcp.baselines.graph_sampling import (
     back_instruct as run_back_instruct,
+)
+from dmcp.baselines.rq1_compare import (
+    DEFAULT_THRESHOLD as RQ1_DEFAULT_THRESHOLD,
+)
+from dmcp.baselines.rq1_compare import (
+    aggregate_rq1,
+    build_decisions,
+    load_candidate_final_messages,
+    load_evals,
+    load_reference_final_messages_by_trace_id,
+    load_spec_to_reference_trace,
+)
+from dmcp.baselines.rq1_compare import (
+    render_markdown as render_rq1_markdown,
+)
+from dmcp.baselines.rq1_compare import (
+    report_to_json as rq1_report_to_json,
+)
+from dmcp.baselines.rq4_agreement import (
+    build_report as build_rq4_agreement_report,
+)
+from dmcp.baselines.rq4_agreement import (
+    load_evals as load_evals_for_rq4,
+)
+from dmcp.baselines.rq4_agreement import (
+    render_markdown as render_rq4_markdown,
+)
+from dmcp.baselines.rq4_agreement import (
+    report_to_json as rq4_report_to_json,
+)
+from dmcp.baselines.rq4_agreement import (
+    write_consensus,
+)
+from dmcp.baselines.rq4_subset import (
+    DEFAULT_SUBSET_N,
+    build_subset,
+    compute_consensus,
+    load_annotations,
+    write_annotation_template,
+    write_subset_jsonl,
 )
 from dmcp.curves import aggregate_curve, complexity_bin
 from dmcp.discovery import MCPRegistryClient
@@ -488,6 +550,592 @@ def baseline_direct(
         typer.echo(f"\nwrote {kept}/{attempted} baseline specs → {output}")
 
     asyncio.run(_run())
+
+
+@app.command(name="compare-generators")
+def compare_generators(
+    forward: Annotated[
+        Path | None,
+        typer.Option("--forward", help="Forward-distilled TaskSpec JSONL"),
+    ] = None,
+    graph: Annotated[
+        Path | None,
+        typer.Option("--graph", help="Graph-sampling baseline TaskSpec JSONL"),
+    ] = None,
+    direct: Annotated[
+        Path | None,
+        typer.Option("--direct", help="Direct-generation baseline TaskSpec JSONL"),
+    ] = None,
+    reference_traces: Annotated[
+        Path | None,
+        typer.Option(
+            "--reference-traces",
+            help="JSONL of reference traces; tool_specs are unioned to build the catalog.",
+        ),
+    ] = None,
+    catalog: Annotated[
+        Path | None,
+        typer.Option(
+            "--catalog",
+            help="JSON list of [server_id, tool_name] pairs (alternative to --reference-traces).",
+        ),
+    ] = None,
+    proposals_forward: Annotated[
+        int | None,
+        typer.Option(
+            "--proposals-forward",
+            help="Total forward proposals attempted (for the filter pass rate).",
+        ),
+    ] = None,
+    proposals_graph: Annotated[
+        int | None,
+        typer.Option("--proposals-graph", help="Total graph proposals attempted."),
+    ] = None,
+    proposals_direct: Annotated[
+        int | None,
+        typer.Option("--proposals-direct", help="Total direct proposals attempted."),
+    ] = None,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown comparison report"),
+    ] = Path("reports/rq2_comparison.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ2: compare forward distillation vs the graph and direct baselines.
+
+    Reads TaskSpec JSONL for whichever methods you supply and emits a
+    self-contained markdown report. Per `memory/feedback_agb_orthogonality.md`,
+    this is a comparison-only tool — the headline scoring path does not
+    consume its output.
+
+    The harness only computes axes that are a pure function of the spec files
+    + an optional tool catalog. Live re-execution axes (executable-on-first-try
+    for baselines; the trace-grounded unnecessary-tool rate; the execution-side
+    error-type taxonomy) are reported as deferred — see the report's "Deferred
+    axes" section.
+    """
+    spec_paths: dict[str, Path] = {}
+    if forward is not None:
+        spec_paths["forward"] = forward
+    if graph is not None:
+        spec_paths["graph"] = graph
+    if direct is not None:
+        spec_paths["direct"] = direct
+    if not spec_paths:
+        raise typer.BadParameter("supply at least one of --forward/--graph/--direct")
+
+    catalog_set: set[tuple[str, str]] | None = None
+    if catalog is not None:
+        catalog_set = load_catalog(catalog)
+    elif reference_traces is not None:
+        catalog_set = catalog_from_trace_jsonl(reference_traces)
+
+    proposals = {
+        "forward": proposals_forward,
+        "graph": proposals_graph,
+        "direct": proposals_direct,
+    }
+    proposals_clean = {k: v for k, v in proposals.items() if v is not None}
+
+    report = compare_methods(
+        spec_paths,
+        catalog=catalog_set,
+        proposals_attempted=proposals_clean or None,
+    )
+    md = render_compare_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"wrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(compare_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+def _parse_pair(raw: str, *, label: str) -> tuple[str, Path]:
+    if ":" not in raw:
+        raise typer.BadParameter(f"--{label} must be 'name:path', got {raw!r}")
+    name, p = raw.split(":", 1)
+    return name.strip(), Path(p.strip())
+
+
+@app.command(name="rq1-compare")
+def rq1_compare(
+    evals: Annotated[
+        list[str],
+        typer.Option(
+            "--evals",
+            help=(
+                "Repeatable: 'model_label:path/to/evals.jsonl' for the trace-align arm. "
+                "Pass once per candidate model."
+            ),
+        ),
+    ],
+    candidate_traces: Annotated[
+        list[str],
+        typer.Option(
+            "--candidate-traces",
+            help="Repeatable: 'model_label:path/to/candidate_traces.jsonl'.",
+        ),
+    ],
+    specs: Annotated[
+        Path,
+        typer.Option("--specs", help="TaskSpec JSONL — used to join task_id → source_trace_id."),
+    ],
+    reference_traces: Annotated[
+        Path,
+        typer.Option(
+            "--reference-traces",
+            help="JSONL of reference traces; provides reference final messages.",
+        ),
+    ],
+    rerun: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rerun",
+            help=(
+                "Optional repeatable: 'model_label:evals_run2.jsonl' to add an "
+                "over-time stability column for that model."
+            ),
+        ),
+    ] = None,
+    rerun_candidate_traces: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rerun-candidate-traces",
+            help="Optional repeatable: 'model_label:candidate_traces_run2.jsonl'.",
+        ),
+    ] = None,
+    threshold: Annotated[
+        float,
+        typer.Option("--threshold", help="Answer-match token-Jaccard threshold."),
+    ] = RQ1_DEFAULT_THRESHOLD,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq1_comparison.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ1: trace/effect alignment vs final-answer string match.
+
+    Joins per-model `EvaluationResult` JSONL (the trace-align arm) with the
+    same model's candidate trace JSONL (for `final_assistant_message`) and
+    the reference traces, then scores each (model, task) cell under both
+    methods. Reports per-model accuracies, Kendall's τ between the two
+    rankings, false-fail / false-pass disagreement rates, and optional
+    over-time stability when `--rerun` is supplied for a model.
+
+    The answer-match scorer (`dmcp/baselines/answer_match.py`) is a labeled
+    comparison baseline per `memory/feedback_agb_orthogonality.md`. It is
+    never imported by the headline scoring path.
+    """
+    spec_to_source = load_spec_to_reference_trace(specs)
+    refs_by_trace_id = load_reference_final_messages_by_trace_id(reference_traces)
+
+    eval_paths: dict[str, Path] = dict(_parse_pair(s, label="evals") for s in evals)
+    cand_paths: dict[str, Path] = dict(_parse_pair(s, label="candidate-traces") for s in candidate_traces)
+    if set(eval_paths) != set(cand_paths):
+        raise typer.BadParameter(
+            "the model labels under --evals and --candidate-traces must match: "
+            f"evals={sorted(eval_paths)}, candidate_traces={sorted(cand_paths)}"
+        )
+
+    decisions_by_model: dict[str, list] = {}
+    for model in sorted(eval_paths):
+        ev_list = load_evals(eval_paths[model])
+        cand_msgs = load_candidate_final_messages(cand_paths[model])
+        decisions_by_model[model] = build_decisions(
+            model=model,
+            evals=ev_list,
+            candidate_final_messages=cand_msgs,
+            reference_final_messages_by_trace_id=refs_by_trace_id,
+            spec_to_source_trace=spec_to_source,
+            threshold=threshold,
+        )
+        typer.echo(f"  [{model}] joined {len(ev_list)} evals, {len(cand_msgs)} candidate final-messages")
+
+    over_time_runs: dict[str, list[list]] = {}
+    if rerun:
+        rerun_paths = dict(_parse_pair(s, label="rerun") for s in rerun)
+        rerun_cand_paths = (
+            dict(_parse_pair(s, label="rerun-candidate-traces") for s in rerun_candidate_traces)
+            if rerun_candidate_traces
+            else {}
+        )
+        for model, run2_path in rerun_paths.items():
+            run1 = decisions_by_model.get(model)
+            if run1 is None:
+                typer.echo(f"  [{model}] --rerun supplied but no run-1 evals; skipping")
+                continue
+            ev2 = load_evals(run2_path)
+            cand2_path = rerun_cand_paths.get(model)
+            cand2_msgs = load_candidate_final_messages(cand2_path) if cand2_path else {}
+            run2 = build_decisions(
+                model=model,
+                evals=ev2,
+                candidate_final_messages=cand2_msgs,
+                reference_final_messages_by_trace_id=refs_by_trace_id,
+                spec_to_source_trace=spec_to_source,
+                threshold=threshold,
+            )
+            over_time_runs[model] = [run1, run2]
+            typer.echo(f"  [{model}] rerun loaded ({len(ev2)} evals)")
+
+    report = aggregate_rq1(decisions_by_model, threshold=threshold, over_time_runs=over_time_runs or None)
+    md = render_rq1_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq1_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+@app.command(name="rq3-failure-model")
+def rq3_failure_model(
+    evals: Annotated[
+        list[str],
+        typer.Option(
+            "--evals",
+            help=("Repeatable: 'model_label:path/to/evals.jsonl'. Joined to --specs on task_id."),
+        ),
+    ],
+    specs: Annotated[
+        Path,
+        typer.Option(
+            "--specs",
+            help="TaskSpec JSONL with ComplexityProfile fields for each task.",
+        ),
+    ],
+    ridge: Annotated[
+        float,
+        typer.Option(
+            "--ridge",
+            help="L2 ridge λ on non-intercept coefficients (handles near-separability).",
+        ),
+    ] = 1e-3,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq3_failure_model.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ3: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model.
+
+    Joins per-model `EvaluationResult` JSONL with the TaskSpec JSONL on
+    `task_id`, extracts the ComplexityProfile + dynamism features, fits a
+    ridge-regularized logistic regression per candidate model AND a pooled
+    fit, and reports per-feature coefficients, odds ratios, and a
+    drop-column permutation importance (log-likelihood loss when the column
+    is removed and the model refit). Pure-Python IRLS — no new dependency.
+    """
+    eval_paths: dict[str, Path] = {}
+    for raw in evals:
+        if ":" not in raw:
+            raise typer.BadParameter(f"--evals must be 'model:path', got {raw!r}")
+        name, p = raw.split(":", 1)
+        eval_paths[name.strip()] = Path(p.strip())
+    features_by_task = load_features_by_task(specs)
+    typer.echo(f"loaded features for {len(features_by_task)} task(s) from {specs}")
+
+    samples_by_model: dict[str, list] = {}
+    for model, ep in sorted(eval_paths.items()):
+        samples = load_samples_for_model(ep, features_by_task, model_label=model)
+        samples_by_model[model] = samples
+        n_pass = sum(s.pass_flag for s in samples)
+        typer.echo(
+            f"  [{model}] joined {len(samples)} samples ({n_pass} pass / {len(samples) - n_pass} fail)"
+        )
+
+    report = fit_per_model_and_pooled(samples_by_model, ridge=ridge)
+    md = render_rq3_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq3_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+@app.command(name="rq4-subset")
+def rq4_subset(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL input")],
+    candidate_traces: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--candidate-traces",
+            help="Repeatable: JSONL of candidate traces to seed the annotation template with.",
+        ),
+    ] = None,
+    raters: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rater",
+            help="Repeatable: rater_id for the annotation template (e.g. -r alice -r bob).",
+        ),
+    ] = None,
+    n: Annotated[int, typer.Option("--n", help="Target subset size.")] = DEFAULT_SUBSET_N,
+    seed: Annotated[int, typer.Option("--seed", help="Sampling seed.")] = 0,
+    subset_out: Annotated[
+        Path,
+        typer.Option(
+            "--subset-out",
+            help="JSONL: chosen task subset + per-row stratum tag.",
+        ),
+    ] = Path("evals/rq4_subset.jsonl"),
+    annotation_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--annotation-out",
+            help=(
+                "JSONL: annotation-template rows (one per task × candidate × rater). "
+                "Requires --candidate-traces and at least one --rater."
+            ),
+        ),
+    ] = None,
+) -> None:
+    """RQ4: emit a deterministic stratified validation subset + annotation template.
+
+    Builds a balanced sample of `n` tasks across the (dynamism × complexity_bin)
+    grid (every non-empty stratum gets ≥ 1). When `--candidate-traces` and
+    `--rater` are supplied, also emits an annotation template JSONL with one
+    empty row per (task_id, candidate_trace_id, rater_id) the human will fill in.
+
+    Per `memory/feedback_agb_orthogonality.md`, this is RQ4 instrumentation —
+    no scorer change.
+    """
+    spec_list: list[TaskSpec] = []
+    with specs.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            spec_list.append(TaskSpec.model_validate_json(line))
+    manifest = build_subset(spec_list, n=n, seed=seed)
+    write_subset_jsonl(manifest, subset_out)
+    typer.echo(f"wrote subset → {subset_out} (target={manifest.target_n}, achieved={manifest.achieved_n})")
+    typer.echo("stratum counts:")
+    for k, v in sorted(manifest.stratum_counts.items()):
+        typer.echo(f"  {k}: {v}")
+    if manifest.notes:
+        typer.echo("notes:")
+        for note in manifest.notes:
+            typer.echo(f"  - {note}")
+
+    if annotation_out is not None:
+        if not candidate_traces or not raters:
+            raise typer.BadParameter("--annotation-out requires --candidate-traces and at least one --rater")
+        cand_rows: list[dict[str, Any]] = []
+        for cpath in candidate_traces:
+            with cpath.open("r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    d = json.loads(line)
+                    tid = (d.get("seed_metadata") or {}).get("task_id") or d.get("task_id")
+                    cand_rows.append(
+                        {
+                            "task_id": str(tid) if tid is not None else "",
+                            "candidate_trace_id": str(d.get("trace_id") or ""),
+                            "candidate_model": str((d.get("seed_metadata") or {}).get("llm_model") or ""),
+                        }
+                    )
+        written = write_annotation_template(
+            manifest.rows, cand_rows, rater_ids=list(raters), path=annotation_out
+        )
+        typer.echo(f"wrote annotation template ({written} rows) → {annotation_out}")
+
+
+@app.command(name="rq4-agreement")
+def rq4_agreement(
+    annotations: Annotated[
+        Path,
+        typer.Option(
+            "--annotations",
+            help="Annotation JSONL (filled-in template) from `dmcp rq4-subset`.",
+        ),
+    ],
+    tier1_evals: Annotated[
+        Path,
+        typer.Option(
+            "--tier1-evals",
+            help="Tier-1 EvaluationResult JSONL (judge off) used to derive scorer verdicts.",
+        ),
+    ],
+    tier2_evals: Annotated[
+        Path | None,
+        typer.Option(
+            "--tier2-evals",
+            help="Optional: Tier-2 EvaluationResult JSONL (judge on) for the Tier-2 column.",
+        ),
+    ] = None,
+    replay_run_b_evals: Annotated[
+        Path | None,
+        typer.Option(
+            "--replay-run-b",
+            help="Optional: second Tier-1 run for the replay-determinism flip-rate.",
+        ),
+    ] = None,
+    consensus_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--consensus-out",
+            help="Optional: write the human-consensus aggregate JSONL here.",
+        ),
+    ] = None,
+    subset_size_hint: Annotated[
+        int,
+        typer.Option(
+            "--subset-size",
+            help="Subset size for the report header (default: distinct task_ids in annotations).",
+        ),
+    ] = 0,
+    title: Annotated[str | None, typer.Option("--title", help="Report title override.")] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq4_agreement.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ4: report scorer-vs-human agreement (Cohen's κ, Krippendorff's α) + replay determinism.
+
+    Consumes a filled-in annotation JSONL plus per-tier Tier-1 / Tier-2
+    `EvaluationResult` JSONL. Optional second Tier-1 run feeds the
+    replay-determinism flip-rate. Pre-registered thresholds (κ / α ≥ 0.7;
+    replay flip rate < 5 %) come from the experiment doc.
+    """
+    ann_rows = load_annotations(annotations)
+    consensus = compute_consensus(ann_rows)
+    if consensus_out is not None:
+        write_consensus(consensus, consensus_out)
+        typer.echo(f"wrote consensus → {consensus_out}")
+    t1 = load_evals_for_rq4(tier1_evals)
+    t2 = load_evals_for_rq4(tier2_evals) if tier2_evals else None
+    rb = load_evals_for_rq4(replay_run_b_evals) if replay_run_b_evals else None
+    subset_size = subset_size_hint or len({a.task_id for a in ann_rows})
+    report = build_rq4_agreement_report(
+        subset_size=subset_size,
+        annotations=ann_rows,
+        consensus=consensus,
+        tier1_evals=t1,
+        tier2_evals=t2,
+        replay_run_b_evals=rb,
+    )
+    md = render_rq4_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq4_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+@app.command(name="paper-figures")
+def paper_figures(
+    root: Annotated[
+        Path,
+        typer.Option(
+            "--root",
+            help="Repository root (default: the current working directory).",
+        ),
+    ] = Path("."),
+    fail_on_pending: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-pending",
+            help="Exit non-zero if any figures.md row is still pending after a run.",
+        ),
+    ] = False,
+) -> None:
+    """Regenerate the paper's LaTeX figure/table artifacts from committed data.
+
+    Reads `paper/figures.md`, dispatches each row to a renderer (see
+    `paper/regenerate.py`), and writes one `.tex` file per row under
+    `paper/figures/` (for `fig:*` ids) or `paper/tables/` (for `tab:*`
+    ids). Rows whose backing data isn't on disk yet emit a clearly-marked
+    placeholder figure / table so `\\ref{...}` still resolves.
+
+    A cross-reference validator confirms every `\\input{figures/<slug>}`
+    / `\\input{tables/<slug>}` directive in `paper/sections/*.tex`
+    resolves to a `figures.md` row — violations are printed and (with
+    `--fail-on-pending`) make the run exit non-zero.
+    """
+    # Imported lazily so importing dmcp.cli on a minimal install doesn't
+    # require the paper/ directory to exist.
+    from paper.regenerate import regenerate
+
+    outcome = regenerate(root=root.resolve(), verbose=True)
+    typer.echo("")
+    typer.echo(
+        f"rendered={len(outcome.rendered)} ・ pending={len(outcome.pending)} ・ manual={len(outcome.manual)}"
+    )
+    if outcome.cross_ref_errors:
+        typer.echo("cross-reference errors:")
+        for e in outcome.cross_ref_errors:
+            typer.echo(f"  - {e}")
+    failed = (fail_on_pending and outcome.pending) or outcome.cross_ref_errors
+    if failed:
+        raise typer.Exit(code=1)
 
 
 def _not_yet(name: str) -> None:
@@ -1317,7 +1965,10 @@ def ablate(
                 if ref is None:
                     continue
                 pool = build_strategy_pool(
-                    spec, catalog, strategy=strat, pool_size=pool_size,
+                    spec,
+                    catalog,
+                    strategy=strat,
+                    pool_size=pool_size,
                     seed=spec.task_id.int % (2**31),
                 )
                 surface = pool_to_tool_surface(pool, ref.tool_specs)
@@ -1327,8 +1978,11 @@ def ablate(
                 )
                 stash_exploration_in_trace(result)
                 ev = run_eval(
-                    spec, result.trace, candidate_model=model,
-                    evaluation_mode=f"ablate:{strat}", server_tags=server_tags,
+                    spec,
+                    result.trace,
+                    candidate_model=model,
+                    evaluation_mode=f"ablate:{strat}",
+                    server_tags=server_tags,
                 )
                 sae_stats[strat][0] += int(ev.had_sae)
                 sae_stats[strat][1] += 1
@@ -1355,7 +2009,9 @@ def ablate(
         for s in strategies:
             sae = sae_stats[s][0] / sae_stats[s][1] if sae_stats[s][1] else 0.0
             ac = acc_stats[s][0] / acc_stats[s][1] if acc_stats[s][1] else 0.0
-            lines.append(f"| {s} | {sae * 100:.0f}% ({sae_stats[s][0]}/{sae_stats[s][1]}) | {ac * 100:.0f}% |")
+            lines.append(
+                f"| {s} | {sae * 100:.0f}% ({sae_stats[s][0]}/{sae_stats[s][1]}) | {ac * 100:.0f}% |"
+            )
         lines += [
             "",
             "| contrast | SAE A | SAE B | test | p | p(Holm) | sig |",

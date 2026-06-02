@@ -119,8 +119,7 @@ def _judge_tool_schema() -> dict[str, Any]:
                     "candidate_step_id": {
                         "type": ["integer", "null"],
                         "description": (
-                            "Step id of the candidate call that produced the effect, "
-                            "if equivalent=true."
+                            "Step id of the candidate call that produced the effect, if equivalent=true."
                         ),
                     },
                 },
