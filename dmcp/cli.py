@@ -35,6 +35,17 @@ from dmcp.baselines.compare import (
 )
 from dmcp.baselines.direct_generation import GenerationError
 from dmcp.baselines.direct_generation import generate_direct as run_direct_gen
+from dmcp.baselines.failure_model import (
+    fit_per_model_and_pooled,
+    load_features_by_task,
+    load_samples_for_model,
+)
+from dmcp.baselines.failure_model import (
+    render_markdown as render_rq3_markdown,
+)
+from dmcp.baselines.failure_model import (
+    report_to_json as rq3_report_to_json,
+)
 from dmcp.baselines.graph_sampling import (
     VALID_MOTIFS,
     ToolGraph,
@@ -780,6 +791,88 @@ def rq1_compare(
         json_out.parent.mkdir(parents=True, exist_ok=True)
         json_out.write_text(
             json.dumps(rq1_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+@app.command(name="rq3-failure-model")
+def rq3_failure_model(
+    evals: Annotated[
+        list[str],
+        typer.Option(
+            "--evals",
+            help=("Repeatable: 'model_label:path/to/evals.jsonl'. Joined to --specs on task_id."),
+        ),
+    ],
+    specs: Annotated[
+        Path,
+        typer.Option(
+            "--specs",
+            help="TaskSpec JSONL with ComplexityProfile fields for each task.",
+        ),
+    ],
+    ridge: Annotated[
+        float,
+        typer.Option(
+            "--ridge",
+            help="L2 ridge λ on non-intercept coefficients (handles near-separability).",
+        ),
+    ] = 1e-3,
+    title: Annotated[
+        str | None,
+        typer.Option("--title", help="Report title override."),
+    ] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq3_failure_model.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ3: fit pass/fail ~ (depth, branching, state_coupling, cross_server, dynamism) per model.
+
+    Joins per-model `EvaluationResult` JSONL with the TaskSpec JSONL on
+    `task_id`, extracts the ComplexityProfile + dynamism features, fits a
+    ridge-regularized logistic regression per candidate model AND a pooled
+    fit, and reports per-feature coefficients, odds ratios, and a
+    drop-column permutation importance (log-likelihood loss when the column
+    is removed and the model refit). Pure-Python IRLS — no new dependency.
+    """
+    eval_paths: dict[str, Path] = {}
+    for raw in evals:
+        if ":" not in raw:
+            raise typer.BadParameter(f"--evals must be 'model:path', got {raw!r}")
+        name, p = raw.split(":", 1)
+        eval_paths[name.strip()] = Path(p.strip())
+    features_by_task = load_features_by_task(specs)
+    typer.echo(f"loaded features for {len(features_by_task)} task(s) from {specs}")
+
+    samples_by_model: dict[str, list] = {}
+    for model, ep in sorted(eval_paths.items()):
+        samples = load_samples_for_model(ep, features_by_task, model_label=model)
+        samples_by_model[model] = samples
+        n_pass = sum(s.pass_flag for s in samples)
+        typer.echo(
+            f"  [{model}] joined {len(samples)} samples ({n_pass} pass / {len(samples) - n_pass} fail)"
+        )
+
+    report = fit_per_model_and_pooled(samples_by_model, ridge=ridge)
+    md = render_rq3_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq3_report_to_json(report), indent=2) + "\n",
             encoding="utf-8",
         )
         typer.echo(f"wrote json   → {json_out}")
