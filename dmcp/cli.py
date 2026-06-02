@@ -319,6 +319,10 @@ def goal_gen(
     seed_set_size: Annotated[
         int, typer.Option("--seed-set-size", help="Tools per seed set (raise for harder tasks)")
     ] = 4,
+    complexity: Annotated[
+        str | None,
+        typer.Option("--complexity", help="simple | medium | hard (overrides seed-set size)"),
+    ] = None,
     output: Annotated[Path, typer.Option("--output", "-o", help="Goals JSON output")] = Path(
         "goals/auto.json"
     ),
@@ -343,6 +347,7 @@ def goal_gen(
                     strategy=strat,
                     n_goals=per_strategy,
                     seed_set_size=seed_set_size,
+                    complexity=complexity,
                     seed=seed,
                     use_personas=not no_personas,
                 )

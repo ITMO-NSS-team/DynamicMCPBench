@@ -497,6 +497,8 @@ CORNER_STRATEGIES: dict[str, tuple[str, int, str]] = {
 
 # all generation strategies = the eval-side relationships + the corner cases
 GEN_STRATEGIES: tuple[str, ...] = (*VALID_STRATEGIES, *CORNER_STRATEGIES)
+# difficulty knob (E6.3): seed-set size per level
+COMPLEXITY_SIZE: dict[str, int] = {"simple": 2, "medium": 4, "hard": 6}
 
 
 async def generate_strategy_goals(
@@ -507,6 +509,7 @@ async def generate_strategy_goals(
     strategy: str,
     n_goals: int,
     seed_set_size: int = 4,
+    complexity: str | None = None,
     seed: int = 0,
     use_personas: bool = True,
 ) -> Goals:
@@ -526,6 +529,8 @@ async def generate_strategy_goals(
         base_strategy, eff_size, framing = CORNER_STRATEGIES[strategy]
     else:
         raise ValueError(f"unknown strategy {strategy!r}; pick from {GEN_STRATEGIES}")
+    if complexity:
+        eff_size = COMPLEXITY_SIZE.get(complexity, eff_size)
     surfaces, entries = await _capture_surfaces(manifest, server_ids)
     if not surfaces:
         return Goals(entries=[])
@@ -581,7 +586,10 @@ async def generate_strategy_goals(
             seen.add(gid)
             servers = [s for s in (gd.get("servers") or list(by_server)) if s in surfaces] or list(by_server)
             tags = list(gd.get("tags") or [])
-            for t in (f"strategy:{strategy}", scope):
+            base_tags = [f"strategy:{strategy}", scope]
+            if complexity:
+                base_tags.append(f"complexity:{complexity}")
+            for t in base_tags:
                 if t not in tags:
                     tags.append(t)
             try:
