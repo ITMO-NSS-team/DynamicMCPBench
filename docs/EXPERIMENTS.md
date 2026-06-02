@@ -242,6 +242,7 @@ and a tool-specialised model (e.g. `qwen/qwen-2.5-72b-instruct`).
 | **C. P_alt curves** (E2.7) | `dmcp curve data/corpus/specs.jsonl -m servers.json --p-alts 0,.25,.5,.75,1` → `docs/experiments/e2.7_numbers.json` | degradation curves |
 | **C. Gen-strategy ablation** (E4.9) | `scripts/strategy_ablation.py --evals 'reports/leaderboard/eval_*.jsonl' --specs … --traces … --json docs/experiments/e4.9_numbers.json` | gen ablation + gen×eval SAE matrix |
 | **C. Difficulty curve** (E4.10) | `scripts/difficulty_curve.py --evals 'reports/leaderboard/eval_*.jsonl' --specs … --json docs/experiments/e4.10_numbers.json` | perf vs depth bin |
+| **C. Desc-level A/B** (normalize) | `scripts/run_leaderboard.py … --desc-levels a,b` (sweeps `dmcp eval --desc-level`, the description-normalization contrast) | A-vs-B prompt-robustness |
 | **D. RQ2 baselines** (E4.3) | `dmcp baseline-graph` + `dmcp baseline-direct` + `dmcp compare-generators --json-out docs/experiments/e4.3_numbers.json` | forward vs graph vs direct |
 | **D. RQ1 / RQ3** | `dmcp` RQ1 (answer-match vs trace-align) → `e4.4_numbers.json`; RQ3 failure model → `e4.5_numbers.json` | Kendall τ; failure drivers |
 | **E. Paper** | `uv run python -c 'from paper.regenerate import regenerate; regenerate(verbose=True)'` (or `dmcp paper-figures`); then compile `paper/main.tex` | all figures/tables filled |
