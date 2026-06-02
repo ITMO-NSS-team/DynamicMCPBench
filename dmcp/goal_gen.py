@@ -36,6 +36,8 @@ from dmcp.llm import OpenRouterClient
 from dmcp.manifest import Manifest, ServerEntry
 from dmcp.personas import select_personas
 from dmcp.recorder import TraceRecorder
+from dmcp.sampling import VALID_STRATEGIES, ToolCatalog, ToolEntry, sample_distractors
+from dmcp.spec import ToolReference
 from dmcp.trace import ToolSpec
 
 log = logging.getLogger(__name__)
@@ -422,3 +424,114 @@ async def generate_goals(
                 log.warning("malformed generated cross goal %r: %s", g, e)
 
     return Goals(entries=out_entries)
+
+
+async def _capture_surfaces(
+    manifest: Manifest, server_ids: list[str]
+) -> tuple[dict[str, list[ToolSpec]], dict[str, ServerEntry]]:
+    """Boot each server once and capture its tool surface (shared first pass)."""
+    surfaces: dict[str, list[ToolSpec]] = {}
+    entries: dict[str, ServerEntry] = {}
+    for sid in server_ids:
+        try:
+            entry = manifest.by_id(sid)
+        except KeyError:
+            log.warning("server %r not in manifest; skipping", sid)
+            continue
+        try:
+            specs = await _fetch_tool_specs(entry)
+        except Exception as e:
+            log.warning("could not capture tool surface for %s: %s", sid, e)
+            continue
+        if not specs:
+            continue
+        surfaces[sid] = specs
+        entries[sid] = entry
+    return surfaces, entries
+
+
+async def generate_strategy_goals(
+    *,
+    manifest: Manifest,
+    server_ids: list[str],
+    llm: OpenRouterClient,
+    strategy: str,
+    n_goals: int,
+    seed_set_size: int = 4,
+    seed: int = 0,
+    use_personas: bool = True,
+) -> Goals:
+    """Strategy-driven goal seeding (E6.1). Reuse the eval-side sampler to pick a SEED
+    tool-set by RELATIONSHIP (random / hard_neg / cross_domain / same_name / sibling /
+    stratified), then ask the LLM for a realistic human goal exercising exactly those
+    tools. Only the seed is strategy-controlled; the explorer still explores forward, so
+    the headline stays trace-native."""
+    if strategy not in VALID_STRATEGIES:
+        raise ValueError(f"unknown strategy {strategy!r}; pick from {VALID_STRATEGIES}")
+    surfaces, entries = await _capture_surfaces(manifest, server_ids)
+    if not surfaces:
+        return Goals(entries=[])
+    catalog = ToolCatalog(
+        entries=[
+            ToolEntry(
+                server_id=sid,
+                tool_name=ts.name,
+                description=(ts.description or ""),
+                tags=tuple(entries[sid].tags),
+            )
+            for sid, specs in surfaces.items()
+            for ts in specs
+        ]
+    )
+    all_tools = [(sid, ts) for sid, specs in surfaces.items() for ts in specs]
+    rng = random.Random(seed)
+    seen: set[str] = set()
+    out: list[GoalEntry] = []
+    for i in range(n_goals):
+        if not all_tools:
+            break
+        anchor_sid, anchor_ts = rng.choice(all_tools)
+        anchor = ToolReference(server_id=anchor_sid, tool_name=anchor_ts.name)
+        related = sample_distractors(strategy, [anchor], catalog, n=max(1, seed_set_size - 1), seed=seed + i)
+        seed_pairs = [(anchor_sid, anchor_ts.name)] + [(e.server_id, e.tool_name) for e in related]
+        by_server: dict[str, set[str]] = {}
+        for sid, tname in seed_pairs:
+            by_server.setdefault(sid, set()).add(tname)
+        views = [
+            _server_view(entries[sid], [ts for ts in surfaces[sid] if ts.name in tnames])
+            for sid, tnames in by_server.items()
+        ]
+        scope = "intra-server" if len(by_server) == 1 else "cross-server"
+        label = (
+            f"{strategy} seed set ({scope}) — design ONE realistic single-turn user goal that "
+            "genuinely REQUIRES using these specific tools (chain output->input where natural), "
+            "without naming the tools: " + ", ".join(f"{s}::{t}" for s, t in seed_pairs)
+        )
+        try:
+            raw = await _ask_for_goals(
+                llm,
+                views,
+                1,
+                label,
+                personas=select_personas(1, seed + i) if use_personas else None,
+            )
+        except Exception as e:
+            log.warning("strategy goal-gen (%s) failed: %s", strategy, e)
+            continue
+        for gd in raw:
+            gid = _ensure_unique(
+                _sanitize_goal_id(str(gd.get("goal_id") or "auto"), prefix=f"auto-{strategy}-"), seen
+            )
+            seen.add(gid)
+            servers = [s for s in (gd.get("servers") or list(by_server)) if s in surfaces] or list(by_server)
+            tags = list(gd.get("tags") or [])
+            for t in (f"strategy:{strategy}", scope):
+                if t not in tags:
+                    tags.append(t)
+            try:
+                out.append(
+                    GoalEntry(goal_id=gid, goal=str(gd.get("goal", "")).strip(), servers=servers, tags=tags)
+                )
+            except Exception as e:
+                log.warning("malformed strategy goal %r: %s", gd, e)
+    return Goals(entries=out)
