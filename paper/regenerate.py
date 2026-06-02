@@ -615,10 +615,171 @@ def render_decay_curve(row: FigureRow, root: Path) -> RenderResult:
 
 
 def render_capability_profile(row: FigureRow, root: Path) -> RenderResult:
-    return _placeholder(
-        row,
-        ">=5-model leaderboard not produced yet -- depends on E4.7 + the larger substrate from E3.1.",
+    path = root / "docs" / "experiments" / "e4.7_numbers.json"
+    data = _load_json(path)
+    if data is None:
+        return _missing_data(row, path)
+    models = data.get("models") or []
+    rows_out: list[str] = []
+    for m in models:
+        pr = m.get("pass_rate")
+        sr = m.get("sae_rate")
+        pk = m.get("pass_k")
+        rows_out.append(
+            f"\\texttt{{{tex_escape(m['model'])}}} & {m.get('n', 0)} & "
+            + (f"{pr * 100:.1f}\\%" if pr is not None else "--")
+            + " & "
+            + (f"{sr * 100:.1f}\\%" if sr is not None else "--")
+            + " & "
+            + (f"{pk * 100:.1f}\\%" if pk is not None else "--")
+            + r" \\"
+        )
+    body = (
+        _tex_header(row)
+        + "\\begin{table}[t]\n"
+        + "  \\centering\n"
+        + "  \\small\n"
+        + "  \\begin{tabular}{lrrrr}\n"
+        + "    \\toprule\n"
+        + r"    model & $n$ & pass-rate & SAE-rate & pass\textsuperscript{$k$} \\"
+        + "\n"
+        + "    \\midrule\n"
+        + "\n".join(f"    {r}" for r in rows_out)
+        + "\n"
+        + "    \\bottomrule\n"
+        + "  \\end{tabular}\n"
+        + f"  \\caption{{{_wrap_caption(row)}}}\n"
+        + f"  \\label{{{row.id}}}\n"
+        + "\\end{table}\n"
     )
+    return RenderResult(id=row.id, body=body, used_data_source=True)
+
+
+def render_fig_difficulty_curve(row: FigureRow, root: Path) -> RenderResult:
+    path = root / "docs" / "experiments" / "e4.10_numbers.json"
+    data = _load_json(path)
+    if data is None:
+        return _missing_data(row, path)
+    models = data.get("models") or []
+    bin_order = ["1-2 (simple)", "3-4 (medium)", "5+ (hard)"]
+    present = [b for b in bin_order if any(any(x.get("bin") == b for x in m.get("bins", [])) for m in models)]
+    rows_out: list[str] = []
+    for m in models:
+        bm = {x["bin"]: x for x in m.get("bins", [])}
+        cells = [f"\\texttt{{{tex_escape(m['model'])}}}"]
+        for b in present:
+            x = bm.get(b)
+            pr = x.get("pass_rate") if x else None
+            cells.append(f"{pr * 100:.0f}\\%" if pr is not None else "--")
+        rows_out.append(" & ".join(cells) + r" \\")
+    cols_spec = "l" + "r" * len(present)
+    header = "model & " + " & ".join(tex_escape(b) for b in present) + r" \\"
+    body = (
+        _tex_header(row)
+        + "\\begin{figure}[t]\n"
+        + "  \\centering\n"
+        + "  \\small\n"
+        + f"  \\begin{{tabular}}{{{cols_spec}}}\n"
+        + "    \\toprule\n"
+        + f"    {header}\n"
+        + "    \\midrule\n"
+        + "\n".join(f"    {r}" for r in rows_out)
+        + "\n"
+        + "    \\bottomrule\n"
+        + "  \\end{tabular}\n"
+        + "  \\par\\vspace{0.4em}\n"
+        + "  \\footnotesize Pass rate by trace-depth difficulty bin; degradation tracks chain "
+        + "length and same-tool density.\n"
+        + f"  \\caption{{{_wrap_caption(row)}}}\n"
+        + f"  \\label{{{row.id}}}\n"
+        + "\\end{figure}\n"
+    )
+    return RenderResult(id=row.id, body=body, used_data_source=True)
+
+
+def render_tab_gen_strategy_ablation(row: FigureRow, root: Path) -> RenderResult:
+    path = root / "docs" / "experiments" / "e4.9_numbers.json"
+    data = _load_json(path)
+    if data is None:
+        return _missing_data(row, path)
+    strategies = data.get("strategies") or []
+    rows_out: list[str] = []
+    for s in strategies:
+        pr, sr, pk = s.get("pass_rate"), s.get("sae_rate"), s.get("pass_k")
+        rows_out.append(
+            f"\\texttt{{{tex_escape(s['strategy'])}}} & {s.get('n', 0)} & "
+            + (f"{pr * 100:.1f}\\%" if pr is not None else "--")
+            + " & "
+            + (f"{sr * 100:.1f}\\%" if sr is not None else "--")
+            + " & "
+            + (f"{pk * 100:.1f}\\%" if pk is not None else "--")
+            + r" \\"
+        )
+    body = (
+        _tex_header(row)
+        + "\\begin{table}[t]\n"
+        + "  \\centering\n"
+        + "  \\small\n"
+        + "  \\begin{tabular}{lrrrr}\n"
+        + "    \\toprule\n"
+        + r"    generation strategy & $n$ & pass-rate & SAE-rate & pass\textsuperscript{$k$} \\"
+        + "\n"
+        + "    \\midrule\n"
+        + "\n".join(f"    {r}" for r in rows_out)
+        + "\n"
+        + "    \\bottomrule\n"
+        + "  \\end{tabular}\n"
+        + f"  \\caption{{{_wrap_caption(row)}}}\n"
+        + f"  \\label{{{row.id}}}\n"
+        + "\\end{table}\n"
+    )
+    return RenderResult(id=row.id, body=body, used_data_source=True)
+
+
+def render_fig_gen_eval_sae_heatmap(row: FigureRow, root: Path) -> RenderResult:
+    path = root / "docs" / "experiments" / "e4.9_numbers.json"
+    data = _load_json(path)
+    if data is None:
+        return _missing_data(row, path)
+    matrix = data.get("matrix") or []
+    if not matrix:
+        return _placeholder(row, "e4.9_numbers.json present but `matrix` is empty.")
+    strategies = sorted({c["strategy"] for c in matrix})
+    conds = data.get("conditions") or sorted({c["condition"] for c in matrix})
+    lookup = {(c["strategy"], c["condition"]): c for c in matrix}
+    cols_spec = "l" + "r" * len(conds)
+    header = (
+        "gen \\textbackslash{} eval & " + " & ".join(f"\\texttt{{{tex_escape(c)}}}" for c in conds) + r" \\"
+    )
+    rows_out: list[str] = []
+    for st in strategies:
+        cells = [f"\\texttt{{{tex_escape(st)}}}"]
+        for c in conds:
+            v = lookup.get((st, c))
+            sr = v.get("sae_rate") if v else None
+            cells.append(f"{sr * 100:.0f}\\%" if sr is not None else "--")
+        rows_out.append(" & ".join(cells) + r" \\")
+    body = (
+        _tex_header(row)
+        + "\\begin{figure*}[t]\n"
+        + "  \\centering\n"
+        + "  \\footnotesize\n"
+        + f"  \\begin{{tabular}}{{{cols_spec}}}\n"
+        + "    \\toprule\n"
+        + f"    {header}\n"
+        + "    \\midrule\n"
+        + "\n".join(f"    {r}" for r in rows_out)
+        + "\n"
+        + "    \\bottomrule\n"
+        + "  \\end{tabular}\n"
+        + "  \\par\\vspace{0.4em}\n"
+        + "  \\footnotesize SAE rate (\\%) per generation strategy (rows) "
+        + "$\\times$ eval condition (columns).\n"
+        + f"  \\caption{{{_wrap_caption(row)}}}\n"
+        + f"  \\label{{{row.id}}}\n"
+        + "\\end{figure*}\n"
+    )
+    return RenderResult(id=row.id, body=body, used_data_source=True)
 
 
 def render_rq4_agreement(row: FigureRow, root: Path) -> RenderResult:
@@ -664,6 +825,9 @@ RENDERERS: dict[str, Renderer] = {
     "fig:p_alt_degradation": render_p_alt_degradation,
     "fig:decay_curve": render_decay_curve,
     "tab:capability_profile": render_capability_profile,
+    "fig:difficulty_curve": render_fig_difficulty_curve,
+    "tab:gen_strategy_ablation": render_tab_gen_strategy_ablation,
+    "fig:gen_eval_sae_heatmap": render_fig_gen_eval_sae_heatmap,
     "tab:rq4_agreement": render_rq4_agreement,
     "tab:ablation": render_ablation,
     "fig:pipeline": render_pipeline,

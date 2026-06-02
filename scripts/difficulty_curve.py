@@ -38,6 +38,9 @@ def main() -> None:
     ap.add_argument("--evals", required=True)
     ap.add_argument("--specs", required=True)
     ap.add_argument("-o", "--out", default="reports/difficulty_curve.md")
+    ap.add_argument(
+        "--json", default=None, help="also emit machine-readable numbers JSON (paper renderer input)"
+    )
     a = ap.parse_args()
 
     depth_of = {
@@ -91,6 +94,32 @@ def main() -> None:
     outp.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"difficulty curve -> {outp}")
     print("bins:", bins, "models:", sorted(models))
+
+    if a.json:
+        ratio = lambda n, d: n / d if d else None  # noqa: E731
+        numbers = {
+            "models": [
+                {
+                    "model": m,
+                    "bins": [
+                        {
+                            "bin": b,
+                            "n": cell[(m, b)]["n"],
+                            "pass_rate": ratio(cell[(m, b)]["pass"], cell[(m, b)]["n"]),
+                            "sae_rate": ratio(cell[(m, b)]["sae"], cell[(m, b)]["n"]),
+                            "pass_k": ratio(pk[(m, b)][0], pk[(m, b)][1]),
+                        }
+                        for b in bins
+                        if cell[(m, b)]["n"]
+                    ],
+                }
+                for m in sorted(models)
+            ]
+        }
+        jp = ROOT / a.json
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        jp.write_text(json.dumps(numbers, indent=2) + "\n", encoding="utf-8")
+        print(f"numbers -> {jp}")
 
 
 if __name__ == "__main__":

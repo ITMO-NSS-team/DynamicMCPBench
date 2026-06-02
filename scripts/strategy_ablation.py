@@ -61,6 +61,9 @@ def main() -> None:
     ap.add_argument("--specs", required=True)
     ap.add_argument("--traces", required=True)
     ap.add_argument("-o", "--out", default="reports/strategy_ablation.md")
+    ap.add_argument(
+        "--json", default=None, help="also emit machine-readable numbers JSON (paper renderer input)"
+    )
     a = ap.parse_args()
 
     specs = {s["task_id"]: s for s in _read(ROOT / a.specs)}
@@ -126,6 +129,30 @@ def main() -> None:
     outp.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"strategy ablation -> {outp}")
     print("strategies:", {s: d["n"] for s, d in by_strat.items()})
+
+    if a.json:
+        ratio = lambda n, d: n / d if d else None  # noqa: E731
+        numbers = {
+            "strategies": [
+                {
+                    "strategy": st,
+                    "n": d["n"],
+                    "pass_rate": ratio(d["pass"], d["n"]),
+                    "sae_rate": ratio(d["sae"], d["n"]),
+                    "pass_k": ratio(pk[st][0], pk[st][1]),
+                }
+                for st, d in sorted(by_strat.items(), key=lambda kv: -kv[1]["sae"])
+            ],
+            "conditions": conds,
+            "matrix": [
+                {"strategy": st, "condition": c, "n": v["n"], "sae_rate": ratio(v["sae"], v["n"])}
+                for (st, c), v in sorted(matrix.items())
+            ],
+        }
+        jp = ROOT / a.json
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        jp.write_text(json.dumps(numbers, indent=2) + "\n", encoding="utf-8")
+        print(f"numbers -> {jp}")
 
 
 if __name__ == "__main__":
