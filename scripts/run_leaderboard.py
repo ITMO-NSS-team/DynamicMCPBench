@@ -45,6 +45,11 @@ def main() -> None:
     ap.add_argument(
         "--json", default=None, help="also emit per-model leaderboard numbers JSON (paper renderer input)"
     )
+    ap.add_argument(
+        "--desc-levels",
+        default="raw",
+        help="comma list of description-normalization levels to sweep (raw,a,b); 'raw' = no normalization",
+    )
     a = ap.parse_args()
 
     out = ROOT / a.out
@@ -52,37 +57,45 @@ def main() -> None:
     models = [m for m in a.models.split(",") if m]
     pools = [p for p in a.pools.split(",") if p]
     p_alts = [x for x in a.p_alts.split(",") if x]
+    desc_levels = [d for d in a.desc_levels.split(",") if d]
     eval_files: list[str] = []
 
     for model in models:
         for pool in pools:
             grid = p_alts if pool == "target" else ["-"]
             for pa in grid:
-                tag = f"{_slug(model)}__{pool}" + (f"__p{pa}" if pool == "target" else "")
-                ev = out / f"eval_{tag}.jsonl"
-                cmd = [
-                    DMCP,
-                    "eval",
-                    str(ROOT / a.specs),
-                    "-m",
-                    str(ROOT / a.manifest),
-                    "--model",
-                    model,
-                    "--pool",
-                    pool,
-                    "--repeat",
-                    str(a.repeat),
-                    "--budget",
-                    str(a.budget),
-                    "-o",
-                    str(ev),
-                ]
-                if pool == "target":
-                    cmd += ["--p-alt", str(pa), "--pool-size", str(a.pool_size)]
-                if a.reference_traces:
-                    cmd += ["--replay", "--reference-traces", str(ROOT / a.reference_traces)]
-                if _run(cmd) == 0 and ev.exists():
-                    eval_files.append(str(ev))
+                for dl in desc_levels:
+                    tag = (
+                        f"{_slug(model)}__{pool}"
+                        + (f"__p{pa}" if pool == "target" else "")
+                        + ("" if dl == "raw" else f"__d{dl}")
+                    )
+                    ev = out / f"eval_{tag}.jsonl"
+                    cmd = [
+                        DMCP,
+                        "eval",
+                        str(ROOT / a.specs),
+                        "-m",
+                        str(ROOT / a.manifest),
+                        "--model",
+                        model,
+                        "--pool",
+                        pool,
+                        "--repeat",
+                        str(a.repeat),
+                        "--budget",
+                        str(a.budget),
+                        "-o",
+                        str(ev),
+                    ]
+                    if pool == "target":
+                        cmd += ["--p-alt", str(pa), "--pool-size", str(a.pool_size)]
+                    if dl != "raw":
+                        cmd += ["--desc-level", dl]
+                    if a.reference_traces:
+                        cmd += ["--replay", "--reference-traces", str(ROOT / a.reference_traces)]
+                    if _run(cmd) == 0 and ev.exists():
+                        eval_files.append(str(ev))
 
     if not eval_files:
         print("no eval outputs produced")
