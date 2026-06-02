@@ -238,3 +238,15 @@ tmp.md
 
 # uv lockfile — env side-effect; lockfile policy undecided
 uv.lock
+
+# LaTeX build outputs from `pdflatex paper/main.tex`. The source .tex
+# files in paper/ (and the regenerator-produced figures/tables) are
+# tracked; the rendered PDF and intermediates are not.
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.log
+paper/main.out
+paper/main.pdf
+paper/main.synctex.gz
+paper/main.toc

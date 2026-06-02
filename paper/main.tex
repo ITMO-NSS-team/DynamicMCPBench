@@ -1,0 +1,54 @@
+% DynamicMCPBench -- EMNLP 2026 Industry Track submission.
+%
+% Compile with pdflatex:
+%   cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main
+%
+% Section files live under sections/; figures and tables are auto-generated
+% by paper/regenerate.py and `\input{}`ed from the section files. See
+% paper/README.md for the EMNLP 2026 Industry Track rules and the build
+% protocol.
+
+\documentclass[11pt]{article}
+
+% Review (anonymous) mode -- switch to "final" or "preprint" for the
+% camera-ready or arXiv versions.
+\usepackage[review]{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{DynamicMCPBench: A Trace-Grounded, Effect-Scored Benchmark for LLM Agents over Live MCP Servers}
+
+% Anonymous in review mode.
+\author{Anonymous EMNLP 2026 Industry Track submission}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/substrate}
+\input{sections/experiments}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+% Limitations is mandatory for EMNLP 2026 Industry Track and does NOT
+% count toward the 6-page main-text limit.
+\input{sections/limitations}
+
+% Custom bibliography only; switch to {anthology,custom} once the
+% anthology.bib is wired in.
+\bibliography{custom}
+
+\end{document}

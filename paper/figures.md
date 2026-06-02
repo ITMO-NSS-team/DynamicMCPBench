@@ -1,14 +1,16 @@
 # Figures & tables — index and data contract
 
-This file is the **input contract** for E5.2 (`auto-generated figures &
-tables`). Every figure / table in `paper/draft.md` has a row here with a
-stable id, the intended caption, the regenerable data source, and a
-status flag.
+This file is the **input contract** for the regenerator
+(`paper/regenerate.py`). Every figure / table referenced by a
+`\input{figures/<slug>}` / `\input{tables/<slug>}` directive in
+`paper/sections/*.tex` has a row here with a stable id, the intended
+caption, the regenerable data source, and a status flag.
 
-E5.2's regenerator reads this file, finds the data source, builds the
-artifact (PDF / PNG for figures, markdown for tables), and writes it
-under `paper/figures/<id>.{pdf,png,md}`. The draft references each
-artifact by its id.
+The regenerator reads this file, finds the data source, and writes a
+LaTeX artifact under `paper/figures/<slug>.tex` (for `fig:` ids) or
+`paper/tables/<slug>.tex` (for `tab:` ids). Section files `\input`
+these artifacts; `\ref{<id>}` resolves to the figure or table label
+emitted by the renderer.
 
 ## Status values
 
@@ -25,7 +27,7 @@ artifact by its id.
 
 | id | caption | status | gating step | data source / notes |
 |---|---|---|---|---|
-| `fig:pipeline` | DynamicMCPBench pipeline: server manifest → goal-gen → explorer → distiller → evaluator (Tier-1 / Tier-2) → report; the parallel `refresh` arrow for the living-bench loop. | manual | — | Block diagram authored from §3.1–§3.4 of `paper/draft.md`. Source-of-truth: `docs/CONCEPT.md`. |
+| `fig:pipeline` | DynamicMCPBench pipeline: server manifest → goal-gen → explorer → distiller → evaluator (Tier-1 / Tier-2) → report; the parallel `refresh` arrow for the living-bench loop. | manual | — | Block diagram authored from `paper/sections/method.tex`. Source-of-truth: `docs/CONCEPT.md`. |
 | `fig:trace_distill_example` | One worked example: a recorded trace (left) compiled into a `TaskSpec` (right) — checkpoints, equivalence sets, minefields, partial order. | manual | — | Pick one v3 trace (preferably a cross-server one). Source-of-truth: a row from `traces/v3.jsonl` + the matching `specs/v3.jsonl` row. |
 | `fig:rq1_kendall` | Per-model trace-align vs answer-match accuracy on the v3 substrate; Kendall's τ between the two rankings. | ready | — | `docs/experiments/e4.4_numbers.json` (kendall_tau_rankings, models[*].trace_accuracy / answer_accuracy). Decision rule in `e4.4-rq1-comparison.md`. |
 | `fig:perf_by_dynamism_depth` | Pass rate by (dynamism × complexity_bin), per candidate model + pooled. The visual companion to RQ3's pooled coefficients. | partial | E4.7 (≥ 5-model leaderboard) for the model dimension | Per-model: aggregate `evals/v3_{model}.jsonl::passed` joined with `specs/v3.jsonl::dynamism + complexity.trace_depth → complexity_bin`. The numbers backing the RQ3 coefficients live in `docs/experiments/e4.5_numbers.json`. |
@@ -45,10 +47,11 @@ artifact by its id.
 
 ## Cross-reference contract
 
-Every `[Fig <n> here — …]` and `[Tbl <n> here — …]` marker in
-`paper/draft.md` MUST resolve to exactly one row in this file. The
-markdown linter step in E5.2 will enforce this; E5.1's scaffold seeds
-it with the placeholders above.
+Every `\input{figures/<slug>}` and `\input{tables/<slug>}` directive in
+`paper/sections/*.tex` MUST resolve to a `fig:<slug>` / `tab:<slug>`
+row in this file. `paper/regenerate.py::validate_cross_references`
+enforces this on every run and `dmcp paper-figures --fail-on-pending`
+exits non-zero when violations exist.
 
 ## When this index changes
 
@@ -56,12 +59,15 @@ A step that adds a figure / table:
 
 1. Adds a row here with a stable `fig:` or `tab:` id (kebab-case after
    the colon).
-2. Drops a `[Fig N here — …]` / `[Tbl N here — …]` placeholder into the
-   relevant section of `paper/draft.md` referencing that id.
-3. Cites the data source in column 5 — never with a number, only with a
-   pointer (`docs/experiments/<id>_numbers.json::path`).
+2. Adds `\input{figures/<slug>}` / `\input{tables/<slug>}` and a
+   `\ref{<id>}` citation in the relevant `paper/sections/<name>.tex`.
+3. Cites the data source in column 5 — never with a number, only with
+   a pointer (e.g. `docs/experiments/<id>_numbers.json`).
+4. Registers a renderer in `paper/regenerate.py::RENDERERS` if the
+   default placeholder isn't enough.
 
-A step that **updates** an existing figure's data only touches its
-`docs/experiments/<id>_numbers.json` (and re-runs E5.2 once it lands).
-The paper draft prose never copies numbers from the JSON; the figure
-captions in §5 say "see Fig N" and let the regenerator do the rest.
+A step that **updates** an existing figure's data only touches the
+backing `docs/experiments/<id>_numbers.json` and re-runs
+`dmcp paper-figures`. Section prose never copies numbers from the JSON;
+the section text says `\ref{<id>}` and lets the regenerator do the
+rest.
