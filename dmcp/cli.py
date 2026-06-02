@@ -2066,8 +2066,11 @@ def verify(
     its non-skipped tools return without error (destructive tools are skipped
     unless sandboxed)."""
     m = Manifest.load(manifest)
-    configs = m.configs(servers)
-    sandbox_by_id = {e.server_id: e.sandbox for e in m.servers}
+    runnable, skipped_creds = m.gate_credentials(servers)
+    for sid, missing in skipped_creds:
+        typer.echo(f"  SKIP  {sid:18s} missing env: {', '.join(missing)}")
+    configs = [e.to_config() for e in runnable]
+    sandbox_by_id = {e.server_id: e.sandbox for e in runnable}
     vllm = OpenRouterClient(model=model) if use_llm else None
 
     async def _run() -> None:

@@ -15,6 +15,7 @@ the loader; the schema lives here, not in a serialization library.
 from __future__ import annotations
 
 import json
+import os
 from enum import Enum
 from pathlib import Path
 
@@ -73,6 +74,10 @@ class ServerEntry(BaseModel):
     package: dict | None = None
     tool_count: int | None = None
 
+    # env var NAMES this server needs at runtime (E3.4 credentialed tier). The
+    # VALUES come from .env / os.environ — never the manifest.
+    requires_env: list[str] = Field(default_factory=list)
+
     @model_validator(mode="after")
     def _check(self) -> ServerEntry:
         if self.transport is TransportKind.stdio:
@@ -94,13 +99,23 @@ class ServerEntry(BaseModel):
             )
         return self
 
+    def _plumbed_env(self) -> dict[str, str] | None:
+        """Merge declared env with secret VALUES for `requires_env`, read from
+        os.environ (.env-loaded). Secrets never live in the manifest."""
+        env = dict(self.env or {})
+        for var in self.requires_env:
+            val = os.environ.get(var)
+            if val:
+                env[var] = val
+        return env or None
+
     def to_config(self) -> ServerConfig:
         if self.transport is TransportKind.stdio:
             return StdioServer(
                 server_id=self.server_id,
                 command=self.command or "",
                 args=list(self.args),
-                env=self.env,
+                env=self._plumbed_env(),
             )
         if self.transport is TransportKind.sse:
             return SseServer(
@@ -147,3 +162,25 @@ class Manifest(BaseModel):
     def dump(self, path: Path) -> None:
         data = self.model_dump(mode="json", exclude_none=True)
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+    def gate_credentials(
+        self, server_ids: list[str] | None = None, *, load_env: bool = True
+    ) -> tuple[list[ServerEntry], list[tuple[str, list[str]]]]:
+        """Split servers into (runnable, skipped) by whether their `requires_env`
+        keys are present in the environment. Loads .env first so present keys count.
+        skipped = [(server_id, [missing_var, ...])]. This is the credentialed-tier
+        gate: missing keys skip gracefully (E3.4)."""
+        if load_env:
+            try:
+                from dotenv import load_dotenv
+
+                load_dotenv(override=False)
+            except Exception:
+                pass
+        entries = self.servers if server_ids is None else [self.by_id(i) for i in server_ids]
+        runnable: list[ServerEntry] = []
+        skipped: list[tuple[str, list[str]]] = []
+        for e in entries:
+            missing = [v for v in e.requires_env if not os.environ.get(v)]
+            (skipped.append((e.server_id, missing)) if missing else runnable.append(e))
+        return runnable, skipped
