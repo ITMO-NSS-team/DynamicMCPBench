@@ -1,0 +1,6502 @@
+{
+  "ai_mcpcap__mcpcap": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcpcap",
+      "version": "0.9.6",
+      "entrypoint": "mcpcap"
+    },
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "analyze_dns_packets",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_dhcp_packets",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_icmp_packets",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_capinfos",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_tcp_connections",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_tcp_anomalies",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_tcp_retransmissions",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_traffic_flow",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_sip_packets",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "ai_autonomad__travel": {
+    "package": {
+      "kind": "npm",
+      "identifier": "autonomad-travel",
+      "version": "1.4.0",
+      "entrypoint": null
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_hotels",
+        "status": "ok"
+      },
+      {
+        "name": "search_flights",
+        "status": "ok"
+      },
+      {
+        "name": "search_transport",
+        "status": "ok"
+      },
+      {
+        "name": "search_dining",
+        "status": "ok"
+      },
+      {
+        "name": "search_activities",
+        "status": "ok"
+      },
+      {
+        "name": "search_events",
+        "status": "ok"
+      },
+      {
+        "name": "create_booking_intent",
+        "status": "ok"
+      },
+      {
+        "name": "get_capabilities",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "ai_wild_card__deepcontext": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@wildcard-ai/deepcontext",
+      "version": "0.1.15",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "index_codebase",
+        "status": "ok"
+      },
+      {
+        "name": "search_codebase",
+        "status": "ok"
+      },
+      {
+        "name": "get_indexing_status",
+        "status": "ok"
+      },
+      {
+        "name": "clear_index",
+        "status": "skipped"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "bid_scope__aec": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@scope-bid/scope-aec-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scope_aec_status",
+        "status": "ok"
+      },
+      {
+        "name": "scope_aec_categories",
+        "status": "ok"
+      },
+      {
+        "name": "scope_aec_join_waitlist",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "bid_scope__claims": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@scope-bid/scope-claims-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scope_claims_status",
+        "status": "ok"
+      },
+      {
+        "name": "scope_claims_categories",
+        "status": "ok"
+      },
+      {
+        "name": "scope_claims_join_waitlist",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "app_trustrails__server": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@trustrails/mcp-server",
+      "version": "1.0.7",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_products",
+        "status": "ok"
+      },
+      {
+        "name": "get_product",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_products",
+        "consumer": "get_product",
+        "field": "product_id",
+        "via_key": "id"
+      }
+    ],
+    "domain": "search"
+  },
+  "ai_tensorfeed__x402_base_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@tensorfeed/x402-base-mcp",
+      "version": "0.2.1",
+      "entrypoint": null
+    },
+    "tool_count": 15,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "balance",
+        "status": "ok"
+      },
+      {
+        "name": "usdc_balance",
+        "status": "ok"
+      },
+      {
+        "name": "block_number",
+        "status": "ok"
+      },
+      {
+        "name": "get_tx_receipt",
+        "status": "ok"
+      },
+      {
+        "name": "call",
+        "status": "ok"
+      },
+      {
+        "name": "recent_transfers",
+        "status": "ok"
+      },
+      {
+        "name": "verify_x402_settlement",
+        "status": "ok"
+      },
+      {
+        "name": "parse_x402_manifest",
+        "status": "ok"
+      },
+      {
+        "name": "usdc_recent_payments_to",
+        "status": "ok"
+      },
+      {
+        "name": "probe_x402_endpoint",
+        "status": "ok"
+      },
+      {
+        "name": "decode_x402_payment_payload",
+        "status": "ok"
+      },
+      {
+        "name": "verify_afta_federation",
+        "status": "ok"
+      },
+      {
+        "name": "tf_payment_lookup",
+        "status": "ok"
+      },
+      {
+        "name": "x402_publisher_health",
+        "status": "ok"
+      },
+      {
+        "name": "afta_federation_members",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "ai_ravenmcp__raven_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "raven-mcp",
+      "version": "1.3.3",
+      "entrypoint": null
+    },
+    "tool_count": 27,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_principles",
+        "status": "ok"
+      },
+      {
+        "name": "get_pattern",
+        "status": "ok"
+      },
+      {
+        "name": "get_business_strategy",
+        "status": "ok"
+      },
+      {
+        "name": "evaluate_design",
+        "status": "ok"
+      },
+      {
+        "name": "search_knowledge",
+        "status": "ok"
+      },
+      {
+        "name": "get_checklist",
+        "status": "ok"
+      },
+      {
+        "name": "get_d4d_framework",
+        "status": "ok"
+      },
+      {
+        "name": "list_design_systems",
+        "status": "ok"
+      },
+      {
+        "name": "get_design_system",
+        "status": "ok"
+      },
+      {
+        "name": "compose_system",
+        "status": "ok"
+      },
+      {
+        "name": "audit_page",
+        "status": "ok"
+      },
+      {
+        "name": "get_brand_system",
+        "status": "ok"
+      },
+      {
+        "name": "generate_design_system",
+        "status": "ok"
+      },
+      {
+        "name": "audit_layout",
+        "status": "ok"
+      },
+      {
+        "name": "list_content_systems",
+        "status": "ok"
+      },
+      {
+        "name": "get_content_system",
+        "status": "ok"
+      },
+      {
+        "name": "get_content_principles",
+        "status": "ok"
+      },
+      {
+        "name": "get_content_pattern",
+        "status": "ok"
+      },
+      {
+        "name": "get_research_method",
+        "status": "ok"
+      },
+      {
+        "name": "get_metrics_framework",
+        "status": "ok"
+      },
+      {
+        "name": "get_service_pattern",
+        "status": "ok"
+      },
+      {
+        "name": "get_service_standard",
+        "status": "ok"
+      },
+      {
+        "name": "generate_service_blueprint",
+        "status": "ok"
+      },
+      {
+        "name": "get_brand_principles",
+        "status": "ok"
+      },
+      {
+        "name": "get_brand_trends",
+        "status": "ok"
+      },
+      {
+        "name": "raven_reflect",
+        "status": "ok"
+      },
+      {
+        "name": "raven_register",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "com_advisorfinder__mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "advisorfinder-mcp",
+      "version": "1.1.5",
+      "entrypoint": "advisorfinder-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "lookup_advisor",
+        "status": "ok"
+      },
+      {
+        "name": "search_advisors",
+        "status": "ok"
+      },
+      {
+        "name": "verify_advisor",
+        "status": "ok"
+      },
+      {
+        "name": "get_risk_profile",
+        "status": "ok"
+      },
+      {
+        "name": "get_firm_info",
+        "status": "ok"
+      },
+      {
+        "name": "get_database_stats",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "com_bellwethermetrics__bellwether_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "bellwether-mcp",
+      "version": "0.1.0",
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_markets",
+        "status": "ok"
+      },
+      {
+        "name": "get_market",
+        "status": "ok"
+      },
+      {
+        "name": "get_top_markets",
+        "status": "ok"
+      },
+      {
+        "name": "get_platform_spread",
+        "status": "ok"
+      },
+      {
+        "name": "get_reportability",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "com_ibitlabs_www__ibitlabs_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "ibitlabs-mcp",
+      "version": "0.2.2",
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_live_status",
+        "status": "ok"
+      },
+      {
+        "name": "get_recent_trades",
+        "status": "ok"
+      },
+      {
+        "name": "list_adopted_rules",
+        "status": "ok"
+      },
+      {
+        "name": "get_rule_status",
+        "status": "ok"
+      },
+      {
+        "name": "get_latest_saga_chapter",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "com_keyboardcrumbs__mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "keyboardcrumbs-mcp",
+      "version": "1.0.1",
+      "entrypoint": "keyboardcrumbs-mcp"
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_ip",
+        "status": "ok"
+      },
+      {
+        "name": "check_cve",
+        "status": "ok"
+      },
+      {
+        "name": "check_domain",
+        "status": "ok"
+      },
+      {
+        "name": "check_hash",
+        "status": "ok"
+      },
+      {
+        "name": "active_threats",
+        "status": "ok"
+      },
+      {
+        "name": "predict_kev",
+        "status": "ok"
+      },
+      {
+        "name": "check_staging",
+        "status": "ok"
+      },
+      {
+        "name": "check_ransomware",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "com_gradusmusic__notation": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@gradusmusic/notation-mcp",
+      "version": "0.2.2",
+      "entrypoint": null
+    },
+    "tool_count": 10,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "notation_render",
+        "status": "ok"
+      },
+      {
+        "name": "notation_validate",
+        "status": "ok"
+      },
+      {
+        "name": "knowledge_search",
+        "status": "ok"
+      },
+      {
+        "name": "notation_examples",
+        "status": "ok"
+      },
+      {
+        "name": "notation_schema",
+        "status": "ok"
+      },
+      {
+        "name": "theory_validate_ranges",
+        "status": "ok"
+      },
+      {
+        "name": "theory_respell",
+        "status": "ok"
+      },
+      {
+        "name": "theory_parse_xml",
+        "status": "ok"
+      },
+      {
+        "name": "theory_analyze_score",
+        "status": "ok"
+      },
+      {
+        "name": "theory_pitch_utils",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "media"
+  },
+  "com_mcparmory__builtwith": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcparmory-builtwith",
+      "version": "1.0.3",
+      "entrypoint": "mcparmory-builtwith"
+    },
+    "tool_count": 34,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "detect_technologies",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_technologies",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_technologies_csv",
+        "status": "ok"
+      },
+      {
+        "name": "bulk_lookup_domains",
+        "status": "ok"
+      },
+      {
+        "name": "get_bulk_domain_job_status",
+        "status": "ok"
+      },
+      {
+        "name": "retrieve_bulk_domain_job_result",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_technology_summary",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_technology_summary_xml",
+        "status": "ok"
+      },
+      {
+        "name": "list_website_relationships",
+        "status": "ok"
+      },
+      {
+        "name": "list_website_relationships_xml",
+        "status": "ok"
+      },
+      {
+        "name": "list_website_relationships_csv",
+        "status": "ok"
+      },
+      {
+        "name": "list_website_relationships_tsv",
+        "status": "ok"
+      },
+      {
+        "name": "list_websites_by_technology",
+        "status": "ok"
+      },
+      {
+        "name": "list_websites_by_technology_xml",
+        "status": "ok"
+      },
+      {
+        "name": "lookup_company_domains",
+        "status": "ok"
+      },
+      {
+        "name": "resolve_company_domains",
+        "status": "ok"
+      },
+      {
+        "name": "list_domains_by_attribute",
+        "status": "ok"
+      },
+      {
+        "name": "list_domains_by_attribute_xml",
+        "status": "ok"
+      },
+      {
+        "name": "get_technology_recommendations",
+        "status": "ok"
+      },
+      {
+        "name": "get_technology_recommendations_xml",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_redirects",
+        "status": "ok"
+      },
+      {
+        "name": "get_domain_redirects_xml",
+        "status": "ok"
+      },
+      {
+        "name": "list_domain_keywords",
+        "status": "ok"
+      },
+      {
+        "name": "extract_domain_keywords",
+        "status": "ok"
+      },
+      {
+        "name": "search_websites_by_keyword",
+        "status": "ok"
+      },
+      {
+        "name": "search_websites_by_keyword_csv",
+        "status": "ok"
+      },
+      {
+        "name": "search_technologies",
+        "status": "ok"
+      },
+      {
+        "name": "search_technologies_xml",
+        "status": "ok"
+      },
+      {
+        "name": "search_technologies_csv",
+        "status": "ok"
+      },
+      {
+        "name": "get_technology_trends",
+        "status": "ok"
+      },
+      {
+        "name": "get_technology_trends_xml",
+        "status": "ok"
+      },
+      {
+        "name": "search_product_listings",
+        "status": "ok"
+      },
+      {
+        "name": "assess_domain_trust",
+        "status": "ok"
+      },
+      {
+        "name": "assess_domain_trust_xml",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "web-scraping"
+  },
+  "com_mcparmory__globalping": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcparmory-globalping",
+      "version": "1.0.3",
+      "entrypoint": "mcparmory-globalping"
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "create_measurement",
+        "status": "ok"
+      },
+      {
+        "name": "poll_measurement",
+        "status": "ok"
+      },
+      {
+        "name": "list_probes",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "cloud-infra"
+  },
+  "com_mcparmory__ip2location_geolocation": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcparmory-ip2location-geolocation",
+      "version": "1.0.3",
+      "entrypoint": "mcparmory-ip2location-geolocation"
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "lookup_ip_geolocation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "geo-maps"
+  },
+  "com_mcparmory__scrapingant": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcparmory-scrapingant",
+      "version": "1.0.1",
+      "entrypoint": "mcparmory-scrapingant"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scrape_webpage",
+        "status": "ok"
+      },
+      {
+        "name": "scrape_webpage_submit",
+        "status": "ok"
+      },
+      {
+        "name": "scrape_webpage_replace",
+        "status": "ok"
+      },
+      {
+        "name": "scrape_webpage_modify",
+        "status": "ok"
+      },
+      {
+        "name": "scrape_webpage_remove",
+        "status": "skipped"
+      },
+      {
+        "name": "get_usage",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "web-scraping"
+  },
+  "com_mcparmory__semrush_appcenter": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "mcparmory-semrush-appcenter",
+      "version": "1.0.2",
+      "entrypoint": "mcparmory-semrush-appcenter"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_viewer_status",
+        "status": "ok"
+      },
+      {
+        "name": "list_subscriptions",
+        "status": "ok"
+      },
+      {
+        "name": "get_user_subscription",
+        "status": "ok"
+      },
+      {
+        "name": "send_event_notification",
+        "status": "ok"
+      },
+      {
+        "name": "get_event_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "com_pulsemcp__google_flights": {
+    "package": {
+      "kind": "npm",
+      "identifier": "google-flights-mcp-server",
+      "version": "0.2.4",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_flights",
+        "status": "ok"
+      },
+      {
+        "name": "get_date_grid",
+        "status": "ok"
+      },
+      {
+        "name": "find_airport_code",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "com_promptibus__mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@promptibus/mcp",
+      "version": "0.9.0",
+      "entrypoint": null
+    },
+    "tool_count": 12,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "recommend_model",
+        "status": "ok"
+      },
+      {
+        "name": "optimize_prompt",
+        "status": "ok"
+      },
+      {
+        "name": "lint_prompt",
+        "status": "ok"
+      },
+      {
+        "name": "compare_models",
+        "status": "ok"
+      },
+      {
+        "name": "get_parameters",
+        "status": "ok"
+      },
+      {
+        "name": "get_model_profile",
+        "status": "ok"
+      },
+      {
+        "name": "get_pricing",
+        "status": "ok"
+      },
+      {
+        "name": "pick_cheapest_model",
+        "status": "ok"
+      },
+      {
+        "name": "count_tokens",
+        "status": "ok"
+      },
+      {
+        "name": "format_prompt",
+        "status": "ok"
+      },
+      {
+        "name": "health_check",
+        "status": "ok"
+      },
+      {
+        "name": "whats_new",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "com_pulsemcp__pulse_fetch": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@pulsemcp/pulse-fetch",
+      "version": "0.3.2",
+      "entrypoint": null
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scrape",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "web-scraping"
+  },
+  "com_savvly__savvly": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@savvly/mcp-server",
+      "version": "1.0.20",
+      "entrypoint": null
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_savvly_product_info",
+        "status": "ok"
+      },
+      {
+        "name": "compare_savvly_vs_alternative",
+        "status": "ok"
+      },
+      {
+        "name": "project_savvly_lumpsum",
+        "status": "ok"
+      },
+      {
+        "name": "project_savvly_monthly",
+        "status": "ok"
+      },
+      {
+        "name": "project_retirement_with_savvly",
+        "status": "ok"
+      },
+      {
+        "name": "check_savvly_eligibility",
+        "status": "ok"
+      },
+      {
+        "name": "get_savvly_faq",
+        "status": "ok"
+      },
+      {
+        "name": "search_savvly_content",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "com_seanwinslow__vault_knowledge": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@swins/vault-knowledge-mcp",
+      "version": "0.1.0",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_concepts",
+        "status": "ok"
+      },
+      {
+        "name": "find_contradictions",
+        "status": "ok"
+      },
+      {
+        "name": "get_article",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "com_scopeblind__verify_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@scopeblind/verify-mcp",
+      "version": "0.1.3",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "self_test",
+        "status": "ok"
+      },
+      {
+        "name": "verify_receipt",
+        "status": "ok"
+      },
+      {
+        "name": "verify_bundle",
+        "status": "ok"
+      },
+      {
+        "name": "explain_artifact",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "dev_e18e__e18e": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@e18e/mcp",
+      "version": "0.0.5",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "code-checker",
+        "status": "ok"
+      },
+      {
+        "name": "npm-i-checker",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "dev_cz_agents__cnb": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@czagents/cnb",
+      "version": "0.1.5",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_rates",
+        "status": "ok"
+      },
+      {
+        "name": "convert",
+        "status": "ok"
+      },
+      {
+        "name": "get_rate",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "dev_openfeature__mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@openfeature/mcp",
+      "version": "0.0.22",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "install_openfeature_sdk",
+        "status": "ok"
+      },
+      {
+        "name": "ofrep_flag_eval",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "digital_shineup__appcn": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@app-cn/mcp",
+      "version": "0.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "list_components",
+        "status": "ok"
+      },
+      {
+        "name": "search_components",
+        "status": "ok"
+      },
+      {
+        "name": "get_component",
+        "status": "ok"
+      },
+      {
+        "name": "get_install_command",
+        "status": "ok"
+      },
+      {
+        "name": "get_design_guide",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "dev_svelte__mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@sveltejs/mcp",
+      "version": "0.1.23",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get-documentation",
+        "status": "ok"
+      },
+      {
+        "name": "list-sections",
+        "status": "ok"
+      },
+      {
+        "name": "playground-link",
+        "status": "ok"
+      },
+      {
+        "name": "svelte-autofixer",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "dev_depscope__mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "depscope-mcp",
+      "version": "0.9.0",
+      "entrypoint": null
+    },
+    "tool_count": 22,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_malicious",
+        "status": "ok"
+      },
+      {
+        "name": "check_typosquat",
+        "status": "ok"
+      },
+      {
+        "name": "check_bulk",
+        "status": "ok"
+      },
+      {
+        "name": "package_exists",
+        "status": "ok"
+      },
+      {
+        "name": "get_latest_version",
+        "status": "ok"
+      },
+      {
+        "name": "get_health_score",
+        "status": "ok"
+      },
+      {
+        "name": "install_command",
+        "status": "ok"
+      },
+      {
+        "name": "get_package_prompt",
+        "status": "ok"
+      },
+      {
+        "name": "check_package",
+        "status": "ok"
+      },
+      {
+        "name": "get_vulnerabilities",
+        "status": "ok"
+      },
+      {
+        "name": "find_alternatives",
+        "status": "ok"
+      },
+      {
+        "name": "get_migration_path",
+        "status": "ok"
+      },
+      {
+        "name": "get_breaking_changes",
+        "status": "ok"
+      },
+      {
+        "name": "pin_safe",
+        "status": "ok"
+      },
+      {
+        "name": "scan_project",
+        "status": "ok"
+      },
+      {
+        "name": "compare_packages",
+        "status": "ok"
+      },
+      {
+        "name": "check_compatibility",
+        "status": "ok"
+      },
+      {
+        "name": "resolve_error",
+        "status": "ok"
+      },
+      {
+        "name": "get_known_bugs",
+        "status": "ok"
+      },
+      {
+        "name": "get_trust_signals",
+        "status": "ok"
+      },
+      {
+        "name": "get_trending",
+        "status": "ok"
+      },
+      {
+        "name": "contact_depscope",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "eu_ansvar__canadian_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/canadian-law-mcp",
+      "version": "1.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_canadian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "eu_ansvar__belgian_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/belgian-law-mcp",
+      "version": "1.0.0",
+      "entrypoint": null
+    },
+    "tool_count": 15,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_belgian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "search_case_law",
+        "status": "ok"
+      },
+      {
+        "name": "get_definitions",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_legislation",
+        "consumer": "get_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "get_provision_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "get_provision_eu_basis",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "validate_eu_compliance",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "validate_eu_compliance",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      }
+    ],
+    "domain": "search"
+  },
+  "eu_ansvar__brazil_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/brazil-law-mcp",
+      "version": "1.0.3",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_brazilian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "eu_ansvar__icelandic_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/icelandic-law-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 10,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "search_case_law",
+        "status": "ok"
+      },
+      {
+        "name": "get_preparatory_works",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "eu_ansvar__india_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/india-law-mcp",
+      "version": "1.1.1",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_indian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_legislation",
+        "consumer": "get_provision_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "get_provision",
+        "consumer": "get_provision_eu_basis",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      }
+    ],
+    "domain": "data"
+  },
+  "eu_ansvar__ghana_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/ghana-law-mcp",
+      "version": "1.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_ghanaian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_legislation",
+        "consumer": "get_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "get_provision_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "get_provision_eu_basis",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "validate_eu_compliance",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "search_legislation",
+        "consumer": "validate_eu_compliance",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      }
+    ],
+    "domain": "search"
+  },
+  "eu_ansvar__italian_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/italian-law-mcp",
+      "version": "1.1.1",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_italian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "eu_ansvar__japan_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/japan-law-mcp",
+      "version": "1.1.1",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_japanese_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "get_provision",
+        "consumer": "get_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "get_provision",
+        "consumer": "get_provision_eu_basis",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "get_provision",
+        "consumer": "get_provision_eu_basis",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      },
+      {
+        "producer": "get_provision",
+        "consumer": "validate_eu_compliance",
+        "field": "document_id",
+        "via_key": "document_id"
+      },
+      {
+        "producer": "get_provision",
+        "consumer": "validate_eu_compliance",
+        "field": "provision_ref",
+        "via_key": "provision_ref"
+      },
+      {
+        "producer": "get_japanese_implementations",
+        "consumer": "validate_eu_compliance",
+        "field": "eu_document_id",
+        "via_key": "eu_document_id"
+      }
+    ],
+    "domain": "search"
+  },
+  "finance_orbt__intelligence": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@orbt-finance/mcp-server",
+      "version": "3.2.3",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "orbt_rating",
+        "status": "ok"
+      },
+      {
+        "name": "orbt_analyst",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "eu_ansvar__slovenian_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/slovenian-law-mcp",
+      "version": "1.1.0",
+      "entrypoint": null
+    },
+    "tool_count": 14,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "search_case_law",
+        "status": "ok"
+      },
+      {
+        "name": "get_preparatory_works",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_slovenian_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_at_date",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "eu_ansvar__thailand_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/thailand-law-mcp",
+      "version": "1.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_thai_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "eu_ansvar__zimbabwe_law_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/zimbabwe-law-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 13,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_legislation",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision",
+        "status": "ok"
+      },
+      {
+        "name": "validate_citation",
+        "status": "ok"
+      },
+      {
+        "name": "build_legal_stance",
+        "status": "ok"
+      },
+      {
+        "name": "format_citation",
+        "status": "ok"
+      },
+      {
+        "name": "check_currency",
+        "status": "ok"
+      },
+      {
+        "name": "get_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "get_zimbabwean_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "search_eu_implementations",
+        "status": "ok"
+      },
+      {
+        "name": "get_provision_eu_basis",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eu_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "about",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "io_allourthings__mcp_server": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@allourthings/mcp-server",
+      "version": "0.2.0",
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "add_item",
+        "status": "ok"
+      },
+      {
+        "name": "get_item",
+        "status": "ok"
+      },
+      {
+        "name": "list_items",
+        "status": "ok"
+      },
+      {
+        "name": "update_item",
+        "status": "ok"
+      },
+      {
+        "name": "delete_item",
+        "status": "skipped"
+      },
+      {
+        "name": "search_items",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "io_ausdata__aemo_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "aemo-mcp",
+      "version": "0.4.15",
+      "entrypoint": "aemo-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_ausdata__abs_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "abs-mcp",
+      "version": "0.13.3",
+      "entrypoint": "abs-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "top_n",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      },
+      {
+        "name": "release_calendar",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_ausdata__au_weather_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "au-weather-mcp",
+      "version": "0.4.9",
+      "entrypoint": "au-weather-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_locations",
+        "status": "ok"
+      },
+      {
+        "name": "describe_location",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "get_weather",
+        "status": "ok"
+      },
+      {
+        "name": "air_quality",
+        "status": "ok"
+      },
+      {
+        "name": "compare_locations",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_fixyourdocs__mcp_server": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@fixyourdocs/mcp-server",
+      "version": "0.1.0",
+      "entrypoint": null
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "file_doc_feedback",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "io_ausdata__apra_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "apra-mcp",
+      "version": "0.8.21",
+      "entrypoint": "apra-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "top_n",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "io_ausdata__asic_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "asic-mcp",
+      "version": "0.6.18",
+      "entrypoint": "asic-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_datasets",
+        "consumer": "get_data",
+        "field": "dataset_id",
+        "via_key": "id"
+      }
+    ],
+    "domain": "data"
+  },
+  "io_ausdata__ato_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "ato-mcp",
+      "version": "0.8.26",
+      "entrypoint": "ato-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "top_n",
+        "status": "ok"
+      },
+      {
+        "name": "stats",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "io_ausdata__aihw_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "aihw-mcp",
+      "version": "0.4.18",
+      "entrypoint": "aihw-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "top_n",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_ausdata__wgea_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "wgea-mcp",
+      "version": "0.6.13",
+      "entrypoint": "wgea-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "describe_dataset",
+        "status": "ok"
+      },
+      {
+        "name": "get_data",
+        "status": "ok"
+      },
+      {
+        "name": "latest",
+        "status": "ok"
+      },
+      {
+        "name": "top_n",
+        "status": "ok"
+      },
+      {
+        "name": "list_curated",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_0xsl1m__cerebrus_pulse_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "cerebrus-pulse-mcp",
+      "version": "0.2.0",
+      "entrypoint": "cerebrus-pulse-mcp"
+    },
+    "tool_count": 10,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "cerebrus_list_coins",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_health",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_pulse",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_sentiment",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_funding",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_bundle",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_screener",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_oi",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_spread",
+        "status": "ok"
+      },
+      {
+        "name": "cerebrus_correlation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "io_github_1102tools__federal_register_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "federal-register-mcp",
+      "version": "0.2.7",
+      "entrypoint": "federal-register-mcp"
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_documents",
+        "status": "ok"
+      },
+      {
+        "name": "get_document",
+        "status": "ok"
+      },
+      {
+        "name": "get_documents_batch",
+        "status": "ok"
+      },
+      {
+        "name": "get_facet_counts",
+        "status": "ok"
+      },
+      {
+        "name": "get_public_inspection",
+        "status": "ok"
+      },
+      {
+        "name": "list_agencies",
+        "status": "ok"
+      },
+      {
+        "name": "open_comment_periods",
+        "status": "ok"
+      },
+      {
+        "name": "far_case_history",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "io_github_10iii__air": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@10iii/air-mcp-server",
+      "version": "0.2.8",
+      "entrypoint": null
+    },
+    "tool_count": 12,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "air_read",
+        "status": "ok"
+      },
+      {
+        "name": "air_bash",
+        "status": "ok"
+      },
+      {
+        "name": "air_edit",
+        "status": "ok"
+      },
+      {
+        "name": "air_test",
+        "status": "ok"
+      },
+      {
+        "name": "air_grep",
+        "status": "ok"
+      },
+      {
+        "name": "air_web",
+        "status": "ok"
+      },
+      {
+        "name": "air_ls",
+        "status": "ok"
+      },
+      {
+        "name": "air_diff",
+        "status": "ok"
+      },
+      {
+        "name": "air_session",
+        "status": "ok"
+      },
+      {
+        "name": "air_api",
+        "status": "ok"
+      },
+      {
+        "name": "air_search",
+        "status": "ok"
+      },
+      {
+        "name": "air_media",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_420247jake__session_forge": {
+    "package": {
+      "kind": "npm",
+      "identifier": "session-forge",
+      "version": "2.0.3",
+      "entrypoint": null
+    },
+    "tool_count": 15,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "session_checkpoint",
+        "status": "ok"
+      },
+      {
+        "name": "session_restore",
+        "status": "ok"
+      },
+      {
+        "name": "session_complete",
+        "status": "ok"
+      },
+      {
+        "name": "profile_get",
+        "status": "ok"
+      },
+      {
+        "name": "profile_update",
+        "status": "ok"
+      },
+      {
+        "name": "journal_entry",
+        "status": "ok"
+      },
+      {
+        "name": "journal_recall",
+        "status": "ok"
+      },
+      {
+        "name": "decision_record",
+        "status": "ok"
+      },
+      {
+        "name": "decision_search",
+        "status": "ok"
+      },
+      {
+        "name": "dead_end_record",
+        "status": "ok"
+      },
+      {
+        "name": "dead_end_search",
+        "status": "ok"
+      },
+      {
+        "name": "full_context_recall",
+        "status": "ok"
+      },
+      {
+        "name": "data_manage",
+        "status": "ok"
+      },
+      {
+        "name": "data_list",
+        "status": "ok"
+      },
+      {
+        "name": "data_delete",
+        "status": "skipped"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_aiweather_anurag__ottasia": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ottasia/mcp-server",
+      "version": "0.1.3",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "where_to_watch",
+        "status": "ok"
+      },
+      {
+        "name": "whats_new_on",
+        "status": "ok"
+      },
+      {
+        "name": "search_titles",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "media"
+  },
+  "io_github_aakashbhardwaj27__ai_scanner": {
+    "package": {
+      "kind": "npm",
+      "identifier": "ai-scanner-mcp",
+      "version": "1.0.3",
+      "entrypoint": null
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scan_directory",
+        "status": "ok"
+      },
+      {
+        "name": "check_secrets",
+        "status": "ok"
+      },
+      {
+        "name": "ai_inventory",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_aguantar__clickhouse_dataops_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "clickhouse-dataops-mcp",
+      "version": "0.1.1",
+      "entrypoint": "clickhouse-mcp-server"
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "ch_query",
+        "status": "ok"
+      },
+      {
+        "name": "ch_explain_query",
+        "status": "ok"
+      },
+      {
+        "name": "ch_table_schema",
+        "status": "ok"
+      },
+      {
+        "name": "ch_pipeline_latency",
+        "status": "ok"
+      },
+      {
+        "name": "ch_data_quality",
+        "status": "ok"
+      },
+      {
+        "name": "ch_slow_queries",
+        "status": "ok"
+      },
+      {
+        "name": "ch_disk_usage",
+        "status": "ok"
+      },
+      {
+        "name": "ch_list_tables",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_aguantar__vibescan_mcp_server": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "vibescan-mcp-server",
+      "version": "0.1.0",
+      "entrypoint": "vibescan-mcp-server"
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "vibescan_scan",
+        "status": "ok"
+      },
+      {
+        "name": "vibescan_rules",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_aguantar__kafka_dataops_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "kafka-dataops-mcp",
+      "version": "0.1.0",
+      "entrypoint": "kafka-dataops-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "kafka_consumer_lag",
+        "status": "ok"
+      },
+      {
+        "name": "kafka_topic_info",
+        "status": "ok"
+      },
+      {
+        "name": "kafka_broker_status",
+        "status": "ok"
+      },
+      {
+        "name": "kafka_list_topics",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_alvaroramirezcastillo__greeting_mcp_server": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@jinba-ittai/greeting-mcp-server",
+      "version": "1.0.8",
+      "entrypoint": null
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_greeting",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "io_github_alfanous_team__alfanous": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "alfanous3-mcp",
+      "version": "1.9.2",
+      "entrypoint": "alfanous-mcp"
+    },
+    "tool_count": 11,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_quran",
+        "status": "ok"
+      },
+      {
+        "name": "search_translations",
+        "status": "ok"
+      },
+      {
+        "name": "get_quran_info",
+        "status": "ok"
+      },
+      {
+        "name": "search_quran_by_themes",
+        "status": "ok"
+      },
+      {
+        "name": "search_quran_by_stats",
+        "status": "ok"
+      },
+      {
+        "name": "search_quran_by_position",
+        "status": "ok"
+      },
+      {
+        "name": "suggest_query",
+        "status": "ok"
+      },
+      {
+        "name": "correct_query",
+        "status": "ok"
+      },
+      {
+        "name": "search_by_word_linguistics",
+        "status": "ok"
+      },
+      {
+        "name": "get_word_children_schema",
+        "status": "ok"
+      },
+      {
+        "name": "list_field_values",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "io_github_andyanh174__vibe_hnindex": {
+    "package": {
+      "kind": "npm",
+      "identifier": "vibe-hnindex",
+      "version": "0.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "index_codebase",
+        "status": "ok"
+      },
+      {
+        "name": "index_file",
+        "status": "ok"
+      },
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "list_projects",
+        "status": "ok"
+      },
+      {
+        "name": "delete_project",
+        "status": "skipped"
+      },
+      {
+        "name": "get_file_info",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "io_github_ansvar_systems__eu_regulations_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@ansvar/eu-regulations-mcp",
+      "version": "0.7.1",
+      "entrypoint": null
+    },
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_regulations",
+        "status": "ok"
+      },
+      {
+        "name": "get_article",
+        "status": "ok"
+      },
+      {
+        "name": "get_recital",
+        "status": "ok"
+      },
+      {
+        "name": "list_regulations",
+        "status": "ok"
+      },
+      {
+        "name": "compare_requirements",
+        "status": "ok"
+      },
+      {
+        "name": "map_controls",
+        "status": "ok"
+      },
+      {
+        "name": "check_applicability",
+        "status": "ok"
+      },
+      {
+        "name": "get_definitions",
+        "status": "ok"
+      },
+      {
+        "name": "get_evidence_requirements",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_ansvar_systems__security_controls": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "security-controls-mcp",
+      "version": "0.4.0",
+      "entrypoint": "scf-mcp"
+    },
+    "tool_count": 8,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_control",
+        "status": "ok"
+      },
+      {
+        "name": "search_controls",
+        "status": "ok"
+      },
+      {
+        "name": "list_frameworks",
+        "status": "ok"
+      },
+      {
+        "name": "get_framework_controls",
+        "status": "ok"
+      },
+      {
+        "name": "map_frameworks",
+        "status": "ok"
+      },
+      {
+        "name": "list_available_standards",
+        "status": "ok"
+      },
+      {
+        "name": "query_standard",
+        "status": "ok"
+      },
+      {
+        "name": "get_clause",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_antonytm__mcp_all": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@antonytm/mcp-all",
+      "version": "0.1.20",
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "mcp configuration",
+        "status": "ok"
+      },
+      {
+        "name": "add_mcp_server",
+        "status": "ok"
+      },
+      {
+        "name": "remove_mcp_server",
+        "status": "skipped"
+      },
+      {
+        "name": "refresh_mcp_index",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_annasmazhar__pyspark_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "pyspark-tools",
+      "version": "0.0.4",
+      "entrypoint": "pyspark-mcp"
+    },
+    "tool_count": 49,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "convert_sql_to_pyspark",
+        "status": "ok"
+      },
+      {
+        "name": "complete_sql_conversion",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_sql_context",
+        "status": "ok"
+      },
+      {
+        "name": "convert_dataframe_to_dynamic_frame",
+        "status": "ok"
+      },
+      {
+        "name": "process_editor_selection",
+        "status": "ok"
+      },
+      {
+        "name": "realtime_sql_assistance",
+        "status": "ok"
+      },
+      {
+        "name": "workspace_analysis",
+        "status": "ok"
+      },
+      {
+        "name": "generate_project_structure",
+        "status": "ok"
+      },
+      {
+        "name": "review_pyspark_code",
+        "status": "ok"
+      },
+      {
+        "name": "optimize_pyspark_code",
+        "status": "ok"
+      },
+      {
+        "name": "suggest_partitioning_strategy",
+        "status": "ok"
+      },
+      {
+        "name": "get_conversion_history",
+        "status": "ok"
+      },
+      {
+        "name": "search_conversions",
+        "status": "ok"
+      },
+      {
+        "name": "store_context",
+        "status": "ok"
+      },
+      {
+        "name": "get_context",
+        "status": "ok"
+      },
+      {
+        "name": "generate_aws_glue_job_template",
+        "status": "ok"
+      },
+      {
+        "name": "batch_process_files",
+        "status": "ok"
+      },
+      {
+        "name": "batch_process_directory",
+        "status": "ok"
+      },
+      {
+        "name": "extract_sql_from_pdf",
+        "status": "ok"
+      },
+      {
+        "name": "get_batch_status",
+        "status": "ok"
+      },
+      {
+        "name": "cancel_batch_job",
+        "status": "ok"
+      },
+      {
+        "name": "get_active_batch_jobs",
+        "status": "ok"
+      },
+      {
+        "name": "get_recent_batch_jobs",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_code_patterns",
+        "status": "ok"
+      },
+      {
+        "name": "generate_utility_functions",
+        "status": "ok"
+      },
+      {
+        "name": "refactor_code_with_patterns",
+        "status": "ok"
+      },
+      {
+        "name": "get_stored_patterns",
+        "status": "ok"
+      },
+      {
+        "name": "search_code_patterns",
+        "status": "ok"
+      },
+      {
+        "name": "get_pattern_statistics",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_data_flow",
+        "status": "ok"
+      },
+      {
+        "name": "recommend_join_strategy",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_performance_impact",
+        "status": "ok"
+      },
+      {
+        "name": "generate_comprehensive_optimizations",
+        "status": "ok"
+      },
+      {
+        "name": "get_optimization_analytics",
+        "status": "ok"
+      },
+      {
+        "name": "generate_glue_job_with_sql_conversion",
+        "status": "ok"
+      },
+      {
+        "name": "generate_data_catalog_table_definition",
+        "status": "ok"
+      },
+      {
+        "name": "detect_schema_from_sample_data",
+        "status": "ok"
+      },
+      {
+        "name": "generate_schema_evolution_strategy",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_s3_optimization_opportunities",
+        "status": "ok"
+      },
+      {
+        "name": "generate_s3_optimization_strategy",
+        "status": "ok"
+      },
+      {
+        "name": "generate_small_files_consolidation_job",
+        "status": "ok"
+      },
+      {
+        "name": "generate_incremental_processing_job",
+        "status": "ok"
+      },
+      {
+        "name": "generate_job_bookmark_configuration",
+        "status": "ok"
+      },
+      {
+        "name": "generate_change_data_capture_job",
+        "status": "ok"
+      },
+      {
+        "name": "generate_glue_job_properties",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_s3_data_source",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_delta_table",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_codebase",
+        "status": "ok"
+      },
+      {
+        "name": "generate_optimized_pipeline",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_armada735__fake_star_audit": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "fake-star-audit",
+      "version": "0.1.1",
+      "entrypoint": "fake-star-audit"
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "audit_repo",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_aungmyokyaw__betterprompt_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "betterprompt-mcp",
+      "version": "0.2.1",
+      "entrypoint": null
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "enhance-prompt",
+        "status": "ok"
+      },
+      {
+        "name": "enhance-code-prompt",
+        "status": "ok"
+      },
+      {
+        "name": "enhance-analysis-prompt",
+        "status": "ok"
+      },
+      {
+        "name": "get-template",
+        "status": "ok"
+      },
+      {
+        "name": "get-best-practices",
+        "status": "ok"
+      },
+      {
+        "name": "server-stats",
+        "status": "ok"
+      },
+      {
+        "name": "clear-cache",
+        "status": "skipped"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_bam_devcrew__maxential_thinking_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@bam-devcrew/maxential-thinking-mcp",
+      "version": "2.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 11,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "think",
+        "status": "ok"
+      },
+      {
+        "name": "revise",
+        "status": "ok"
+      },
+      {
+        "name": "complete",
+        "status": "ok"
+      },
+      {
+        "name": "branch",
+        "status": "ok"
+      },
+      {
+        "name": "switch_branch",
+        "status": "ok"
+      },
+      {
+        "name": "list_branches",
+        "status": "ok"
+      },
+      {
+        "name": "get_branch",
+        "status": "ok"
+      },
+      {
+        "name": "close_branch",
+        "status": "ok"
+      },
+      {
+        "name": "merge_branch",
+        "status": "ok"
+      },
+      {
+        "name": "get_thought",
+        "status": "ok"
+      },
+      {
+        "name": "get_history",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "list_branches",
+        "consumer": "switch_branch",
+        "field": "branchId",
+        "via_key": "id"
+      },
+      {
+        "producer": "list_branches",
+        "consumer": "get_branch",
+        "field": "branchId",
+        "via_key": "id"
+      },
+      {
+        "producer": "list_branches",
+        "consumer": "close_branch",
+        "field": "branchId",
+        "via_key": "id"
+      },
+      {
+        "producer": "list_branches",
+        "consumer": "merge_branch",
+        "field": "branchId",
+        "via_key": "id"
+      }
+    ],
+    "domain": "productivity"
+  },
+  "io_github_bahamas1717__aibvf_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "aibvf-mcp",
+      "version": "0.3.3",
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "score_initiative",
+        "status": "ok"
+      },
+      {
+        "name": "recommend_improvements",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_pace_layer_drag",
+        "status": "ok"
+      },
+      {
+        "name": "validate_portfolio",
+        "status": "ok"
+      },
+      {
+        "name": "get_benchmark",
+        "status": "ok"
+      },
+      {
+        "name": "list_taxonomy",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_blackmount_ai__blackmount_construction_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "blackmount-construction-mcp",
+      "version": "0.4.1",
+      "entrypoint": "blackmount-construction-mcp"
+    },
+    "tool_count": 48,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "calculate_concrete_volume",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_concrete_bags",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_rebar_quantity",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_lumber_board_feet",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_drywall_sheets",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_paint_gallons",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_roofing_squares",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_tile_quantity",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_insulation_batts",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_brick_count",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_labor_hours",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_labor_cost",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_crew_days",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_productivity_rate",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_material_cost",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_markup",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_overhead",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_profit_margin",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_change_order",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_cost_per_sqft",
+        "status": "ok"
+      },
+      {
+        "name": "create_project_budget",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_beam_load",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_joist_spacing",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_footing_size",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_snow_load",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_wind_load",
+        "status": "ok"
+      },
+      {
+        "name": "get_concrete_mix_ratio",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_rebar_development_length",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_permit_fee",
+        "status": "ok"
+      },
+      {
+        "name": "get_inspection_checklist",
+        "status": "ok"
+      },
+      {
+        "name": "check_setbacks",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_occupancy_load",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_pipe_sizing",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_water_heater_sizing",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_drain_slope",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_fixture_count",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_plumbing_cost",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_electrical_load",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_wire_gauge",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_circuit_sizing",
+        "status": "ok"
+      },
+      {
+        "name": "check_panel_capacity",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_electrical_cost",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_heat_load",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_duct_sizing",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_equipment_sizing",
+        "status": "ok"
+      },
+      {
+        "name": "estimate_hvac_cost",
+        "status": "ok"
+      },
+      {
+        "name": "create_text_estimate",
+        "status": "ok"
+      },
+      {
+        "name": "create_html_estimate",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "io_github_csoai_org__agent_audit_logger_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-audit-logger-mcp",
+      "version": "1.0.4",
+      "entrypoint": "agent-audit-logger-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "log",
+        "status": "ok"
+      },
+      {
+        "name": "verify_chain",
+        "status": "ok"
+      },
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "daily_stats",
+        "status": "ok"
+      },
+      {
+        "name": "sign_day_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__agent_data_residency_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-data-residency-mcp",
+      "version": "1.0.2",
+      "entrypoint": "agent-data-residency-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_residency_policy",
+        "status": "ok"
+      },
+      {
+        "name": "get_transfer_basis",
+        "status": "ok"
+      },
+      {
+        "name": "list_adequacy_decisions",
+        "status": "ok"
+      },
+      {
+        "name": "check_eu_ai_act_data_governance",
+        "status": "ok"
+      },
+      {
+        "name": "log_transfer",
+        "status": "ok"
+      },
+      {
+        "name": "search_regulation",
+        "status": "ok"
+      },
+      {
+        "name": "list_regulations_in_db",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_brand_system__brandsystem_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@brandsystem/mcp",
+      "version": "0.4.3",
+      "entrypoint": null
+    },
+    "tool_count": 34,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "brand_start",
+        "status": "ok"
+      },
+      {
+        "name": "brand_status",
+        "status": "ok"
+      },
+      {
+        "name": "brand_extract_web",
+        "status": "ok"
+      },
+      {
+        "name": "brand_extract_visual",
+        "status": "ok"
+      },
+      {
+        "name": "brand_extract_site",
+        "status": "ok"
+      },
+      {
+        "name": "brand_generate_designmd",
+        "status": "ok"
+      },
+      {
+        "name": "brand_extract_figma",
+        "status": "ok"
+      },
+      {
+        "name": "brand_set_logo",
+        "status": "ok"
+      },
+      {
+        "name": "brand_compile",
+        "status": "ok"
+      },
+      {
+        "name": "brand_clarify",
+        "status": "ok"
+      },
+      {
+        "name": "brand_audit",
+        "status": "ok"
+      },
+      {
+        "name": "brand_report",
+        "status": "ok"
+      },
+      {
+        "name": "brand_init",
+        "status": "ok"
+      },
+      {
+        "name": "brand_deepen_identity",
+        "status": "ok"
+      },
+      {
+        "name": "brand_ingest_assets",
+        "status": "ok"
+      },
+      {
+        "name": "brand_preflight",
+        "status": "ok"
+      },
+      {
+        "name": "brand_extract_messaging",
+        "status": "ok"
+      },
+      {
+        "name": "brand_compile_messaging",
+        "status": "ok"
+      },
+      {
+        "name": "brand_build_personas",
+        "status": "ok"
+      },
+      {
+        "name": "brand_build_journey",
+        "status": "ok"
+      },
+      {
+        "name": "brand_build_themes",
+        "status": "ok"
+      },
+      {
+        "name": "brand_build_matrix",
+        "status": "ok"
+      },
+      {
+        "name": "brand_audit_content",
+        "status": "ok"
+      },
+      {
+        "name": "brand_check_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "brand_audit_drift",
+        "status": "ok"
+      },
+      {
+        "name": "brand_runtime",
+        "status": "ok"
+      },
+      {
+        "name": "brand_brandcode_connect",
+        "status": "ok"
+      },
+      {
+        "name": "brand_brandcode_sync",
+        "status": "ok"
+      },
+      {
+        "name": "brand_brandcode_status",
+        "status": "ok"
+      },
+      {
+        "name": "brand_write",
+        "status": "ok"
+      },
+      {
+        "name": "brand_export",
+        "status": "ok"
+      },
+      {
+        "name": "brand_feedback",
+        "status": "ok"
+      },
+      {
+        "name": "brand_feedback_review",
+        "status": "ok"
+      },
+      {
+        "name": "brand_feedback_triage",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_csoai_org__agent_handoff_certified_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-handoff-certified-mcp",
+      "version": "1.0.4",
+      "entrypoint": "agent-handoff-certified-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "initiate_handoff",
+        "status": "ok"
+      },
+      {
+        "name": "accept_handoff",
+        "status": "ok"
+      },
+      {
+        "name": "verify_chain",
+        "status": "ok"
+      },
+      {
+        "name": "list_handoffs",
+        "status": "ok"
+      },
+      {
+        "name": "sign_handoff_chain_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__agent_policy_enforcement_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-policy-enforcement-mcp",
+      "version": "1.0.3",
+      "entrypoint": "agent-policy-enforcement-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "define_policy",
+        "status": "ok"
+      },
+      {
+        "name": "evaluate_call",
+        "status": "ok"
+      },
+      {
+        "name": "list_policies",
+        "status": "ok"
+      },
+      {
+        "name": "remove_policy",
+        "status": "skipped"
+      },
+      {
+        "name": "decision_log",
+        "status": "ok"
+      },
+      {
+        "name": "sign_policy_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_cscsoftware__aidex": {
+    "package": {
+      "kind": "npm",
+      "identifier": "aidex-mcp",
+      "version": "1.8.0",
+      "entrypoint": null
+    },
+    "tool_count": 20,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "aidex_init",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_query",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_status",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_signature",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_signatures",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_update",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_remove",
+        "status": "skipped"
+      },
+      {
+        "name": "aidex_summary",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_tree",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_describe",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_link",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_unlink",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_links",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_scan",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_files",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_note",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_session",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_viewer",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_task",
+        "status": "ok"
+      },
+      {
+        "name": "aidex_tasks",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_csoai_org__agent_prompt_injection_firewall_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-prompt-injection-firewall-mcp",
+      "version": "1.0.4",
+      "entrypoint": "agent-prompt-injection-firewall-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scan_prompt",
+        "status": "ok"
+      },
+      {
+        "name": "define_custom_rule",
+        "status": "ok"
+      },
+      {
+        "name": "list_rules",
+        "status": "ok"
+      },
+      {
+        "name": "scan_log",
+        "status": "ok"
+      },
+      {
+        "name": "sign_firewall_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__agent_rate_limiter_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "agent-rate-limiter-mcp",
+      "version": "1.0.3",
+      "entrypoint": "agent-rate-limiter-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "acquire",
+        "status": "ok"
+      },
+      {
+        "name": "release",
+        "status": "ok"
+      },
+      {
+        "name": "status",
+        "status": "ok"
+      },
+      {
+        "name": "set_quota",
+        "status": "ok"
+      },
+      {
+        "name": "reset_counters",
+        "status": "skipped"
+      },
+      {
+        "name": "sign_rate_limit_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "cloud-infra"
+  },
+  "io_github_csoai_org__ai_bom_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "ai-bom-mcp",
+      "version": "1.2.7",
+      "entrypoint": "ai-bom-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "generate_ai_bom",
+        "status": "ok"
+      },
+      {
+        "name": "audit_ai_bom_completeness",
+        "status": "ok"
+      },
+      {
+        "name": "map_to_regulation",
+        "status": "ok"
+      },
+      {
+        "name": "required_fields",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_csoai_org__ai_incident_reporting_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "ai-incident-reporting-mcp",
+      "version": "1.0.2",
+      "entrypoint": "ai-incident-reporting-mcp"
+    },
+    "tool_count": 3,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_incident",
+        "status": "ok"
+      },
+      {
+        "name": "list_regime_clocks",
+        "status": "ok"
+      },
+      {
+        "name": "sign_incident_response_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__bias_detection_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "bias-detection-mcp",
+      "version": "1.1.3",
+      "entrypoint": "bias-detection-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "quick_scan",
+        "status": "ok"
+      },
+      {
+        "name": "detect_bias",
+        "status": "ok"
+      },
+      {
+        "name": "fairness_metrics",
+        "status": "ok"
+      },
+      {
+        "name": "mitigation_recommendations",
+        "status": "ok"
+      },
+      {
+        "name": "regulatory_check",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_csoai_org__construction_iso_19650_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "construction-iso-19650-mcp",
+      "version": "1.0.1",
+      "entrypoint": "construction-iso-19650-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_bim_maturity",
+        "status": "ok"
+      },
+      {
+        "name": "validate_eir",
+        "status": "ok"
+      },
+      {
+        "name": "validate_bep",
+        "status": "ok"
+      },
+      {
+        "name": "check_cde_structure",
+        "status": "ok"
+      },
+      {
+        "name": "list_iso_19650_clauses",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "io_github_csoai_org__cra_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "cra-compliance-mcp",
+      "version": "1.2.6",
+      "entrypoint": "cra-compliance-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_product",
+        "status": "ok"
+      },
+      {
+        "name": "audit_annex_i",
+        "status": "ok"
+      },
+      {
+        "name": "sbom_skeleton",
+        "status": "ok"
+      },
+      {
+        "name": "vulnerability_reporting_readiness",
+        "status": "ok"
+      },
+      {
+        "name": "conformity_assessment_roadmap",
+        "status": "ok"
+      },
+      {
+        "name": "enforcement_status",
+        "status": "ok"
+      },
+      {
+        "name": "sign_cra_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__csrd_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "csrd-compliance-mcp",
+      "version": "1.2.4",
+      "entrypoint": "csrd-compliance-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_entity",
+        "status": "ok"
+      },
+      {
+        "name": "list_esrs_standards",
+        "status": "ok"
+      },
+      {
+        "name": "double_materiality_assessment",
+        "status": "ok"
+      },
+      {
+        "name": "ghg_emissions_readiness",
+        "status": "ok"
+      },
+      {
+        "name": "ixbrl_taxonomy_check",
+        "status": "ok"
+      },
+      {
+        "name": "enforcement_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "io_github_csoai_org__dora_nis2_crosswalk_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "dora-nis2-crosswalk-mcp",
+      "version": "1.0.2",
+      "entrypoint": "dora-nis2-crosswalk-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "list_overlapping_obligations",
+        "status": "ok"
+      },
+      {
+        "name": "compare_reporting_clocks",
+        "status": "ok"
+      },
+      {
+        "name": "check_dual_compliance",
+        "status": "ok"
+      },
+      {
+        "name": "sign_dual_compliance_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__dora_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "dora-compliance-mcp",
+      "version": "1.2.9",
+      "entrypoint": "dora-compliance-mcp"
+    },
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_entity",
+        "status": "ok"
+      },
+      {
+        "name": "list_pillars",
+        "status": "ok"
+      },
+      {
+        "name": "audit_pillar",
+        "status": "ok"
+      },
+      {
+        "name": "audit_all_pillars",
+        "status": "ok"
+      },
+      {
+        "name": "classify_incident",
+        "status": "ok"
+      },
+      {
+        "name": "register_of_information_template",
+        "status": "ok"
+      },
+      {
+        "name": "tlpt_readiness",
+        "status": "ok"
+      },
+      {
+        "name": "get_dora_certificate",
+        "status": "ok"
+      },
+      {
+        "name": "enforcement_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__explainability_report_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "explainability-report-mcp",
+      "version": "1.0.4",
+      "entrypoint": "explainability-report-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "quick_scan",
+        "status": "ok"
+      },
+      {
+        "name": "generate_model_card",
+        "status": "ok"
+      },
+      {
+        "name": "explain_decision",
+        "status": "ok"
+      },
+      {
+        "name": "transparency_audit",
+        "status": "ok"
+      },
+      {
+        "name": "create_impact_assessment",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_csoai_org__gods_eye_geospatial_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "gods-eye-geospatial-mcp",
+      "version": "1.2.3",
+      "entrypoint": "gods-eye-geospatial-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "list_data_sources",
+        "status": "ok"
+      },
+      {
+        "name": "situational_query",
+        "status": "ok"
+      },
+      {
+        "name": "check_sovereignty",
+        "status": "ok"
+      },
+      {
+        "name": "care_membrane_policy",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "geo-maps"
+  },
+  "io_github_csoai_org__haulage_uk_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "haulage-uk-compliance-mcp",
+      "version": "1.0.1",
+      "entrypoint": "haulage-uk-compliance-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_operator_licence",
+        "status": "ok"
+      },
+      {
+        "name": "calculate_drivers_hours",
+        "status": "ok"
+      },
+      {
+        "name": "tachograph_audit",
+        "status": "ok"
+      },
+      {
+        "name": "vehicle_safety_check",
+        "status": "ok"
+      },
+      {
+        "name": "road_user_levy_check",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "io_github_csoai_org__meok_cra_annex_iv_classifier_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-cra-annex-iv-classifier-mcp",
+      "version": "1.1.2",
+      "entrypoint": "meok-cra-annex-iv-classifier-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_product",
+        "status": "ok"
+      },
+      {
+        "name": "audit_essential_requirements",
+        "status": "ok"
+      },
+      {
+        "name": "generate_doc_template",
+        "status": "ok"
+      },
+      {
+        "name": "sign_classification_cert",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_csoai_org__meok_nis2_de_register_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-nis2-de-register-mcp",
+      "version": "1.0.6",
+      "entrypoint": "meok-nis2-de-register-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "validate_org_profile",
+        "status": "ok"
+      },
+      {
+        "name": "generate_bsi_packet",
+        "status": "ok"
+      },
+      {
+        "name": "submit_to_mein_unternehmenskonto",
+        "status": "ok"
+      },
+      {
+        "name": "signed_registration_proof",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__meok_dpia_edpb_template_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-dpia-edpb-template-mcp",
+      "version": "1.0.3",
+      "entrypoint": "meok-dpia-edpb-template-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "generate_dpia",
+        "status": "ok"
+      },
+      {
+        "name": "map_to_ai_act_article_26_9",
+        "status": "ok"
+      },
+      {
+        "name": "signed_dpia_pack",
+        "status": "ok"
+      },
+      {
+        "name": "list_template_sections",
+        "status": "ok"
+      },
+      {
+        "name": "pricing",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__meok_omnibus_tracker_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-omnibus-tracker-mcp",
+      "version": "1.0.6",
+      "entrypoint": "meok-omnibus-tracker-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_provision_status",
+        "status": "ok"
+      },
+      {
+        "name": "nearest_deadline",
+        "status": "ok"
+      },
+      {
+        "name": "what_changed_summary",
+        "status": "ok"
+      },
+      {
+        "name": "sign_status_attestation",
+        "status": "ok"
+      },
+      {
+        "name": "generate_status_html",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "io_github_csoai_org__meok_mcp_injection_scan_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-mcp-injection-scan-mcp",
+      "version": "1.0.6",
+      "entrypoint": "meok-mcp-injection-scan-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "scan_mcp_url",
+        "status": "ok"
+      },
+      {
+        "name": "audit_tool_descriptions",
+        "status": "ok"
+      },
+      {
+        "name": "signed_safety_report",
+        "status": "ok"
+      },
+      {
+        "name": "list_rules",
+        "status": "ok"
+      },
+      {
+        "name": "pricing",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__meok_watermark_attest_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "meok-watermark-attest-mcp",
+      "version": "1.3.2",
+      "entrypoint": "meok-watermark-attest-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_deadline_status",
+        "status": "ok"
+      },
+      {
+        "name": "classify_obligations",
+        "status": "ok"
+      },
+      {
+        "name": "generate_disclosure_text",
+        "status": "ok"
+      },
+      {
+        "name": "audit_content_pipeline",
+        "status": "ok"
+      },
+      {
+        "name": "sign_watermark_attestation",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__iso_42001_ai_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "iso-42001-ai-mcp",
+      "version": "1.0.6",
+      "entrypoint": "iso_42001_ai_mcp"
+    },
+    "tool_count": 10,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "audit_management_system",
+        "status": "ok"
+      },
+      {
+        "name": "assess_ai_risk",
+        "status": "ok"
+      },
+      {
+        "name": "generate_policy_template",
+        "status": "ok"
+      },
+      {
+        "name": "check_annex_controls",
+        "status": "ok"
+      },
+      {
+        "name": "crosswalk_to_eu_ai_act",
+        "status": "ok"
+      },
+      {
+        "name": "create_certification_checklist",
+        "status": "ok"
+      },
+      {
+        "name": "predict_risk_neural",
+        "status": "ok"
+      },
+      {
+        "name": "neural_insights",
+        "status": "ok"
+      },
+      {
+        "name": "quick_scan",
+        "status": "ok"
+      },
+      {
+        "name": "certification_timeline",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_csoai_org__nis2_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "nis2-compliance-mcp",
+      "version": "1.2.9",
+      "entrypoint": "nis2-compliance-mcp"
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_entity",
+        "status": "ok"
+      },
+      {
+        "name": "list_article_21_measures",
+        "status": "ok"
+      },
+      {
+        "name": "audit_article_21",
+        "status": "ok"
+      },
+      {
+        "name": "classify_incident",
+        "status": "ok"
+      },
+      {
+        "name": "management_body_checklist",
+        "status": "ok"
+      },
+      {
+        "name": "get_nis2_certificate",
+        "status": "ok"
+      },
+      {
+        "name": "enforcement_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__sbom_cyclonedx_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "sbom-cyclonedx-mcp",
+      "version": "1.0.2",
+      "entrypoint": "sbom-cyclonedx-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "generate_sbom_cyclonedx",
+        "status": "ok"
+      },
+      {
+        "name": "generate_sbom_spdx",
+        "status": "ok"
+      },
+      {
+        "name": "validate_sbom",
+        "status": "ok"
+      },
+      {
+        "name": "vex_attach",
+        "status": "ok"
+      },
+      {
+        "name": "regulation_map",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__skip_hire_ai_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "skip-hire-ai-mcp",
+      "version": "1.0.1",
+      "entrypoint": "skip-hire-ai-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "check_waste_carrier_registration",
+        "status": "ok"
+      },
+      {
+        "name": "ewc_code_lookup",
+        "status": "ok"
+      },
+      {
+        "name": "consignment_note_template",
+        "status": "ok"
+      },
+      {
+        "name": "waste_transfer_note",
+        "status": "ok"
+      },
+      {
+        "name": "duty_of_care_check",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "other"
+  },
+  "io_github_csoai_org__scam_detector_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "scam-detector-mcp",
+      "version": "1.0.4",
+      "entrypoint": "scam-detector-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "quick_check",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_url",
+        "status": "ok"
+      },
+      {
+        "name": "detect_social_engineering",
+        "status": "ok"
+      },
+      {
+        "name": "verify_sender",
+        "status": "ok"
+      },
+      {
+        "name": "report_scam",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "security"
+  },
+  "io_github_csoai_org__uk_ai_bill_compliance_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "uk-ai-bill-compliance-mcp",
+      "version": "1.0.3",
+      "entrypoint": "uk-ai-bill-compliance-mcp"
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "classify_system",
+        "status": "ok"
+      },
+      {
+        "name": "audit_principle",
+        "status": "ok"
+      },
+      {
+        "name": "audit_sector_regulator",
+        "status": "ok"
+      },
+      {
+        "name": "ai_bill_readiness",
+        "status": "ok"
+      },
+      {
+        "name": "sign_uk_ai_readiness_attestation",
+        "status": "ok"
+      },
+      {
+        "name": "enforcement_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_codeturion__codesurface": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "codesurface",
+      "version": "0.8.0",
+      "entrypoint": "codesurface"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "get_signature",
+        "status": "ok"
+      },
+      {
+        "name": "get_class",
+        "status": "ok"
+      },
+      {
+        "name": "get_stats",
+        "status": "ok"
+      },
+      {
+        "name": "reindex",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_codeturion__unity_api_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "unity-api-mcp",
+      "version": "2.0.2",
+      "entrypoint": "unity-api-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_unity_api",
+        "status": "ok"
+      },
+      {
+        "name": "get_method_signature",
+        "status": "ok"
+      },
+      {
+        "name": "get_namespace",
+        "status": "ok"
+      },
+      {
+        "name": "get_class_reference",
+        "status": "ok"
+      },
+      {
+        "name": "get_deprecation_warnings",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_chengjiale150__jupyter_mcp_server": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "better-jupyter-mcp-server",
+      "version": "1.1.0",
+      "entrypoint": "better-jupyter-mcp-server"
+    },
+    "tool_count": 12,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "connect_notebook",
+        "status": "ok"
+      },
+      {
+        "name": "list_notebook",
+        "status": "ok"
+      },
+      {
+        "name": "restart_notebook",
+        "status": "ok"
+      },
+      {
+        "name": "read_notebook",
+        "status": "ok"
+      },
+      {
+        "name": "list_cell",
+        "status": "ok"
+      },
+      {
+        "name": "read_cell",
+        "status": "ok"
+      },
+      {
+        "name": "delete_cell",
+        "status": "skipped"
+      },
+      {
+        "name": "insert_cell",
+        "status": "ok"
+      },
+      {
+        "name": "execute_cell",
+        "status": "ok"
+      },
+      {
+        "name": "overwrite_cell",
+        "status": "ok"
+      },
+      {
+        "name": "append_execute_cell",
+        "status": "ok"
+      },
+      {
+        "name": "execute_temporary_cell",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_codeturion__unreal_api_mcp": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "unreal-api-mcp",
+      "version": "0.2.0",
+      "entrypoint": "unreal-api-mcp"
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_unreal_api",
+        "status": "ok"
+      },
+      {
+        "name": "get_function_signature",
+        "status": "ok"
+      },
+      {
+        "name": "get_include_path",
+        "status": "ok"
+      },
+      {
+        "name": "get_class_reference",
+        "status": "ok"
+      },
+      {
+        "name": "get_deprecation_warnings",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_daichi_kudo__llm_advisor": {
+    "package": {
+      "kind": "npm",
+      "identifier": "llm-advisor-mcp",
+      "version": "0.4.2",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_model_info",
+        "status": "ok"
+      },
+      {
+        "name": "list_top_models",
+        "status": "ok"
+      },
+      {
+        "name": "compare_models",
+        "status": "ok"
+      },
+      {
+        "name": "recommend_model",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_dave_london__make": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@paretools/make",
+      "version": "0.7.1",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "run",
+        "status": "ok"
+      },
+      {
+        "name": "list",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_dave_london__pare_test": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@paretools/test",
+      "version": "0.8.1",
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "run",
+        "status": "ok"
+      },
+      {
+        "name": "coverage",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "io_github_dejo90__nace_mcp": {
+    "package": {
+      "kind": "npm",
+      "identifier": "nace-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "nace_get",
+        "status": "ok"
+      },
+      {
+        "name": "nace_browse",
+        "status": "ok"
+      },
+      {
+        "name": "nace_search",
+        "status": "ok"
+      },
+      {
+        "name": "nace_suggest",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "io_github_dingdawg_dev__dingdawg_healthcare_agent": {
+    "package": {
+      "kind": "npm",
+      "identifier": "dingdawg-healthcare-agent",
+      "version": "2.0.4",
+      "entrypoint": null
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "patient_intake",
+        "status": "ok"
+      },
+      {
+        "name": "clinical_summary",
+        "status": "ok"
+      },
+      {
+        "name": "hipaa_check",
+        "status": "ok"
+      },
+      {
+        "name": "appointment_scheduler",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_docminus__decimer_mcp_server": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "decimer-mcp-server",
+      "version": "0.1.4",
+      "entrypoint": "decimer-mcp-server"
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "server_health",
+        "status": "ok"
+      },
+      {
+        "name": "analyze_chemical_image",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "science"
+  },
+  "io_github_dollhousemcp__mcp_server": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@dollhousemcp/mcp-server",
+      "version": "2.0.32",
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "mcp_aql_create",
+        "status": "ok"
+      },
+      {
+        "name": "mcp_aql_read",
+        "status": "ok"
+      },
+      {
+        "name": "mcp_aql_update",
+        "status": "ok"
+      },
+      {
+        "name": "mcp_aql_delete",
+        "status": "skipped"
+      },
+      {
+        "name": "mcp_aql_execute",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_dswane__sports_context_protocol": {
+    "package": {
+      "kind": "npm",
+      "identifier": "sports-context-protocol",
+      "version": "0.1.2",
+      "entrypoint": null
+    },
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_course_context",
+        "status": "ok"
+      },
+      {
+        "name": "get_available_inventory",
+        "status": "ok"
+      },
+      {
+        "name": "check_booking_action",
+        "status": "ok"
+      },
+      {
+        "name": "check_pricing_action",
+        "status": "ok"
+      },
+      {
+        "name": "create_soft_hold",
+        "status": "ok"
+      },
+      {
+        "name": "write_decision_event",
+        "status": "ok"
+      },
+      {
+        "name": "submit_outcome_feedback",
+        "status": "ok"
+      },
+      {
+        "name": "get_learning_insights",
+        "status": "ok"
+      },
+      {
+        "name": "explain_action",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_easysend_co__easysend": {
+    "package": {
+      "kind": "npm",
+      "identifier": "easysend-mcp",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "upload_files",
+        "status": "ok"
+      },
+      {
+        "name": "get_bundle",
+        "status": "ok"
+      },
+      {
+        "name": "download_file",
+        "status": "ok"
+      },
+      {
+        "name": "download_bundle",
+        "status": "ok"
+      },
+      {
+        "name": "delete_file",
+        "status": "skipped"
+      },
+      {
+        "name": "bundle_status",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "io_github_edkarlsson__locus": {
+    "package": {
+      "kind": "pypi",
+      "identifier": "locus-mcp",
+      "version": "0.6.2",
+      "entrypoint": "locus-mcp"
+    },
+    "tool_count": 4,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "memory_list",
+        "status": "ok"
+      },
+      {
+        "name": "memory_read",
+        "status": "ok"
+      },
+      {
+        "name": "memory_write",
+        "status": "ok"
+      },
+      {
+        "name": "memory_search",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "ai-ml"
+  },
+  "io_github_embassy_of_the_free_mind__source_library": {
+    "package": {
+      "kind": "npm",
+      "identifier": "@source-library/mcp-server",
+      "version": "4.3.0",
+      "entrypoint": null
+    },
+    "tool_count": 11,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_library",
+        "status": "ok"
+      },
+      {
+        "name": "list_books",
+        "status": "ok"
+      },
+      {
+        "name": "search_translations",
+        "status": "ok"
+      },
+      {
+        "name": "search_concept",
+        "status": "ok"
+      },
+      {
+        "name": "search_within_book",
+        "status": "ok"
+      },
+      {
+        "name": "get_book",
+        "status": "ok"
+      },
+      {
+        "name": "get_book_text",
+        "status": "ok"
+      },
+      {
+        "name": "get_quote",
+        "status": "ok"
+      },
+      {
+        "name": "search_images",
+        "status": "ok"
+      },
+      {
+        "name": "check_duplicate",
+        "status": "ok"
+      },
+      {
+        "name": "submit_feedback",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [
+      {
+        "producer": "search_library",
+        "consumer": "get_book",
+        "field": "book_id",
+        "via_key": "id"
+      },
+      {
+        "producer": "search_library",
+        "consumer": "get_book_text",
+        "field": "book_id",
+        "via_key": "id"
+      },
+      {
+        "producer": "search_library",
+        "consumer": "get_quote",
+        "field": "book_id",
+        "via_key": "id"
+      },
+      {
+        "producer": "search_library",
+        "consumer": "get_quote",
+        "field": "page",
+        "via_key": "page_number"
+      }
+    ],
+    "domain": "search"
+  },
+  "io_github_expertvagabond__mega": {
+    "package": {
+      "kind": "npm",
+      "identifier": "mega-mcp-server",
+      "version": "1.0.1",
+      "entrypoint": null
+    },
+    "tool_count": 20,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "mega_whoami",
+        "status": "ok"
+      },
+      {
+        "name": "mega_ls",
+        "status": "ok"
+      },
+      {
+        "name": "mega_cd",
+        "status": "ok"
+      },
+      {
+        "name": "mega_pwd",
+        "status": "ok"
+      },
+      {
+        "name": "mega_mkdir",
+        "status": "ok"
+      },
+      {
+        "name": "mega_rm",
+        "status": "ok"
+      },
+      {
+        "name": "mega_mv",
+        "status": "ok"
+      },
+      {
+        "name": "mega_cp",
+        "status": "ok"
+      },
+      {
+        "name": "mega_get",
+        "status": "ok"
+      },
+      {
+        "name": "mega_put",
+        "status": "ok"
+      },
+      {
+        "name": "mega_df",
+        "status": "ok"
+      },
+      {
+        "name": "mega_du",
+        "status": "ok"
+      },
+      {
+        "name": "mega_find",
+        "status": "ok"
+      },
+      {
+        "name": "mega_export",
+        "status": "ok"
+      },
+      {
+        "name": "mega_share",
+        "status": "ok"
+      },
+      {
+        "name": "mega_transfers",
+        "status": "ok"
+      },
+      {
+        "name": "mega_sync",
+        "status": "ok"
+      },
+      {
+        "name": "mega_tree",
+        "status": "ok"
+      },
+      {
+        "name": "mega_cat",
+        "status": "ok"
+      },
+      {
+        "name": "mega_import",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "cloud-infra"
+  },
+  "time": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 2,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_current_time",
+        "status": "ok"
+      },
+      {
+        "name": "convert_time",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "productivity"
+  },
+  "fetch": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 1,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "fetch",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "web-scraping"
+  },
+  "git": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 12,
+    "pass_rate": 0.6666666666666666,
+    "tools": [
+      {
+        "name": "git_status",
+        "status": "ok"
+      },
+      {
+        "name": "git_diff_unstaged",
+        "status": "ok"
+      },
+      {
+        "name": "git_diff_staged",
+        "status": "ok"
+      },
+      {
+        "name": "git_diff",
+        "status": "error"
+      },
+      {
+        "name": "git_commit",
+        "status": "ok"
+      },
+      {
+        "name": "git_add",
+        "status": "error"
+      },
+      {
+        "name": "git_reset",
+        "status": "ok"
+      },
+      {
+        "name": "git_log",
+        "status": "ok"
+      },
+      {
+        "name": "git_create_branch",
+        "status": "error"
+      },
+      {
+        "name": "git_checkout",
+        "status": "error"
+      },
+      {
+        "name": "git_show",
+        "status": "ok"
+      },
+      {
+        "name": "git_branch",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "sqlite": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "read_query",
+        "status": "ok"
+      },
+      {
+        "name": "write_query",
+        "status": "ok"
+      },
+      {
+        "name": "create_table",
+        "status": "ok"
+      },
+      {
+        "name": "list_tables",
+        "status": "ok"
+      },
+      {
+        "name": "describe_table",
+        "status": "ok"
+      },
+      {
+        "name": "append_insight",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "fs": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 14,
+    "pass_rate": 0.42857142857142855,
+    "tools": [
+      {
+        "name": "read_file",
+        "status": "error"
+      },
+      {
+        "name": "read_text_file",
+        "status": "error"
+      },
+      {
+        "name": "read_media_file",
+        "status": "error"
+      },
+      {
+        "name": "read_multiple_files",
+        "status": "error"
+      },
+      {
+        "name": "write_file",
+        "status": "ok"
+      },
+      {
+        "name": "edit_file",
+        "status": "error"
+      },
+      {
+        "name": "create_directory",
+        "status": "error"
+      },
+      {
+        "name": "list_directory",
+        "status": "ok"
+      },
+      {
+        "name": "list_directory_with_sizes",
+        "status": "ok"
+      },
+      {
+        "name": "directory_tree",
+        "status": "ok"
+      },
+      {
+        "name": "move_file",
+        "status": "error"
+      },
+      {
+        "name": "search_files",
+        "status": "ok"
+      },
+      {
+        "name": "get_file_info",
+        "status": "error"
+      },
+      {
+        "name": "list_allowed_directories",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "dev"
+  },
+  "memory": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 9,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "create_entities",
+        "status": "ok"
+      },
+      {
+        "name": "create_relations",
+        "status": "ok"
+      },
+      {
+        "name": "add_observations",
+        "status": "ok"
+      },
+      {
+        "name": "delete_entities",
+        "status": "ok"
+      },
+      {
+        "name": "delete_observations",
+        "status": "ok"
+      },
+      {
+        "name": "delete_relations",
+        "status": "ok"
+      },
+      {
+        "name": "read_graph",
+        "status": "ok"
+      },
+      {
+        "name": "search_nodes",
+        "status": "ok"
+      },
+      {
+        "name": "open_nodes",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "wikipedia": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 22,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "search_wikipedia",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_search_wikipedia",
+        "status": "ok"
+      },
+      {
+        "name": "test_wikipedia_connectivity",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_test_wikipedia_connectivity",
+        "status": "ok"
+      },
+      {
+        "name": "get_article",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_article",
+        "status": "ok"
+      },
+      {
+        "name": "get_summary",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_summary",
+        "status": "ok"
+      },
+      {
+        "name": "summarize_article_for_query",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_summarize_article_for_query",
+        "status": "ok"
+      },
+      {
+        "name": "summarize_article_section",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_summarize_article_section",
+        "status": "ok"
+      },
+      {
+        "name": "extract_key_facts",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_extract_key_facts",
+        "status": "ok"
+      },
+      {
+        "name": "get_related_topics",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_related_topics",
+        "status": "ok"
+      },
+      {
+        "name": "get_sections",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_sections",
+        "status": "ok"
+      },
+      {
+        "name": "get_links",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_links",
+        "status": "ok"
+      },
+      {
+        "name": "get_coordinates",
+        "status": "ok"
+      },
+      {
+        "name": "wikipedia_get_coordinates",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "arxiv": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 10,
+    "pass_rate": 0.5,
+    "tools": [
+      {
+        "name": "search_papers",
+        "status": "ok"
+      },
+      {
+        "name": "download_paper",
+        "status": "error"
+      },
+      {
+        "name": "list_papers",
+        "status": "ok"
+      },
+      {
+        "name": "read_paper",
+        "status": "error"
+      },
+      {
+        "name": "get_abstract",
+        "status": "ok"
+      },
+      {
+        "name": "semantic_search",
+        "status": "error"
+      },
+      {
+        "name": "reindex",
+        "status": "error"
+      },
+      {
+        "name": "citation_graph",
+        "status": "error"
+      },
+      {
+        "name": "watch_topic",
+        "status": "ok"
+      },
+      {
+        "name": "check_alerts",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "science"
+  },
+  "yfinance": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 18,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "get_ticker_info",
+        "status": "ok"
+      },
+      {
+        "name": "get_price_history",
+        "status": "ok"
+      },
+      {
+        "name": "get_financials",
+        "status": "ok"
+      },
+      {
+        "name": "get_holders",
+        "status": "ok"
+      },
+      {
+        "name": "get_earnings",
+        "status": "ok"
+      },
+      {
+        "name": "get_analyst_data",
+        "status": "ok"
+      },
+      {
+        "name": "get_options",
+        "status": "ok"
+      },
+      {
+        "name": "get_dividends_splits",
+        "status": "ok"
+      },
+      {
+        "name": "get_sustainability",
+        "status": "ok"
+      },
+      {
+        "name": "get_ticker_calendar",
+        "status": "ok"
+      },
+      {
+        "name": "download",
+        "status": "ok"
+      },
+      {
+        "name": "get_tickers_info",
+        "status": "ok"
+      },
+      {
+        "name": "search",
+        "status": "ok"
+      },
+      {
+        "name": "lookup",
+        "status": "ok"
+      },
+      {
+        "name": "get_market_calendar",
+        "status": "ok"
+      },
+      {
+        "name": "screen_stocks",
+        "status": "ok"
+      },
+      {
+        "name": "get_sector_data",
+        "status": "ok"
+      },
+      {
+        "name": "get_industry_data",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "finance"
+  },
+  "osm": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 6,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "openstreetmap_geocode",
+        "status": "ok"
+      },
+      {
+        "name": "openstreetmap_reverse",
+        "status": "ok"
+      },
+      {
+        "name": "openstreetmap_lookup",
+        "status": "ok"
+      },
+      {
+        "name": "openstreetmap_query_nearby",
+        "status": "ok"
+      },
+      {
+        "name": "openstreetmap_query_bbox",
+        "status": "ok"
+      },
+      {
+        "name": "openstreetmap_query_raw",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "geo-maps"
+  },
+  "wikidata": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "wikidata_search_entities",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_get_entity",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_get_labels",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_get_statements",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_get_sitelinks",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_sparql_query",
+        "status": "ok"
+      },
+      {
+        "name": "wikidata_resolve_external_id",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "worldbank": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 7,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "worldbank_list_topics",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_list_sources",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_list_countries",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_get_country",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_search_indicators",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_get_indicator",
+        "status": "ok"
+      },
+      {
+        "name": "worldbank_get_data",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "eurostat": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "eurostat_search_datasets",
+        "status": "ok"
+      },
+      {
+        "name": "eurostat_browse_themes",
+        "status": "ok"
+      },
+      {
+        "name": "eurostat_get_dataset_info",
+        "status": "ok"
+      },
+      {
+        "name": "eurostat_get_dimension_values",
+        "status": "ok"
+      },
+      {
+        "name": "eurostat_query_dataset",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "data"
+  },
+  "crossref": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 5,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "crossref_get_work",
+        "status": "ok"
+      },
+      {
+        "name": "crossref_get_references",
+        "status": "ok"
+      },
+      {
+        "name": "crossref_search_works",
+        "status": "ok"
+      },
+      {
+        "name": "crossref_search_journals",
+        "status": "ok"
+      },
+      {
+        "name": "crossref_search_funders",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "openlibrary": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 9,
+    "pass_rate": 0.8888888888888888,
+    "tools": [
+      {
+        "name": "openlibrary_search_books",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_work",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_editions",
+        "status": "error"
+      },
+      {
+        "name": "openlibrary_get_edition",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_search_authors",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_author",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_author_works",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_subject",
+        "status": "ok"
+      },
+      {
+        "name": "openlibrary_get_cover_url",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  },
+  "pubmed": {
+    "package": {
+      "kind": "pypi-substrate",
+      "identifier": null,
+      "version": null,
+      "entrypoint": null
+    },
+    "tool_count": 10,
+    "pass_rate": 1.0,
+    "tools": [
+      {
+        "name": "pubmed_search_articles",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_fetch_articles",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_fetch_fulltext",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_format_citations",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_find_related",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_spell_check",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_lookup_mesh",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_lookup_citation",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_convert_ids",
+        "status": "ok"
+      },
+      {
+        "name": "pubmed_europepmc_search",
+        "status": "ok"
+      }
+    ],
+    "dependencies": [],
+    "domain": "search"
+  }
+}

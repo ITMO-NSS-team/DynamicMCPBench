@@ -1,0 +1,77 @@
+{
+  "goals_version": "0.1.0",
+  "entries": [
+    {
+      "goal_id": "auto-wikipedia-research-renewable-energy",
+      "goal": "I'm writing a report on renewable energy technologies. Search Wikipedia for articles about solar power, wind energy, and hydroelectric power, then get a summary of each to understand their key characteristics and differences.",
+      "servers": [
+        "wikipedia"
+      ],
+      "persona": null,
+      "tags": [
+        "shallow",
+        "single-server",
+        "discovery",
+        "parallel-calls"
+      ],
+      "budget": null
+    },
+    {
+      "goal_id": "auto-yfinance-compare-tech-giants-fundamentals",
+      "goal": "I need to compare the financial health and recent performance of Apple, Microsoft, and Google. Please get their latest ticker information, most recent quarterly earnings data, and the past year of price history so I can understand which company has the strongest fundamentals and momentum.",
+      "servers": [
+        "yfinance"
+      ],
+      "persona": null,
+      "tags": [
+        "deep",
+        "single-server",
+        "parallel-calls"
+      ],
+      "budget": null
+    },
+    {
+      "goal_id": "auto-osm-find-nearby-pharmacies",
+      "goal": "I'm currently at coordinates 40.7128, -74.0060 (New York City) and need to find pharmacies within 2 kilometers. Please show me what pharmacies are nearby so I can pick up a prescription.",
+      "servers": [
+        "osm"
+      ],
+      "persona": null,
+      "tags": [
+        "single-server",
+        "shallow",
+        "read-only-usage"
+      ],
+      "budget": null
+    },
+    {
+      "goal_id": "auto-worldbank-gdp-comparison-east-asia",
+      "goal": "I need to compare the GDP per capita trends across East Asia & Pacific countries over the last 5 years to understand regional economic development patterns. Please find the most recent GDP per capita data for all countries in that region.",
+      "servers": [
+        "worldbank"
+      ],
+      "persona": null,
+      "tags": [
+        "deep",
+        "single-server",
+        "read-only-usage"
+      ],
+      "budget": null
+    },
+    {
+      "goal_id": "auto-x-yfinance-worldbank-emerging-market-tech-comparison",
+      "goal": "I'm researching technology companies in emerging markets to understand their growth potential relative to their countries' economic development. Find me the top technology companies in India and Brazil, then get their latest stock prices and financial metrics. After that, retrieve the GDP per capita and population data for both India and Brazil from the World Bank to contextualize how these companies are performing relative to their national economies.",
+      "servers": [
+        "yfinance",
+        "worldbank"
+      ],
+      "persona": null,
+      "tags": [
+        "cross-server",
+        "deep",
+        "parallel-calls"
+      ],
+      "budget": null
+    }
+  ]
+}

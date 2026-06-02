@@ -1,0 +1,111 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "git",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Git operations confined to /tmp/dmcp-sandbox-repo (mcp-server-git).",
+      "tags": [
+        "git",
+        "vcs",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:partial"
+      ],
+      "command": ".venv/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_git",
+        "--repository",
+        "/tmp/dmcp-sandbox-repo"
+      ],
+      "tool_count": 12
+    },
+    {
+      "server_id": "sqlite",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "SQLite database CRUD against /tmp/dmcp-sandbox/bench.db (mcp-server-sqlite).",
+      "tags": [
+        "database",
+        "sql",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": ".venv/bin/mcp-server-sqlite",
+      "args": [
+        "--db-path",
+        "/tmp/dmcp-sandbox/bench.db"
+      ],
+      "tool_count": 6
+    },
+    {
+      "server_id": "fs",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Filesystem read/write/move confined to /tmp/dmcp-fs-sandbox (Node MCP server).",
+      "tags": [
+        "filesystem",
+        "files",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:partial"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp/dmcp-fs-sandbox"
+      ],
+      "tool_count": 14
+    },
+    {
+      "server_id": "memory",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Knowledge graph (entities/relations/observations) persisted at /tmp/dmcp-memory/store.json.",
+      "tags": [
+        "memory",
+        "knowledge-graph",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/tmp/dmcp-memory/store.json"
+      },
+      "tool_count": 9
+    }
+  ]
+}

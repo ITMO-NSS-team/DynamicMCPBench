@@ -239,6 +239,17 @@ tmp.md
 # uv lockfile — env side-effect; lockfile policy undecided
 uv.lock
 
+# overnight no-creds MCP-server collector (scripts/collect_servers.py) outputs
+.venv-servers/
+/collect.log
+/collect.run.log
+/collect-allpass.log
+/test-collect.log
+/manifests/test-crawled.json
+/collect.attempted
+/assemble.run.log
+/examples/demo/demo.run.log
+
 # LaTeX build outputs from `pdflatex paper/main.tex`. The source .tex
 # files in paper/ (and the regenerator-produced figures/tables) are
 # tracked; the rendered PDF and intermediates are not.

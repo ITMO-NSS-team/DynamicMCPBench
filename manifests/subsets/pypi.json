@@ -1,0 +1,2237 @@
+{
+  "manifest_version": "0.1.0",
+  "servers": [
+    {
+      "server_id": "ai_mcpcap__mcpcap",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "An MCP server for analyzing PCAP files.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcpcap==0.9.6",
+        "mcpcap"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcpcap",
+        "version": "0.9.6",
+        "entrypoint": "mcpcap"
+      },
+      "tool_count": 9
+    },
+    {
+      "server_id": "com_advisorfinder__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search SEC-registered financial advisors \u2014 profiles, disclosures, risk scores, and credentials.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "advisorfinder-mcp==1.1.5",
+        "advisorfinder-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "advisorfinder-mcp",
+        "version": "1.1.5",
+        "entrypoint": "advisorfinder-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "com_keyboardcrumbs__mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Live threat intel for Claude \u2014 CVE, KEV predictions, IP lookup, malware hashes. Free, no API key.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "keyboardcrumbs-mcp==1.0.1",
+        "keyboardcrumbs-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "keyboardcrumbs-mcp",
+        "version": "1.0.1",
+        "entrypoint": "keyboardcrumbs-mcp"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "com_mcparmory__builtwith",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Detect technologies and tech stacks used on any website",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:web-scraping",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcparmory-builtwith==1.0.3",
+        "mcparmory-builtwith"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcparmory-builtwith",
+        "version": "1.0.3",
+        "entrypoint": "mcparmory-builtwith"
+      },
+      "tool_count": 34
+    },
+    {
+      "server_id": "com_mcparmory__globalping",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Run network tests (ping, traceroute, DNS) from probes worldwide",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:cloud-infra",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcparmory-globalping==1.0.3",
+        "mcparmory-globalping"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcparmory-globalping",
+        "version": "1.0.3",
+        "entrypoint": "mcparmory-globalping"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "com_mcparmory__ip2location_geolocation",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Look up IP address location and geolocation data with country, city, timezone, and ISP details",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:geo-maps",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcparmory-ip2location-geolocation==1.0.3",
+        "mcparmory-ip2location-geolocation"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcparmory-ip2location-geolocation",
+        "version": "1.0.3",
+        "entrypoint": "mcparmory-ip2location-geolocation"
+      },
+      "tool_count": 1
+    },
+    {
+      "server_id": "com_mcparmory__scrapingant",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Scrape webpages, handle JavaScript and CAPTCHA, extract structured data",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:web-scraping",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcparmory-scrapingant==1.0.1",
+        "mcparmory-scrapingant"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcparmory-scrapingant",
+        "version": "1.0.1",
+        "entrypoint": "mcparmory-scrapingant"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "com_mcparmory__semrush_appcenter",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Manage subscriptions, users, and send event notifications for Semrush apps",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcparmory-semrush-appcenter==1.0.2",
+        "mcparmory-semrush-appcenter"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "mcparmory-semrush-appcenter",
+        "version": "1.0.2",
+        "entrypoint": "mcparmory-semrush-appcenter"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_ausdata__aemo_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query the AEMO NEM in plain English \u2014 5-min prices, demand, generation, rooftop PV.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "aemo-mcp==0.4.15",
+        "aemo-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "aemo-mcp",
+        "version": "0.4.15",
+        "entrypoint": "aemo-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_ausdata__abs_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query the ABS in plain English \u2014 CPI, labour force, building approvals, migration, GDP.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "abs-mcp==0.13.3",
+        "abs-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "abs-mcp",
+        "version": "0.13.3",
+        "entrypoint": "abs-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_ausdata__au_weather_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query Australian weather + air quality \u2014 forecasts, current obs, 80yr archive (BOM).",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "au-weather-mcp==0.4.9",
+        "au-weather-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "au-weather-mcp",
+        "version": "0.4.9",
+        "entrypoint": "au-weather-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_ausdata__apra_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query APRA in plain English \u2014 bank capital, fund-level super, insurance stats.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "apra-mcp==0.8.21",
+        "apra-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "apra-mcp",
+        "version": "0.8.21",
+        "entrypoint": "apra-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_ausdata__asic_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query ASIC registers in plain English \u2014 advisers, licensees, banned persons, liquidators.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:yes",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "asic-mcp==0.6.18",
+        "asic-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "asic-mcp",
+        "version": "0.6.18",
+        "entrypoint": "asic-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_ausdata__ato_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query the ATO in plain English \u2014 tax by postcode, corporate tax, GST, super, charities.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "ato-mcp==0.8.26",
+        "ato-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "ato-mcp",
+        "version": "0.8.26",
+        "entrypoint": "ato-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_ausdata__aihw_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query the AIHW in plain English \u2014 mortality, cancer, health spend, hospital wait times.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "aihw-mcp==0.4.18",
+        "aihw-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "aihw-mcp",
+        "version": "0.4.18",
+        "entrypoint": "aihw-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_ausdata__wgea_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Query the WGEA in plain English \u2014 employer pay gap, workforce composition, leave.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "wgea-mcp==0.6.13",
+        "wgea-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "wgea-mcp",
+        "version": "0.6.13",
+        "entrypoint": "wgea-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_0xsl1m__cerebrus_pulse_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Real-time crypto intelligence: technical analysis, sentiment, and funding rates",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "cerebrus-pulse-mcp==0.2.0",
+        "cerebrus-pulse-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "cerebrus-pulse-mcp",
+        "version": "0.2.0",
+        "entrypoint": "cerebrus-pulse-mcp"
+      },
+      "tool_count": 10
+    },
+    {
+      "server_id": "io_github_1102tools__federal_register_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Federal Register proposed/final rules, notices, executive orders, FAR cases. 8 tools.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "federal-register-mcp==0.2.7",
+        "federal-register-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "federal-register-mcp",
+        "version": "0.2.7",
+        "entrypoint": "federal-register-mcp"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "io_github_aguantar__clickhouse_dataops_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "DataOps ClickHouse MCP server with query optimization and pipeline monitoring",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "clickhouse-dataops-mcp==0.1.1",
+        "clickhouse-mcp-server"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "clickhouse-dataops-mcp",
+        "version": "0.1.1",
+        "entrypoint": "clickhouse-mcp-server"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "io_github_aguantar__vibescan_mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for VibeScan \u2014 scan projects for leaked secrets and security issues",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "vibescan-mcp-server==0.1.0",
+        "vibescan-mcp-server"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "vibescan-mcp-server",
+        "version": "0.1.0",
+        "entrypoint": "vibescan-mcp-server"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "io_github_aguantar__kafka_dataops_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "DataOps Kafka MCP server with consumer lag diagnosis and broker monitoring",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "kafka-dataops-mcp==0.1.0",
+        "kafka-dataops-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "kafka-dataops-mcp",
+        "version": "0.1.0",
+        "entrypoint": "kafka-dataops-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_alfanous_team__alfanous",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Search and explore the Holy Qur'an with Arabic text, transliteration, and advanced search support.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "alfanous3-mcp==1.9.2",
+        "alfanous-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "alfanous3-mcp",
+        "version": "1.9.2",
+        "entrypoint": "alfanous-mcp"
+      },
+      "tool_count": 11
+    },
+    {
+      "server_id": "io_github_ansvar_systems__security_controls",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "1,451 security controls across 261 frameworks with bidirectional mapping",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "security-controls-mcp==0.4.0",
+        "scf-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "security-controls-mcp",
+        "version": "0.4.0",
+        "entrypoint": "scf-mcp"
+      },
+      "tool_count": 8
+    },
+    {
+      "server_id": "io_github_annasmazhar__pyspark_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "SQL to PySpark conversion, AWS Glue job generation, and Spark code optimization.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "pyspark-tools==0.0.4",
+        "pyspark-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "pyspark-tools",
+        "version": "0.0.4",
+        "entrypoint": "pyspark-mcp"
+      },
+      "tool_count": 49
+    },
+    {
+      "server_id": "io_github_armada735__fake_star_audit",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Transparent rule-based GitHub fake-star detector \u2014 LOW/MEDIUM/HIGH with per-rule evidence.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "fake-star-audit==0.1.1",
+        "fake-star-audit"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "fake-star-audit",
+        "version": "0.1.1",
+        "entrypoint": "fake-star-audit"
+      },
+      "tool_count": 1
+    },
+    {
+      "server_id": "io_github_blackmount_ai__blackmount_construction_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Construction estimating MCP: 48 tools \u2014 materials, labor, cost, structural, MEP, estimates.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "blackmount-construction-mcp==0.4.1",
+        "blackmount-construction-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "blackmount-construction-mcp",
+        "version": "0.4.1",
+        "entrypoint": "blackmount-construction-mcp"
+      },
+      "tool_count": 48
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_audit_logger_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Hash-chained HMAC-signed audit log MCP for A2A (agent-to-agent) calls. Every tool-call, agent-ha...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-audit-logger-mcp==1.0.4",
+        "agent-audit-logger-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-audit-logger-mcp",
+        "version": "1.0.4",
+        "entrypoint": "agent-audit-logger-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_data_residency_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Agent data residency + GDPR Chapter V transfer-basis runtime guard. Programmatically answer 'whe...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-data-residency-mcp==1.0.2",
+        "agent-data-residency-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-data-residency-mcp",
+        "version": "1.0.2",
+        "entrypoint": "agent-data-residency-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_handoff_certified_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Verifiable agent-to-agent task handoff with signed provenance chain. Initiating agent signs the ...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-handoff-certified-mcp==1.0.4",
+        "agent-handoff-certified-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-handoff-certified-mcp",
+        "version": "1.0.4",
+        "entrypoint": "agent-handoff-certified-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_policy_enforcement_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Per-agent-pair IAM for A2A. Define policies ('orchestrator may call billing only when amount<100...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-policy-enforcement-mcp==1.0.3",
+        "agent-policy-enforcement-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-policy-enforcement-mcp",
+        "version": "1.0.3",
+        "entrypoint": "agent-policy-enforcement-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_prompt_injection_firewall_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "The WAF for agents. Pattern-based + heuristic firewall scans prompts, RAG documents, tool argume...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-prompt-injection-firewall-mcp==1.0.4",
+        "agent-prompt-injection-firewall-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-prompt-injection-firewall-mcp",
+        "version": "1.0.4",
+        "entrypoint": "agent-prompt-injection-firewall-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__agent_rate_limiter_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Fleet-wide shared rate limiter for A2A + multi-MCP deployments. Most MCP servers rate-limit inde...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:cloud-infra",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "agent-rate-limiter-mcp==1.0.3",
+        "agent-rate-limiter-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "agent-rate-limiter-mcp",
+        "version": "1.0.3",
+        "entrypoint": "agent-rate-limiter-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_csoai_org__ai_bom_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI Bill of Materials (AI-BOM) generator + auditor MCP \u2014 CycloneDX ML-BOM, SPDX 3.0 AI profile, E...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "ai-bom-mcp==1.2.7",
+        "ai-bom-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "ai-bom-mcp",
+        "version": "1.2.7",
+        "entrypoint": "ai-bom-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_csoai_org__ai_incident_reporting_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI Incident Reporting Compliance MCP. Unified classification + reporting-clock tracker across EU...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "ai-incident-reporting-mcp==1.0.2",
+        "ai-incident-reporting-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "ai-incident-reporting-mcp",
+        "version": "1.0.2",
+        "entrypoint": "ai-incident-reporting-mcp"
+      },
+      "tool_count": 3
+    },
+    {
+      "server_id": "io_github_csoai_org__bias_detection_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "AI bias detection and fairness assessment for AI agents. Instant bias risk scan, demographic ana...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "bias-detection-mcp==1.1.3",
+        "bias-detection-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "bias-detection-mcp",
+        "version": "1.1.3",
+        "entrypoint": "bias-detection-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__construction_iso_19650_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "ISO 19650 / UK BIM Level 2 compliance for construction projects. EIR, BEP, MIDP, TIDP, and CDE s...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "construction-iso-19650-mcp==1.0.1",
+        "construction-iso-19650-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "construction-iso-19650-mcp",
+        "version": "1.0.1",
+        "entrypoint": "construction-iso-19650-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__cra_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "EU Cyber Resilience Act (Regulation 2024/2847) compliance for AI agents. Product classification...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "cra-compliance-mcp==1.2.6",
+        "cra-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "cra-compliance-mcp",
+        "version": "1.2.6",
+        "entrypoint": "cra-compliance-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_github_csoai_org__csrd_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "csrd-compliance-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "csrd-compliance-mcp==1.2.4",
+        "csrd-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "csrd-compliance-mcp",
+        "version": "1.2.4",
+        "entrypoint": "csrd-compliance-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_csoai_org__dora_nis2_crosswalk_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "DORA \u00d7 NIS2 Crosswalk MCP \u2014 map Regulation (EU) 2022/2554 obligations to Directive (EU) 2022/255...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "dora-nis2-crosswalk-mcp==1.0.2",
+        "dora-nis2-crosswalk-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "dora-nis2-crosswalk-mcp",
+        "version": "1.0.2",
+        "entrypoint": "dora-nis2-crosswalk-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_csoai_org__dora_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "DORA (EU Digital Operational Resilience Act) compliance for AI agents. 5-pillar audit, incident ...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "dora-compliance-mcp==1.2.9",
+        "dora-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "dora-compliance-mcp",
+        "version": "1.2.9",
+        "entrypoint": "dora-compliance-mcp"
+      },
+      "tool_count": 9
+    },
+    {
+      "server_id": "io_github_csoai_org__explainability_report_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "explainability-report-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "explainability-report-mcp==1.0.4",
+        "explainability-report-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "explainability-report-mcp",
+        "version": "1.0.4",
+        "entrypoint": "explainability-report-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__gods_eye_geospatial_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "gods-eye-geospatial-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:geo-maps",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "gods-eye-geospatial-mcp==1.2.3",
+        "gods-eye-geospatial-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "gods-eye-geospatial-mcp",
+        "version": "1.2.3",
+        "entrypoint": "gods-eye-geospatial-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_csoai_org__haulage_uk_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "UK Operator Licence, tachograph, drivers' hours, DVSA roadside checks for UK haulage operators a...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "haulage-uk-compliance-mcp==1.0.1",
+        "haulage-uk-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "haulage-uk-compliance-mcp",
+        "version": "1.0.1",
+        "entrypoint": "haulage-uk-compliance-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_cra_annex_iv_classifier_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "meok-cra-annex-iv-classifier-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-cra-annex-iv-classifier-mcp==1.1.2",
+        "meok-cra-annex-iv-classifier-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-cra-annex-iv-classifier-mcp",
+        "version": "1.1.2",
+        "entrypoint": "meok-cra-annex-iv-classifier-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_nis2_de_register_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "meok-nis2-de-register-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-nis2-de-register-mcp==1.0.6",
+        "meok-nis2-de-register-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-nis2-de-register-mcp",
+        "version": "1.0.6",
+        "entrypoint": "meok-nis2-de-register-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_dpia_edpb_template_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "DPIA generator for the EDPB harmonised template (adopted 14 Apr 2026) with EU AI Act Article 26(9...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-dpia-edpb-template-mcp==1.0.3",
+        "meok-dpia-edpb-template-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-dpia-edpb-template-mcp",
+        "version": "1.0.3",
+        "entrypoint": "meok-dpia-edpb-template-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_omnibus_tracker_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "meok-omnibus-tracker-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-omnibus-tracker-mcp==1.0.6",
+        "meok-omnibus-tracker-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-omnibus-tracker-mcp",
+        "version": "1.0.6",
+        "entrypoint": "meok-omnibus-tracker-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_mcp_injection_scan_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "meok-mcp-injection-scan-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-mcp-injection-scan-mcp==1.0.6",
+        "meok-mcp-injection-scan-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-mcp-injection-scan-mcp",
+        "version": "1.0.6",
+        "entrypoint": "meok-mcp-injection-scan-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__meok_watermark_attest_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "meok-watermark-attest-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "meok-watermark-attest-mcp==1.3.2",
+        "meok-watermark-attest-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "meok-watermark-attest-mcp",
+        "version": "1.3.2",
+        "entrypoint": "meok-watermark-attest-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__iso_42001_ai_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "iso-42001-ai-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "iso-42001-ai-mcp==1.0.6",
+        "iso_42001_ai_mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "iso-42001-ai-mcp",
+        "version": "1.0.6",
+        "entrypoint": "iso_42001_ai_mcp"
+      },
+      "tool_count": 10
+    },
+    {
+      "server_id": "io_github_csoai_org__nis2_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "NIS2 Directive (EU 2022/2555) compliance for AI agents. 10 Article 21 risk-management measures a...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "nis2-compliance-mcp==1.2.9",
+        "nis2-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "nis2-compliance-mcp",
+        "version": "1.2.9",
+        "entrypoint": "nis2-compliance-mcp"
+      },
+      "tool_count": 7
+    },
+    {
+      "server_id": "io_github_csoai_org__sbom_cyclonedx_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Software Bill of Materials generation + validation in CycloneDX 1.6 and SPDX 2.3 formats. Requir...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "sbom-cyclonedx-mcp==1.0.2",
+        "sbom-cyclonedx-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "sbom-cyclonedx-mcp",
+        "version": "1.0.2",
+        "entrypoint": "sbom-cyclonedx-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__skip_hire_ai_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "UK Waste Carrier Registration, EA waste codes, hazardous waste consignment notes for skip hire a...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:other",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "skip-hire-ai-mcp==1.0.1",
+        "skip-hire-ai-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "skip-hire-ai-mcp",
+        "version": "1.0.1",
+        "entrypoint": "skip-hire-ai-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__scam_detector_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "scam-detector-mcp MCP server by MEOK AI Labs",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:security",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "scam-detector-mcp==1.0.4",
+        "scam-detector-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "scam-detector-mcp",
+        "version": "1.0.4",
+        "entrypoint": "scam-detector-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_csoai_org__uk_ai_bill_compliance_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "UK AI Regulation Compliance MCP. Automates audits against the UK AI White Paper five principles ...",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "uk-ai-bill-compliance-mcp==1.0.3",
+        "uk-ai-bill-compliance-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "uk-ai-bill-compliance-mcp",
+        "version": "1.0.3",
+        "entrypoint": "uk-ai-bill-compliance-mcp"
+      },
+      "tool_count": 6
+    },
+    {
+      "server_id": "io_github_codeturion__codesurface",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Indexes your codebase's public API and serves it via compact MCP tool responses.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "codesurface==0.8.0",
+        "codesurface"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "codesurface",
+        "version": "0.8.0",
+        "entrypoint": "codesurface"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_codeturion__unity_api_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Accurate Unity API docs (2022/2023/6) for AI agents. Prevents hallucinated signatures.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "unity-api-mcp==2.0.2",
+        "unity-api-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "unity-api-mcp",
+        "version": "2.0.2",
+        "entrypoint": "unity-api-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_chengjiale150__jupyter_mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "A powerful MCP server for AI-driven Jupyter Notebook management and execution",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "better-jupyter-mcp-server==1.1.0",
+        "better-jupyter-mcp-server"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "better-jupyter-mcp-server",
+        "version": "1.1.0",
+        "entrypoint": "better-jupyter-mcp-server"
+      },
+      "tool_count": 12
+    },
+    {
+      "server_id": "io_github_codeturion__unreal_api_mcp",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Accurate UE5 C++ API docs for AI agents. Prevents hallucinated signatures and includes.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "unreal-api-mcp==0.2.0",
+        "unreal-api-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "unreal-api-mcp",
+        "version": "0.2.0",
+        "entrypoint": "unreal-api-mcp"
+      },
+      "tool_count": 5
+    },
+    {
+      "server_id": "io_github_docminus__decimer_mcp_server",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "MCP server for DECIMER image-to-SMILES chemical structure recognition",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:science",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "decimer-mcp-server==0.1.4",
+        "decimer-mcp-server"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "decimer-mcp-server",
+        "version": "0.1.4",
+        "entrypoint": "decimer-mcp-server"
+      },
+      "tool_count": 2
+    },
+    {
+      "server_id": "io_github_edkarlsson__locus",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Hierarchical markdown memory palace for AI agents \u2014 structured palace navigation via MCP tools.",
+      "tags": [
+        "crawled",
+        "no-creds",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:ai-ml",
+        "verify:full"
+      ],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "locus-mcp==0.6.2",
+        "locus-mcp"
+      ],
+      "package": {
+        "kind": "pypi",
+        "identifier": "locus-mcp",
+        "version": "0.6.2",
+        "entrypoint": "locus-mcp"
+      },
+      "tool_count": 4
+    },
+    {
+      "server_id": "time",
+      "transport": "stdio",
+      "dynamism": "static",
+      "sandbox": false,
+      "description": "Time and timezone queries (mcp-server-time).",
+      "tags": [
+        "time",
+        "utility",
+        "substrate",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:productivity",
+        "verify:full"
+      ],
+      "command": ".venv/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_time",
+        "--local-timezone",
+        "UTC"
+      ],
+      "tool_count": 2
+    },
+    {
+      "server_id": "fetch",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "HTTP fetch and Markdown extraction (mcp-server-fetch).",
+      "tags": [
+        "http",
+        "web",
+        "substrate",
+        "pkg:pypi",
+        "size:small",
+        "deps:no",
+        "alt:no",
+        "domain:web-scraping",
+        "verify:full"
+      ],
+      "command": ".venv/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_fetch"
+      ],
+      "tool_count": 1
+    },
+    {
+      "server_id": "git",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Git operations confined to /tmp/dmcp-sandbox-repo (mcp-server-git).",
+      "tags": [
+        "git",
+        "vcs",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:no",
+        "domain:dev",
+        "verify:partial"
+      ],
+      "command": ".venv/bin/python",
+      "args": [
+        "-m",
+        "mcp_server_git",
+        "--repository",
+        "/tmp/dmcp-sandbox-repo"
+      ],
+      "tool_count": 12
+    },
+    {
+      "server_id": "sqlite",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "SQLite database CRUD against /tmp/dmcp-sandbox/bench.db (mcp-server-sqlite).",
+      "tags": [
+        "database",
+        "sql",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": ".venv/bin/mcp-server-sqlite",
+      "args": [
+        "--db-path",
+        "/tmp/dmcp-sandbox/bench.db"
+      ],
+      "tool_count": 6
+    },
+    {
+      "server_id": "fs",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Filesystem read/write/move confined to /tmp/dmcp-fs-sandbox (Node MCP server).",
+      "tags": [
+        "filesystem",
+        "files",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:dev",
+        "verify:partial"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp/dmcp-fs-sandbox"
+      ],
+      "tool_count": 14
+    },
+    {
+      "server_id": "memory",
+      "transport": "stdio",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Knowledge graph (entities/relations/observations) persisted at /tmp/dmcp-memory/store.json.",
+      "tags": [
+        "memory",
+        "knowledge-graph",
+        "sandboxed",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/tmp/dmcp-memory/store.json"
+      },
+      "tool_count": 9
+    },
+    {
+      "server_id": "wikipedia",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Wikipedia search, page retrieval, summaries, links, and coordinates (wikipedia-mcp).",
+      "tags": [
+        "wikipedia",
+        "knowledge",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": ".venv/bin/wikipedia-mcp",
+      "args": [],
+      "tool_count": 22
+    },
+    {
+      "server_id": "arxiv",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": true,
+      "description": "arXiv paper search, abstract retrieval, and PDF download to /tmp/dmcp-arxiv (arxiv-mcp-server).",
+      "tags": [
+        "arxiv",
+        "papers",
+        "research",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:yes",
+        "domain:science",
+        "verify:partial"
+      ],
+      "command": ".venv/bin/arxiv-mcp-server",
+      "args": [
+        "--storage-path",
+        "/tmp/dmcp-arxiv"
+      ],
+      "tool_count": 10
+    },
+    {
+      "server_id": "yfinance",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Yahoo Finance ticker search, lookup, historical data, earnings, options, sector data (yfinance-mcp).",
+      "tags": [
+        "finance",
+        "stocks",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:large",
+        "deps:no",
+        "alt:yes",
+        "domain:finance",
+        "verify:full"
+      ],
+      "command": ".venv/bin/yfinance-mcp",
+      "args": [],
+      "tool_count": 18
+    },
+    {
+      "server_id": "osm",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "OpenStreetMap geocoding, reverse geocoding, lookup, nearby/bbox/raw Overpass queries (cyanheads).",
+      "tags": [
+        "maps",
+        "geocoding",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:geo-maps",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/openstreetmap-mcp-server"
+      ],
+      "tool_count": 6
+    },
+    {
+      "server_id": "wikidata",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Wikidata entity search, statements, labels, sitelinks, and SPARQL query (cyanheads).",
+      "tags": [
+        "wikidata",
+        "knowledge-graph",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/wikidata-mcp-server"
+      ],
+      "tool_count": 7
+    },
+    {
+      "server_id": "worldbank",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "World Bank Open Data: topics, countries, indicators, time series (cyanheads).",
+      "tags": [
+        "economics",
+        "open-data",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/worldbank-mcp-server"
+      ],
+      "tool_count": 7
+    },
+    {
+      "server_id": "eurostat",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Eurostat dataset search, themes, dimensions, and query (cyanheads).",
+      "tags": [
+        "economics",
+        "open-data",
+        "europe",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:data",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/eurostat-mcp-server"
+      ],
+      "tool_count": 5
+    },
+    {
+      "server_id": "crossref",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Crossref scholarly works, references, journals, funders (cyanheads).",
+      "tags": [
+        "citations",
+        "research",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/crossref-mcp-server"
+      ],
+      "tool_count": 5
+    },
+    {
+      "server_id": "openlibrary",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Open Library books/works/editions/authors/subjects/covers (cyanheads).",
+      "tags": [
+        "books",
+        "library",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:search",
+        "verify:partial"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/openlibrary-mcp-server"
+      ],
+      "tool_count": 9
+    },
+    {
+      "server_id": "pubmed",
+      "transport": "stdio",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "PubMed article search, fetch, full text, citations, MeSH lookup (cyanheads).",
+      "tags": [
+        "medicine",
+        "research",
+        "public-api",
+        "substrate",
+        "pkg:pypi",
+        "size:medium",
+        "deps:no",
+        "alt:no",
+        "domain:search",
+        "verify:full"
+      ],
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/pubmed-mcp-server"
+      ],
+      "tool_count": 10
+    }
+  ]
+}

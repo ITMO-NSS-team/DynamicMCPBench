@@ -43,10 +43,10 @@
       "server_id": "fs",
       "transport": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/private/tmp/dmcp-fs-sandbox"],
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp/dmcp-fs-sandbox"],
       "dynamism": "stateful_write",
       "sandbox": true,
-      "description": "Filesystem read/write/move confined to /private/tmp/dmcp-fs-sandbox (Node MCP server).",
+      "description": "Filesystem read/write/move confined to /tmp/dmcp-fs-sandbox (Node MCP server).",
       "tags": ["filesystem", "files", "sandboxed"]
     },
     {
@@ -54,10 +54,10 @@
       "transport": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "env": {"MEMORY_FILE_PATH": "/private/tmp/dmcp-memory/store.json"},
+      "env": {"MEMORY_FILE_PATH": "/tmp/dmcp-memory/store.json"},
       "dynamism": "stateful_write",
       "sandbox": true,
-      "description": "Knowledge graph (entities/relations/observations) persisted at /private/tmp/dmcp-memory/store.json.",
+      "description": "Knowledge graph (entities/relations/observations) persisted at /tmp/dmcp-memory/store.json.",
       "tags": ["memory", "knowledge-graph", "sandboxed"]
     },
     {
@@ -73,10 +73,10 @@
       "server_id": "arxiv",
       "transport": "stdio",
       "command": ".venv/bin/arxiv-mcp-server",
-      "args": ["--storage-path", "/private/tmp/dmcp-arxiv"],
+      "args": ["--storage-path", "/tmp/dmcp-arxiv"],
       "dynamism": "live_read",
       "sandbox": true,
-      "description": "arXiv paper search, abstract retrieval, and PDF download to /private/tmp/dmcp-arxiv (arxiv-mcp-server).",
+      "description": "arXiv paper search, abstract retrieval, and PDF download to /tmp/dmcp-arxiv (arxiv-mcp-server).",
       "tags": ["arxiv", "papers", "research", "public-api"]
     },
     {

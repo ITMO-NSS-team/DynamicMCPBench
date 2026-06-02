@@ -69,6 +69,10 @@ class ServerEntry(BaseModel):
     endpoint: str | None = None
     headers: dict[str, str] | None = None
 
+    # provenance / metadata (optional; written by the collector + enrich step)
+    package: dict | None = None
+    tool_count: int | None = None
+
     @model_validator(mode="after")
     def _check(self) -> ServerEntry:
         if self.transport is TransportKind.stdio:
@@ -141,4 +145,5 @@ class Manifest(BaseModel):
         return [e.to_config() for e in entries]
 
     def dump(self, path: Path) -> None:
-        path.write_text(json.dumps(self.model_dump(mode="json"), indent=2), encoding="utf-8")
+        data = self.model_dump(mode="json", exclude_none=True)
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
