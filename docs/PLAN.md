@@ -273,7 +273,7 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: a `--complexity {simple,medium,hard}` knob (required-tool count × chain length × cross-server count) shapes seeds; the corpus is binned by MEASURED `trace_depth`; a coverage report tabulates tasks per strategy / depth-bin / dynamism / intra-vs-inter / server-tier.
 
 ### E6.4 — DirectAlt curation + complementary-I/O edge mining
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E3.8 E4.1
