@@ -308,6 +308,17 @@ def goal_gen(
         bool,
         typer.Option("--no-personas", help="Disable persona seeding (free-form baseline)."),
     ] = False,
+    strategy: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--strategy",
+            help="Repeatable: strategy-seed goals (random/hard_neg/cross_domain/same_name/sibling/stratified)",
+        ),
+    ] = None,
+    per_strategy: Annotated[int, typer.Option("--per-strategy", help="Goals per --strategy")] = 4,
+    seed_set_size: Annotated[
+        int, typer.Option("--seed-set-size", help="Tools per seed set (raise for harder tasks)")
+    ] = 4,
     output: Annotated[Path, typer.Option("--output", "-o", help="Goals JSON output")] = Path(
         "goals/auto.json"
     ),
@@ -319,16 +330,35 @@ def goal_gen(
     llm = OpenRouterClient(model=model)
 
     async def _run() -> None:
-        typer.echo(f"generating goals for {len(chosen)} server(s) via {model}")
-        goals = await run_goal_gen(
-            manifest=m,
-            server_ids=chosen,
-            llm=llm,
-            single_per_server=single_per_server,
-            cross_pairs=cross_pairs,
-            seed=seed,
-            use_personas=not no_personas,
-        )
+        if strategy:
+            from dmcp.goal_gen import generate_strategy_goals
+
+            all_entries = []
+            for strat in strategy:
+                typer.echo(f"strategy-seeded goals: {strat} (x{per_strategy}) over {len(chosen)} servers")
+                gs = await generate_strategy_goals(
+                    manifest=m,
+                    server_ids=chosen,
+                    llm=llm,
+                    strategy=strat,
+                    n_goals=per_strategy,
+                    seed_set_size=seed_set_size,
+                    seed=seed,
+                    use_personas=not no_personas,
+                )
+                all_entries.extend(gs.entries)
+            goals = Goals(entries=all_entries)
+        else:
+            typer.echo(f"generating goals for {len(chosen)} server(s) via {model}")
+            goals = await run_goal_gen(
+                manifest=m,
+                server_ids=chosen,
+                llm=llm,
+                single_per_server=single_per_server,
+                cross_pairs=cross_pairs,
+                seed=seed,
+                use_personas=not no_personas,
+            )
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(goals.model_dump_json(indent=2), encoding="utf-8")
         typer.echo(f"wrote {len(goals.entries)} goals → {output}")
