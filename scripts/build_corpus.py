@@ -33,8 +33,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", default="manifests/servers.json")
     ap.add_argument("--server", action="append", dest="servers", default=None)
-    ap.add_argument("--strategies", default=",".join(GEN_STRATEGIES),
-                    help="comma-separated generation strategies (default: all 15)")
+    ap.add_argument(
+        "--strategies",
+        default=",".join(GEN_STRATEGIES),
+        help="comma-separated generation strategies (default: all 15)",
+    )
     ap.add_argument("--complexities", default="simple,medium,hard")
     ap.add_argument("--per-strategy", type=int, default=4)
     ap.add_argument("--explore-model", default="anthropic/claude-haiku-4.5")
@@ -65,10 +68,22 @@ def main() -> None:
             strat_args: list[str] = []
             for s in strategies:
                 strat_args += ["--strategy", s]
-            rc = _run([
-                DMCP, "goal-gen", "-m", str(ROOT / a.manifest), *server_args, *strat_args,
-                "--per-strategy", str(a.per_strategy), "--complexity", c, "-o", str(gpath),
-            ])
+            rc = _run(
+                [
+                    DMCP,
+                    "goal-gen",
+                    "-m",
+                    str(ROOT / a.manifest),
+                    *server_args,
+                    *strat_args,
+                    "--per-strategy",
+                    str(a.per_strategy),
+                    "--complexity",
+                    c,
+                    "-o",
+                    str(gpath),
+                ]
+            )
             if rc != 0 or not gpath.exists():
                 print(f"[phase1] goal-gen failed for complexity={c} (rc={rc})")
                 continue
@@ -85,19 +100,41 @@ def main() -> None:
     if specs.exists() and not a.force:
         print(f"[phase2] reuse {specs}")
     else:
-        _run([
-            DMCP, "generate", str(goals_full), "-m", str(ROOT / a.manifest),
-            "--explore-model", a.explore_model, "--distill-model", a.distill_model,
-            "--budget", str(a.budget), "--traces-out", str(traces), "--specs-out", str(specs),
-        ])
+        _run(
+            [
+                DMCP,
+                "generate",
+                str(goals_full),
+                "-m",
+                str(ROOT / a.manifest),
+                "--explore-model",
+                a.explore_model,
+                "--distill-model",
+                a.distill_model,
+                "--budget",
+                str(a.budget),
+                "--traces-out",
+                str(traces),
+                "--specs-out",
+                str(specs),
+            ]
+        )
 
     # ---- Phase 3: coverage report ----
-    _run([
-        DMCP.replace("bin/dmcp", "bin/python") if DMCP.endswith("bin/dmcp") else "python",
-        str(ROOT / "scripts" / "corpus_coverage.py"),
-        "--traces", str(traces), "--specs", str(specs),
-        "--manifest", str(ROOT / a.manifest), "-o", str(out / "coverage.md"),
-    ])
+    _run(
+        [
+            DMCP.replace("bin/dmcp", "bin/python") if DMCP.endswith("bin/dmcp") else "python",
+            str(ROOT / "scripts" / "corpus_coverage.py"),
+            "--traces",
+            str(traces),
+            "--specs",
+            str(specs),
+            "--manifest",
+            str(ROOT / a.manifest),
+            "-o",
+            str(out / "coverage.md"),
+        ]
+    )
     print(f"[done] corpus in {out}")
 
 
