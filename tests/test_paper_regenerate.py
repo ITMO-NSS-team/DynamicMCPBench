@@ -1,4 +1,4 @@
-"""E5.2: paper figure / table regenerator — parser, dispatch, renderers, cross-ref."""
+"""E5.2: paper figure / table regenerator — LaTeX renderers + cross-ref."""
 
 from __future__ import annotations
 
@@ -12,15 +12,30 @@ from paper.regenerate import (
     RENDERERS,
     FigureRow,
     IndexError_,
-    find_draft_references,
+    find_section_inputs,
     parse_figures_index,
     regenerate,
     render_fig_rq1_kendall,
     render_tab_rq2_comparison,
     render_tab_rq3_failure_drivers,
     render_tab_substrate,
+    tex_escape,
     validate_cross_references,
 )
+
+# ---------------------------------------------------------------------------
+# tex_escape
+# ---------------------------------------------------------------------------
+
+
+def test_tex_escape_handles_special_chars():
+    assert tex_escape("100%") == r"100\%"
+    assert tex_escape("a_b") == r"a\_b"
+    assert tex_escape("a&b") == r"a\&b"
+    assert tex_escape("$1") == r"\$1"
+    # HTML pipe escape from figures.md captions should decode back to `|`.
+    assert tex_escape("&#124;eq_set&#124;") == r"|eq\_set|"
+
 
 # ---------------------------------------------------------------------------
 # figures.md parser
@@ -63,10 +78,10 @@ def test_parse_figures_index_round_trip(tmp_path: Path):
     ]
     assert rows[0].kind == "fig"
     assert rows[2].kind == "tab"
+    assert rows[0].slug == "rq1_kendall"
+    assert rows[2].slug == "rq2_comparison"
     assert rows[1].status == "manual"
     assert rows[3].status == "pending"
-    assert rows[2].section == "Tables"
-    assert rows[0].section == "Figures"
 
 
 def test_parse_figures_index_rejects_invalid_status(tmp_path: Path):
@@ -106,25 +121,24 @@ def test_parse_figures_index_rejects_unprefixed_id(tmp_path: Path):
 # ---------------------------------------------------------------------------
 
 
-def test_find_draft_references_and_validate(tmp_path: Path):
-    draft = tmp_path / "draft.md"
-    draft.write_text(
-        textwrap.dedent(
-            """\
-            Some text.
-
-            [Fig 3 here — answer-match vs trace-align. See `figures.md::fig:rq1_kendall`.]
-
-            More text.
-
-            [Tbl 1 here — RQ2 comparison. See `figures.md::tab:rq2_comparison`.]
-
-            [Fig 9 here — does not exist. See `figures.md::fig:missing`.]
-            """
-        )
+def test_find_section_inputs_walks_tex_files(tmp_path: Path):
+    sections = tmp_path / "sections"
+    sections.mkdir()
+    (sections / "introduction.tex").write_text(r"Some text. \input{figures/rq1_kendall} more text." + "\n")
+    (sections / "experiments.tex").write_text(
+        r"\input{tables/rq2_comparison}"
+        + "\n"
+        + r"\input{figures/missing}"
+        + "\n"
+        + r"\input{somethingelse/notapaper}"
+        + "\n"  # NOT a figures/tables include
     )
-    refs = find_draft_references(draft)
-    assert refs == ["fig:rq1_kendall", "tab:rq2_comparison", "fig:missing"]
+    refs = find_section_inputs(sections)
+    assert sorted(refs) == [
+        "fig:missing",
+        "fig:rq1_kendall",
+        "tab:rq2_comparison",
+    ]
 
 
 def test_validate_cross_references_flags_missing():
@@ -144,7 +158,7 @@ def test_validate_cross_references_flags_missing():
 
 
 # ---------------------------------------------------------------------------
-# Renderers — ready-row happy paths and missing-data fallbacks
+# LaTeX renderers — happy paths and missing-data fallbacks
 # ---------------------------------------------------------------------------
 
 
@@ -160,7 +174,7 @@ def _fake_row(id_: str, status: str = "ready") -> FigureRow:
     )
 
 
-def test_render_tab_rq2_comparison_emits_per_method_row(tmp_path: Path):
+def test_render_tab_rq2_comparison_emits_latex_table(tmp_path: Path):
     root = tmp_path
     (root / "docs" / "experiments").mkdir(parents=True)
     (root / "docs" / "experiments" / "e4.3_numbers.json").write_text(
@@ -192,10 +206,14 @@ def test_render_tab_rq2_comparison_emits_per_method_row(tmp_path: Path):
     )
     r = render_tab_rq2_comparison(_fake_row("tab:rq2_comparison"), root)
     assert r.used_data_source is True
+    assert r"\begin{table*}" in r.body
+    assert r"\end{table*}" in r.body
+    assert r"\label{tab:rq2_comparison}" in r.body
     assert "forward" in r.body
     assert "graph" in r.body
-    assert "1.420" in r.body  # mean_eq_set_size, 3 dp
-    assert "100.0%" in r.body  # graph filter_pass_rate
+    assert "1.420" in r.body
+    # filter_pass_rate=1.0 → "100.0\%"
+    assert r"100.0\%" in r.body
 
 
 def test_render_fig_rq1_kendall_sorts_by_trace_accuracy(tmp_path: Path):
@@ -216,11 +234,13 @@ def test_render_fig_rq1_kendall_sorts_by_trace_accuracy(tmp_path: Path):
         )
     )
     r = render_fig_rq1_kendall(_fake_row("fig:rq1_kendall"), root)
+    assert r"\begin{figure}" in r.body
+    assert r"\label{fig:rq1_kendall}" in r.body
     # haiku-4.5 has the highest trace_accuracy → must appear before haiku-3.5
-    idx_haiku45 = r.body.find("haiku-4.5")
-    idx_haiku35 = r.body.find("haiku-3.5")
-    assert 0 <= idx_haiku45 < idx_haiku35
-    # τ value is rendered with sign + 3 digits
+    idx_45 = r.body.find("haiku-4.5")
+    idx_35 = r.body.find("haiku-3.5")
+    assert 0 <= idx_45 < idx_35
+    # τ is rendered as a math-mode signed float with 3 digits
     assert "-0.816" in r.body
 
 
@@ -264,10 +284,12 @@ def test_render_tab_rq3_failure_drivers_sorted_by_loss(tmp_path: Path):
         )
     )
     r = render_tab_rq3_failure_drivers(_fake_row("tab:rq3_failure_drivers"), root)
-    assert "dynamism_live" in r.body
-    # Sorted by drop_loglik_loss descending → dynamism_live appears before trace_depth
-    assert r.body.find("dynamism_live") < r.body.find("trace_depth")
-    assert r.body.find("trace_depth") < r.body.find("cross_server")
+    assert r"\begin{table}" in r.body
+    assert r"\label{tab:rq3_failure_drivers}" in r.body
+    # Underscores in feature names must be LaTeX-escaped.
+    assert r"dynamism\_live" in r.body
+    # Sorted by drop_loglik_loss descending → dynamism_live before trace_depth.
+    assert r.body.find("dynamism") < r.body.find("trace") < r.body.find("cross")
 
 
 def test_render_tab_substrate_counts_dynamism(tmp_path: Path):
@@ -301,18 +323,25 @@ def test_render_tab_substrate_counts_dynamism(tmp_path: Path):
         json.dumps({"manifest_version": "0.1.0", "servers": servers})
     )
     r = render_tab_substrate(_fake_row("tab:substrate"), root)
-    assert "3" in r.body  # total
-    assert "static" in r.body
-    assert "live_read" in r.body
-    assert "stateful_write" in r.body
+    assert r"\begin{table}" in r.body
+    assert r"\label{tab:substrate}" in r.body
+    # All three dynamism rows should appear.
+    assert r"\texttt{static}" in r.body
+    assert r"\texttt{live\_read}" in r.body
+    assert r"\texttt{stateful\_write}" in r.body
+    # Top tag should be rendered.
     assert "public-api" in r.body
+    # The total count appears in the caption.
+    assert "3 vetted servers" in r.body
 
 
 def test_renderer_returns_placeholder_when_data_missing(tmp_path: Path):
     r = render_tab_rq2_comparison(_fake_row("tab:rq2_comparison"), tmp_path)
     assert r.used_data_source is False
     assert r.pending is True
-    assert "pending" in r.body.lower() or "placeholder" in r.body.lower()
+    # Placeholder still emits a labeled figure/table so \ref{} resolves.
+    assert r"\label{tab:rq2_comparison}" in r.body
+    assert r"\begin{table}" in r.body
 
 
 # ---------------------------------------------------------------------------
@@ -320,7 +349,7 @@ def test_renderer_returns_placeholder_when_data_missing(tmp_path: Path):
 # ---------------------------------------------------------------------------
 
 
-def test_regenerate_writes_one_file_per_row_and_marks_pending(tmp_path: Path):
+def test_regenerate_writes_separate_files_per_kind(tmp_path: Path):
     paper = tmp_path / "paper"
     paper.mkdir()
     _write_index(
@@ -339,25 +368,25 @@ def test_regenerate_writes_one_file_per_row_and_marks_pending(tmp_path: Path):
         | `tab:rq2_comparison` | RQ2 comparison | ready | — | e4.3 |
         """,
     )
-    (paper / "draft.md").write_text(
-        "[Fig 1 here — pipeline overview. See `figures.md::fig:pipeline`.]\n"
-        "[Tbl 1 here — RQ2. See `figures.md::tab:rq2_comparison`.]\n"
+    sections = paper / "sections"
+    sections.mkdir()
+    (sections / "intro.tex").write_text(
+        r"\input{figures/pipeline}" + "\n" + r"\input{tables/rq2_comparison}" + "\n"
     )
-    out = paper / "figures"
-    outcome = regenerate(root=tmp_path, out_dir=out)
-    # The RQ2 row will be pending here (no e4.3 JSON in this tmpdir).
+    outcome = regenerate(root=tmp_path)
+    # The RQ2 row is pending here (no e4.3 JSON in tmpdir).
     assert "tab:rq2_comparison" in outcome.pending
     assert "fig:pipeline" in outcome.manual
     assert outcome.cross_ref_errors == []
-    # One artifact per row
-    assert (out / "fig__pipeline.md").exists()
-    assert (out / "tab__rq2_comparison.md").exists()
-    # Manual row gets a placeholder marked "manual"
-    pipeline_body = (out / "fig__pipeline.md").read_text(encoding="utf-8")
-    assert "manual" in pipeline_body.lower()
+    # fig:* goes to paper/figures/, tab:* goes to paper/tables/
+    assert (paper / "figures" / "pipeline.tex").is_file()
+    assert (paper / "tables" / "rq2_comparison.tex").is_file()
+    body = (paper / "figures" / "pipeline.tex").read_text(encoding="utf-8")
+    assert r"\begin{figure}" in body
+    assert r"\label{fig:pipeline}" in body
 
 
-def test_regenerate_flags_dangling_draft_references(tmp_path: Path):
+def test_regenerate_flags_dangling_section_inputs(tmp_path: Path):
     paper = tmp_path / "paper"
     paper.mkdir()
     _write_index(
@@ -370,9 +399,32 @@ def test_regenerate_flags_dangling_draft_references(tmp_path: Path):
         | `fig:pipeline` | block diagram | manual | — | — |
         """,
     )
-    (paper / "draft.md").write_text("[Fig 99 here — missing. See `figures.md::fig:does_not_exist`.]\n")
-    outcome = regenerate(root=tmp_path, out_dir=paper / "figures")
+    sections = paper / "sections"
+    sections.mkdir()
+    (sections / "intro.tex").write_text(r"\input{figures/does_not_exist}" + "\n")
+    outcome = regenerate(root=tmp_path)
     assert any("fig:does_not_exist" in e for e in outcome.cross_ref_errors)
+
+
+def test_regenerate_is_idempotent(tmp_path: Path):
+    paper = tmp_path / "paper"
+    paper.mkdir()
+    _write_index(
+        paper / "figures.md",
+        """\
+        ## Figures
+
+        | id | caption | status | gating step | data source / notes |
+        |---|---|---|---|---|
+        | `fig:pipeline` | block diagram | manual | — | — |
+        """,
+    )
+    (paper / "sections").mkdir()
+    regenerate(root=tmp_path)
+    first = (paper / "figures" / "pipeline.tex").read_text(encoding="utf-8")
+    regenerate(root=tmp_path)
+    second = (paper / "figures" / "pipeline.tex").read_text(encoding="utf-8")
+    assert first == second
 
 
 # ---------------------------------------------------------------------------

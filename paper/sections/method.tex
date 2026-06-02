@@ -1,0 +1,99 @@
+\section{Method}
+\label{sec:method}
+
+\input{figures/pipeline}
+
+\subsection{Substrate and trace recording}
+\label{sec:method:substrate}
+
+We start from a \textbf{server manifest} (\texttt{dmcp/manifest.py})
+declaring each MCP server's transport, \emph{dynamism class}
+(\texttt{static} / \texttt{live\_read} / \texttt{stateful\_write}), and
+a hard \texttt{sandbox=true} requirement for any
+\texttt{stateful\_write} server. The recorder
+(\texttt{dmcp/recorder.py}) is the only substrate the rest of the
+pipeline talks to; its replay counterpart (\texttt{dmcp/replay.py}) is a
+drop-in interchange that turns recorded traces into a deterministic
+world for scoring (\S\ref{sec:method:refresh}).
+
+\subsection{Forward generation: goal $\to$ exploration $\to$ distillation}
+\label{sec:method:gen}
+
+A \emph{goal generator} (\texttt{dmcp/goal\_gen.py}) drives an LLM to
+propose realistic user goals against each server's tool surface
+(per-server and cross-server pairs), with deterministic \emph{persona
+seeding} (\texttt{dmcp/personas.py}). The \emph{explorer}
+(\texttt{dmcp/explorer.py}) executes one goal as an agent loop with a
+turn budget against the live substrate. On success, the recorded trace
+is fed to the \emph{distiller} (\texttt{dmcp/distiller.py}), which
+produces a \texttt{TaskSpec}:
+
+\begin{itemize}
+  \item a fuzzy natural-language \emph{prompt} (tool names stripped,
+    concrete resources retained);
+  \item one or more \emph{checkpoints}: \texttt{tool\_effect} (a tool
+    from an equivalence set must have been called, optionally matching
+    arg predicates) and \texttt{value\_produced} (a tool result must
+    contain demanded substrings);
+  \item optional \emph{minefields} (forbidden tools / args);
+  \item an \emph{ordering} of checkpoints~--- partial; only where one
+    effect genuinely depends on a prior one. Parallelizable effects are
+    left unordered on purpose;
+  \item a \texttt{ComplexityProfile} (trace depth, runtime branching,
+    state coupling, cross-server) and dynamism class for stratification.
+\end{itemize}
+
+The distiller is explicit about its scope: it never invents checkpoints
+the trace does not justify; it always echoes the LLM's ambiguity notes
+into \texttt{TaskSpec.notes} so reviewers can see what the model was
+unsure about.
+
+\input{figures/trace_distill_example}
+
+\subsection{Evaluation: Tier-1 deterministic, Tier-2 LLM judge}
+\label{sec:method:eval}
+
+Given a candidate trace and a \texttt{TaskSpec}, \textbf{Tier-1}
+(\texttt{dmcp/evaluator.py}) is fully deterministic: for each
+\texttt{tool\_effect}, verify some tool from the equivalence set was
+called with arguments satisfying the predicate; for each
+\texttt{value\_produced}, verify the substring; for each minefield,
+verify it was not tripped; verify the partial order. \textbf{Tier-2}
+(\texttt{dmcp/judge.py}) optionally upgrades failed
+\texttt{tool\_effect} checks via an LLM \emph{effect-equivalence judge}
+--- also constrained to a tool-call schema at temperature $0$. The fair
+multi-agent path is \texttt{dmcp eval --replay}: candidates run against
+a \texttt{TraceReplayRecorder} built from each spec's source trace, so
+the world is identical across candidates and re-runs.
+
+Critically, we \emph{never grade the final answer} for correctness. A
+\texttt{value\_produced} checkpoint matches \emph{evidence the spec
+demands}, never ``is the answer right''. Section~\ref{sec:rq1}~(RQ1)
+shows what happens when one does.
+
+\subsection{Living bench: refresh and decay}
+\label{sec:method:refresh}
+
+The refresh path (\texttt{dmcp/refresh.py}) re-runs each spec's
+reference trace against the live substrate and classifies every
+reference call as \emph{identical / drifted / broken / skipped}. A
+\texttt{dmcp report} decay table turns this into the stratified drift
+rate that signals when a spec should be re-distilled. Stateful-write
+servers are \textbf{skipped by default} in refresh~--- re-running a
+\texttt{git\_create\_branch} with the same name would just fail; the
+explicit \texttt{--refresh-stateful} override is for sandboxes known
+to support re-execution.
+
+\subsection{Eval-side controls: tool-pool sampling, $P_{\text{alt}}$ degradation}
+\label{sec:method:controls}
+
+Beyond the headline scoring path, evaluation supports \textbf{distractor
+pool modes} (\texttt{gold} / \texttt{target} / \texttt{full}) with a
+sampler over six strategies (\texttt{random}, \texttt{hard\_neg},
+\texttt{cross\_domain}, \texttt{same\_name}, \texttt{sibling},
+\texttt{stratified}; \texttt{dmcp/sampling.py}) and a \emph{description
+normalizer} (Level~A surface vs. Level~B semantic;
+\texttt{dmcp/normalize.py}). The $P_{\text{alt}}$ driver
+(\texttt{dmcp/curves.py}) sweeps the alternative-tool density and
+produces degradation curves with Wilson confidence intervals by
+complexity bin (\S\ref{sec:rq_palt}).
