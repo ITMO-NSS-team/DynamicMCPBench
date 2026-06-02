@@ -17,7 +17,7 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
@@ -70,6 +70,29 @@ from dmcp.baselines.rq1_compare import (
 )
 from dmcp.baselines.rq1_compare import (
     report_to_json as rq1_report_to_json,
+)
+from dmcp.baselines.rq4_agreement import (
+    build_report as build_rq4_agreement_report,
+)
+from dmcp.baselines.rq4_agreement import (
+    load_evals as load_evals_for_rq4,
+)
+from dmcp.baselines.rq4_agreement import (
+    render_markdown as render_rq4_markdown,
+)
+from dmcp.baselines.rq4_agreement import (
+    report_to_json as rq4_report_to_json,
+)
+from dmcp.baselines.rq4_agreement import (
+    write_consensus,
+)
+from dmcp.baselines.rq4_subset import (
+    DEFAULT_SUBSET_N,
+    build_subset,
+    compute_consensus,
+    load_annotations,
+    write_annotation_template,
+    write_subset_jsonl,
 )
 from dmcp.curves import aggregate_curve, complexity_bin
 from dmcp.discovery import MCPRegistryClient
@@ -873,6 +896,192 @@ def rq3_failure_model(
         json_out.parent.mkdir(parents=True, exist_ok=True)
         json_out.write_text(
             json.dumps(rq3_report_to_json(report), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"wrote json   → {json_out}")
+    typer.echo("")
+    typer.echo(md)
+
+
+@app.command(name="rq4-subset")
+def rq4_subset(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL input")],
+    candidate_traces: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--candidate-traces",
+            help="Repeatable: JSONL of candidate traces to seed the annotation template with.",
+        ),
+    ] = None,
+    raters: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--rater",
+            help="Repeatable: rater_id for the annotation template (e.g. -r alice -r bob).",
+        ),
+    ] = None,
+    n: Annotated[int, typer.Option("--n", help="Target subset size.")] = DEFAULT_SUBSET_N,
+    seed: Annotated[int, typer.Option("--seed", help="Sampling seed.")] = 0,
+    subset_out: Annotated[
+        Path,
+        typer.Option(
+            "--subset-out",
+            help="JSONL: chosen task subset + per-row stratum tag.",
+        ),
+    ] = Path("evals/rq4_subset.jsonl"),
+    annotation_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--annotation-out",
+            help=(
+                "JSONL: annotation-template rows (one per task × candidate × rater). "
+                "Requires --candidate-traces and at least one --rater."
+            ),
+        ),
+    ] = None,
+) -> None:
+    """RQ4: emit a deterministic stratified validation subset + annotation template.
+
+    Builds a balanced sample of `n` tasks across the (dynamism × complexity_bin)
+    grid (every non-empty stratum gets ≥ 1). When `--candidate-traces` and
+    `--rater` are supplied, also emits an annotation template JSONL with one
+    empty row per (task_id, candidate_trace_id, rater_id) the human will fill in.
+
+    Per `memory/feedback_agb_orthogonality.md`, this is RQ4 instrumentation —
+    no scorer change.
+    """
+    spec_list: list[TaskSpec] = []
+    with specs.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            spec_list.append(TaskSpec.model_validate_json(line))
+    manifest = build_subset(spec_list, n=n, seed=seed)
+    write_subset_jsonl(manifest, subset_out)
+    typer.echo(f"wrote subset → {subset_out} (target={manifest.target_n}, achieved={manifest.achieved_n})")
+    typer.echo("stratum counts:")
+    for k, v in sorted(manifest.stratum_counts.items()):
+        typer.echo(f"  {k}: {v}")
+    if manifest.notes:
+        typer.echo("notes:")
+        for note in manifest.notes:
+            typer.echo(f"  - {note}")
+
+    if annotation_out is not None:
+        if not candidate_traces or not raters:
+            raise typer.BadParameter("--annotation-out requires --candidate-traces and at least one --rater")
+        cand_rows: list[dict[str, Any]] = []
+        for cpath in candidate_traces:
+            with cpath.open("r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    d = json.loads(line)
+                    tid = (d.get("seed_metadata") or {}).get("task_id") or d.get("task_id")
+                    cand_rows.append(
+                        {
+                            "task_id": str(tid) if tid is not None else "",
+                            "candidate_trace_id": str(d.get("trace_id") or ""),
+                            "candidate_model": str((d.get("seed_metadata") or {}).get("llm_model") or ""),
+                        }
+                    )
+        written = write_annotation_template(
+            manifest.rows, cand_rows, rater_ids=list(raters), path=annotation_out
+        )
+        typer.echo(f"wrote annotation template ({written} rows) → {annotation_out}")
+
+
+@app.command(name="rq4-agreement")
+def rq4_agreement(
+    annotations: Annotated[
+        Path,
+        typer.Option(
+            "--annotations",
+            help="Annotation JSONL (filled-in template) from `dmcp rq4-subset`.",
+        ),
+    ],
+    tier1_evals: Annotated[
+        Path,
+        typer.Option(
+            "--tier1-evals",
+            help="Tier-1 EvaluationResult JSONL (judge off) used to derive scorer verdicts.",
+        ),
+    ],
+    tier2_evals: Annotated[
+        Path | None,
+        typer.Option(
+            "--tier2-evals",
+            help="Optional: Tier-2 EvaluationResult JSONL (judge on) for the Tier-2 column.",
+        ),
+    ] = None,
+    replay_run_b_evals: Annotated[
+        Path | None,
+        typer.Option(
+            "--replay-run-b",
+            help="Optional: second Tier-1 run for the replay-determinism flip-rate.",
+        ),
+    ] = None,
+    consensus_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--consensus-out",
+            help="Optional: write the human-consensus aggregate JSONL here.",
+        ),
+    ] = None,
+    subset_size_hint: Annotated[
+        int,
+        typer.Option(
+            "--subset-size",
+            help="Subset size for the report header (default: distinct task_ids in annotations).",
+        ),
+    ] = 0,
+    title: Annotated[str | None, typer.Option("--title", help="Report title override.")] = None,
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Markdown report path."),
+    ] = Path("reports/rq4_agreement.md"),
+    json_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--json-out",
+            help="Optional JSON dump of the distilled numbers (committable).",
+        ),
+    ] = None,
+) -> None:
+    """RQ4: report scorer-vs-human agreement (Cohen's κ, Krippendorff's α) + replay determinism.
+
+    Consumes a filled-in annotation JSONL plus per-tier Tier-1 / Tier-2
+    `EvaluationResult` JSONL. Optional second Tier-1 run feeds the
+    replay-determinism flip-rate. Pre-registered thresholds (κ / α ≥ 0.7;
+    replay flip rate < 5 %) come from the experiment doc.
+    """
+    ann_rows = load_annotations(annotations)
+    consensus = compute_consensus(ann_rows)
+    if consensus_out is not None:
+        write_consensus(consensus, consensus_out)
+        typer.echo(f"wrote consensus → {consensus_out}")
+    t1 = load_evals_for_rq4(tier1_evals)
+    t2 = load_evals_for_rq4(tier2_evals) if tier2_evals else None
+    rb = load_evals_for_rq4(replay_run_b_evals) if replay_run_b_evals else None
+    subset_size = subset_size_hint or len({a.task_id for a in ann_rows})
+    report = build_rq4_agreement_report(
+        subset_size=subset_size,
+        annotations=ann_rows,
+        consensus=consensus,
+        tier1_evals=t1,
+        tier2_evals=t2,
+        replay_run_b_evals=rb,
+    )
+    md = render_rq4_markdown(report, title=title)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(md, encoding="utf-8")
+    typer.echo(f"\nwrote report → {output}")
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(
+            json.dumps(rq4_report_to_json(report), indent=2) + "\n",
             encoding="utf-8",
         )
         typer.echo(f"wrote json   → {json_out}")
