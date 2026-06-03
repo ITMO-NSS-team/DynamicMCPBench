@@ -453,3 +453,117 @@ MCP servers → diverse benchmark → multi-model agent eval + baselines → abl
 - Mine the full discovery scan for more no-creds public-API servers (Bucket B).
 - Continual/live re-evaluation to track model-quality drift over time.
 - Cross-server credentialed scenarios once E3.4 lands.
+
+---
+
+## E8 — EMNLP experiment suite (full run)
+
+Detailed plan: **`docs/EXPERIMENTS_SUITE.md`** (models, conditions, metrics, success criteria,
+optional arms). Mandate (user 2026-06): run as many experiments as possible; decide the
+publication cut later. Roster (pinned): gpt-5.5, claude-opus-4.8, claude-sonnet-4.6,
+gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring uses a
+cross-family panel (explorer ≠ distiller), not a single model.
+
+### E8.1 — Build: cost/latency capture (B1)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E0.1
+- source: docs/EXPERIMENTS_SUITE.md B1 / user 2026-06 (cost/latency Pareto)
+- done-when: OpenRouter token usage + wall-clock thread through `dmcp/llm.py` into `EvaluationResult.summary.cost`; `scripts/cost_latency.py` emits the accuracy-vs-$ Pareto + $/correct; smoke-tested.
+
+### E8.2 — Build: architecture harnesses (flat / RAG-MCP / hierarchical) (B2)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E0.1
+- source: docs/EXPERIMENTS_SUITE.md B2 / G6.3 / simple_approach §12
+- done-when: `dmcp eval --architecture {flat,rag,hier}`: flat (current), RAG-MCP (embed prompt → retrieve top-k tools via `embeddings.py`, expose only those), hierarchical (router LLM → server-group → specialist); smoke-tested on a small manifest.
+
+### E8.3 — Build: tool-scaling runner (B3)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E0.1
+- source: docs/EXPERIMENTS_SUITE.md B3 / G6.2
+- done-when: `scripts/tool_scaling.py` sweeps `--pool-size {4,8,16,32,full}` → accuracy/SAE vs surface size; smoke-tested.
+
+### E8.4 — Build: decay multi-window runner (B4)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E1.5
+- source: docs/EXPERIMENTS_SUITE.md B4 / G6.4
+- done-when: `scripts/decay_run.py` wraps `dmcp refresh` over N time windows → per-server decay curve + `fig:decay_curve` numbers; smoke-tested.
+
+### E8.5 — Build: IAE metric surfacing (B5)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E2.3
+- source: docs/EXPERIMENTS_SUITE.md B5 / rev.1 PDF §5.1 (IAE)
+- done-when: incomplete-aggregation (E3) surfaced as an explicit IAE rate in the SAE summary; smoke-tested.
+
+### E8.6 — Generation upgrade: cross-family panel + role split + validation
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E6.1
+- source: docs/EXPERIMENTS_SUITE.md §2.2 / user 2026-06 (single-model authoring is a risk)
+- done-when: corpus authored with explorer-family ≠ distiller-family, sharded over 3 explorer families (gpt-5.5/opus-4.8/gemini-3.1-pro), distilled by a top cross-family model, validated by a 4th family (qwen3.7-max); family provenance recorded per spec for G0.
+
+### E8.7 — Run: shared corpus (~1100 specs, sharded) [supersedes E3.9]
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.6 E3.7
+- source: docs/EXPERIMENTS_SUITE.md §2.4
+- done-when: ~1100 keepers over servers.json (docker up), 15 strategies weighted to SAE-relevant, × 3 complexity, intra ∪ inter, ≥150 SAE-eligible + ≥150/complexity-bin, family-sharded, 200-task RQ4 subset reserved; coverage report emitted.
+
+### E8.8 — Run: 8-model leaderboard + pools + reliability
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.7 E8.1
+- source: docs/EXPERIMENTS_SUITE.md G2
+- done-when: 8 models × 600 core × pass^3 at MAIN; gold/full ceiling/floor on a subset; pass^5 reliability (pass^k_no_SAE vs overall) on the SAE-rich subset; `e4.7_numbers.json` written.
+
+### E8.9 — Run: SAE deep-dive (P_alt curves + sampling ablation + heatmap)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.7
+- source: docs/EXPERIMENTS_SUITE.md G3 / simple_approach §8
+- done-when: P_alt degradation curves (3 ref models) with Wilson CIs; 6-strategy sampling ablation with Fisher/χ²+Holm (H1–H3); gen×eval SAE heatmap; SAE_expected/random/conditional + IAE; numbers JSONs written.
+
+### E8.10 — Run: RQ1/RQ2/RQ3 + difficulty + generator-contamination (post-hoc)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.8
+- source: docs/EXPERIMENTS_SUITE.md G0/G1/G4.1/G5
+- done-when: RQ1 answer-vs-trace (τ, false-pass/fail); RQ2 forward-vs-graph-vs-direct; RQ3 failure model; difficulty curve; G0 contamination matrix + same-family logit; all numbers JSONs written.
+
+### E8.11 — Run: industry extras (cost/latency, tool-scaling, architecture, decay)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.8 E8.2 E8.3 E8.4
+- source: docs/EXPERIMENTS_SUITE.md G6
+- done-when: cost/latency Pareto + $/correct; tool-scaling curve; flat/RAG/hier architecture comparison; living-bench decay over ≥3 windows; numbers JSONs written.
+
+### E8.12 — Run: RQ4 human validation (200 tasks, ≥3 raters)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.7
+- source: docs/EXPERIMENTS_SUITE.md G4.3 / research_plan RQ4 (annotators confirmed)
+- done-when: 200-task stratified subset annotated by ≥3 raters; Cohen κ (Tier-1/Tier-2) + Krippendorff α reported (target ≥0.7), per-tier false-pass/fail, replay flip <5%; optional Bradley-Terry error-weight calibration; `e4.6_numbers.json` written.
+
+### E8.13 — Paper population + HF release
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.8 E8.9 E8.10 E8.11 E8.12
+- source: docs/EXPERIMENTS_SUITE.md G7 / E7.2 / E5.3
+- done-when: all `docs/experiments/*_numbers.json` committed; `paper/regenerate.py` fills every figure/table; HF dataset pushed with datasheet; living leaderboard described.
