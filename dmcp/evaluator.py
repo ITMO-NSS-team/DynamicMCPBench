@@ -443,6 +443,37 @@ def _detect_sae(
     }
 
 
+def _detect_iae(
+    spec: TaskSpec,
+    checkpoint_results: list[CheckpointResult],
+) -> dict[str, Any]:
+    """Incomplete Aggregation Error rollup (E8.5 / rev.1 §5.1).
+
+    IAE counts failed `ValueProducedCheckpoint`s — the rev.1 PDF's incomplete
+    aggregation case (the candidate touched the right tools but didn't surface
+    the final value the spec demands). The denominator is the count of
+    value_produced checkpoints in the spec (the *opportunities* for incomplete
+    aggregation); `rate` is None when the spec has no such checkpoints so
+    aggregators see honest "undefined" instead of an artificial zero.
+    """
+    cp_by_id = {cp.checkpoint_id: cp for cp in spec.checkpoints}
+    opportunities = sum(1 for cp in spec.checkpoints if isinstance(cp, ValueProducedCheckpoint))
+    events: list[dict[str, Any]] = []
+    for cr in checkpoint_results:
+        if cr.passed:
+            continue
+        cp = cp_by_id.get(cr.checkpoint_id)
+        if isinstance(cp, ValueProducedCheckpoint):
+            events.append({"checkpoint_id": cr.checkpoint_id, "reason": cr.reason})
+    total = len(events)
+    return {
+        "total": total,
+        "opportunities": opportunities,
+        "rate": round(total / opportunities, 4) if opportunities else None,
+        "events": events,
+    }
+
+
 def evaluate(
     spec: TaskSpec,
     candidate: Trace,
@@ -457,6 +488,7 @@ def evaluate(
     minefield_results = [_eval_minefield(mf, agent_calls) for mf in spec.minefields]
     ordering_ok, ordering_failures = _eval_ordering(spec.ordering, checkpoint_results)
     errors = _classify_errors(spec, agent_calls, checkpoint_results, ordering_ok)
+    iae = _detect_iae(spec, checkpoint_results)
 
     all_checkpoints_pass = all(cr.passed for cr in checkpoint_results)
     no_minefield_hit = not any(mr.hit for mr in minefield_results)
@@ -470,6 +502,7 @@ def evaluate(
         "agent_call_count": len(agent_calls),
         "agent_call_success_count": sum(1 for s in agent_calls if s.status is StepStatus.success),
         "sae": sae,
+        "iae": iae,
         "error_taxonomy": errors,
     }
     cost = candidate.seed_metadata.get("cost")
