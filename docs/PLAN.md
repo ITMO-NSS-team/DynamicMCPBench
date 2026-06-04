@@ -505,9 +505,9 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: incomplete-aggregation (E3) surfaced as an explicit IAE rate in the SAE summary; smoke-tested.
 
 ### E8.6 — Generation upgrade: cross-family panel + role split + validation
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-04T12:10:12Z
 - deps: E6.1
 - source: docs/EXPERIMENTS_SUITE.md §2.2 / user 2026-06 (single-model authoring is a risk)
 - done-when: corpus authored with explorer-family ≠ distiller-family, sharded over 3 explorer families (gpt-5.5/opus-4.8/gemini-3.1-pro), distilled by a top cross-family model, validated by a 4th family (qwen3.7-max); family provenance recorded per spec for G0.
