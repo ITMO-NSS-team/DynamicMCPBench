@@ -473,7 +473,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: OpenRouter token usage + wall-clock thread through `dmcp/llm.py` into `EvaluationResult.summary.cost`; `scripts/cost_latency.py` emits the accuracy-vs-$ Pareto + $/correct; smoke-tested.
 
 ### E8.2 — Build: architecture harnesses (flat / RAG-MCP / hierarchical) (B2)
-- status: claimed
+- status: in_review (#52)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T10:42:36Z
 - deps: E0.1
