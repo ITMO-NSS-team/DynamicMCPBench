@@ -489,9 +489,9 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: `scripts/tool_scaling.py` sweeps `--pool-size {4,8,16,32,full}` → accuracy/SAE vs surface size; smoke-tested.
 
 ### E8.4 — Build: decay multi-window runner (B4)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-04T11:59:14Z
 - deps: E1.5
 - source: docs/EXPERIMENTS_SUITE.md B4 / G6.4
 - done-when: `scripts/decay_run.py` wraps `dmcp refresh` over N time windows → per-server decay curve + `fig:decay_curve` numbers; smoke-tested.
