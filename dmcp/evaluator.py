@@ -472,6 +472,9 @@ def evaluate(
         "sae": sae,
         "error_taxonomy": errors,
     }
+    cost = candidate.seed_metadata.get("cost")
+    if isinstance(cost, dict) and cost:
+        summary["cost"] = cost
 
     return EvaluationResult(
         task_id=spec.task_id,

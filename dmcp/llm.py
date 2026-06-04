@@ -15,12 +15,14 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
+from dmcp.pricing import compute_cost_usd, get_price
 from dmcp.trace import ToolSpec
 
 DEFAULT_MODEL = "anthropic/claude-haiku-4.5"
@@ -49,6 +51,75 @@ class ChatResponse:
     finish_reason: str | None
     usage: dict[str, Any] | None
     raw: dict[str, Any] = field(default_factory=dict)
+    wall_ms: float | None = None
+
+
+@dataclass
+class UsageAccumulator:
+    """Lifetime token/latency/cost tally for one OpenRouterClient (E8.1 / B1).
+
+    Snapshots are deltas-friendly: callers stash `before = client.usage.snapshot()`
+    around a work unit (one explore() call) and diff against `after` to attribute
+    cost per spec. `unknown_price` flips True the first time a call records cost
+    for a model we don't have a pinned price for; the flag rides into the
+    EvaluationResult summary so the cost/latency Pareto stays honest.
+    """
+
+    model: str
+    calls: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    cost_usd: float = 0.0
+    wall_ms_total: float = 0.0
+    latencies_ms: list[float] = field(default_factory=list)
+    unknown_price: bool = False
+
+    def add(self, usage: dict[str, Any] | None, wall_ms: float) -> None:
+        self.calls += 1
+        self.wall_ms_total += wall_ms
+        self.latencies_ms.append(wall_ms)
+        pt = int((usage or {}).get("prompt_tokens") or 0)
+        ct = int((usage or {}).get("completion_tokens") or 0)
+        self.prompt_tokens += pt
+        self.completion_tokens += ct
+        if get_price(self.model) is None and (pt or ct):
+            self.unknown_price = True
+        self.cost_usd += compute_cost_usd(self.model, pt, ct)
+
+    def snapshot(self) -> dict[str, Any]:
+        """Immutable view; subtract two snapshots to attribute a work unit."""
+        return {
+            "model": self.model,
+            "calls": self.calls,
+            "prompt_tokens": self.prompt_tokens,
+            "completion_tokens": self.completion_tokens,
+            "cost_usd": round(self.cost_usd, 6),
+            "wall_ms_total": round(self.wall_ms_total, 3),
+            "latencies_ms": list(self.latencies_ms),
+            "unknown_price": self.unknown_price,
+        }
+
+
+def delta_snapshot(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
+    """Subtract two snapshots to get usage for the work between them.
+
+    `latencies_ms` is the suffix list; tokens/cost/wall are scalar deltas.
+    """
+    bl = before.get("latencies_ms", [])
+    al = after.get("latencies_ms", [])
+    lat = al[len(bl) :] if len(al) >= len(bl) else list(al)
+    return {
+        "model": after.get("model"),
+        "calls": int(after.get("calls", 0)) - int(before.get("calls", 0)),
+        "prompt_tokens": int(after.get("prompt_tokens", 0)) - int(before.get("prompt_tokens", 0)),
+        "completion_tokens": int(after.get("completion_tokens", 0)) - int(before.get("completion_tokens", 0)),
+        "cost_usd": round(float(after.get("cost_usd", 0)) - float(before.get("cost_usd", 0)), 6),
+        "wall_ms_total": round(
+            float(after.get("wall_ms_total", 0)) - float(before.get("wall_ms_total", 0)), 3
+        ),
+        "latencies_ms": lat,
+        "unknown_price": bool(after.get("unknown_price")),
+    }
 
 
 def namespace_tool(server_id: str, tool_name: str) -> str:
@@ -105,6 +176,7 @@ class OpenRouterClient:
         if not key:
             raise RuntimeError("OPENROUTER_API_KEY not set (looked in env + .env)")
         self.model = model
+        self.usage = UsageAccumulator(model=model)
         self._client = AsyncOpenAI(
             api_key=key,
             base_url=base_url,
@@ -137,7 +209,9 @@ class OpenRouterClient:
         if extra:
             kwargs.update(extra)
 
+        t0 = time.monotonic()
         completion = await self._client.chat.completions.create(**kwargs)
+        wall_ms = (time.monotonic() - t0) * 1000.0
         choice = completion.choices[0]
         msg = choice.message
 
@@ -166,6 +240,7 @@ class OpenRouterClient:
         usage_dict: dict[str, Any] | None = None
         if completion.usage is not None:
             usage_dict = completion.usage.model_dump(mode="json")
+        self.usage.add(usage_dict, wall_ms)
 
         return ChatResponse(
             content=msg.content,
@@ -173,6 +248,7 @@ class OpenRouterClient:
             finish_reason=choice.finish_reason,
             usage=usage_dict,
             raw=completion.model_dump(mode="json"),
+            wall_ms=wall_ms,
         )
 
     async def embed(self, texts: list[str], *, model: str = DEFAULT_EMBED_MODEL) -> list[list[float]]:
