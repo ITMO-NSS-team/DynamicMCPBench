@@ -505,7 +505,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: incomplete-aggregation (E3) surfaced as an explicit IAE rate in the SAE summary; smoke-tested.
 
 ### E8.6 — Generation upgrade: cross-family panel + role split + validation
-- status: in_review (#56)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T12:10:12Z
 - deps: E6.1
