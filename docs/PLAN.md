@@ -489,7 +489,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: `scripts/tool_scaling.py` sweeps `--pool-size {4,8,16,32,full}` → accuracy/SAE vs surface size; smoke-tested.
 
 ### E8.4 — Build: decay multi-window runner (B4)
-- status: claimed
+- status: in_review (#54)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T11:59:14Z
 - deps: E1.5
