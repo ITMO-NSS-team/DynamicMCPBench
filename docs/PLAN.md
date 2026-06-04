@@ -464,6 +464,14 @@ publication cut later. Roster (pinned): gpt-5.5, claude-opus-4.8, claude-sonnet-
 gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring uses a
 cross-family panel (explorer ≠ distiller), not a single model.
 
+### E8.0a — Model pool calibration: live-price extrapolation
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.1
+- source: user 2026-06-04 (redact frontier-heavy roster; pick value-tier panel by measured $/spec)
+- done-when: `scripts/cost_calibration.py` fetches live OpenRouter prices and runs N=10 specs per model in a 10-model pool spanning {mid-frontier, large-cheap, tool-specialist, small-fast, open-value}, capturing summary.cost; per-model markdown + JSON extrapolates to {E8.8 600-spec leaderboard, E8.7 1100-spec corpus} × pass^k ∈ {1, 3, 5}; report committed at `docs/experiments/e8.0a-model-calibration.md` with the Pareto-frontier recommended subset.
+
 ### E8.1 — Build: cost/latency capture (B1)
 - status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
@@ -505,7 +513,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: incomplete-aggregation (E3) surfaced as an explicit IAE rate in the SAE summary; smoke-tested.
 
 ### E8.6 — Generation upgrade: cross-family panel + role split + validation
-- status: in_review (#56)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T12:10:12Z
 - deps: E6.1
