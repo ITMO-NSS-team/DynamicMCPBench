@@ -465,7 +465,7 @@ gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring u
 cross-family panel (explorer ≠ distiller), not a single model.
 
 ### E8.1 — Build: cost/latency capture (B1)
-- status: claimed
+- status: in_review (#51)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T10:30:08Z
 - deps: E0.1
