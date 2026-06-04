@@ -334,8 +334,8 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α ≥ 0.7); false-pass/false-fail; replay determinism <5%.
 
 ### E4.7 — ≥5-model leaderboard
-- status: claimed
-- note: release claim — needs paid OpenRouter run (≥5 models × pool/P_alt grid × pass^k) + corpus-scope decision; see autonomy budget note
+- status: todo
+- note: release — plan B: skip paid runs, climb E8 build ladder first (E8.1)
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T10:29:18Z
 - deps: E1.1 E3.1
