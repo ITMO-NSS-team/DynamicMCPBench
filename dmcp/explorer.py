@@ -23,6 +23,7 @@ from typing import Any
 
 from dmcp.llm import (
     OpenRouterClient,
+    delta_snapshot,
     namespace_tool,
     specs_to_openai_tools,
 )
@@ -51,6 +52,7 @@ class ExplorationResult:
     successful_tool_calls: int
     final_message: str | None
     messages: list[dict[str, Any]] = field(default_factory=list)
+    cost: dict[str, Any] = field(default_factory=dict)
 
 
 def _truncate(s: str, n: int) -> tuple[str, bool]:
@@ -128,6 +130,7 @@ async def explore(
     final_message: str | None = None
     tool_call_count = 0
     successful_tool_calls = 0
+    usage_before = llm.usage.snapshot()
 
     async with recorder:
         openai_tools = specs_to_openai_tools(
@@ -184,6 +187,7 @@ async def explore(
                     rendered = f"[exception] {type(e).__name__}: {e}"
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": rendered})
 
+    cost = delta_snapshot(usage_before, llm.usage.snapshot())
     return ExplorationResult(
         trace=recorder.trace,
         outcome=outcome,
@@ -191,6 +195,7 @@ async def explore(
         successful_tool_calls=successful_tool_calls,
         final_message=final_message,
         messages=messages,
+        cost=cost,
     )
 
 
@@ -208,3 +213,5 @@ def stash_exploration_in_trace(result: ExplorationResult) -> None:
         "final_message": result.final_message,
         "messages": result.messages,
     }
+    if result.cost:
+        result.trace.seed_metadata["cost"] = result.cost
