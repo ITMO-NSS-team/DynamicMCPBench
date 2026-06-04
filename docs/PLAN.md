@@ -481,7 +481,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: `dmcp eval --architecture {flat,rag,hier}`: flat (current), RAG-MCP (embed prompt → retrieve top-k tools via `embeddings.py`, expose only those), hierarchical (router LLM → server-group → specialist); smoke-tested on a small manifest.
 
 ### E8.3 — Build: tool-scaling runner (B3)
-- status: in_review (#53)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T10:56:10Z
 - deps: E0.1
