@@ -465,9 +465,9 @@ gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring u
 cross-family panel (explorer ≠ distiller), not a single model.
 
 ### E8.1 — Build: cost/latency capture (B1)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-04T10:30:08Z
 - deps: E0.1
 - source: docs/EXPERIMENTS_SUITE.md B1 / user 2026-06 (cost/latency Pareto)
 - done-when: OpenRouter token usage + wall-clock thread through `dmcp/llm.py` into `EvaluationResult.summary.cost`; `scripts/cost_latency.py` emits the accuracy-vs-$ Pareto + $/correct; smoke-tested.
