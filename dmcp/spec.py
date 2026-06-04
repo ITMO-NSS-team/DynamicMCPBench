@@ -29,7 +29,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from dmcp.manifest import Dynamism
 
-SPEC_SCHEMA_VERSION = "0.1.0"
+SPEC_SCHEMA_VERSION = "0.2.0"  # E8.6: added TaskSpec.provenance
 
 
 def _utcnow() -> datetime:
@@ -166,6 +166,11 @@ class TaskSpec(BaseModel):
     minefields: list[Minefield] = Field(default_factory=list)
     ordering: list[OrderConstraint] = Field(default_factory=list)
     notes: str | None = None
+    # E8.6: cross-family generation panel — records explorer / distiller /
+    # validator models + families per spec so RQ1/G0 can stratify by author.
+    # Free-form dict (no inner Pydantic model) so the runner can extend it
+    # (shard ids, retry counts, validator verdicts) without further bumps.
+    provenance: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=_utcnow)
 
     def to_jsonl(self) -> str:
