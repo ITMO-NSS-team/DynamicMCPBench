@@ -497,9 +497,9 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: `scripts/decay_run.py` wraps `dmcp refresh` over N time windows → per-server decay curve + `fig:decay_curve` numbers; smoke-tested.
 
 ### E8.5 — Build: IAE metric surfacing (B5)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-04T12:04:07Z
 - deps: E2.3
 - source: docs/EXPERIMENTS_SUITE.md B5 / rev.1 PDF §5.1 (IAE)
 - done-when: incomplete-aggregation (E3) surfaced as an explicit IAE rate in the SAE summary; smoke-tested.
