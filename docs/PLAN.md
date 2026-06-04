@@ -497,7 +497,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: `scripts/decay_run.py` wraps `dmcp refresh` over N time windows → per-server decay curve + `fig:decay_curve` numbers; smoke-tested.
 
 ### E8.5 — Build: IAE metric surfacing (B5)
-- status: in_review (#55)
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-04T12:04:07Z
 - deps: E2.3
