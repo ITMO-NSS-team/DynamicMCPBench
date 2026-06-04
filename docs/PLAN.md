@@ -334,10 +334,10 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: a 200-task subset + annotation protocol; report Tier-1/Tier-2 agreement with human consensus (Cohen's κ / Krippendorff's α ≥ 0.7); false-pass/false-fail; replay determinism <5%.
 
 ### E4.7 — ≥5-model leaderboard
-- status: todo
+- status: claimed
 - note: runner merged PR#43 + numbers JSON PR#46 run_leaderboard.py, smoke-tested, awaiting corpus + 5-model run
-- owner: —
-- claimed_at: —
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-04T10:26:27Z
 - deps: E1.1 E3.1
 - source: README Phase 3 / simple_approach §9
 - done-when: leaderboard covers ≥5 models (a GPT-class, Gemini, Claude Sonnet/Opus, an open-weight 70B+, a tool-specialized model) in replay, 3× per task; report regenerated.
