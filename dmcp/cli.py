@@ -22,6 +22,7 @@ from typing import Annotated, Any
 import typer
 
 from dmcp.ablation import compare_strategies, power_n
+from dmcp.architecture import ARCHITECTURES, apply_architecture, make_openrouter_route_fn
 from dmcp.baselines.compare import (
     catalog_from_trace_jsonl,
     compare_methods,
@@ -1620,6 +1621,20 @@ def evaluate(
             help="Normalize offered tool descriptions (replay): a (surface) | b (semantic, LLM). Default: raw.",
         ),
     ] = None,
+    architecture: Annotated[
+        str,
+        typer.Option(
+            "--architecture",
+            help=(
+                "Candidate tool-exposure architecture (replay only): "
+                "flat (default) | rag (top-k by cosine) | hier (router picks one server)."
+            ),
+        ),
+    ] = "flat",
+    rag_k: Annotated[
+        int,
+        typer.Option("--rag-k", help="Top-k tools to expose under --architecture rag."),
+    ] = 8,
     output: Annotated[Path, typer.Option("--output", "-o", help="EvaluationResult JSONL output")] = Path(
         "evals/results.jsonl"
     ),
@@ -1657,6 +1672,12 @@ def evaluate(
         raise typer.BadParameter("--pool must be gold | target | full")
     if desc_level is not None and desc_level not in ("a", "b"):
         raise typer.BadParameter("--desc-level must be a | b")
+    if architecture not in ARCHITECTURES:
+        raise typer.BadParameter(f"--architecture must be one of {ARCHITECTURES}")
+    if architecture != "flat" and not replay:
+        raise typer.BadParameter(
+            "--architecture rag|hier requires --replay (live mode is flat by definition)"
+        )
 
     m = Manifest.load(manifest)
     configs = m.configs(servers)
@@ -1765,6 +1786,21 @@ def evaluate(
                         else {sid: list(specs) for sid, specs in ref.tool_specs.items()}
                     )
                     tool_surface = await apply_normalization(base, desc_level, llm)
+                if architecture != "flat":
+                    base = (
+                        tool_surface
+                        if tool_surface is not None
+                        else {sid: list(specs) for sid, specs in ref.tool_specs.items()}
+                    )
+                    tool_surface = await apply_architecture(
+                        architecture,
+                        base,
+                        spec.prompt,
+                        embed_fn=llm.embed if architecture == "rag" else None,
+                        route_fn=make_openrouter_route_fn(llm) if architecture == "hier" else None,
+                        rag_k=rag_k,
+                    )
+                    cand_recorder.trace.seed_metadata["architecture"] = architecture
                 result = await run_exploration(
                     goal=spec.prompt,
                     recorder=cand_recorder,
