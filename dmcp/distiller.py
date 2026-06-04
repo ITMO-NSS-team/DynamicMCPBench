@@ -373,6 +373,7 @@ async def distill(
     *,
     llm: OpenRouterClient,
     manifest: Manifest | None = None,
+    provenance: dict[str, Any] | None = None,
 ) -> TaskSpec:
     successful = _successful_agent_calls(trace)
     if not successful:
@@ -435,4 +436,31 @@ async def distill(
         checkpoints=checkpoints,
         minefields=minefields,
         notes=args.get("notes"),
+        provenance=_build_provenance(trace, llm.model, provenance),
     )
+
+
+def _build_provenance(
+    trace: Trace,
+    distiller_model: str,
+    overrides: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Auto-stamp explorer + distiller families on every spec.
+
+    Explorer model comes from `trace.seed_metadata["llm_model"]` (set by
+    explorer.py); distiller from the live client. The runner (build_corpus)
+    layers shard ids and validator verdicts on top via `overrides`.
+    """
+    from dmcp.families import family_of
+
+    explorer_model = (trace.seed_metadata or {}).get("llm_model")
+    base: dict[str, Any] = {
+        "distiller_model": distiller_model,
+        "distiller_family": family_of(distiller_model),
+    }
+    if isinstance(explorer_model, str):
+        base["explorer_model"] = explorer_model
+        base["explorer_family"] = family_of(explorer_model)
+    if overrides:
+        base.update(overrides)
+    return base

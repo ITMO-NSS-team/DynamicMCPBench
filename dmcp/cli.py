@@ -1126,6 +1126,103 @@ def rq4_agreement(
     typer.echo(md)
 
 
+@app.command(name="validate-corpus")
+def validate_corpus(
+    specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL to validate")],
+    validator_model: Annotated[
+        str,
+        typer.Option(
+            "--validator-model",
+            help="Validator LLM (E8.6 — typically a 4th family, e.g. qwen/qwen3.7-max).",
+        ),
+    ],
+    output: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-o",
+            help="Output JSONL (defaults to in-place rewrite of `specs`).",
+        ),
+    ] = None,  # type: ignore[assignment]
+) -> None:
+    """Pass each spec through a 4th-family validator LLM and stamp the verdict.
+
+    Writes the verdict under `spec.provenance.validator = {model, family,
+    verdict: 'valid'|'invalid', reason}`. Verdict is advisory — this does NOT
+    delete specs; downstream filters can drop the 'invalid' set if needed.
+    The validator sees the prompt + the checkpoint list and is asked whether
+    the spec is a faithful, well-formed task — not whether the candidate
+    answer is right (CLAUDE.md invariant 1).
+    """
+    from dmcp.families import family_of
+
+    out_path = output if output is not None else specs
+    llm = OpenRouterClient(model=validator_model)
+    validator_family = family_of(validator_model)
+
+    sys_prompt = (
+        "You are a corpus validator. Given a TaskSpec (prompt + checkpoints), "
+        "decide whether the spec is well-formed and faithful to the goal — NOT "
+        'whether any specific answer is right. Respond with JSON {"verdict": '
+        '"valid"|"invalid", "reason": "<short rationale>"}.'
+    )
+
+    async def _run() -> None:
+        rows: list[dict] = []
+        with specs.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                rows.append(json.loads(line))
+        for row in rows:
+            cp_view = [
+                {"id": cp.get("checkpoint_id"), "kind": cp.get("kind"), "desc": cp.get("description")}
+                for cp in (row.get("checkpoints") or [])
+            ]
+            user_msg = f"Prompt:\n{row.get('prompt', '')}\n\nCheckpoints:\n{json.dumps(cp_view, indent=2)}"
+            try:
+                resp = await llm.chat(
+                    messages=[
+                        {"role": "system", "content": sys_prompt},
+                        {"role": "user", "content": user_msg},
+                    ],
+                    tools=None,
+                    temperature=0.0,
+                )
+                content = (resp.content or "").strip()
+                try:
+                    data = json.loads(content)
+                    verdict = data.get("verdict")
+                    reason = data.get("reason", "")
+                except json.JSONDecodeError:
+                    verdict, reason = "invalid", f"non-JSON validator output: {content[:200]}"
+                if verdict not in ("valid", "invalid"):
+                    verdict, reason = "invalid", f"unexpected verdict {verdict!r}; reason={reason!r}"
+            except Exception as e:
+                verdict, reason = "invalid", f"{type(e).__name__}: {e}"
+            prov = row.get("provenance") or {}
+            prov["validator"] = {
+                "model": validator_model,
+                "family": validator_family,
+                "verdict": verdict,
+                "reason": reason,
+            }
+            row["provenance"] = prov
+            typer.echo(f"[{row.get('task_id', '?')[:8]}] {verdict}: {reason[:80]}")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("w", encoding="utf-8") as fh:
+            for row in rows:
+                fh.write(json.dumps(row))
+                fh.write("\n")
+        n_valid = sum(
+            1 for r in rows if (r.get("provenance") or {}).get("validator", {}).get("verdict") == "valid"
+        )
+        typer.echo(f"done: {n_valid}/{len(rows)} valid → {out_path}")
+
+    asyncio.run(_run())
+
+
 @app.command(name="paper-figures")
 def paper_figures(
     root: Annotated[
