@@ -464,6 +464,14 @@ publication cut later. Roster (pinned): gpt-5.5, claude-opus-4.8, claude-sonnet-
 gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring uses a
 cross-family panel (explorer ≠ distiller), not a single model.
 
+### E8.0b — Free-models provider + recalibration
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.0a
+- source: user 2026-06-04 (free API key for 6 models; run experiments free, layer paid OR on top)
+- done-when: `dmcp/providers.py` auto-routes free-pool ids (deepseek-v4-pro, kimi-k2p6, kimi-k2p5, glm-5p1, gpt-oss-120b, minimax-m2p7) to `FREE_MODELS_BASE_URL` + `FREE_MODELS_API_KEY`; everything else stays on OpenRouter; family slugs cover the bare-name ids so cross-family pairings keep biting; `dmcp/pricing.py` pins these at $0 so the calibration extrapolation reads them as free; a free-only calibration run (N=10 specs × 6 free models) executes at $0 and the report at `docs/experiments/e8.0b-free-models-calibration.md` documents the final combined pool (free-first + targeted paid).
+
 ### E8.0a — Model pool calibration: live-price extrapolation
 - status: done
 - owner: —
