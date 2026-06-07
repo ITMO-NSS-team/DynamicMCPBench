@@ -465,7 +465,7 @@ gemini-3.1-pro-preview, qwen3.7-max, kimi-k2.6, glm-4.7, minimax-m3. Authoring u
 cross-family panel (explorer ≠ distiller), not a single model.
 
 ### E8.0b — Free-models provider + recalibration
-- status: todo
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E8.0a
