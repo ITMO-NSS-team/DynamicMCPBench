@@ -25,6 +25,9 @@ class ModelPrice:
     output_per_mtok: float
 
 
+_FREE = ModelPrice(0.0, 0.0)
+
+
 PRICES: dict[str, ModelPrice] = {
     # Candidate panel (EXPERIMENTS_SUITE §1.1)
     "openai/gpt-5.5": ModelPrice(5.0, 30.0),
@@ -37,6 +40,15 @@ PRICES: dict[str, ModelPrice] = {
     "minimax/minimax-m3": ModelPrice(0.30, 1.20),
     # Generator / judge defaults
     "anthropic/claude-haiku-4.5": ModelPrice(0.80, 4.0),
+    # Free endpoint pool (E8.0b; see dmcp/providers.py::FREE_MODELS).
+    # Pinned at 0 so the unknown_price flag doesn't trip on legitimately-free
+    # models, and so cost extrapolation reads $0 for them without special-casing.
+    "deepseek-v4-pro": _FREE,
+    "kimi-k2p6": _FREE,
+    "kimi-k2p5": _FREE,
+    "glm-5p1": _FREE,
+    "gpt-oss-120b": _FREE,
+    "minimax-m2p7": _FREE,
 }
 
 

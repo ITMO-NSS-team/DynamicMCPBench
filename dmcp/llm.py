@@ -14,7 +14,6 @@ in open-source models for ablations without code changes.
 from __future__ import annotations
 
 import json
-import os
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -167,18 +166,25 @@ class OpenRouterClient:
         *,
         model: str = DEFAULT_MODEL,
         api_key: str | None = None,
-        base_url: str = OPENROUTER_BASE_URL,
+        base_url: str | None = None,
         app_title: str = "DynamicMCPBench",
         app_url: str = "https://github.com/jrzkaminski/DynamicMCPBench",
     ) -> None:
         _load_env_once()
-        key = api_key or os.environ.get("OPENROUTER_API_KEY")
-        if not key:
-            raise RuntimeError("OPENROUTER_API_KEY not set (looked in env + .env)")
+        # Auto-resolve the provider for `model` when caller didn't pin both.
+        # Free-pool ids (deepseek-v4-pro, kimi-k2p*, glm-5p1, gpt-oss-120b,
+        # minimax-m2p7) route to FREE_MODELS_BASE_URL + FREE_MODELS_API_KEY;
+        # everything else stays on OpenRouter. See dmcp/providers.py.
+        if api_key is None or base_url is None:
+            from dmcp.providers import endpoint_for, resolve
+
+            resolved_url, resolved_key = endpoint_for(resolve(model))
+            base_url = base_url or resolved_url
+            api_key = api_key or resolved_key
         self.model = model
         self.usage = UsageAccumulator(model=model)
         self._client = AsyncOpenAI(
-            api_key=key,
+            api_key=api_key,
             base_url=base_url,
             default_headers={
                 "HTTP-Referer": app_url,

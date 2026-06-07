@@ -53,6 +53,17 @@ DEFAULT_POOL: tuple[str, ...] = (
     "meta-llama/llama-3.3-70b-instruct",  # E. Open value
 )
 
+# E8.0b free-endpoint pool (user 2026-06-04). Run these first; layer paid
+# OpenRouter models on top only for capabilities the free pool can't cover.
+FREE_POOL: tuple[str, ...] = (
+    "deepseek-v4-pro",
+    "kimi-k2p6",
+    "kimi-k2p5",
+    "glm-5p1",
+    "gpt-oss-120b",
+    "minimax-m2p7",
+)
+
 DEFAULT_CORPUS_SIZES: tuple[int, ...] = (600, 1100)  # E8.8 leaderboard / E8.7 full
 DEFAULT_PASS_K: tuple[int, ...] = (1, 3, 5)
 
@@ -61,9 +72,15 @@ def _slug(s: str) -> str:
     return s.replace("/", "_").replace(":", "_").replace(".", "-")
 
 
-def _run(cmd: list[str]) -> int:
+def _run(cmd: list[str], *, env_override: dict[str, str] | None = None) -> int:
     print("+ " + " ".join(cmd), flush=True)
-    return subprocess.run(cmd, check=False).returncode
+    env = None
+    if env_override:
+        import os as _os
+
+        env = _os.environ.copy()
+        env.update(env_override)
+    return subprocess.run(cmd, check=False, env=env).returncode
 
 
 def _read_jsonl(path: Path) -> list[dict]:
@@ -329,6 +346,21 @@ def main() -> int:
         default=",".join(DEFAULT_POOL),
         help="Comma-separated model ids (default: the user-redacted 10-model pool).",
     )
+    ap.add_argument(
+        "--free-pool",
+        action="store_true",
+        help=("Shortcut: use the FREE_POOL (E8.0b) instead of --models; ignored if --models is set."),
+    )
+    ap.add_argument(
+        "--concurrency",
+        type=int,
+        default=1,
+        help=(
+            "Run up to N model cells in parallel, each pinned to a different "
+            "provider API key (auto-discovered from FREE_MODELS_API_KEY[_2,_3,...] / "
+            "OPENROUTER_API_KEY[_2,_3,...]). Default 1 = sequential."
+        ),
+    )
     ap.add_argument("--n", type=int, default=10, help="Specs per model.")
     ap.add_argument("--specs", default="specs/v3.jsonl", help="Source TaskSpec JSONL.")
     ap.add_argument(
@@ -385,34 +417,91 @@ def main() -> int:
 
     out_dir = Path(a.out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    models = [m for m in a.models.split(",") if m]
+    # `--free-pool` is a convenience for the E8.0b run; respects an explicit
+    # `--models` so a user mixing the two can still override.
+    if a.free_pool and a.models == ",".join(DEFAULT_POOL):
+        models = list(FREE_POOL)
+    else:
+        models = [m for m in a.models.split(",") if m]
     corpus_sizes = tuple(int(s) for s in a.corpus_sizes.split(",") if s)
     pass_k = tuple(int(k) for k in a.pass_k.split(",") if k)
 
-    cells: dict[str, list[dict]] = {}
-    for model in models:
+    # Pre-stage the spec subset once before any parallel cell needs it
+    # (avoids racing N processes writing the same file).
+    specs_subset = out_dir / f"specs_subset_n{a.n}.jsonl"
+    if not a.skip_eval and not specs_subset.exists():
+        src = Path(a.specs).read_text(encoding="utf-8").splitlines()
+        head = [line for line in src if line.strip()][: a.n]
+        specs_subset.write_text("\n".join(head) + "\n", encoding="utf-8")
+
+    # Discover concurrency lanes — one key per parallel cell. We pin a single
+    # provider per calibration call (homogeneous pool: free or paid), so we
+    # ask the registry for the first model's provider and reuse its key pool.
+    # Parent process must load .env explicitly — dmcp.llm only does so inside
+    # the subprocess, which is too late for us to read here.
+    keys: list[str] = []
+    key_env_var = ""
+    if not a.skip_eval and models:
+        sys.path.insert(0, str(ROOT))
+        from dotenv import load_dotenv
+
+        from dmcp.providers import pool_keys, resolve
+
+        load_dotenv(override=False)
+        provider = resolve(models[0])
+        key_env_var = provider.api_key_env
+        keys = pool_keys(provider)
+        if not keys:
+            raise SystemExit(f"no API keys found for provider {provider.name!r} (env {key_env_var})")
+    requested = max(1, int(a.concurrency))
+    lanes = max(1, min(requested, len(keys) or requested))
+    if requested > lanes and keys:
+        print(f"[warn] requested --concurrency {requested} but only {lanes} key(s) configured; capping")
+
+    def _cell(model: str, key: str) -> tuple[str, int]:
         eval_path = out_dir / f"eval_{_slug(model)}.jsonl"
-        if not a.skip_eval:
-            specs_subset = out_dir / f"specs_subset_n{a.n}.jsonl"
-            if not specs_subset.exists():
-                src = Path(a.specs).read_text(encoding="utf-8").splitlines()
-                head = [line for line in src if line.strip()][: a.n]
-                specs_subset.write_text("\n".join(head) + "\n", encoding="utf-8")
-            cmd = _eval_cmd(
-                specs=specs_subset,
-                manifest=Path(a.manifest),
-                model=model,
-                reference_traces=Path(a.reference_traces),
-                pool=a.pool,
-                p_alt=a.p_alt,
-                pool_size=a.pool_size,
-                budget=a.budget,
-                out_path=eval_path,
-            )
-            rc = _run(cmd)
+        cmd = _eval_cmd(
+            specs=specs_subset,
+            manifest=Path(a.manifest),
+            model=model,
+            reference_traces=Path(a.reference_traces),
+            pool=a.pool,
+            p_alt=a.p_alt,
+            pool_size=a.pool_size,
+            budget=a.budget,
+            out_path=eval_path,
+        )
+        # Pin THIS subprocess to one specific key — overrides the .env value
+        # so parallel cells don't share an account-level rate limit.
+        env_override = {key_env_var: key} if key_env_var else None
+        return model, _run(cmd, env_override=env_override)
+
+    cells: dict[str, list[dict]] = {}
+    if a.skip_eval:
+        for model in models:
+            cells[model] = _read_jsonl(out_dir / f"eval_{_slug(model)}.jsonl")
+    elif lanes <= 1:
+        for model in models:
+            _, rc = _cell(model, keys[0])
             if rc != 0:
                 print(f"[warn] model {model} exited {rc}; continuing")
-        cells[model] = _read_jsonl(eval_path)
+            cells[model] = _read_jsonl(out_dir / f"eval_{_slug(model)}.jsonl")
+    else:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        print(f"[dispatch] running {len(models)} model(s) over {lanes} concurrent lane(s)")
+        # Round-robin keys across model cells so each lane stays bound to one
+        # key even if N_models > N_keys (each key sees N_models / N_keys cells
+        # sequentially, but the lanes themselves run in parallel).
+        with ThreadPoolExecutor(max_workers=lanes) as ex:
+            futs = {ex.submit(_cell, model, keys[i % len(keys)]): model for i, model in enumerate(models)}
+            for fut in as_completed(futs):
+                model = futs[fut]
+                _, rc = fut.result()
+                if rc != 0:
+                    print(f"[warn] model {model} exited {rc}; continuing")
+        for model in models:
+            cells[model] = _read_jsonl(out_dir / f"eval_{_slug(model)}.jsonl")
 
     payload = aggregate(cells, live, corpus_sizes=corpus_sizes, pass_k=pass_k)
     md = render_markdown(payload)

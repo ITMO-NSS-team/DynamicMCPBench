@@ -39,16 +39,39 @@ _FAMILY_PREFIXES: tuple[tuple[str, str], ...] = (
     ("meta-llama/", "meta"),
 )
 
+# Bare-name prefixes (no vendor slash) — used by the free endpoint where ids
+# are unprefixed (e.g. `deepseek-v4-pro`). Order matters: `gpt-oss` precedes
+# `gpt-` so the open-weight variant doesn't get bucketed with OpenAI's
+# proprietary line — they're literally different model lineages.
+_FAMILY_BARE_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("deepseek-", "deepseek"),
+    ("kimi-", "moonshot"),
+    ("glm-", "z-ai"),
+    ("gpt-oss-", "openai-oss"),
+    ("gpt-", "openai"),
+    ("minimax-", "minimax"),
+    ("qwen-", "qwen"),
+    ("claude-", "anthropic"),
+    ("gemini-", "google"),
+    ("llama-", "meta"),
+    ("grok-", "x-ai"),
+)
+
 
 def family_of(model: str) -> str:
-    """Return the family slug for an OpenRouter model id. Unknown → 'unknown'.
+    """Return the family slug for a model id. Unknown → 'unknown'.
 
-    Matching is purely on the id prefix; pinned snapshots in the same family
-    map to the same slug so the cross-family constraint stays meaningful when
-    OpenRouter rotates a tag.
+    Tries vendor-slash prefixes first (`openai/gpt-5.5` → openai). Falls back to
+    bare-name prefixes so the free endpoint (where ids are bare like
+    `deepseek-v4-pro`) lands in the right family — keeps the cross-family
+    constraint meaningful regardless of which provider serves the model.
     """
     for prefix, fam in _FAMILY_PREFIXES:
         if model.startswith(prefix):
+            return fam
+    lower = model.lower()
+    for prefix, fam in _FAMILY_BARE_PREFIXES:
+        if lower.startswith(prefix):
             return fam
     return UNKNOWN_FAMILY
 

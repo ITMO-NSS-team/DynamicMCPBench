@@ -1,0 +1,347 @@
+{
+  "models": [
+    {
+      "runs": 10,
+      "passed": 8,
+      "accuracy": 0.8,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 4886,
+      "mean_completion_tokens": 534,
+      "latency_p50_ms": 11891.5,
+      "latency_p95_ms": 121530.0,
+      "unknown_price": false,
+      "model": "deepseek-v4-pro",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 7,
+      "accuracy": 0.7,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 3799,
+      "mean_completion_tokens": 395,
+      "latency_p50_ms": 5394.5,
+      "latency_p95_ms": 153738.9,
+      "unknown_price": false,
+      "model": "kimi-k2p6",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 6,
+      "accuracy": 0.6,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 3605,
+      "mean_completion_tokens": 473,
+      "latency_p50_ms": 33702.8,
+      "latency_p95_ms": 118374.3,
+      "unknown_price": false,
+      "model": "kimi-k2p5",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 8,
+      "accuracy": 0.8,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 5193,
+      "mean_completion_tokens": 375,
+      "latency_p50_ms": 5969.1,
+      "latency_p95_ms": 161588.1,
+      "unknown_price": false,
+      "model": "glm-5p1",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 480.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 880.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 4,
+      "accuracy": 0.4,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 5418,
+      "mean_completion_tokens": 383,
+      "latency_p50_ms": 61836.5,
+      "latency_p95_ms": 116978.4,
+      "unknown_price": false,
+      "model": "gpt-oss-120b",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 240.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 240.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 240.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 440.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 440.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 440.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 6,
+      "accuracy": 0.6,
+      "mean_cost_usd": 0.0,
+      "mean_prompt_tokens": 6658,
+      "mean_completion_tokens": 510,
+      "latency_p50_ms": 61592.8,
+      "latency_p95_ms": 113541.1,
+      "unknown_price": false,
+      "model": "minimax-m2p7",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 0.0,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0
+        }
+      ]
+    }
+  ],
+  "n_models": 6,
+  "sample_size": 10,
+  "live_price_count": 343,
+  "extrapolation": true,
+  "recommended_subset": [
+    "deepseek-v4-pro"
+  ]
+}
