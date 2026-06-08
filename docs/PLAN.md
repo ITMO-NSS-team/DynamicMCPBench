@@ -472,6 +472,14 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - source: user 2026-06-04 (free API key for 6 models; run experiments free, layer paid OR on top)
 - done-when: `dmcp/providers.py` auto-routes free-pool ids (deepseek-v4-pro, kimi-k2p6, kimi-k2p5, glm-5p1, gpt-oss-120b, minimax-m2p7) to `FREE_MODELS_BASE_URL` + `FREE_MODELS_API_KEY`; everything else stays on OpenRouter; family slugs cover the bare-name ids so cross-family pairings keep biting; `dmcp/pricing.py` pins these at $0 so the calibration extrapolation reads them as free; a free-only calibration run (N=10 specs × 6 free models) executes at $0 and the report at `docs/experiments/e8.0b-free-models-calibration.md` documents the final combined pool (free-first + targeted paid).
 
+### E8.0c — Resumable runs + paper-pricing aliases
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E8.0b
+- source: user 2026-06-08 (more keys coming; experiments must be resumable; paper still needs OR-equivalent prices)
+- done-when: `dmcp/resume.py` exposes `seen_task_ids` / `seen_goal_ids` / `file_row_count`; `dmcp eval --resume` skips finished task_ids in the output file; `dmcp generate --resume` skips finished goal_ids via `provenance.goal_id` (auto-stamped by the distiller); `scripts/cost_calibration.py` and `scripts/build_corpus.py` accept `--resume` and skip cells whose output is already complete; `dmcp/paper_pricing.py` maps every free model to its OpenRouter equivalent so paper cost can be recomputed from captured token counts; tests pin the resume contract end-to-end.
+
 ### E8.0a — Model pool calibration: live-price extrapolation
 - status: done
 - owner: —

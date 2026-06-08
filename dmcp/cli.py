@@ -120,6 +120,7 @@ from dmcp.recorder import (
 from dmcp.refresh import decay_summary, refresh_one
 from dmcp.replay import TraceReplayRecorder
 from dmcp.report import aggregate_markdown
+from dmcp.resume import seen_goal_ids, seen_task_ids
 from dmcp.sampling import ToolCatalog
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
@@ -1502,6 +1503,13 @@ def generate(
     specs_out: Annotated[Path, typer.Option("--specs-out", help="JSONL: distilled TaskSpecs only")] = Path(
         "specs/generated.jsonl"
     ),
+    resume: Annotated[
+        bool,
+        typer.Option(
+            "--resume",
+            help="Skip goals whose goal_id already produced a spec in --specs-out (per-goal resume).",
+        ),
+    ] = False,
 ) -> None:
     """Batch: for each goal, explore → distill → emit a TaskSpec.
 
@@ -1536,8 +1544,16 @@ def generate(
             "by_dynamism": {"static": 0, "live_read": 0, "stateful_write": 0},
             "by_depth": {},
         }
+        # --resume: skip goals whose goal_id is already represented in the
+        # specs file. Uses provenance.goal_id (stamped below); empty set if
+        # the spec file is missing or never carried the stamp.
+        seen_goals: set[str] = seen_goal_ids(specs_out) if resume else set()
+        if seen_goals:
+            typer.echo(f"resume: skipping {len(seen_goals)} goal(s) already in {specs_out}")
         with traces_out.open("a", encoding="utf-8") as ft, specs_out.open("a", encoding="utf-8") as fs:
             for entry in g.entries:
+                if resume and entry.goal_id in seen_goals:
+                    continue
                 typer.echo(f"[{entry.goal_id}] servers={entry.servers} budget={entry.budget or budget}")
                 cfgs = m.configs(entry.servers)
                 try:
@@ -1563,7 +1579,14 @@ def generate(
                     typer.echo("  skip distill: no successful tool calls")
                     continue
                 try:
-                    spec = await run_distill(result.trace, llm=distill_llm, manifest=m)
+                    # Stamp goal_id into provenance so --resume can locate
+                    # which goals already produced a spec on next launch.
+                    spec = await run_distill(
+                        result.trace,
+                        llm=distill_llm,
+                        manifest=m,
+                        provenance={"goal_id": entry.goal_id},
+                    )
                 except DistillationError as e:
                     typer.echo(f"  distill error: {e}")
                     continue
@@ -1742,6 +1765,13 @@ def evaluate(
             help="Score externally-produced candidate trajectories from this JSONL instead of running an agent (matched to specs by seed_metadata.task_id, else by prompt).",
         ),
     ] = None,
+    resume: Annotated[
+        bool,
+        typer.Option(
+            "--resume",
+            help="Skip specs whose task_id already appears in the output file (per-task resume).",
+        ),
+    ] = False,
     candidate_traces_out: Annotated[
         Path | None,
         typer.Option(
@@ -1802,6 +1832,9 @@ def evaluate(
                 f"ingestion mode: indexed candidate traces "
                 f"({len(by_task)} by task_id, {len(by_prompt)} by prompt)"
             )
+            seen_ids_ing: set[str] = seen_task_ids(output) if resume else set()
+            if seen_ids_ing:
+                typer.echo(f"resume: skipping {len(seen_ids_ing)} task(s) already in {output}")
             passed = total = 0
             with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
                 for raw in fin:
@@ -1809,6 +1842,8 @@ def evaluate(
                     if not raw:
                         continue
                     spec = TaskSpec.model_validate_json(raw)
+                    if resume and str(spec.task_id) in seen_ids_ing:
+                        continue
                     cands = by_task.get(str(spec.task_id)) or by_prompt.get(spec.prompt) or []
                     if not cands:
                         typer.echo(f"[task {spec.task_id}] skip: no candidate trace provided")
@@ -1935,6 +1970,13 @@ def evaluate(
             )
             return ev, result.trace, miss_count
 
+        # --resume: skip task_ids already in the output file. Per-task resume
+        # is enough for replay (deterministic) and good-enough for live (any
+        # task already recorded is preserved as-is).
+        seen_ids: set[str] = seen_task_ids(output) if resume else set()
+        if seen_ids:
+            typer.echo(f"resume: skipping {len(seen_ids)} task(s) already in {output}")
+
         passed = total = 0
         cache_miss_steps = 0
         with specs.open("r", encoding="utf-8") as fin, output.open("a", encoding="utf-8") as fout:
@@ -1946,6 +1988,8 @@ def evaluate(
                         continue
                     total += 1
                     spec = TaskSpec.model_validate_json(raw)
+                    if resume and str(spec.task_id) in seen_ids:
+                        continue
                     typer.echo(
                         f"[task {spec.task_id}] prompt: {spec.prompt[:90]}{'…' if len(spec.prompt) > 90 else ''}"
                     )
