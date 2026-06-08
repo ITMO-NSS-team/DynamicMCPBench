@@ -65,9 +65,15 @@ def stamp_provenance_in_jsonl(specs_path: Path, overrides: dict) -> int:
     return len(out_lines)
 
 
-def _run(cmd: list[str]) -> int:
+def _run(cmd: list[str], *, env_override: dict[str, str] | None = None) -> int:
     print("+ " + " ".join(cmd), flush=True)
-    return subprocess.run(cmd, check=False).returncode
+    env = None
+    if env_override:
+        import os as _os
+
+        env = _os.environ.copy()
+        env.update(env_override)
+    return subprocess.run(cmd, check=False, env=env).returncode
 
 
 def main() -> None:
@@ -122,6 +128,15 @@ def main() -> None:
         help=(
             "Per-shard resume: pass --resume to the inner `dmcp generate` so it skips goal_ids "
             "already represented in specs_shard_<i>.jsonl (via provenance.goal_id)."
+        ),
+    )
+    ap.add_argument(
+        "--concurrency",
+        type=int,
+        default=1,
+        help=(
+            "Run up to N Phase-2 shards in parallel, each pinned to a different provider API "
+            "key (FREE_MODELS_API_KEY[_2,_3,...] / OPENROUTER_API_KEY[_2,_3,...]). Default 1."
         ),
     )
     ap.add_argument("--out", default="data/corpus")
@@ -187,9 +202,29 @@ def main() -> None:
             assignments = assign_shards(explorer_panel, distiller_panel)
             entries = json.loads(goals_full.read_text())["entries"]
             shards = shard_goals(entries, len(assignments))
-            for shard_idx, (assignment, goals_subset) in enumerate(zip(assignments, shards, strict=True)):
+
+            # Resolve provider key pool for parallel shard dispatch. Free /
+            # paid both supported — same numbered-sibling env convention.
+            # Parent process must load_dotenv explicitly (dmcp.llm only does
+            # so inside the subprocess, which is too late for us to read here).
+            from dotenv import load_dotenv
+
+            from dmcp.providers import pool_keys, resolve
+
+            load_dotenv(override=False)
+            provider = resolve(explorer_panel[0])
+            key_env_var = provider.api_key_env
+            keys = pool_keys(provider)
+            if not keys:
+                raise SystemExit(f"no API keys found for provider {provider.name!r} (env {key_env_var})")
+            requested = max(1, int(a.concurrency))
+            lanes = max(1, min(requested, len(keys)))
+            if requested > lanes:
+                print(f"[warn] requested --concurrency {requested} but only {lanes} key(s); capping")
+
+            def _run_shard(shard_idx: int, assignment, goals_subset: list[dict], key: str) -> int:
                 if not goals_subset:
-                    continue
+                    return 0
                 shard_goals_path = out / f"goals_shard_{shard_idx}.json"
                 shard_goals_path.write_text(
                     json.dumps({"goals_version": "0.1.0", "entries": goals_subset}, indent=2)
@@ -199,7 +234,9 @@ def main() -> None:
                 print(
                     f"[phase2] shard {shard_idx}: {len(goals_subset)} goals "
                     f"explorer={assignment.explorer_model} ({assignment.explorer_family}) "
-                    f"distiller={assignment.distiller_model} ({assignment.distiller_family})"
+                    f"distiller={assignment.distiller_model} ({assignment.distiller_family}) "
+                    f"key=<{key_env_var}#{keys.index(key) + 1}>",
+                    flush=True,
                 )
                 gen_cmd = [
                     DMCP,
@@ -220,7 +257,7 @@ def main() -> None:
                 ]
                 if a.resume:
                     gen_cmd.append("--resume")
-                rc = _run(gen_cmd)
+                rc = _run(gen_cmd, env_override={key_env_var: key})
                 if rc != 0:
                     print(f"[phase2] shard {shard_idx} exited {rc}; continuing")
                 touched = stamp_provenance_in_jsonl(
@@ -233,7 +270,31 @@ def main() -> None:
                         "distiller_family": assignment.distiller_family,
                     },
                 )
-                print(f"[phase2] shard {shard_idx}: stamped provenance on {touched} specs")
+                print(f"[phase2] shard {shard_idx}: stamped provenance on {touched} specs", flush=True)
+                return rc
+
+            shard_args = list(enumerate(zip(assignments, shards, strict=True)))
+            if lanes <= 1:
+                for shard_idx, (assignment, goals_subset) in shard_args:
+                    _run_shard(shard_idx, assignment, goals_subset, keys[0])
+            else:
+                from concurrent.futures import ThreadPoolExecutor, as_completed
+
+                print(f"[phase2] dispatching {len(shard_args)} shard(s) over {lanes} parallel lane(s)")
+                with ThreadPoolExecutor(max_workers=lanes) as ex:
+                    futs = {
+                        ex.submit(
+                            _run_shard,
+                            shard_idx,
+                            assignment,
+                            goals_subset,
+                            keys[i % len(keys)],
+                        ): shard_idx
+                        for i, (shard_idx, (assignment, goals_subset)) in enumerate(shard_args)
+                    }
+                    for fut in as_completed(futs):
+                        shard_idx = futs[fut]
+                        fut.result()  # propagate any uncaught exception
             # Concatenate shard outputs into the canonical corpus files.
             with traces.open("w", encoding="utf-8") as ft, specs.open("w", encoding="utf-8") as fs:
                 for shard_idx in range(len(assignments)):
