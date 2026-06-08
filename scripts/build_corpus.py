@@ -116,6 +116,14 @@ def main() -> None:
         ),
     )
     ap.add_argument("--budget", type=int, default=12)
+    ap.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Per-shard resume: pass --resume to the inner `dmcp generate` so it skips goal_ids "
+            "already represented in specs_shard_<i>.jsonl (via provenance.goal_id)."
+        ),
+    )
     ap.add_argument("--out", default="data/corpus")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
@@ -193,25 +201,26 @@ def main() -> None:
                     f"explorer={assignment.explorer_model} ({assignment.explorer_family}) "
                     f"distiller={assignment.distiller_model} ({assignment.distiller_family})"
                 )
-                rc = _run(
-                    [
-                        DMCP,
-                        "generate",
-                        str(shard_goals_path),
-                        "-m",
-                        str(ROOT / a.manifest),
-                        "--explore-model",
-                        assignment.explorer_model,
-                        "--distill-model",
-                        assignment.distiller_model,
-                        "--budget",
-                        str(a.budget),
-                        "--traces-out",
-                        str(shard_traces),
-                        "--specs-out",
-                        str(shard_specs),
-                    ]
-                )
+                gen_cmd = [
+                    DMCP,
+                    "generate",
+                    str(shard_goals_path),
+                    "-m",
+                    str(ROOT / a.manifest),
+                    "--explore-model",
+                    assignment.explorer_model,
+                    "--distill-model",
+                    assignment.distiller_model,
+                    "--budget",
+                    str(a.budget),
+                    "--traces-out",
+                    str(shard_traces),
+                    "--specs-out",
+                    str(shard_specs),
+                ]
+                if a.resume:
+                    gen_cmd.append("--resume")
+                rc = _run(gen_cmd)
                 if rc != 0:
                     print(f"[phase2] shard {shard_idx} exited {rc}; continuing")
                 touched = stamp_provenance_in_jsonl(

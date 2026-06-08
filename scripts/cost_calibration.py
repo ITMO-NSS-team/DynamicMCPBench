@@ -313,9 +313,10 @@ def _eval_cmd(
     pool_size: int,
     budget: int,
     out_path: Path,
+    resume: bool = False,
 ) -> list[str]:
     """Single-model `dmcp eval --replay` invocation for one calibration cell."""
-    return [
+    cmd = [
         DMCP,
         "eval",
         str(specs),
@@ -337,6 +338,9 @@ def _eval_cmd(
         "-o",
         str(out_path),
     ]
+    if resume:
+        cmd.append("--resume")
+    return cmd
 
 
 def main() -> int:
@@ -401,6 +405,14 @@ def main() -> int:
         action="store_true",
         help="Skip the dmcp eval dispatch; aggregate over existing eval_<model>.jsonl files only.",
     )
+    ap.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Per-cell + per-spec resume: skip a model cell whose eval file already has >= --n rows; "
+            "for partial cells, pass --resume to dmcp eval so it skips finished task_ids."
+        ),
+    )
     a = ap.parse_args()
 
     cache_path = Path(a.prices_cache)
@@ -460,6 +472,16 @@ def main() -> int:
 
     def _cell(model: str, key: str) -> tuple[str, int]:
         eval_path = out_dir / f"eval_{_slug(model)}.jsonl"
+        # --resume: per-cell skip when the file already has >= N rows.
+        # A partial file (1 <= rows < N) gets re-launched WITH --resume, so the
+        # inner dmcp eval skips already-finished task_ids.
+        if a.resume:
+            from dmcp.resume import file_row_count
+
+            existing = file_row_count(eval_path)
+            if existing >= a.n:
+                print(f"[resume] skipping cell model={model}: {existing}/{a.n} rows already present")
+                return model, 0
         cmd = _eval_cmd(
             specs=specs_subset,
             manifest=Path(a.manifest),
@@ -470,6 +492,7 @@ def main() -> int:
             pool_size=a.pool_size,
             budget=a.budget,
             out_path=eval_path,
+            resume=a.resume,
         )
         # Pin THIS subprocess to one specific key — overrides the .env value
         # so parallel cells don't share an account-level rate limit.
