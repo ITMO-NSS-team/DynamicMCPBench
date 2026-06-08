@@ -537,9 +537,9 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: corpus authored with explorer-family ≠ distiller-family, sharded over 3 explorer families (gpt-5.5/opus-4.8/gemini-3.1-pro), distilled by a top cross-family model, validated by a 4th family (qwen3.7-max); family provenance recorded per spec for G0.
 
 ### E8.7 — Run: shared corpus (~1100 specs, sharded) [supersedes E3.9]
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: jrzkaminski@Jerzys-M4-Pro.local
+- claimed_at: 2026-06-08T00:17:30Z
 - deps: E8.6 E3.7
 - source: docs/EXPERIMENTS_SUITE.md §2.4
 - done-when: ~1100 keepers over servers.json (docker up), 15 strategies weighted to SAE-relevant, × 3 complexity, intra ∪ inter, ≥150 SAE-eligible + ≥150/complexity-bin, family-sharded, 200-task RQ4 subset reserved; coverage report emitted.
