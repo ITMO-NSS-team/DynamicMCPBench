@@ -33,8 +33,8 @@
 **The anchor — MAIN condition:** `pool=target, P_alt=0.5, pool-size=8, desc=raw, --replay,
 budget=12, repeat=3`.
 
-**Reference models** (single-axis sweeps, to control cost): `openai/gpt-5.5` (top closed),
-`moonshotai/kimi-k2.6` (top tool-use specialist), `qwen/qwen3.7-max` (open). Span the space.
+**Reference models** (single-axis sweeps, to control cost): `deepseek-v4-pro` (free, top acc),
+`kimi-k2p6` (free, top tool-use specialist), `qwen/qwen3-coder-plus` (paid, Qwen family). Span the space at ≈$0.
 
 **Reference subset:** a 350-task stratified slice balanced across gen-strategy × complexity ×
 dynamism × intra/inter. **Leaderboard core:** 600 balanced tasks. **Full ~1100** used for
@@ -44,27 +44,32 @@ generation-side analyses + the 200-task human subset.
 
 ## 1. Models
 
-### 1.1 Candidate roster (8, pinned, live on OpenRouter — verified 2026-06)
+### 1.1 Candidate roster — calibrated free/cheap pool (per E8.0a/b; supersedes the original frontier-8)
 
-| # | Model ID | Class | $in / $out per M | ctx | Role |
-|---|---|---|---|---|---|
-| 1 | `openai/gpt-5.5` | frontier closed | 5 / 30 | 1.05M | candidate + ref |
-| 2 | `anthropic/claude-opus-4.8` | frontier closed | 5 / 25 | 1M | candidate + generator |
-| 3 | `anthropic/claude-sonnet-4.6` | frontier (mid) | 3 / 15 | 1M | candidate |
-| 4 | `google/gemini-3.1-pro-preview` | frontier closed | 2 / 12 | 1.05M | candidate + generator |
-| 5 | `qwen/qwen3.7-max` | frontier open | 1.25 / 3.75 | 1M | candidate + ref + validator |
-| 6 | `moonshotai/kimi-k2.6` | **agentic specialist** | 0.68 / 3.42 | 262K | candidate + ref |
-| 7 | `z-ai/glm-4.7` | **agentic specialist** | 0.40 / 1.75 | 203K | candidate |
-| 8 | `minimax/minimax-m3` | open agentic | 0.30 / 1.20 | 1M | candidate |
+> **Updated 2026-06-04+ (team sync):** the user redacted the frontier-heavy panel toward
+> cheap/free models and obtained a **private free-tier endpoint** (6 agentic models).
+> `scripts/cost_calibration.py` (E8.0a/b) measured real `$/spec`; the **source of truth for the
+> pool is now `docs/experiments/e8.0a-model-calibration.md` + `e8.0b-free-models-calibration.md`.**
 
-Weighted replay cost ≈ **$0.06/run** (cheap specialists offset the frontier). Spans 4
-frontier-closed + 1 frontier-open + 3 tool-use specialists. Kimi K2.6 is the strongest
-tool-use model on 2026 agentic leaderboards (sustained 4,000+ tool calls / 13-hr session);
-GLM family topped BFCL-v3 (76.7%).
+**Headline pool for E8.7/E8.8 — 6 models, ~$55 for the 1100-spec corpus (vs ~$309 pure-paid):**
 
-> **Reproducibility caveat:** `gemini-3.1-pro-preview` is a *preview* tag and may drift —
-> snapshot its responses into the replay cache early; if it rotates, fall back to the pinned
-> snapshot. All others are stable pins.
+| # | Model | Tier | Family | Why kept |
+|---|---|---|---|---|
+| 1 | `deepseek-v4-pro` | **free** | deepseek | top acc at $0; matches paid sonnet-4.6 |
+| 2 | `glm-5p1` | **free** | z-ai | tied-top at $0; BFCL family |
+| 3 | `kimi-k2p6` | **free** | moonshot | tool specialist; matches paid kimi-k2.6 |
+| 4 | `minimax-m2p7` | **free** | minimax | cross-family diversity |
+| 5 | `qwen/qwen3-coder-plus` | paid (~$19) | qwen | adds Qwen family; tool specialist |
+| 6 | `anthropic/claude-haiku-4.5` | paid (~$36) | anthropic | adds Anthropic family for cross-family pairs |
+| 7 `[OPT]` | `anthropic/claude-sonnet-4.6` | paid (~$143) | anthropic | frontier ceiling anchor; drop if budget tight |
+
+Free models route via `dmcp/providers.py` to the private endpoint (3 keys round-robin);
+everything else stays on OpenRouter. Free-endpoint wall-clock is slow (p95 110–162 s) → run
+with `--concurrency 3` (~3 h per 1100-spec model over 3 lanes). `[OPT]` diversity probes:
+`gpt-oss-120b` (free, `openai-oss` family, 40% acc), `kimi-k2p5`.
+
+> The original frontier-8 (gpt-5.5, opus-4.8, sonnet-4.6, gemini-3.1-pro, qwen3.7-max,
+> kimi-k2.6, glm-4.7, minimax-m3) remains available as **paid-ceiling / optional arms** (§1.2).
 
 ### 1.2 Optional candidate add-ons **`[OPT]`**
 
@@ -76,14 +81,18 @@ GLM family topped BFCL-v3 (76.7%).
 | `x-ai/grok-4.3` / `x-ai/grok-4.20-multi-agent` | the multi-agent variant is purpose-built for orchestration |
 | thinking/reasoning variants (e.g. `qwen3.7-max` vs a thinking sibling) | reasoning-effort vs SAE ablation (G2.3) |
 
-### 1.3 Generation models (the authoring panel — see §2.2)
+### 1.3 Generation models (the authoring panel — implemented in E8.6, `dmcp/families.py`)
+
+`build_corpus.py` round-robin shards goals across `--explore-model` (a comma panel) and, per
+shard, picks the first cross-family distiller from `--distiller-candidates` (`cross_family_pick`
+guarantees explorer-family ≠ distiller-family); `--validator` adds a 4th-family check. Per-spec
+provenance (explorer/distiller family, shard, goal_id) is recorded for G0. Calibrated free-pool panel:
 
 | Stage | Model(s) |
 |---|---|
-| goal-gen | panel round-robin `{gpt-5.5, claude-opus-4.8, gemini-3.1-pro}` |
-| explore (sharded ⅓ each) | shard A `gpt-5.5`, shard B `claude-opus-4.8`, shard C `gemini-3.1-pro` |
-| distill (always cross-family from the shard's explorer) | A→`claude-opus-4.8`, B→`gpt-5.5`, C→`claude-opus-4.8` |
-| cross-family validation | `qwen/qwen3.7-max` (a 4th family) |
+| explore (sharded) | `kimi-k2p6` (moonshot) · `deepseek-v4-pro` (deepseek) · `glm-5p1` (z-ai) |
+| distill (cross-family per shard) | `--distiller-candidates deepseek-v4-pro,kimi-k2p6,minimax-m2p7` (picker takes first non-explorer-family) |
+| cross-family validation | `qwen/qwen3-coder-plus` (qwen — a 4th family) |
 
 ---
 
@@ -242,22 +251,23 @@ Legend: **swept** = the axis varied; everything else held at MAIN. Costs at ~$0.
 
 ---
 
-## 5. Budget (Standard; ~$0.06–0.10/run, replay)
+## 5. Budget — calibrated (E8.0a/b), free-pool
 
-| Bucket | ~Runs | ~$ |
+The bulk now routes through the free endpoint; paid spend is reserved for the cross-family
+Anthropic/Qwen anchors and the optional ceiling.
+
+| Run | Pool | ~$ |
 |---|---|---|
-| Corpus generation (strong panel) | — | 500 |
-| Leaderboard G2.1–G2.4 (8 models) | ~19k | 1,230 |
-| SAE G3.1–G3.2 (P_alt + sampling) | ~9.5k | 760 |
-| desc A/B (G5 via `--desc-levels`) | ~1.4k | 110 |
-| Tool-scaling G6.2 + Architecture G6.3 | ~4.8k | 430 |
-| RQ2 gen G1 + decay G6.4 + judges | — | 250 |
-| **Core total** | **~35k** | **~$3.3k** |
-| Optionals (`[OPT]` arms, if all) | | +600 |
+| E8.7 corpus (1100 × pass^3) | 4 free + 2 paid | **~$55** |
+| + optional sonnet-4.6 anchor | +1 paid | ~$198 |
+| pure-paid frontier (reference) | E8.0a recommendation | ~$309 |
 
-**Levers to ~$2.4–2.6k:** drop to 6 candidates (cut `glm-4.7` + `minimax-m3`, keep `kimi-k2.6`
-as the specialist) → leaderboard −$300; architecture on 1 ref model → −$150; skip G2.5–G2.7 +
-G4.4–G4.6 optionals. Keep firm: corpus, G2.1 leaderboard, G3.1/G3.2 SAE, G0, RQ1/RQ2/RQ3, RQ4.
+≈5.6× cheaper than the original ~$3.3k frontier plan; sweeps (G3/G6) run free-first likewise.
+Source of truth: `docs/experiments/e8.0a/b`.
+
+> **Caveat (review, fix pending):** the calibration auto-Pareto picker has a $0-cluster bug —
+> models with zero/unknown price ride the frontier — so the pool above was set by **manual
+> override**, not the raw picker. Fix = drop `unknown_price`/zero-usage models + tie-break on accuracy.
 
 ---
 
@@ -309,6 +319,8 @@ leaderboard. RQ4 annotation runs concurrently from the moment the corpus exists.
 
 ---
 
-*Pinned model IDs and the generation-panel design above supersede any roster in
-`docs/PLAN.md` / `EXPERIMENTS.md §9`. Ledger steps for execution live under epic **E8** in
-`docs/PLAN.md`.*
+*The calibrated free-pool roster (§1.1) and panel (§1.3) reflect the team's 2026-06-04 redaction
+and the E8.0a/b calibration — those reports are the source of truth. Ledger steps for execution
+live under epic **E8** in `docs/PLAN.md`. Known build issues from the E8.1–E8.6 review
+(architecture-harness SAE confound, cost auto-picker $0-cluster, build_corpus cross-provider key
+routing) are tracked separately, not yet fixed.*
