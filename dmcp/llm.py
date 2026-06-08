@@ -130,7 +130,7 @@ def unnamespace_tool(qualified: str) -> tuple[str, str]:
     """Inverse of namespace_tool. Raises if the input is not namespaced."""
     if TOOL_NAMESPACE_SEP not in qualified:
         raise ValueError(f"tool name not namespaced: {qualified!r}")
-    server_id, tool_name = qualified.split(TOOL_NAMESPACE_SEP, 1)
+    server_id, tool_name = qualified.rsplit(TOOL_NAMESPACE_SEP, 1)
     return server_id, tool_name
 
 
