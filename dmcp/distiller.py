@@ -33,7 +33,16 @@ from dmcp.spec import (
 )
 from dmcp.trace import StepKind, StepStatus, Trace
 
-DISTILLER_VERSION = "0.1.0"
+DISTILLER_VERSION = "0.2.0"  # E8.7: bump max_tokens so reasoning-model distillers don't truncate
+
+# Reasoning models (e.g. kimi-k2p6, glm-5p1, deepseek-v4-pro on some prompts) emit
+# visible chain-of-thought into `content` before the structured tool_call. With
+# 4096 (the OpenRouterClient default) they burn the budget on reasoning and never
+# get to emit_task_spec, dropping us into DistillationError. Bumping to 16k gives
+# enough headroom for both moderate CoT and the full structured spec payload
+# (prompt + checkpoints + minefields + notes); on non-reasoning models the spend
+# is the same since they don't fill the budget.
+DISTILLER_MAX_TOKENS = 16384
 
 DISTILLER_SYSTEM = """You are compiling an MCP tool-use trace into a benchmark task specification.
 
@@ -414,6 +423,7 @@ async def distill(
         tools=tools,
         tool_choice={"type": "function", "function": {"name": "emit_task_spec"}},
         temperature=0.0,
+        max_tokens=DISTILLER_MAX_TOKENS,
     )
     if not resp.tool_calls:
         raise DistillationError(f"LLM did not call emit_task_spec; content={resp.content!r}")
