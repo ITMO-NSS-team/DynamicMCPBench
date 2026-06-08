@@ -193,7 +193,11 @@ def main() -> None:
     # ---- Phase 2: generate (explore + distill); cross-family panel when requested ----
     traces = out / "traces.jsonl"
     specs = out / "specs.jsonl"
-    if specs.exists() and not a.force:
+    # Coarse reuse fires only when neither --force nor --resume is set: --resume
+    # delegates the skip decision to the inner shard's per-goal logic, which is
+    # finer-grained and catches the case where specs.jsonl carries only partial
+    # progress from a previous run.
+    if specs.exists() and not a.force and not a.resume:
         print(f"[phase2] reuse {specs}")
     else:
         explorer_panel = [m for m in (a.explorer_models or "").split(",") if m]
