@@ -29,6 +29,7 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamablehttp_client
 
 from dmcp import __version__
+from dmcp import _mcp_compat as _mcp_compat  # noqa: F401  (lenient MCP message parsing)
 from dmcp.trace import (
     ServerFingerprint,
     Step,
