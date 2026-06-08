@@ -1590,6 +1590,15 @@ def generate(
                 except DistillationError as e:
                     typer.echo(f"  distill error: {e}")
                     continue
+                except Exception as e:
+                    # Transient transport / API failures during the distiller
+                    # LLM call (APIConnectionError, ReadError, RateLimitError,
+                    # etc.) must not take down the whole subprocess — the
+                    # explorer wrapper above already survives the same family
+                    # of errors. Log, drop this goal, keep iterating; --resume
+                    # will pick it back up on the next launch.
+                    typer.echo(f"  distill error (transport): {type(e).__name__}: {e}")
+                    continue
                 fs.write(spec.to_jsonl())
                 fs.write("\n")
                 spec_count += 1
