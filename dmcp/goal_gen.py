@@ -246,12 +246,14 @@ async def _fetch_tool_specs(entry: ServerEntry, *, timeout_s: float = 25.0) -> l
     """
     cfg = entry.to_config()
     rec = TraceRecorder(servers=[cfg], goal=f"goal-gen:{entry.server_id}")
-    try:
-        with anyio.fail_after(timeout_s):
-            async with rec:
-                return list(rec.trace.tool_specs.get(entry.server_id, []))
-    except TimeoutError:
-        return []
+    # move_on_after (not fail_after) so a slow/dead server's timeout is absorbed
+    # at this scope instead of leaking a CancelledError out of the MCP client's
+    # task group (which is a BaseException and escapes the caller's except Exception).
+    specs: list[ToolSpec] = []
+    with anyio.move_on_after(timeout_s):
+        async with rec:
+            specs = list(rec.trace.tool_specs.get(entry.server_id, []))
+    return specs
 
 
 async def _ask_for_goals(
