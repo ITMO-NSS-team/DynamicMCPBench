@@ -575,6 +575,7 @@ async def generate_strategy_goals(
     direct_alt_path: Path | None = None,
     seed: int = 0,
     use_personas: bool = True,
+    surfaces_override: dict[str, list[ToolSpec]] | None = None,
 ) -> Goals:
     """Strategy-driven goal seeding (E6.1). Reuse the eval-side sampler to pick a SEED
     tool-set by RELATIONSHIP (random / hard_neg / cross_domain / same_name / sibling /
@@ -596,7 +597,11 @@ async def generate_strategy_goals(
         raise ValueError(f"unknown strategy {strategy!r}; pick from {GEN_STRATEGIES}")
     if complexity:
         eff_size = COMPLEXITY_SIZE.get(complexity, eff_size)
-    surfaces, entries = await _capture_surfaces(manifest, server_ids)
+    if surfaces_override is not None:
+        entries = {sid: manifest.by_id(sid) for sid in server_ids if sid in surfaces_override}
+        surfaces = {sid: surfaces_override[sid] for sid in entries}
+    else:
+        surfaces, entries = await _capture_surfaces(manifest, server_ids)
     if not surfaces:
         return Goals(entries=[])
     catalog = ToolCatalog(
