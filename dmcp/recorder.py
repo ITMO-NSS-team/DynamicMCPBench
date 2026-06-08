@@ -14,6 +14,7 @@ Scope of v0:
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import sys
@@ -23,6 +24,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TextIO
 
+import anyio
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -160,10 +162,28 @@ class TraceRecorder:
         await self._stack.__aenter__()
         self._stderr_sink = self._resolve_server_stderr()
         for server_id, cfg in self._configs.items():
-            session, init_result = await self._open_session(cfg)
+            # Boot each server on its own stack so a single flaky server can
+            # be skipped (and its half-open transport closed) without aborting
+            # the whole exploration. A multi-server goal previously failed
+            # entirely — and leaked the already-open sessions — the moment any
+            # one server failed to boot, systematically wiping out exactly the
+            # cross-server tasks the benchmark cares about most.
+            server_stack = AsyncExitStack()
+            try:
+                session, init_result = await self._open_session(cfg, stack=server_stack)
+                fingerprint = await self._fingerprint(server_id, cfg, session)
+            except (Exception, asyncio.CancelledError) as e:
+                import contextlib
+
+                with anyio.CancelScope(shield=True), contextlib.suppress(BaseException):
+                    await server_stack.aclose()
+                self.trace.seed_metadata.setdefault("boot_failures", []).append(
+                    {"server_id": server_id, "error": f"{type(e).__name__}: {e}"}
+                )
+                continue
+            await self._stack.enter_async_context(server_stack)
             self._sessions[server_id] = session
             self._init_results[server_id] = init_result
-            fingerprint = await self._fingerprint(server_id, cfg, session)
             self.trace.servers.append(fingerprint)
         self.trace.started_at = _utcnow()
         return self
@@ -171,8 +191,29 @@ class TraceRecorder:
     async def __aexit__(self, exc_type, exc, tb) -> None:
         self.trace.ended_at = _utcnow()
         assert self._stack is not None
-        await self._stack.__aexit__(exc_type, exc, tb)
-        self._stack = None
+        stack, self._stack = self._stack, None
+        # MCP's stdio_client / ClientSession spawn internal anyio task
+        # groups. When those are torn down under cancellation (an explore
+        # timeout) or right after a flaky server boot, anyio can raise
+        # "Attempted to exit cancel scope in a different task than it was
+        # entered in" while closing them. The trace is fully recorded by
+        # now, so a bookkeeping failure during subprocess teardown is
+        # benign. Shield the close from outer cancellation and swallow ONLY
+        # that specific RuntimeError so one flaky server can never abort the
+        # whole generation shard (a single bad goal previously zeroed out an
+        # entire explorer shard).
+        with anyio.CancelScope(shield=True):
+            try:
+                await stack.__aexit__(exc_type, exc, tb)
+            except RuntimeError as e:
+                if "cancel scope" not in str(e):
+                    raise
+            except BaseExceptionGroup as eg:
+                leftover = [
+                    x for x in eg.exceptions if not (isinstance(x, RuntimeError) and "cancel scope" in str(x))
+                ]
+                if leftover:
+                    raise
         self._sessions.clear()
         if self._server_stderr_file is not None:
             import contextlib
@@ -181,23 +222,26 @@ class TraceRecorder:
                 self._server_stderr_file.close()
             self._server_stderr_file = None
 
-    async def _open_session(self, cfg: ServerConfig) -> tuple[ClientSession, Any]:
-        assert self._stack is not None
+    async def _open_session(
+        self, cfg: ServerConfig, stack: AsyncExitStack | None = None
+    ) -> tuple[ClientSession, Any]:
+        stack = stack if stack is not None else self._stack
+        assert stack is not None
         if isinstance(cfg, StdioServer):
             transport_cm = stdio_client(
                 StdioServerParameters(command=cfg.command, args=cfg.args, env=cfg.env),
                 errlog=self._stderr_sink,
             )
-            read, write = await self._stack.enter_async_context(transport_cm)
-            session = await self._stack.enter_async_context(ClientSession(read, write))
+            read, write = await stack.enter_async_context(transport_cm)
+            session = await stack.enter_async_context(ClientSession(read, write))
         elif isinstance(cfg, SseServer):
             transport_cm = sse_client(cfg.url, headers=cfg.headers)
-            read, write = await self._stack.enter_async_context(transport_cm)
-            session = await self._stack.enter_async_context(ClientSession(read, write))
+            read, write = await stack.enter_async_context(transport_cm)
+            session = await stack.enter_async_context(ClientSession(read, write))
         elif isinstance(cfg, StreamableHttpServer):
             transport_cm = streamablehttp_client(cfg.url, headers=cfg.headers)
-            read, write, _ = await self._stack.enter_async_context(transport_cm)
-            session = await self._stack.enter_async_context(ClientSession(read, write))
+            read, write, _ = await stack.enter_async_context(transport_cm)
+            session = await stack.enter_async_context(ClientSession(read, write))
         else:
             raise TypeError(f"unknown ServerConfig: {type(cfg).__name__}")
         init_result = await session.initialize()

@@ -15,7 +15,11 @@ Future commands (per the rev. 3 plan):
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+import os
+import sys
+import tempfile
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -1499,6 +1503,78 @@ def distill(
     asyncio.run(_run())
 
 
+async def _explore_in_subprocess(
+    entry: Any,
+    *,
+    manifest_path: Path,
+    model: str,
+    default_budget: int,
+    timeout_s: float,
+) -> Trace | None:
+    """Run one goal's forward exploration in an isolated subprocess.
+
+    Each exploration boots live MCP servers, whose anyio/stdio task groups can
+    leak a cancel scope into this process on teardown -- previously that
+    cancellation hit the *next* distill and aborted the whole shard. Running the
+    explore as its own ``dmcp explore`` process (own event loop, hard timeout +
+    SIGKILL) makes that impossible: a crash, hang, or flaky-server teardown dies
+    with the child and we simply skip the goal. Returns the recorded Trace, or
+    None if the worker produced no usable trace.
+    """
+    fd, out_path = tempfile.mkstemp(prefix="dmcp_explore_", suffix=".jsonl")
+    os.close(fd)
+    try:
+        args = [
+            sys.executable,
+            "-m",
+            "dmcp.cli",
+            "explore",
+            entry.goal,
+            "--manifest",
+            str(manifest_path),
+            "--model",
+            model,
+            "--budget",
+            str(entry.budget or default_budget),
+            "--output",
+            out_path,
+        ]
+        for sid in entry.servers:
+            args += ["--server", sid]
+        if entry.persona:
+            args += ["--persona", entry.persona]
+        proc = await asyncio.create_subprocess_exec(
+            *args,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            _, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout_s)
+        except TimeoutError:
+            proc.kill()
+            with contextlib.suppress(ProcessLookupError):
+                await proc.wait()
+            typer.echo(f"  explore timeout >{timeout_s:.0f}s -- killed; skipping goal")
+            return None
+        data = ""
+        with contextlib.suppress(OSError):
+            data = Path(out_path).read_text(encoding="utf-8").strip()
+        if not data:
+            typer.echo(f"  explore produced no trace (exit {proc.returncode}); skipping goal")
+            for ln in (stderr or b"").decode("utf-8", "replace").strip().splitlines()[-3:]:
+                typer.echo(f"    | {ln}")
+            return None
+        trace = Trace.model_validate_json(data.splitlines()[0])
+        # The worker doesn't know the goal's identity/tags; restore them so
+        # --resume and distiller provenance (goalgen_model/family) keep working.
+        trace.seed_metadata["goal_id"] = entry.goal_id
+        trace.seed_metadata["goal_tags"] = entry.tags
+        return trace
+    finally:
+        with contextlib.suppress(OSError):
+            os.unlink(out_path)
+
+
 @app.command()
 def generate(
     goals: Annotated[Path, typer.Argument(help="Goals seed JSON")],
@@ -1510,6 +1586,13 @@ def generate(
         str, typer.Option("--distill-model", help="LLM for distillation")
     ] = DEFAULT_MODEL,
     budget: Annotated[int, typer.Option("--budget", help="Default per-goal LLM turn budget")] = 12,
+    explore_timeout: Annotated[
+        float,
+        typer.Option(
+            "--explore-timeout",
+            help="Per-goal explore subprocess timeout in seconds (killed if exceeded)",
+        ),
+    ] = 300.0,
     traces_out: Annotated[
         Path, typer.Option("--traces-out", help="JSONL: every recorded trace, success or not")
     ] = Path("traces/generated.jsonl"),
@@ -1532,7 +1615,6 @@ def generate(
     """
     m = Manifest.load(manifest)
     g = Goals.load(goals)
-    explore_llm = OpenRouterClient(model=explore_model)
     distill_llm = OpenRouterClient(model=distill_model)
 
     # Validate all goals' servers exist up front.
@@ -1568,34 +1650,29 @@ def generate(
                 if resume and entry.goal_id in seen_goals:
                     continue
                 typer.echo(f"[{entry.goal_id}] servers={entry.servers} budget={entry.budget or budget}")
-                cfgs = m.configs(entry.servers)
-                try:
-                    result = await run_exploration(
-                        goal=entry.goal,
-                        servers=cfgs,
-                        llm=explore_llm,
-                        budget=entry.budget or budget,
-                        persona=entry.persona,
-                        extra_seed={"goal_id": entry.goal_id, "goal_tags": entry.tags},
-                    )
-                except Exception as e:
-                    typer.echo(f"  exploration error: {type(e).__name__}: {e}")
+                trace = await _explore_in_subprocess(
+                    entry,
+                    manifest_path=manifest,
+                    model=explore_model,
+                    default_budget=budget,
+                    timeout_s=explore_timeout,
+                )
+                if trace is None:
                     continue
-                stash_exploration_in_trace(result)
-                ft.write(result.trace.to_jsonl())
+                ft.write(trace.to_jsonl())
                 ft.write("\n")
                 trace_count += 1
-                typer.echo(
-                    f"  explored: outcome={result.outcome} successful_calls={result.successful_tool_calls}"
-                )
-                if result.successful_tool_calls == 0:
+                expl = trace.seed_metadata.get("exploration", {})
+                successful = int(expl.get("successful_tool_calls", 0) or 0)
+                typer.echo(f"  explored: outcome={expl.get('outcome', '?')} successful_calls={successful}")
+                if successful == 0:
                     typer.echo("  skip distill: no successful tool calls")
                     continue
                 try:
                     # Stamp goal_id into provenance so --resume can locate
                     # which goals already produced a spec on next launch.
                     spec = await run_distill(
-                        result.trace,
+                        trace,
                         llm=distill_llm,
                         manifest=m,
                         provenance={"goal_id": entry.goal_id},
