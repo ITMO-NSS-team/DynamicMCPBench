@@ -132,6 +132,12 @@ def main() -> None:
     )
     ap.add_argument("--budget", type=int, default=12)
     ap.add_argument(
+        "--explore-timeout",
+        type=float,
+        default=600.0,
+        help="Per-goal explore subprocess timeout (s), forwarded to dmcp generate",
+    )
+    ap.add_argument(
         "--resume",
         action="store_true",
         help=(
@@ -292,6 +298,8 @@ def main() -> None:
                     assignment.distiller_model,
                     "--budget",
                     str(a.budget),
+                    "--explore-timeout",
+                    str(a.explore_timeout),
                     "--traces-out",
                     str(shard_traces),
                     "--specs-out",
@@ -360,6 +368,8 @@ def main() -> None:
                     a.distill_model,
                     "--budget",
                     str(a.budget),
+                    "--explore-timeout",
+                    str(a.explore_timeout),
                     "--traces-out",
                     str(traces),
                     "--specs-out",
