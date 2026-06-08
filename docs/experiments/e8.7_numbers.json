@@ -1,0 +1,111 @@
+{
+  "experiment_id": "e8.7",
+  "title": "E8.7 — Shared corpus, Phase C (~150-200 keepers, free pool, cross-family)",
+  "classification": "positive",
+  "decision_rule": {
+    "min_keepers": 150,
+    "min_strategies_represented": 10,
+    "min_depth_bins_populated": 3,
+    "both_scopes_required": true
+  },
+  "totals": {
+    "specs": 178,
+    "traces": 310,
+    "distill_rate": 0.574,
+    "validator_pass_rate": 0.528,
+    "wall_time_hours": 9.7,
+    "direct_cost_usd": 0.0
+  },
+  "panel": {
+    "manifest": "manifests/local.json",
+    "n_servers": 16,
+    "explorer_models": ["deepseek-v4-pro", "glm-5p1", "kimi-k2p6"],
+    "distiller_candidates_ordered": [
+      "glm-5p1",
+      "deepseek-v4-pro",
+      "minimax-m2p7",
+      "kimi-k2p6"
+    ],
+    "validator_model": "minimax-m2p7",
+    "concurrency": 3,
+    "per_strategy": 8,
+    "complexities": ["simple", "medium", "hard"],
+    "budget": 12
+  },
+  "shards": [
+    {
+      "shard_id": 0,
+      "explorer_model": "deepseek-v4-pro",
+      "explorer_family": "deepseek",
+      "distiller_model": "glm-5p1",
+      "distiller_family": "z-ai",
+      "traces": 100,
+      "specs": 64,
+      "distill_rate": 0.64
+    },
+    {
+      "shard_id": 1,
+      "explorer_model": "glm-5p1",
+      "explorer_family": "z-ai",
+      "distiller_model": "deepseek-v4-pro",
+      "distiller_family": "deepseek",
+      "traces": 100,
+      "specs": 52,
+      "distill_rate": 0.52
+    },
+    {
+      "shard_id": 2,
+      "explorer_model": "kimi-k2p6",
+      "explorer_family": "moonshot",
+      "distiller_model": "glm-5p1",
+      "distiller_family": "z-ai",
+      "traces": 110,
+      "specs": 62,
+      "distill_rate": 0.564
+    }
+  ],
+  "coverage": {
+    "by_strategy": {
+      "decoy": 20,
+      "prerequisite_strict": 20,
+      "hard_neg": 16,
+      "stratified": 15,
+      "destructive_adjacent": 15,
+      "sibling": 13,
+      "homonym_trap": 12,
+      "ambiguous_intent": 12,
+      "same_name": 11,
+      "complementary": 11,
+      "long_similar_chain": 10,
+      "recovery_required": 10,
+      "random": 7,
+      "cross_domain": 6,
+      "cross_server_alt": 0
+    },
+    "by_depth_bin": {
+      "1-2 (simple)": 100,
+      "3-4 (medium)": 52,
+      "5+ (hard)": 26
+    },
+    "by_dynamism": {
+      "live_read": 145,
+      "stateful_write": 33
+    },
+    "by_scope": {
+      "intra-server": 123,
+      "cross-server": 55
+    },
+    "by_complexity_knob": {
+      "simple": 85,
+      "medium": 51,
+      "hard": 42
+    }
+  },
+  "bug_chain_fixed_during_run": [
+    {"pr": 62, "fix": "anyio.fail_after instead of asyncio.wait_for in _fetch_tool_specs (cancel-scope)"},
+    {"pr": 63, "fix": "DISTILLER_MAX_TOKENS = 16384 (was 4096 default; reasoning-model CoT headroom)"},
+    {"pr": 64, "fix": "--resume bypasses coarse Phase-2 reuse check"},
+    {"pr": 65, "fix": "Removed function-local import json shadow in Phase 1 else"},
+    {"pr": 66, "fix": "dmcp generate distill wrapper catches transport errors (APIConnectionError)"}
+  ]
+}
