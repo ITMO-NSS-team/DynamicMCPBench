@@ -88,6 +88,9 @@ def main() -> None:
     ap.add_argument("--complexities", default="simple,medium,hard")
     ap.add_argument("--per-strategy", type=int, default=4)
     ap.add_argument(
+        "--goalgen-model", default=None, help="Model that authors the goals (recorded in provenance)"
+    )
+    ap.add_argument(
         "--explore-model",
         default="anthropic/claude-haiku-4.5",
         help="Single-model exploration (used only when --explorer-models is absent).",
@@ -166,6 +169,7 @@ def main() -> None:
             strat_args: list[str] = []
             for s in strategies:
                 strat_args += ["--strategy", s]
+            gg_model_args = ["--model", a.goalgen_model] if a.goalgen_model else []
             rc = _run(
                 [
                     DMCP,
@@ -174,6 +178,7 @@ def main() -> None:
                     str(ROOT / a.manifest),
                     *server_args,
                     *strat_args,
+                    *gg_model_args,
                     "--per-strategy",
                     str(a.per_strategy),
                     "--complexity",
