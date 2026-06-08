@@ -148,6 +148,16 @@ def main() -> None:
             "key (FREE_MODELS_API_KEY[_2,_3,...] / OPENROUTER_API_KEY[_2,_3,...]). Default 1."
         ),
     )
+    ap.add_argument(
+        "--key-offset",
+        type=int,
+        default=0,
+        help=(
+            "Skip the first N keys in the provider key pool — lets parallel runners (e.g. "
+            "this build_corpus + a concurrent run_leaderboard) use disjoint key slices and "
+            "avoid rate-limit contention."
+        ),
+    )
     ap.add_argument("--out", default="data/corpus")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
@@ -239,9 +249,16 @@ def main() -> None:
             load_dotenv(override=False)
             provider = resolve(explorer_panel[0])
             key_env_var = provider.api_key_env
-            keys = pool_keys(provider)
-            if not keys:
+            all_keys = pool_keys(provider)
+            if not all_keys:
                 raise SystemExit(f"no API keys found for provider {provider.name!r} (env {key_env_var})")
+            # Slice off the first N keys when --key-offset > 0 so a concurrent
+            # process (e.g. a leaderboard run) can claim them instead.
+            keys = all_keys[max(0, int(a.key_offset)) :]
+            if not keys:
+                raise SystemExit(
+                    f"--key-offset {a.key_offset} consumed every key (pool size {len(all_keys)})"
+                )
             requested = max(1, int(a.concurrency))
             lanes = max(1, min(requested, len(keys)))
             if requested > lanes:
