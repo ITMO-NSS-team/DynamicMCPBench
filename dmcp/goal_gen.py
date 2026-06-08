@@ -24,13 +24,14 @@ Out of scope for v0:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import random
 from itertools import combinations
 from pathlib import Path
 from typing import Any
+
+import anyio
 
 from dmcp.goals import GoalEntry, Goals
 from dmcp.llm import OpenRouterClient
@@ -234,15 +235,23 @@ def _server_view(entry: ServerEntry, specs: list[ToolSpec]) -> dict[str, Any]:
 
 
 async def _fetch_tool_specs(entry: ServerEntry, *, timeout_s: float = 25.0) -> list[ToolSpec]:
-    """Open a stdio session just long enough to capture the tool surface."""
+    """Open a stdio session just long enough to capture the tool surface.
+
+    Uses `anyio.fail_after` instead of `asyncio.wait_for` because the MCP
+    stdio client internally manages anyio cancel scopes inside a task group;
+    superimposing `asyncio.wait_for` on top causes "Attempted to exit cancel
+    scope in a different task than it was entered in" RuntimeErrors that
+    poison the event loop. anyio's fail_after uses cancel scopes compatible
+    with the inner task group, so timeouts cancel cleanly per task.
+    """
     cfg = entry.to_config()
     rec = TraceRecorder(servers=[cfg], goal=f"goal-gen:{entry.server_id}")
-
-    async def _do() -> list[ToolSpec]:
-        async with rec:
-            return list(rec.trace.tool_specs.get(entry.server_id, []))
-
-    return await asyncio.wait_for(_do(), timeout=timeout_s)
+    try:
+        with anyio.fail_after(timeout_s):
+            async with rec:
+                return list(rec.trace.tool_specs.get(entry.server_id, []))
+    except TimeoutError:
+        return []
 
 
 async def _ask_for_goals(
