@@ -471,6 +471,14 @@ def _build_provenance(
     if isinstance(explorer_model, str):
         base["explorer_model"] = explorer_model
         base["explorer_family"] = family_of(explorer_model)
+    tags = (trace.seed_metadata or {}).get("goal_tags") or []
+    gm = next(
+        (t.split(":", 1)[1] for t in tags if isinstance(t, str) and t.startswith("goalgen_model:")),
+        None,
+    )
+    if gm:
+        base["goalgen_model"] = gm
+        base["goalgen_family"] = family_of(gm)
     if overrides:
         base.update(overrides)
     return base

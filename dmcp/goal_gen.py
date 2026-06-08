@@ -662,6 +662,8 @@ async def generate_strategy_goals(
             servers = [s for s in (gd.get("servers") or list(by_server)) if s in surfaces] or list(by_server)
             tags = list(gd.get("tags") or [])
             base_tags = [f"strategy:{strategy}", scope]
+            if llm is not None:
+                base_tags.append(f"goalgen_model:{llm.model}")
             if complexity:
                 base_tags.append(f"complexity:{complexity}")
             for t in base_tags:
