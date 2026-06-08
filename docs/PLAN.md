@@ -537,7 +537,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: corpus authored with explorer-family ≠ distiller-family, sharded over 3 explorer families (gpt-5.5/opus-4.8/gemini-3.1-pro), distilled by a top cross-family model, validated by a 4th family (qwen3.7-max); family provenance recorded per spec for G0.
 
 ### E8.7 — Run: shared corpus (~1100 specs, sharded) [supersedes E3.9]
-- status: claimed
+- status: done
 - owner: jrzkaminski@Jerzys-M4-Pro.local
 - claimed_at: 2026-06-08T00:17:30Z
 - deps: E8.6 E3.7
