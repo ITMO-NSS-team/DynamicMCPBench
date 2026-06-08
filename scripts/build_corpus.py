@@ -155,8 +155,10 @@ def main() -> None:
     if goals_full.exists() and not a.force:
         print(f"[phase1] reuse {goals_full}")
     else:
-        import json
-
+        # NOTE: `json` is imported at module scope. Re-importing here would
+        # make Python treat `json` as a function-local, shadowing the module
+        # binding throughout `main()` — and any unentered branch (e.g. Phase 1
+        # reuse → Phase 2 generate) would crash on UnboundLocalError. Don't.
         merged: list[dict] = []
         seen: set[str] = set()
         for c in [x for x in a.complexities.split(",") if x]:
