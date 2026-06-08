@@ -183,6 +183,12 @@ class OpenRouterClient:
             api_key = api_key or resolved_key
         self.model = model
         self.usage = UsageAccumulator(model=model)
+        # OpenRouter fans each model across providers; some don't honor a
+        # forced `tool_choice`. require_parameters (added in chat()) makes
+        # OpenRouter route only to providers supporting the request's params,
+        # fixing the "No endpoints support tool_choice" 404. The free endpoint
+        # routes itself, so we gate the flag on the OpenRouter base_url.
+        self._openrouter = bool(base_url and "openrouter.ai" in base_url)
         self._client = AsyncOpenAI(
             api_key=api_key,
             base_url=base_url,
@@ -212,6 +218,8 @@ class OpenRouterClient:
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = tool_choice
+            if self._openrouter:
+                kwargs["extra_body"] = {"provider": {"require_parameters": True}}
         if extra:
             kwargs.update(extra)
 
