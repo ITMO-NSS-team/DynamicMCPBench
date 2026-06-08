@@ -307,6 +307,10 @@ def goal_gen(
     ] = 5,
     model: Annotated[str, typer.Option("--model")] = DEFAULT_MODEL,
     seed: Annotated[int, typer.Option("--seed")] = 0,
+    surfaces_json: Annotated[
+        Path | None,
+        typer.Option("--surfaces", help="Pre-captured surfaces JSON; bypass live capture"),
+    ] = None,
     no_personas: Annotated[
         bool,
         typer.Option("--no-personas", help="Disable persona seeding (free-form baseline)."),
@@ -335,6 +339,13 @@ def goal_gen(
     m = Manifest.load(manifest)
     chosen = servers or [s.server_id for s in m.servers]
     llm = OpenRouterClient(model=model)
+    surfaces_override = None
+    if surfaces_json is not None:
+        from dmcp.trace import ToolSpec
+
+        _raw = json.loads(surfaces_json.read_text(encoding="utf-8"))
+        surfaces_override = {sid: [ToolSpec(**t) for t in lst] for sid, lst in _raw.items()}
+        chosen = [s for s in chosen if s in surfaces_override]
 
     async def _run() -> None:
         if strategy:
@@ -353,6 +364,7 @@ def goal_gen(
                     complexity=complexity,
                     seed=seed,
                     use_personas=not no_personas,
+                    surfaces_override=surfaces_override,
                 )
                 all_entries.extend(gs.entries)
             goals = Goals(entries=all_entries)

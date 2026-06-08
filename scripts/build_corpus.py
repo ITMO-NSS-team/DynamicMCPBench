@@ -87,6 +87,7 @@ def main() -> None:
     )
     ap.add_argument("--complexities", default="simple,medium,hard")
     ap.add_argument("--per-strategy", type=int, default=4)
+    ap.add_argument("--surfaces", default=None, help="Pre-captured surfaces JSON for goal-gen")
     ap.add_argument(
         "--goalgen-model", default=None, help="Model that authors the goals (recorded in provenance)"
     )
@@ -170,6 +171,7 @@ def main() -> None:
             for s in strategies:
                 strat_args += ["--strategy", s]
             gg_model_args = ["--model", a.goalgen_model] if a.goalgen_model else []
+            gg_surfaces_args = ["--surfaces", str(ROOT / a.surfaces)] if a.surfaces else []
             rc = _run(
                 [
                     DMCP,
@@ -179,6 +181,7 @@ def main() -> None:
                     *server_args,
                     *strat_args,
                     *gg_model_args,
+                    *gg_surfaces_args,
                     "--per-strategy",
                     str(a.per_strategy),
                     "--complexity",
