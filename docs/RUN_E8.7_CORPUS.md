@@ -1,14 +1,17 @@
 # Contributor guide — run E8.7 corpus generation on your machine
 
 Help expand the DynamicMCPBench corpus by running the headline E8.7 spec
-generation on your own machine. You produce TaskSpecs; we merge them into
-the shared dataset. **No cost** — everything runs against the free
-endpoint.
+generation on your own machine. You produce TaskSpecs; we merge them into the
+shared dataset for the paper.
 
-> **What this is generating**: ~150–200 path-agnostic TaskSpecs per run,
-> each authored cross-family (different model families for explorer vs.
-> distiller) over the 16-server local substrate. The full E8.7 design
-> lives in `docs/EXPERIMENTS_SUITE.md §2.4`.
+> **What this generates**: path-agnostic TaskSpecs over the **full ~130-server,
+> ~1150-tool substrate** (`manifests/servers.json`), each authored *cross-family*
+> (different model families for goal-gen vs. explorer vs. distiller). Two run
+> modes: the **full 100+ server run** (the paper target — needs a one-time
+> surface capture) and a **16-server lite** quick run. The full E8.7 design lives
+> in `docs/EXPERIMENTS_SUITE.md §2.4`.
+
+---
 
 ## 1. Get the repo + bootstrap
 
@@ -20,73 +23,96 @@ bash scripts/bootstrap.sh
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-`bootstrap.sh` is idempotent and cross-platform (Linux / macOS). It
-installs `uv` + `node` (user-space, no sudo), creates the venv, installs
-the MCP servers, and sets up the sandbox dirs under `/tmp/`. Run it once.
-
-Verify the gate is green before going further:
+`bootstrap.sh` is idempotent and cross-platform (Linux / macOS): installs `uv` +
+`node` (user-space, no sudo), creates the venv, installs the MCP servers, and
+sets up the sandbox dirs under `/tmp/`. Run it once. Then sanity-check the gate:
 
 ```bash
-bash scripts/check.sh
+bash scripts/check.sh   # should end with: gate: OK
 ```
 
-## 2. Add the free-models access to `.env`
+## 2. Model access in `.env` (free and/or OpenRouter)
 
-The free endpoint hosts 6 models at $0. **Ask the team lead** (privately
-— don't paste keys into chat or PRs) for:
+You can author with the **free endpoint**, with **OpenRouter**, or mix them.
 
-- `FREE_MODELS_BASE_URL`
-- `FREE_MODELS_API_KEY` (your primary key)
-- Optionally `FREE_MODELS_API_KEY_2`, `_3`, … if more keys are available
-  for concurrency
+**A — Free endpoint (recommended for contributors, $0).** Ask the team lead
+*privately* (never paste keys into chat/PRs) for:
 
-Add them to `.env` at the repo root:
+- `FREE_MODELS_BASE_URL` (must end in `/v1`)
+- `FREE_MODELS_API_KEY` (your primary key) — and optionally `FREE_MODELS_API_KEY_2`,
+  `_3`, … if more keys are available (one per concurrency lane)
 
-```bash
-cp .env.example .env
-# then edit .env to add the values you received
-```
+It hosts the free agentic pool: `deepseek-v4-pro`, `glm-5p1`, `kimi-k2p6`,
+`kimi-k2p5`, `minimax-m2p7`, `gpt-oss-120b`.
 
-Quick sanity check that the endpoint is reachable:
+**B — OpenRouter (for SOTA / paid authors).** Set `OPENROUTER_API_KEY`. Lets you
+author with `minimax-m3`, `openai/gpt-5.x`, `anthropic/claude-*`,
+`google/gemini-*`, `qwen/qwen3.7-max`, `x-ai/grok-4.3`, `deepseek/deepseek-v4-pro`,
+etc. (The central SOTA run uses these; bare-name ids route to the free endpoint,
+slashed `vendor/model` ids route to OpenRouter.)
+
+Add the values to `.env` at the repo root (`cp .env.example .env`, then edit).
+
+Quick reachability check (swap the model for one your endpoint serves):
 
 ```bash
 uv run python -c "
 import asyncio
 from dmcp.llm import OpenRouterClient
 async def go():
-    c = OpenRouterClient(model='deepseek-v4-pro')
+    c = OpenRouterClient(model='deepseek-v4-pro')   # or 'anthropic/claude-haiku-4.5' on OpenRouter
     r = await c.chat(messages=[{'role':'user','content':'reply OK'}], max_tokens=10)
-    print('OK,' if r.content else 'EMPTY,', 'tokens:', (r.usage or {}).get('prompt_tokens'), '+', (r.usage or {}).get('completion_tokens'))
+    print('OK' if r.content else 'EMPTY', '| tokens:', (r.usage or {}))
 asyncio.run(go())
 "
 ```
 
-Expected output: a line ending with token counts (>0). If you see a 404
-on `/chat/completions`, your `FREE_MODELS_BASE_URL` is missing the `/v1`
-suffix.
+A `404 on /chat/completions` ⇒ `FREE_MODELS_BASE_URL` is missing the `/v1` suffix.
 
-## 3. (Optional) Bring up docker
+## 3. Bring up docker (for the compose servers)
 
-The 16-server `manifests/local.json` substrate doesn't need docker, so
-the doc below uses it. If you also want the 11 docker-compose servers
-(more SAE coverage), start `colima` / Docker Desktop first.
+The compose tier (postgres / neo4j / qdrant / time / … — the 9–11 servers that
+give the hardest **stateful_write** dynamism class) needs docker. Start
+colima / Docker Desktop, then `docker compose up -d` (see `docs/SETUP.md`). The
+~121 crawled + substrate servers don't need docker — skip this if you only want
+those.
 
-## 4. Run the corpus generator
+## 4. Capture tool surfaces — one-time, robust (THE step that unlocks 100+ servers)
 
-This is the exact configuration we're running centrally. **Please use it
-unchanged** so all contributions are homogeneous and easy to merge.
+`goal-gen` used to **crash the whole run** on a single flaky server: it live-booted
+every server inside one event loop, and an anyio cancel-scope timeout leaked a
+`CancelledError` that killed the run (this is why earlier guides fell back to the
+16-server `local.json`). The robust path captures each server's tools in its **own
+process group with a hard timeout + SIGKILL**, then writes a reusable surfaces
+file that generation reads instead of live-booting:
 
 ```bash
-# pick a UNIQUE --out dir for your machine so files don't collide on merge.
-# Replace `<your-handle>` below (e.g. data/corpus_e8.7_alice).
-OUT=data/corpus_e8.7_<your-handle>
-mkdir -p "$OUT"
+uv run python scripts/capture_surfaces.py \
+  --manifest manifests/servers.json \
+  --out manifests/surfaces.json \
+  --timeout 45 --concurrency 8
+```
+
+Expect **~130 / 147 servers captured, ~1150 tools**. A hanging server is SIGKILLed
+and skipped — it can never crash the capture. `surfaces.json` is
+`{server_id: [ToolSpec, …]}`; run it **once** and reuse it for every corpus run.
+(Re-run it if you bring up more docker servers or want to refresh.)
+
+## 5. Run the corpus generator
+
+### 5a. Full 100+ server run (the paper target — use this)
+
+```bash
+# pick a UNIQUE --out dir so files don't collide on merge (e.g. data/corpus_e8.7_alice)
+OUT=data/corpus_e8.7_<your-handle>; mkdir -p "$OUT"
 
 uv run python scripts/build_corpus.py \
-  --manifest manifests/local.json \
+  --manifest manifests/servers.json \
+  --surfaces manifests/surfaces.json \
   --explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6 \
   --distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6 \
   --validator-model minimax-m2p7 \
+  --goalgen-model deepseek-v4-pro \
   --complexities simple,medium,hard \
   --per-strategy 8 \
   --budget 12 \
@@ -96,145 +122,132 @@ uv run python scripts/build_corpus.py \
   > "$OUT/run.log" 2>&1 &
 ```
 
-The `&` puts it in the background so you can close the terminal. Tail
-the log to peek:
+`--surfaces` makes Phase-1 goal-gen read the captured surfaces (no live boot → no
+crash) across all ~130 servers; the explorer (Phase-2) still runs live but in
+isolated, resumable shards. The `&` backgrounds it; `tail -f "$OUT/run.log"` to
+watch.
+
+### 5b. Lite 16-server run (quick, no capture)
+
+For a fast contribution on the always-stable substrate (no capture step needed):
 
 ```bash
-tail -f "$OUT/run.log"
+# same command, but:
+  --manifest manifests/local.json     # and DROP the --surfaces line
 ```
 
 ### What the knobs mean
 
 | Knob | Why this value |
 |---|---|
-| `--manifest manifests/local.json` | The 16 stable servers (time, fetch, git, sqlite, fs, memory, wikipedia, arxiv, …) |
-| `--explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6` | 3 cross-family explorers from the free pool |
-| `--distiller-candidates glm-5p1,deepseek-v4-pro,…` | Order matters — `kimi-k2p6` is last because it sometimes truncates the distill output. The cross-family picker walks this list per shard and picks the first non-explorer-family entry. |
-| `--validator-model minimax-m2p7` | 4th-family validator stamps each spec as `valid`/`invalid` (advisory; we don't drop the invalid ones) |
-| `--per-strategy 8` | ≈ 290 goals total before resume / yield filtering |
-| `--budget 12` | Max 12 LLM turns per goal during exploration |
-| `--concurrency 3` | Set this to `min(3, number_of_keys_you_have)`. With 1 key, use `1` (it'll still complete, just slower). |
-| `--resume` | Make sure this is **always on**. Lets you kill the run anytime; relaunch picks up exactly where it stopped. |
+| `--manifest manifests/servers.json` + `--surfaces …` | The full 130-server substrate via the pre-captured surfaces (robust). Use `local.json` (no `--surfaces`) for the 16-server lite run. |
+| `--explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6` | 3 cross-family explorers from the free pool (see §6 to add more). |
+| `--distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6` | Order matters — the cross-family picker walks this list per shard and takes the first **non-explorer-family** entry; `kimi-k2p6` is last because it sometimes truncates the distill output. Keep ≥2 families here. |
+| `--validator-model minimax-m2p7` | 4th-family validator stamps each spec `valid`/`invalid` (advisory; we keep the invalid ones). On OpenRouter, prefer the newer `minimax-m3`. |
+| `--goalgen-model deepseek-v4-pro` | Model that **authors the goals** — recorded in `provenance.goalgen_model`. Must support forced/named tool-calling (the free pool does; on OpenRouter use a big-lab model, e.g. `openai/gpt-5.4-mini`). Omit to use the default `anthropic/claude-haiku-4.5` (needs an OpenRouter key). |
+| `--per-strategy 8` | ≈ 360 goals (15 strategies × 3 complexities × 8). Bump to 16/24 for more. |
+| `--budget 12` | Max 12 LLM turns per goal during exploration. |
+| `--concurrency 3` | Set to `min(3, number_of_keys)`. With 1 key use `1` (slower but fine). |
+| `--resume` | **Always on.** Kill anytime; relaunch with the same command — it skips goals already turned into specs (`provenance.goal_id`). Survives shard crashes. |
 
-### Expected runtime
+### Expected runtime / yield
 
-- 3-key concurrent: **6–10 hours** to finish all 290 goals
-- 1-key sequential: **~24 hours**
+- 3-key concurrent: **6–10 h**; 1-key: **~24 h**. (+ ~15 min one-time for the capture.)
+- Roughly **150–200 specs** per full run after ~50–60% distill yield + ~30%
+  tolerated transient exploration errors (the free endpoint is rate-limited).
 
-Roughly **150–200 specs** per full run after yield filtering. You can
-kill any time and restart later — `--resume` will pick up where you
-left off.
+## 6. Models — run them all (more families ⇒ better ablation)
 
-## 5. What gets produced
+The **core** panel above (deepseek + glm + kimi) is the homogeneous default. But
+please **also run the extended models** — they add generator-family and
+generator-*quality* spread that the paper's contamination (G0) and
+generator-quality ablations need. Flag which set you used in your contribution so
+we can stratify.
+
+Extended explorer panel:
+
+```bash
+  --explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6,kimi-k2p5,gpt-oss-120b \
+  --distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6
+```
+
+- `kimi-k2p5` — older Kimi (slower; family diversity).
+- `gpt-oss-120b` — a deliberately **weaker** generator: lower yield, but a valuable
+  low-end data point for "does generator quality bias the corpus?". Expect fewer
+  specs from its shard — that's the signal, not a bug.
+- `minimax-m3` (OpenRouter, cheap) — newer than the free `minimax-m2p7`; add it as
+  an explorer/distiller if you have an `OPENROUTER_API_KEY`.
+
+Every spec is provenance-stamped with which model authored it (§7), so mixing
+models in one run is fine — we separate them at analysis time.
+
+## 7. What gets produced (full provenance — built for the paper merge)
 
 In your `--out` directory:
 
 ```
-data/corpus_e8.7_<your-handle>/
-├── goals_full.json          # all goals from Phase 1 (290 entries)
-├── goals_shard_{0,1,2}.json # per-shard goal slices
-├── traces_shard_{0,1,2}.jsonl  # explorer traces
-├── specs_shard_{0,1,2}.jsonl   # distilled specs (provenance-stamped)
-├── traces.jsonl             # concat of per-shard traces (final)
-├── specs.jsonl              # concat of per-shard specs (final)
-├── coverage.md              # human-readable coverage report
-└── run.log                  # full session log
+data/corpus_e8.7_<handle>/
+├── goals_full.json             # all goals (Phase 1)
+├── goals_shard_{0..N}.json     # per-shard goal slices
+├── traces_shard_{0..N}.jsonl   # explorer traces
+├── specs_shard_{0..N}.jsonl    # distilled specs (provenance-stamped)
+├── traces.jsonl / specs.jsonl  # concatenated finals
+├── coverage.md                 # human-readable coverage report
+└── run.log
 ```
 
-The headline file is `specs.jsonl`. Each row is a `TaskSpec`. The
-`provenance` field on every spec records which models authored it
-(`explorer_model`, `explorer_family`, `distiller_model`, `distiller_family`,
-`shard_id`, `goal_id`) plus the validator's verdict — exactly what we
-need to stratify the corpus at analysis time.
+The headline file is `specs.jsonl`. Every spec's `provenance` records the **full
+authoring chain** — `goalgen_model`, `explorer_model`, `distiller_model` (+ each
+`…_family`), `shard_id`, `goal_id`, and the validator verdict. That is exactly
+what we stratify on for the generator-contamination (G0) study and per-model
+ablations, so **don't drop or rename provenance fields**.
 
-## 6. Sharing your contribution back
+## 8. Sharing your contribution back (merge for the paper)
 
-When the run finishes (or you've decided you've contributed enough):
+1. Sanity check it has content: `wc -l "$OUT/specs.jsonl" "$OUT/traces.jsonl"` and
+   skim `coverage.md` (all 15 strategies + a depth spread should be present).
+2. Optionally drop the verbose log: `rm "$OUT/run.log"`.
+3. Send the directory via either:
+   - a PR adding it under `contributions/<handle>/` (preferred — git attribution), or
+   - a tarball (`tar czf corpus_<handle>.tar.gz "$OUT"`) on the team channel.
 
-1. **Sanity check** the corpus has real content:
+**PR size:** `traces.jsonl` can be 5–30 MB. If the PR is too big for web review,
+PR `specs.jsonl` + `coverage.md` and send `traces.jsonl` as a tarball.
 
-   ```bash
-   wc -l "$OUT/specs.jsonl" "$OUT/traces.jsonl"
-   ```
+**Merge semantics:** we concatenate every contributor's `specs.jsonl`, dedupe by
+`task_id` (random UUID; collisions ≈ 0), and stratify by `provenance` (generator
+family/model, strategy, depth, server). Your `goal_id` slugs are unique to your
+run, so no manual disambiguation is needed.
 
-2. **Optionally** strip the `run.log` (it's verbose and not needed):
+## 9. Troubleshooting
 
-   ```bash
-   rm "$OUT/run.log"
-   ```
+| Symptom | Fix |
+|---|---|
+| `no API keys found for provider 'free'` | `.env` missing `FREE_MODELS_API_KEY`, or you're not in the repo root. |
+| `404 … /chat/completions` | `FREE_MODELS_BASE_URL` needs the `/v1` suffix (`https://host/v1`). |
+| **goal-gen crashes / `CancelledError: deadline exceeded` / `exit a cancel scope`** | You skipped the capture step. **Always pass `--surfaces manifests/surfaces.json`** (§4) on the full run — it bypasses the live boot that crashes on flaky servers. |
+| `404 No endpoints found that support the provided 'tool_choice'` | A distiller/goal-gen model on OpenRouter whose provider doesn't support *forced named* tool-calling (e.g. `qwen3-coder-plus`, `minimax-m3` on some routes). Use big-lab models (OpenAI/Anthropic/Google) or the free pool for goal-gen + distill. |
+| A shard `exited 1` mid-run | Expected for a transient crash. Just relaunch with the same command — `--resume` continues from where it stopped. |
+| Low yield / many `llm_error` outcomes | Free endpoint is rate-limited; `--resume` lets it finish. ~50–60% distill yield is normal. |
+| `LLM did not call emit_task_spec` | Old truncation bug — `git pull && git switch main`, relaunch with `--resume`. |
+| Something else weird | Grab the last 50 lines of `run.log`, ping the team channel, and **don't delete the `--out` dir** (`--resume` recovers almost anything). |
 
-3. **Send the directory** to the maintainer via:
-   - A pull request that adds the dir under `contributions/` (preferred —
-     gets attributed in git history), OR
-   - A tarball (`tar czf corpus_<handle>.tar.gz "$OUT"`) shared on the
-     team channel.
+## 10. FAQ
 
-**Note on PR size:** the `traces.jsonl` file can be 5-30 MB. If the PR
-is too large for GitHub web review, send only `specs.jsonl` +
-`coverage.md` via PR and the traces via tarball.
+**Q: 16 or 130 servers?** A: 130 (the full `servers.json` + `--surfaces`) is the
+paper target — use it. `local.json` (16) is only the quick/lite fallback.
 
-### Merge semantics
+**Q: Can I bump `--per-strategy`?** A: Yes (16 / 24) — the cross-family contract +
+`--resume` still hold; expect a longer run.
 
-Each contributor's specs land in its own subdir. At merge time we:
+**Q: Do I need both free and OpenRouter keys?** A: No. Free-only works end-to-end
+(set `--goalgen-model` to a free model). OpenRouter is only needed for the SOTA /
+`minimax-m3` models.
 
-1. Concatenate every contributor's `specs.jsonl`
-2. Deduplicate by `task_id` (random UUID; collisions ≈ 0)
-3. Re-validate any specs whose `provenance.validator.verdict == invalid`
-   are kept (advisory; downstream filters can drop them)
-
-Your `provenance.goal_id` will be unique to your run (the goal-gen LLM
-mints kebab-case slugs per invocation; cross-contributor collisions are
-astronomically unlikely). So no manual disambiguation is required.
-
-## 7. Troubleshooting
-
-### `no API keys found for provider 'free'`
-Your `.env` is missing `FREE_MODELS_API_KEY`, or the script can't find
-`.env` (run from the repo root).
-
-### `Path not found: /chat/completions`
-`FREE_MODELS_BASE_URL` is missing the `/v1` suffix. Should look like
-`https://<host>/v1`, not `https://<host>/`.
-
-### All shards exit 1 after a few goals
-You're on a pre-PR-66 commit. Run `git pull && git switch main` and
-relaunch with the same command + `--resume` — your progress is preserved.
-
-### Yield rate looks low / many `llm_error` outcomes
-The free endpoint is rate-limited or congested. The `--resume` design
-means you can just let the run finish; we tolerate ~30% transient
-exploration errors per the calibration. The distill rate of ~50–60% is
-expected.
-
-### Distill error: "LLM did not call emit_task_spec"
-Pre-PR-63 truncation bug. Pull main and relaunch with `--resume`.
-
-### Something else weird
-Grab the last 50 lines of `run.log` and ping the team channel. Don't
-delete the output dir — `--resume` is robust to almost any crash.
-
-## 8. FAQ
-
-**Q: Can I change `--per-strategy` to produce more specs?**
-A: Yes, increase to 16 or 24. The cross-family contract and resume both
-still work. Just expect a longer run.
-
-**Q: Can I use a different manifest?**
-A: Strongly prefer `manifests/local.json` for now. The full 147-server
-substrate works but isn't fully stable on every machine yet.
-
-**Q: Can I add more explorers (kimi-k2p5, gpt-oss-120b)?**
-A: Yes, but please flag it in the contribution so we can stratify by
-explorer family at analysis time. Don't change `--distiller-candidates`
-order — the working distillers up front matters.
-
-**Q: Do I need to commit my output to my fork?**
-A: Optional. The traces are gitignored by default; you'll need to
-force-add or move them outside `traces/`. The PR-based contribution path
-above handles this cleanly via `contributions/`.
+**Q: Do I commit the output to my fork?** A: Optional — traces are gitignored;
+use the `contributions/` PR path in §8.
 
 ---
 
-*If you find a bug in the runner, please open an issue or PR rather than
-patching locally — keeping the runner in sync ensures merge-clean
-corpus rows.*
+*Found a bug in the runner? Open an issue/PR rather than patching locally — keeping
+the runner in sync keeps every contributor's corpus rows merge-clean.*
