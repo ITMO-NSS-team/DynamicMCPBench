@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import typer
+from openai import APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 
 from dmcp.ablation import compare_strategies, power_n
 from dmcp.architecture import ARCHITECTURES, apply_architecture, make_openrouter_route_fn
@@ -1590,14 +1591,18 @@ def generate(
                 except DistillationError as e:
                     typer.echo(f"  distill error: {e}")
                     continue
-                except Exception as e:
-                    # Transient transport / API failures during the distiller
-                    # LLM call (APIConnectionError, ReadError, RateLimitError,
-                    # etc.) must not take down the whole subprocess — the
-                    # explorer wrapper above already survives the same family
-                    # of errors. Log, drop this goal, keep iterating; --resume
-                    # will pick it back up on the next launch.
-                    typer.echo(f"  distill error (transport): {type(e).__name__}: {e}")
+                except (
+                    APIConnectionError,
+                    APITimeoutError,
+                    RateLimitError,
+                    InternalServerError,
+                ) as e:
+                    # ONLY transient transport/API failures are dropped+continued.
+                    # Real errors (a config 404 like an unsupported tool_choice, or
+                    # a logic bug) now PROPAGATE loudly instead of being masked as
+                    # "transport" — masking once yielded a 13-spec corpus that
+                    # falsely reported done. --resume recovers a crashed shard.
+                    typer.echo(f"  distill error (transient): {type(e).__name__}: {e}")
                     continue
                 fs.write(spec.to_jsonl())
                 fs.write("\n")
