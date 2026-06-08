@@ -89,6 +89,11 @@ def main() -> None:
     ap.add_argument("--per-strategy", type=int, default=4)
     ap.add_argument("--surfaces", default=None, help="Pre-captured surfaces JSON for goal-gen")
     ap.add_argument(
+        "--goalgen-models",
+        default=None,
+        help="Comma panel of goal-gen models (cross-family; overrides --goalgen-model)",
+    )
+    ap.add_argument(
         "--goalgen-model", default=None, help="Model that authors the goals (recorded in provenance)"
     )
     ap.add_argument(
@@ -165,38 +170,44 @@ def main() -> None:
         # reuse → Phase 2 generate) would crash on UnboundLocalError. Don't.
         merged: list[dict] = []
         seen: set[str] = set()
+        goalgen_panel = [
+            x.strip() for x in (a.goalgen_models or a.goalgen_model or "").split(",") if x.strip()
+        ] or [None]
+        gg_surfaces_args = ["--surfaces", str(ROOT / a.surfaces)] if a.surfaces else []
+        strat_args = []
+        for s in strategies:
+            strat_args += ["--strategy", s]
         for c in [x for x in a.complexities.split(",") if x]:
-            gpath = out / f"goals_{c}.json"
-            strat_args: list[str] = []
-            for s in strategies:
-                strat_args += ["--strategy", s]
-            gg_model_args = ["--model", a.goalgen_model] if a.goalgen_model else []
-            gg_surfaces_args = ["--surfaces", str(ROOT / a.surfaces)] if a.surfaces else []
-            rc = _run(
-                [
-                    DMCP,
-                    "goal-gen",
-                    "-m",
-                    str(ROOT / a.manifest),
-                    *server_args,
-                    *strat_args,
-                    *gg_model_args,
-                    *gg_surfaces_args,
-                    "--per-strategy",
-                    str(a.per_strategy),
-                    "--complexity",
-                    c,
-                    "-o",
-                    str(gpath),
-                ]
-            )
-            if rc != 0 or not gpath.exists():
-                print(f"[phase1] goal-gen failed for complexity={c} (rc={rc})")
-                continue
-            for e in json.loads(gpath.read_text())["entries"]:
-                if e["goal_id"] not in seen:
-                    seen.add(e["goal_id"])
-                    merged.append(e)
+            for gm in goalgen_panel:
+                gslug = (gm or "default").replace("/", "_").replace(".", "-")
+                gpath = out / f"goals_{c}_{gslug}.json"
+                per_strat = max(1, a.per_strategy // len(goalgen_panel))
+                gg_model_args = ["--model", gm] if gm else []
+                rc = _run(
+                    [
+                        DMCP,
+                        "goal-gen",
+                        "-m",
+                        str(ROOT / a.manifest),
+                        *server_args,
+                        *strat_args,
+                        *gg_model_args,
+                        *gg_surfaces_args,
+                        "--per-strategy",
+                        str(per_strat),
+                        "--complexity",
+                        c,
+                        "-o",
+                        str(gpath),
+                    ]
+                )
+                if rc != 0 or not gpath.exists():
+                    print(f"[phase1] goal-gen failed for complexity={c} model={gm} (rc={rc})")
+                    continue
+                for e in json.loads(gpath.read_text())["entries"]:
+                    if e["goal_id"] not in seen:
+                        seen.add(e["goal_id"])
+                        merged.append(e)
         goals_full.write_text(json.dumps({"goals_version": "0.1.0", "entries": merged}, indent=2))
         print(f"[phase1] {len(merged)} goals → {goals_full}")
 
