@@ -545,7 +545,7 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: ~1100 keepers over servers.json (docker up), 15 strategies weighted to SAE-relevant, × 3 complexity, intra ∪ inter, ≥150 SAE-eligible + ≥150/complexity-bin, family-sharded, 200-task RQ4 subset reserved; coverage report emitted.
 
 ### E8.8 — Run: 8-model leaderboard + pools + reliability
-- status: claimed
+- status: done
 - owner: —
 - claimed_at: —
 - deps: E8.7 E8.1
