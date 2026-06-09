@@ -21,8 +21,8 @@ set +a
 exec .venv/bin/python scripts/build_corpus.py \
   --manifest manifests/servers.json \
   --surfaces manifests/surfaces.json \
-  --explorer-models openai/gpt-5.5,anthropic/claude-opus-4.8,google/gemini-3.1-pro-preview,qwen/qwen3.7-max,x-ai/grok-4.3,deepseek/deepseek-v4-pro \
-  --distiller-candidates openai/gpt-5.5,anthropic/claude-opus-4.8 \
+  --explorer-models openai/gpt-5.5,anthropic/claude-sonnet-4.6,google/gemini-3.1-pro-preview,qwen/qwen3.7-max,x-ai/grok-4.3,deepseek/deepseek-v4-pro \
+  --distiller-candidates openai/gpt-5.5,anthropic/claude-sonnet-4.6 \
   --goalgen-models openai/gpt-5.4-mini,anthropic/claude-haiku-4.5,google/gemini-3.5-flash \
   --per-strategy 6 \
   --complexities simple \
