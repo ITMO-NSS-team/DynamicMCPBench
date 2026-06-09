@@ -1,0 +1,292 @@
+{
+  "models": [
+    {
+      "runs": 10,
+      "passed": 7,
+      "accuracy": 0.7,
+      "mean_cost_usd": 0.009336231,
+      "mean_prompt_tokens": 18565,
+      "mean_completion_tokens": 1448,
+      "latency_p50_ms": 7296.5,
+      "latency_p95_ms": 21132.4,
+      "unknown_price": false,
+      "model": "deepseek/deepseek-v4-pro",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 5.6017,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.0133
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 16.8052,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.04
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 28.0087,
+          "projected_correct": 420.0,
+          "projected_usd_per_correct": 0.0667
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 10.2699,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.0133
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 30.8096,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.04
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 51.3493,
+          "projected_correct": 770.0,
+          "projected_usd_per_correct": 0.0667
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 6,
+      "accuracy": 0.6,
+      "mean_cost_usd": 0.0066128820000000005,
+      "mean_prompt_tokens": 4975,
+      "mean_completion_tokens": 947,
+      "latency_p50_ms": 5978.8,
+      "latency_p95_ms": 29733.0,
+      "unknown_price": false,
+      "model": "moonshotai/kimi-k2.6",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 3.9677,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.011
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 11.9032,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0331
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 19.8386,
+          "projected_correct": 360.0,
+          "projected_usd_per_correct": 0.0551
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 7.2742,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.011
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 21.8225,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0331
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 36.3709,
+          "projected_correct": 660.0,
+          "projected_usd_per_correct": 0.0551
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 9,
+      "accuracy": 0.9,
+      "mean_cost_usd": 0.009495654,
+      "mean_prompt_tokens": 7598,
+      "mean_completion_tokens": 665,
+      "latency_p50_ms": 2327.2,
+      "latency_p95_ms": 9658.5,
+      "unknown_price": false,
+      "model": "z-ai/glm-5.1",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 5.6974,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.0106
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 17.0922,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.0317
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 28.487,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.0528
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 10.4452,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.0106
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 31.3357,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.0317
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 52.2261,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.0528
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 5,
+      "accuracy": 0.5,
+      "mean_cost_usd": 0.0006904179,
+      "mean_prompt_tokens": 13748,
+      "mean_completion_tokens": 856,
+      "latency_p50_ms": 2159.9,
+      "latency_p95_ms": 15093.7,
+      "unknown_price": false,
+      "model": "openai/gpt-oss-120b",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 0.4143,
+          "projected_correct": 300.0,
+          "projected_usd_per_correct": 0.0014
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 1.2428,
+          "projected_correct": 300.0,
+          "projected_usd_per_correct": 0.0041
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 2.0713,
+          "projected_correct": 300.0,
+          "projected_usd_per_correct": 0.0069
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 0.7595,
+          "projected_correct": 550.0,
+          "projected_usd_per_correct": 0.0014
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 2.2784,
+          "projected_correct": 550.0,
+          "projected_usd_per_correct": 0.0041
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 3.7973,
+          "projected_correct": 550.0,
+          "projected_usd_per_correct": 0.0069
+        }
+      ]
+    },
+    {
+      "runs": 10,
+      "passed": 9,
+      "accuracy": 0.9,
+      "mean_cost_usd": 0.0029869499999999995,
+      "mean_prompt_tokens": 7485,
+      "mean_completion_tokens": 617,
+      "latency_p50_ms": 3189.9,
+      "latency_p95_ms": 17093.5,
+      "unknown_price": false,
+      "model": "minimax/minimax-m3",
+      "extrapolation": [
+        {
+          "corpus_size": 600,
+          "pass_k": 1,
+          "projected_usd": 1.7922,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.0033
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 3,
+          "projected_usd": 5.3765,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.01
+        },
+        {
+          "corpus_size": 600,
+          "pass_k": 5,
+          "projected_usd": 8.9608,
+          "projected_correct": 540.0,
+          "projected_usd_per_correct": 0.0166
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 1,
+          "projected_usd": 3.2856,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.0033
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 3,
+          "projected_usd": 9.8569,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.01
+        },
+        {
+          "corpus_size": 1100,
+          "pass_k": 5,
+          "projected_usd": 16.4282,
+          "projected_correct": 990.0,
+          "projected_usd_per_correct": 0.0166
+        }
+      ]
+    }
+  ],
+  "n_models": 5,
+  "sample_size": 10,
+  "live_price_count": 341,
+  "extrapolation": true,
+  "recommended_subset": [
+    "openai/gpt-oss-120b",
+    "minimax/minimax-m3"
+  ]
+}
