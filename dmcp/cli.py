@@ -1144,6 +1144,30 @@ def rq4_agreement(
     typer.echo(md)
 
 
+def _extract_validator_json(content: str) -> dict | None:
+    """Parse a validator verdict, tolerating ```json fences and surrounding prose."""
+    text = (content or "").strip()
+    if text.startswith("```"):
+        text = text[3:]
+        if text[:4].lower() == "json":
+            text = text[4:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+    try:
+        obj = json.loads(text)
+        return obj if isinstance(obj, dict) else None
+    except json.JSONDecodeError:
+        start = text.find("{")
+        if start >= 0:
+            try:
+                obj, _ = json.JSONDecoder().raw_decode(text[start:])
+                return obj if isinstance(obj, dict) else None
+            except json.JSONDecodeError:
+                return None
+    return None
+
+
 @app.command(name="validate-corpus")
 def validate_corpus(
     specs: Annotated[Path, typer.Argument(help="TaskSpec JSONL to validate")],
@@ -1200,21 +1224,33 @@ def validate_corpus(
             ]
             user_msg = f"Prompt:\n{row.get('prompt', '')}\n\nCheckpoints:\n{json.dumps(cp_view, indent=2)}"
             try:
-                resp = await llm.chat(
-                    messages=[
-                        {"role": "system", "content": sys_prompt},
-                        {"role": "user", "content": user_msg},
-                    ],
-                    tools=None,
-                    temperature=0.0,
-                )
+                resp = None
+                for _attempt in range(3):
+                    try:
+                        resp = await llm.chat(
+                            messages=[
+                                {"role": "system", "content": sys_prompt},
+                                {"role": "user", "content": user_msg},
+                            ],
+                            tools=None,
+                            temperature=0.0,
+                        )
+                        break
+                    except (
+                        APIConnectionError,
+                        APITimeoutError,
+                        InternalServerError,
+                        RateLimitError,
+                    ):
+                        if _attempt == 2:
+                            raise
                 content = (resp.content or "").strip()
-                try:
-                    data = json.loads(content)
+                data = _extract_validator_json(content)
+                if data is None:
+                    verdict, reason = "invalid", f"non-JSON validator output: {content[:200]}"
+                else:
                     verdict = data.get("verdict")
                     reason = data.get("reason", "")
-                except json.JSONDecodeError:
-                    verdict, reason = "invalid", f"non-JSON validator output: {content[:200]}"
                 if verdict not in ("valid", "invalid"):
                     verdict, reason = "invalid", f"unexpected verdict {verdict!r}; reason={reason!r}"
             except Exception as e:
