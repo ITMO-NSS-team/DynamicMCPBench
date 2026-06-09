@@ -1,0 +1,46 @@
+{
+  "models": [
+    {
+      "model": "deepseek-v4-pro",
+      "n": 178,
+      "pass_rate": 0.2303370786516854,
+      "sae_rate": 0.0,
+      "pass_k": 0.2303370786516854
+    },
+    {
+      "model": "glm-5p1",
+      "n": 178,
+      "pass_rate": 0.21910112359550563,
+      "sae_rate": 0.0,
+      "pass_k": 0.21910112359550563
+    },
+    {
+      "model": "kimi-k2p6",
+      "n": 178,
+      "pass_rate": 0.1797752808988764,
+      "sae_rate": 0.0,
+      "pass_k": 0.1797752808988764
+    },
+    {
+      "model": "kimi-k2p5",
+      "n": 178,
+      "pass_rate": 0.16853932584269662,
+      "sae_rate": 0.0,
+      "pass_k": 0.16853932584269662
+    },
+    {
+      "model": "minimax-m2p7",
+      "n": 178,
+      "pass_rate": 0.0,
+      "sae_rate": 0.0,
+      "pass_k": 0.0
+    },
+    {
+      "model": "gpt-oss-120b",
+      "n": 178,
+      "pass_rate": 0.0,
+      "sae_rate": 0.0,
+      "pass_k": 0.0
+    }
+  ]
+}
