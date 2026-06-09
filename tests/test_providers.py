@@ -140,8 +140,8 @@ def test_free_models_resolve_to_distinct_family_slugs():
     slugs = {m: family_of(m) for m in FREE_MODELS}
     # No model lands as 'unknown' — that would break the cross-family picker.
     assert "unknown" not in set(slugs.values()), f"unmapped family in {slugs}"
-    # We expect at least 5 distinct families (gpt-oss is its own slug, deepseek
-    # and minimax are singletons, kimi-k2p5/k2p6 share moonshot, glm is z-ai).
+    # We expect 5 distinct families (deepseek, moonshot, z-ai, openai-oss,
+    # minimax). kimi-k2p5 retired 2026-06-10 — only k2p6 remains for moonshot.
     assert len(set(slugs.values())) >= 5
 
 
