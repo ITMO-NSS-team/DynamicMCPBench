@@ -51,7 +51,20 @@ def _depth_bin(d: int) -> str:
 def _read_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         return []
-    return [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    # Tolerate >1 JSON object per physical line — crash-interrupted writes can
+    # concatenate two records without a newline; raw_decode walks them all.
+    dec = json.JSONDecoder()
+    out: list[dict] = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        raw = raw.strip()
+        while raw:
+            try:
+                obj, end = dec.raw_decode(raw)
+            except json.JSONDecodeError:
+                break
+            out.append(obj)
+            raw = raw[end:].lstrip()
+    return out
 
 
 def main() -> None:

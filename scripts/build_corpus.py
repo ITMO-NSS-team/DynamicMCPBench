@@ -312,13 +312,11 @@ def main() -> None:
                     print(f"[phase2] shard {shard_idx} exited {rc}; continuing")
                 touched = stamp_provenance_in_jsonl(
                     shard_specs,
-                    {
-                        "shard_id": shard_idx,
-                        "explorer_model": assignment.explorer_model,
-                        "explorer_family": assignment.explorer_family,
-                        "distiller_model": assignment.distiller_model,
-                        "distiller_family": assignment.distiller_family,
-                    },
+                    # Only shard_id is shard-level. explorer/distiller model+family
+                    # are stamped accurately per-spec by the distiller from the
+                    # trace; passing the shard assignment here would clobber them
+                    # when a shard's explorer changes across a --resume run.
+                    {"shard_id": shard_idx},
                 )
                 print(f"[phase2] shard {shard_idx}: stamped provenance on {touched} specs", flush=True)
                 return rc
