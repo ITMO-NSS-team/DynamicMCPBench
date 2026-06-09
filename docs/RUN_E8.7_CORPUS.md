@@ -35,21 +35,29 @@ bash scripts/check.sh   # should end with: gate: OK
 
 You can author with the **free endpoint**, with **OpenRouter**, or mix them.
 
-**A — Free endpoint (recommended for contributors, $0).** Ask the team lead
-*privately* (never paste keys into chat/PRs) for:
+**A — Free endpoint (DEAD as of 2026-06-10).** The private free endpoint that
+hosted the bare-name pool (`deepseek-v4-pro`, `glm-5p1`, `kimi-k2p6`,
+`minimax-m2p7`, `gpt-oss-120b`) went down. Historical configs that point at
+it (E8.7 v1, E8.8) are preserved; new contributions should use OpenRouter
+(option B below) against the **same model lineages**.
 
-- `FREE_MODELS_BASE_URL` (must end in `/v1`)
-- `FREE_MODELS_API_KEY` (your primary key) — and optionally `FREE_MODELS_API_KEY_2`,
-  `_3`, … if more keys are available (one per concurrency lane)
+> The `kimi-k2p5` snapshot was retired with the endpoint — k2p6 supersedes it
+> on every axis.
 
-It hosts the free agentic pool: `deepseek-v4-pro`, `glm-5p1`, `kimi-k2p6`,
-`kimi-k2p5`, `minimax-m2p7`, `gpt-oss-120b`.
+**B — OpenRouter (now the only path).** Set `OPENROUTER_API_KEY` (and
+`_2`, `_3`, … for concurrency lanes). The canonical OR equivalents of the
+former free pool:
 
-**B — OpenRouter (for SOTA / paid authors).** Set `OPENROUTER_API_KEY`. Lets you
-author with `minimax-m3`, `openai/gpt-5.x`, `anthropic/claude-*`,
-`google/gemini-*`, `qwen/qwen3.7-max`, `x-ai/grok-4.3`, `deepseek/deepseek-v4-pro`,
-etc. (The central SOTA run uses these; bare-name ids route to the free endpoint,
-slashed `vendor/model` ids route to OpenRouter.)
+| Old free id (dead) | OR equivalent |
+|---|---|
+| `deepseek-v4-pro` | `deepseek/deepseek-v4-pro` |
+| `glm-5p1` | `z-ai/glm-5.1` |
+| `kimi-k2p6` | `moonshotai/kimi-k2.6` |
+| `gpt-oss-120b` | `openai/gpt-oss-120b` |
+| `minimax-m2p7` | `minimax/minimax-m3` |
+
+OR also lets you mix in SOTA authors: `openai/gpt-5.x`, `anthropic/claude-*`,
+`google/gemini-*`, `qwen/qwen3.7-max`, `x-ai/grok-4.3`, etc.
 
 Add the values to `.env` at the repo root (`cp .env.example .env`, then edit).
 
@@ -109,10 +117,10 @@ OUT=data/corpus_e8.7_<your-handle>; mkdir -p "$OUT"
 uv run python scripts/build_corpus.py \
   --manifest manifests/servers.json \
   --surfaces manifests/surfaces.json \
-  --explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6 \
-  --distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6 \
-  --validator-model minimax-m2p7 \
-  --goalgen-model deepseek-v4-pro \
+  --explorer-models deepseek/deepseek-v4-pro,z-ai/glm-5.1,moonshotai/kimi-k2.6 \
+  --distiller-candidates z-ai/glm-5.1,deepseek/deepseek-v4-pro,minimax/minimax-m3,moonshotai/kimi-k2.6 \
+  --validator-model minimax/minimax-m3 \
+  --goalgen-model deepseek/deepseek-v4-pro \
   --complexities simple,medium,hard \
   --per-strategy 8 \
   --budget 12 \
@@ -141,10 +149,10 @@ For a fast contribution on the always-stable substrate (no capture step needed):
 | Knob | Why this value |
 |---|---|
 | `--manifest manifests/servers.json` + `--surfaces …` | The full 130-server substrate via the pre-captured surfaces (robust). Use `local.json` (no `--surfaces`) for the 16-server lite run. |
-| `--explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6` | 3 cross-family explorers from the free pool (see §6 to add more). |
-| `--distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6` | Order matters — the cross-family picker walks this list per shard and takes the first **non-explorer-family** entry; `kimi-k2p6` is last because it sometimes truncates the distill output. Keep ≥2 families here. |
-| `--validator-model minimax-m2p7` | 4th-family validator stamps each spec `valid`/`invalid` (advisory; we keep the invalid ones). On OpenRouter, prefer the newer `minimax-m3`. |
-| `--goalgen-model deepseek-v4-pro` | Model that **authors the goals** — recorded in `provenance.goalgen_model`. Must support forced/named tool-calling (the free pool does; on OpenRouter use a big-lab model, e.g. `openai/gpt-5.4-mini`). Omit to use the default `anthropic/claude-haiku-4.5` (needs an OpenRouter key). |
+| `--explorer-models deepseek/deepseek-v4-pro,z-ai/glm-5.1,moonshotai/kimi-k2.6` | 3 cross-family explorers from the OR-prefixed pool (see §6 to add more). |
+| `--distiller-candidates z-ai/glm-5.1,deepseek/deepseek-v4-pro,minimax/minimax-m3,moonshotai/kimi-k2.6` | Order matters — the cross-family picker walks this list per shard and takes the first **non-explorer-family** entry; `moonshotai/kimi-k2.6` is last because it sometimes truncates the distill output. Keep ≥2 families here. |
+| `--validator-model minimax/minimax-m3` | 4th-family validator stamps each spec `valid`/`invalid` (advisory; we keep the invalid ones). |
+| `--goalgen-model deepseek/deepseek-v4-pro` | Model that **authors the goals** — recorded in `provenance.goalgen_model`. Must support forced/named tool-calling. Omit to use the default `anthropic/claude-haiku-4.5`. |
 | `--per-strategy 8` | ≈ 360 goals (15 strategies × 3 complexities × 8). Bump to 16/24 for more. |
 | `--budget 12` | Max 12 LLM turns per goal during exploration. |
 | `--concurrency 3` | Set to `min(3, number_of_keys)`. With 1 key use `1` (slower but fine). |
@@ -164,19 +172,19 @@ generator-*quality* spread that the paper's contamination (G0) and
 generator-quality ablations need. Flag which set you used in your contribution so
 we can stratify.
 
-Extended explorer panel:
+Extended explorer panel (OpenRouter, post-2026-06-10):
 
 ```bash
-  --explorer-models deepseek-v4-pro,glm-5p1,kimi-k2p6,kimi-k2p5,gpt-oss-120b \
-  --distiller-candidates glm-5p1,deepseek-v4-pro,minimax-m2p7,kimi-k2p6
+  --explorer-models deepseek/deepseek-v4-pro,z-ai/glm-5.1,moonshotai/kimi-k2.6,openai/gpt-oss-120b \
+  --distiller-candidates z-ai/glm-5.1,deepseek/deepseek-v4-pro,minimax/minimax-m3,moonshotai/kimi-k2.6
 ```
 
-- `kimi-k2p5` — older Kimi (slower; family diversity).
-- `gpt-oss-120b` — a deliberately **weaker** generator: lower yield, but a valuable
-  low-end data point for "does generator quality bias the corpus?". Expect fewer
-  specs from its shard — that's the signal, not a bug.
-- `minimax-m3` (OpenRouter, cheap) — newer than the free `minimax-m2p7`; add it as
-  an explorer/distiller if you have an `OPENROUTER_API_KEY`.
+- `openai/gpt-oss-120b` — a deliberately **weaker** generator: lower yield,
+  but a valuable low-end data point for "does generator quality bias the
+  corpus?". Expect fewer specs from its shard — that's the signal, not a bug.
+- `minimax/minimax-m3` — newer than the retired `minimax-m2p7`; cheap and
+  reliable.
+- (Retired: `kimi-k2p5` was the older Kimi snapshot; k2p6 supersedes it.)
 
 Every spec is provenance-stamped with which model authored it (§7), so mixing
 models in one run is fine — we separate them at analysis time.

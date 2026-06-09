@@ -53,15 +53,26 @@ DEFAULT_POOL: tuple[str, ...] = (
     "meta-llama/llama-3.3-70b-instruct",  # E. Open value
 )
 
-# E8.0b free-endpoint pool (user 2026-06-04). Run these first; layer paid
-# OpenRouter models on top only for capabilities the free pool can't cover.
+# E8.0b free-endpoint pool (user 2026-06-04). The endpoint died 2026-06-10;
+# kept here so historical calibrations stay reproducible. New runs use
+# PAID_OR_POOL below (the canonical OpenRouter IDs the free pool was
+# multiplexing over). kimi-k2p5 retired — k2p6 supersedes it.
 FREE_POOL: tuple[str, ...] = (
     "deepseek-v4-pro",
     "kimi-k2p6",
-    "kimi-k2p5",
     "glm-5p1",
     "gpt-oss-120b",
     "minimax-m2p7",
+)
+
+# E8.0b free → paid OR equivalents (user 2026-06-10). Same model lineages,
+# paid prices. Use --paid-or-pool to select these for the calibration.
+PAID_OR_POOL: tuple[str, ...] = (
+    "deepseek/deepseek-v4-pro",
+    "moonshotai/kimi-k2.6",
+    "z-ai/glm-5.1",
+    "openai/gpt-oss-120b",
+    "minimax/minimax-m3",
 )
 
 DEFAULT_CORPUS_SIZES: tuple[int, ...] = (600, 1100)  # E8.8 leaderboard / E8.7 full
@@ -353,7 +364,18 @@ def main() -> int:
     ap.add_argument(
         "--free-pool",
         action="store_true",
-        help=("Shortcut: use the FREE_POOL (E8.0b) instead of --models; ignored if --models is set."),
+        help=(
+            "Shortcut: use the (now-dead) FREE_POOL bare-name IDs (E8.0b). Kept for "
+            "reproducibility of historical calibrations; ignored if --models is set."
+        ),
+    )
+    ap.add_argument(
+        "--paid-or-pool",
+        action="store_true",
+        help=(
+            "Shortcut: use the OR-prefixed equivalents of the (now-dead) free pool — same "
+            "model lineages, paid prices. The replacement for --free-pool (user 2026-06-10)."
+        ),
     )
     ap.add_argument(
         "--concurrency",
@@ -429,9 +451,14 @@ def main() -> int:
 
     out_dir = Path(a.out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    # `--free-pool` is a convenience for the E8.0b run; respects an explicit
-    # `--models` so a user mixing the two can still override.
-    if a.free_pool and a.models == ",".join(DEFAULT_POOL):
+    # `--free-pool` / `--paid-or-pool` are convenience shortcuts; an explicit
+    # `--models` wins so a user mixing the two can still override.
+    explicit_models = a.models != ",".join(DEFAULT_POOL)
+    if explicit_models:
+        models = [m for m in a.models.split(",") if m]
+    elif a.paid_or_pool:
+        models = list(PAID_OR_POOL)
+    elif a.free_pool:
         models = list(FREE_POOL)
     else:
         models = [m for m in a.models.split(",") if m]

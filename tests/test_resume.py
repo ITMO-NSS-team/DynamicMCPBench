@@ -123,12 +123,12 @@ def test_every_free_model_has_a_paper_alias():
 
 
 def test_paper_cost_resolves_via_alias_to_live_price():
-    """1M input + 1M output on `deepseek-v4-pro` (alias deepseek/deepseek-v3.1
+    """1M input + 1M output on `deepseek-v4-pro` (alias deepseek/deepseek-v4-pro
     priced at $2 in + $10 out) → $12 total. Alias resolution + price math
     pinned in one assertion."""
-    live = {"deepseek/deepseek-v3.1": LivePrice(2.0, 10.0)}
+    live = {"deepseek/deepseek-v4-pro": LivePrice(2.0, 10.0)}
     pc = paper_cost_for("deepseek-v4-pro", 1_000_000, 1_000_000, live)
-    assert pc.alias == "deepseek/deepseek-v3.1"
+    assert pc.alias == "deepseek/deepseek-v4-pro"
     assert pc.usd is not None and abs(pc.usd - 12.0) < 1e-9
 
 

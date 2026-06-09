@@ -55,10 +55,16 @@ FREE = Provider(
 
 
 # Bare model ids (no slash) served by the free endpoint. User 2026-06-04.
+#
+# 2026-06-10: the free endpoint died. These IDs still route to FREE here so
+# any historical config that references them surfaces an honest 5xx instead
+# of silently misrouting to OpenRouter (which doesn't carry the bare names
+# either). New experiments use the OR-prefixed equivalents directly
+# (see dmcp/paper_pricing.py::FREE_TO_OR_ALIAS).
+# kimi-k2p5 retired (k2p6 supersedes it).
 FREE_MODELS: tuple[str, ...] = (
     "deepseek-v4-pro",
     "kimi-k2p6",
-    "kimi-k2p5",
     "glm-5p1",
     "gpt-oss-120b",
     "minimax-m2p7",

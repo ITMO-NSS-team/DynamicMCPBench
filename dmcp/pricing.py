@@ -41,11 +41,12 @@ PRICES: dict[str, ModelPrice] = {
     # Generator / judge defaults
     "anthropic/claude-haiku-4.5": ModelPrice(0.80, 4.0),
     # Free endpoint pool (E8.0b; see dmcp/providers.py::FREE_MODELS).
-    # Pinned at 0 so the unknown_price flag doesn't trip on legitimately-free
-    # models, and so cost extrapolation reads $0 for them without special-casing.
+    # 2026-06-10: the endpoint died. These pinned-zero entries remain because
+    # historical evals from E8.7 v1 / E8.8 still carry the bare-name model
+    # ids; recomputing their cost as $0 is honest (it WAS free at the time).
+    # New experiments use the OR-prefixed equivalents (see paper_pricing.py).
     "deepseek-v4-pro": _FREE,
     "kimi-k2p6": _FREE,
-    "kimi-k2p5": _FREE,
     "glm-5p1": _FREE,
     "gpt-oss-120b": _FREE,
     "minimax-m2p7": _FREE,
