@@ -13,13 +13,14 @@ in open-source models for ablations without code changes.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
+from openai import APIConnectionError, APIStatusError, APITimeoutError, AsyncOpenAI, RateLimitError
 
 from dmcp.pricing import compute_cost_usd, get_price
 from dmcp.trace import ToolSpec
@@ -215,8 +216,25 @@ class OpenRouterClient:
         if extra:
             kwargs.update(extra)
 
+        # Providers occasionally return a malformed 200 body (httpx raises
+        # JSONDecodeError) or a transient 5xx/429/connection error. One bad
+        # response must not kill a multi-hour generate/eval run, so retry with
+        # deterministic backoff; non-transient errors (4xx) still raise.
+        attempts = 4
         t0 = time.monotonic()
-        completion = await self._client.chat.completions.create(**kwargs)
+        for attempt in range(1, attempts + 1):
+            t0 = time.monotonic()
+            try:
+                completion = await self._client.chat.completions.create(**kwargs)
+                break
+            except (json.JSONDecodeError, APIConnectionError, APITimeoutError, RateLimitError):
+                if attempt == attempts:
+                    raise
+                await asyncio.sleep(2.0 * attempt)
+            except APIStatusError as exc:
+                if exc.status_code < 500 or attempt == attempts:
+                    raise
+                await asyncio.sleep(2.0 * attempt)
         wall_ms = (time.monotonic() - t0) * 1000.0
         choice = completion.choices[0]
         msg = choice.message
