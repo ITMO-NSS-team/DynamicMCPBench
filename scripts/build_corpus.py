@@ -51,12 +51,30 @@ def stamp_provenance_in_jsonl(specs_path: Path, overrides: dict) -> int:
     if not specs_path.exists():
         return 0
     lines = specs_path.read_text(encoding="utf-8").splitlines()
-    out_lines: list[str] = []
+    decoder = json.JSONDecoder()
+    rows: list[dict] = []
     for line in lines:
         line = line.strip()
         if not line:
             continue
-        d = json.loads(line)
+        # A hard kill mid-append can leave a torn fragment, and a later
+        # --resume append can glue a full record onto it (or onto a record
+        # missing its newline). Peel complete objects off the line and drop
+        # any torn tail — its goal lacks a readable provenance.goal_id, so
+        # the resume pass re-runs it rather than losing it.
+        idx = 0
+        while idx < len(line):
+            try:
+                obj, end = decoder.raw_decode(line, idx)
+            except json.JSONDecodeError:
+                print(f"  [stamp] dropping torn JSONL fragment in {specs_path.name}", flush=True)
+                break
+            rows.append(obj)
+            while end < len(line) and line[end] in " \t":
+                end += 1
+            idx = end
+    out_lines: list[str] = []
+    for d in rows:
         prov = d.get("provenance") or {}
         prov.update(overrides)
         d["provenance"] = prov
@@ -307,7 +325,22 @@ def main() -> None:
                 ]
                 if a.resume:
                     gen_cmd.append("--resume")
-                rc = _run(gen_cmd, env_override={key_env_var: key})
+                # A shard process can die on a transient that escapes the
+                # client-level retry. When --resume is on, re-invoking is
+                # idempotent (completed goals skip), so retry the subprocess
+                # a few times before giving up on the shard.
+                shard_attempts = 3 if a.resume else 1
+                rc = 1
+                for shard_attempt in range(1, shard_attempts + 1):
+                    rc = _run(gen_cmd, env_override={key_env_var: key})
+                    if rc == 0:
+                        break
+                    if shard_attempt < shard_attempts:
+                        print(
+                            f"[phase2] shard {shard_idx} exited {rc}; "
+                            f"retrying via --resume ({shard_attempt}/{shard_attempts - 1})",
+                            flush=True,
+                        )
                 if rc != 0:
                     print(f"[phase2] shard {shard_idx} exited {rc}; continuing")
                 touched = stamp_provenance_in_jsonl(
