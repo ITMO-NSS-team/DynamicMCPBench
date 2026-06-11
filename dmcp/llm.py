@@ -226,6 +226,17 @@ class OpenRouterClient:
             t0 = time.monotonic()
             try:
                 completion = await self._client.chat.completions.create(**kwargs)
+                # OpenRouter can return a 200 whose body has `choices: null`
+                # (an error payload in success clothing) — as transient as a
+                # malformed body, so retry it instead of crashing downstream.
+                if not completion.choices:
+                    if attempt == attempts:
+                        raise RuntimeError(
+                            f"provider returned no choices for {self.model}: "
+                            f"{completion.model_dump_json()[:300]}"
+                        )
+                    await asyncio.sleep(2.0 * attempt)
+                    continue
                 break
             except (json.JSONDecodeError, APIConnectionError, APITimeoutError, RateLimitError):
                 if attempt == attempts:
