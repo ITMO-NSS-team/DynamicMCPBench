@@ -1224,7 +1224,10 @@ def validate_corpus(
             ]
             user_msg = f"Prompt:\n{row.get('prompt', '')}\n\nCheckpoints:\n{json.dumps(cp_view, indent=2)}"
             try:
-                resp = None
+                # Non-JSON content (e.g. a reasoning model returning an empty
+                # body under load) is retryable, same as a transport error —
+                # in the E8.7 v2 run it accounted for 339/498 invalid verdicts.
+                content, data = "", None
                 for _attempt in range(3):
                     try:
                         resp = await llm.chat(
@@ -1234,8 +1237,8 @@ def validate_corpus(
                             ],
                             tools=None,
                             temperature=0.0,
+                            max_tokens=8192,
                         )
-                        break
                     except (
                         APIConnectionError,
                         APITimeoutError,
@@ -1244,8 +1247,11 @@ def validate_corpus(
                     ):
                         if _attempt == 2:
                             raise
-                content = (resp.content or "").strip()
-                data = _extract_validator_json(content)
+                        continue
+                    content = (resp.content or "").strip()
+                    data = _extract_validator_json(content)
+                    if data is not None:
+                        break
                 if data is None:
                     verdict, reason = "invalid", f"non-JSON validator output: {content[:200]}"
                 else:
