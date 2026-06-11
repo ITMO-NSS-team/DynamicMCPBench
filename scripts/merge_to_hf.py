@@ -10,14 +10,16 @@ The script every contributor runs. With their own validator-valid specs + traces
 
 Idempotent + race-resilient: parts are per-contributor and the merge is a deterministic
 union, so two contributors running concurrently converge to the same dataset. A secret
-scan refuses to upload anything key-shaped. Needs ``huggingface_hub`` + ``HF_TOKEN``
-(write access to the org).
+scan refuses to upload anything key-shaped. ``--push`` needs ``HF_TOKEN`` with write
+access to the org (export it or put it in ``.env``).
 
-  uv run python scripts/merge_to_hf.py --name <you> \\
+  uv run --with huggingface_hub python scripts/merge_to_hf.py --name <you> \\
       --specs data/<corpus>/specs_valid.jsonl --traces data/<corpus>/traces.jsonl \\
       --manifest manifests/servers.json --repo-id TokenWasteGroup/DynamicMCPBench --push
 
-Dry-run (default, no --push) just reports what your slice contributes.
+``--with huggingface_hub`` pulls the HF client in just for this run, so your project
+venv (typer and all) is left untouched. Dry-run (default, no --push) needs nothing
+extra and just reports what your slice contributes.
 """
 
 from __future__ import annotations
