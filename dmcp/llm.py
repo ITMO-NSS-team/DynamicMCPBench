@@ -232,9 +232,16 @@ class OpenRouterClient:
                     raise
                 await asyncio.sleep(2.0 * attempt)
             except APIStatusError as exc:
-                if exc.status_code < 500 or attempt == attempts:
+                # OpenRouter wraps upstream failures as 400 "Provider returned
+                # error" — e.g. rate-limited primaries falling through to a
+                # deployment that rejects forced tool_choice. Transient: the
+                # preferred provider recovers within tens of seconds, so retry
+                # with a longer backoff. Genuine bad requests lack the wrapper
+                # and still fail fast.
+                wrapped = exc.status_code == 400 and "Provider returned error" in str(exc)
+                if (exc.status_code < 500 and not wrapped) or attempt == attempts:
                     raise
-                await asyncio.sleep(2.0 * attempt)
+                await asyncio.sleep((10.0 if wrapped else 2.0) * attempt)
         wall_ms = (time.monotonic() - t0) * 1000.0
         choice = completion.choices[0]
         msg = choice.message
