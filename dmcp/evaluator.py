@@ -105,6 +105,16 @@ def _arg_value_text(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
 
 
+def _safe_search(pattern: str, text: str) -> bool:
+    """``re.search`` that never raises. A distilled regex can be invalid (e.g. a
+    global flag ``(?s)`` not at the start, rejected by Python 3.11+). A bad pattern
+    is treated as 'no match' so one malformed checkpoint can't crash a whole run."""
+    try:
+        return re.search(pattern, text) is not None
+    except re.error:
+        return False
+
+
 def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] | None) -> bool:
     if predicate is None or (not predicate.must_include and not predicate.must_match):
         return True
@@ -131,7 +141,7 @@ def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] 
                 return False
         if matcher.contains is not None and matcher.contains not in text:
             return False
-        if matcher.regex is not None and not re.search(matcher.regex, text):
+        if matcher.regex is not None and not _safe_search(matcher.regex, text):
             return False
     return True
 
@@ -143,7 +153,7 @@ def _value_predicate_matches(predicate: ValuePredicate, text: str) -> bool:
         return False
     if predicate.contains_any and not any(n in text for n in predicate.contains_any):
         return False
-    if predicate.regex and not re.search(predicate.regex, text):
+    if predicate.regex and not _safe_search(predicate.regex, text):
         return False
     return True
 

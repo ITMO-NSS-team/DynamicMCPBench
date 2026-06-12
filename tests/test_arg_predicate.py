@@ -61,3 +61,11 @@ def test_missing_key_fails():
 def test_empty_predicate_matches_anything():
     assert _arg_predicate_matches(None, {"anything": 1})
     assert _arg_predicate_matches(ArgPredicate(), {"anything": 1})
+
+
+def test_malformed_regex_does_not_crash():
+    # A distilled regex with a global flag not at the start is invalid in py3.11+;
+    # it must be treated as 'no match', not crash the whole eval run.
+    pred = _pred(notes={"regex": "(?s).*a.*|(?s).*b.*"})
+    assert not _arg_predicate_matches(pred, {"notes": "anything"})
+    assert not _arg_predicate_matches(pred, {"notes": ["x", "y"]})
