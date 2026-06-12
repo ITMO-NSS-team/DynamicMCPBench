@@ -92,6 +92,29 @@ class EvaluationResult(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+def _arg_value_text(value: Any) -> str:
+    """Searchable text for substring/regex matching of an argument value.
+
+    A plain string matches as-is. A list/dict arg (e.g. ``categories=["cs.AI",
+    "cs.CR"]`` or a nested ``filters={"geo": ["EA"]}``) is serialised to JSON so a
+    ``contains``/``regex`` matcher can find a value that lives *inside* the
+    collection — instead of silently failing because the arg is not a ``str``.
+    """
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+
+
+def _safe_search(pattern: str, text: str) -> bool:
+    """``re.search`` that never raises. A distilled regex can be invalid (e.g. a
+    global flag ``(?s)`` not at the start, rejected by Python 3.11+). A bad pattern
+    is treated as 'no match' so one malformed checkpoint can't crash a whole run."""
+    try:
+        return re.search(pattern, text) is not None
+    except re.error:
+        return False
+
+
 def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] | None) -> bool:
     if predicate is None or (not predicate.must_include and not predicate.must_match):
         return True
@@ -104,15 +127,21 @@ def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] 
         if key not in args:
             return False
         value = args[key]
+        text = _arg_value_text(value)
         if matcher.equals is not None and value != matcher.equals:
             return False
-        if matcher.starts_with is not None and (
-            not isinstance(value, str) or not value.startswith(matcher.starts_with)
-        ):
+        if matcher.starts_with is not None:
+            prefixed = (
+                value.startswith(matcher.starts_with)
+                if isinstance(value, str)
+                else isinstance(value, list)
+                and any(isinstance(el, str) and el.startswith(matcher.starts_with) for el in value)
+            )
+            if not prefixed:
+                return False
+        if matcher.contains is not None and matcher.contains not in text:
             return False
-        if matcher.contains is not None and (not isinstance(value, str) or matcher.contains not in value):
-            return False
-        if matcher.regex is not None and (not isinstance(value, str) or not re.search(matcher.regex, value)):
+        if matcher.regex is not None and not _safe_search(matcher.regex, text):
             return False
     return True
 
@@ -124,7 +153,7 @@ def _value_predicate_matches(predicate: ValuePredicate, text: str) -> bool:
         return False
     if predicate.contains_any and not any(n in text for n in predicate.contains_any):
         return False
-    if predicate.regex and not re.search(predicate.regex, text):
+    if predicate.regex and not _safe_search(predicate.regex, text):
         return False
     return True
 
