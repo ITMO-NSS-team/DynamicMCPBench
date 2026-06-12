@@ -77,6 +77,20 @@ def _tool_result_to_str(result: dict[str, Any], max_chars: int) -> tuple[str, bo
     return _truncate(rendered, max_chars)
 
 
+def _last_assistant_text(messages: list[dict[str, Any]]) -> str | None:
+    """The most recent assistant message that carried text content.
+
+    Final-message fallback for when the agent exhausts its budget mid tool-calling
+    (or ends on an empty turn): without it ``final_message`` stays ``None`` and every
+    ``value_produced`` checkpoint phantom-fails with 'no final_assistant_message
+    stashed', model-dependently penalising agents that keep calling tools to the
+    budget edge rather than wrapping up with a text answer."""
+    return next(
+        (m["content"] for m in reversed(messages) if m.get("role") == "assistant" and m.get("content")),
+        None,
+    )
+
+
 async def explore(
     *,
     goal: str,
@@ -186,6 +200,9 @@ async def explore(
                 except Exception as e:
                     rendered = f"[exception] {type(e).__name__}: {e}"
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": rendered})
+
+    if not final_message:
+        final_message = _last_assistant_text(messages)
 
     cost = delta_snapshot(usage_before, llm.usage.snapshot())
     return ExplorationResult(
