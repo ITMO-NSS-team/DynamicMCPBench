@@ -33,7 +33,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Strings that must never appear in a shipped artifact (defensive secret scan).
+# The lookbehind keeps `sk-`/`AKIA`/`ghp_` from matching inside longer tokens —
+# e.g. `govuk-icon-mask-cdf42...` (an asset filename in a fetched page) is not
+# an OpenAI key; a real key is always preceded by a quote, space, or separator.
 _SECRET_RE = re.compile(
+    r"(?<![A-Za-z0-9-])"
     r"(sk-[A-Za-z0-9]{16,}|AKIA[0-9A-Z]{12,}|ghp_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
 )
 
