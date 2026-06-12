@@ -69,3 +69,17 @@ def test_malformed_regex_does_not_crash():
     pred = _pred(notes={"regex": "(?s).*a.*|(?s).*b.*"})
     assert not _arg_predicate_matches(pred, {"notes": "anything"})
     assert not _arg_predicate_matches(pred, {"notes": ["x", "y"]})
+
+
+def test_contains_list_requires_exact_membership_not_substring():
+    # NO false positive: "cs.CR" must not match the distinct category "cs.CRYPTO".
+    pred = _pred(categories={"contains": "cs.CR"})
+    assert _arg_predicate_matches(pred, {"categories": ["cs.AI", "cs.CR"]})
+    assert not _arg_predicate_matches(pred, {"categories": ["cs.CRYPTO", "cs.AI"]})
+
+
+def test_regex_list_matches_per_element_not_across_boundary():
+    # an element-wise match, not a match spanning the serialised collection
+    pred = _pred(pmids={"regex": "^40200444$"})
+    assert _arg_predicate_matches(pred, {"pmids": ["40200444", "41930073"]})
+    assert not _arg_predicate_matches(pred, {"pmids": ["40200444extra"]})
