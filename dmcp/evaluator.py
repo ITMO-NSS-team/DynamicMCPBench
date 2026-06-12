@@ -596,3 +596,18 @@ def tool_absent_checkpoints(spec: TaskSpec, reference: Trace) -> list[str]:
             if eq and not (eq & gold):
                 absent.append(cp.checkpoint_id)
     return absent
+
+
+def gold_unsatisfied_tool_effects(spec: TaskSpec, reference: Trace) -> list[str]:
+    """ids of tool_effect checkpoints the spec's OWN gold/reference trace fails to
+    satisfy — the demanded tool is absent, OR was called with non-matching args. Since
+    a candidate can only replay the gold's world, a spec whose reference solution
+    fails its own tool checks is self-inconsistent and should be dropped (it shows up
+    as the all-fail "wall"). This is the canonical self-consistency check — it strictly
+    subsumes ``tool_absent_checkpoints`` (which is just the tool-absent subset)."""
+    agent_calls = [s for s in reference.steps if s.kind is StepKind.call_tool_agent]
+    return [
+        cp.checkpoint_id
+        for cp in spec.checkpoints
+        if isinstance(cp, ToolEffectCheckpoint) and not _eval_tool_effect(cp, agent_calls).passed
+    ]

@@ -34,6 +34,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import release_hf  # noqa: E402  (reuse the dataset builder + secret scan)
 
+from dmcp.evaluator import gold_unsatisfied_tool_effects  # noqa: E402
+from dmcp.spec import TaskSpec  # noqa: E402
+from dmcp.trace import Trace  # noqa: E402
+
 
 def _load(p: str | Path) -> list[dict]:
     return [json.loads(line) for line in open(p, encoding="utf-8") if line.strip()]
@@ -101,29 +105,48 @@ def main() -> None:
     )
     print(f"[merge] uploaded part parts/{name}/ ({len(my_specs)} specs)")
 
-    # 2) download every part + union
+    # 2) download every part, then union ONLY the valid + self-consistent specs
     files = api.list_repo_files(repo, repo_type="dataset")
     contributors = sorted({f.split("/")[1] for f in files if f.startswith("parts/") and f.count("/") == 2})
-    merged_specs, seen_task, per_contrib = [], set(), {}
+    part_specs: dict[str, list[dict]] = {}
+    all_traces: dict[str, Trace] = {}
     merged_traces, seen_trace = [], set()
     for c in contributors:
-        sp = _load(hf_hub_download(repo, f"parts/{c}/specs.jsonl", repo_type="dataset"))
-        tr = _load(hf_hub_download(repo, f"parts/{c}/traces.jsonl", repo_type="dataset"))
-        added = 0
-        for s in sp:
+        part_specs[c] = _load(hf_hub_download(repo, f"parts/{c}/specs.jsonl", repo_type="dataset"))
+        for t in _load(hf_hub_download(repo, f"parts/{c}/traces.jsonl", repo_type="dataset")):
+            k = json.dumps(t, sort_keys=True)
+            if k not in seen_trace:
+                seen_trace.add(k)
+                merged_traces.append(t)
+            try:
+                tt = Trace.model_validate(t)
+                all_traces[str(tt.trace_id)] = tt
+            except Exception:
+                pass
+
+    merged_specs, seen_task, per_contrib = [], set(), {}
+    for c in contributors:
+        added = dropped = 0
+        for s in part_specs[c]:
             tid = s.get("task_id")
             if tid and tid in seen_task:
+                continue
+            # defence in depth: only validator-valid, self-consistent specs reach the
+            # root, whatever a contributor uploaded into their part.
+            if (s.get("provenance") or {}).get("validator", {}).get("verdict") != "valid":
+                dropped += 1
+                continue
+            spec = TaskSpec.model_validate(s)
+            ref = all_traces.get(str(spec.source_trace_id))
+            if ref is not None and gold_unsatisfied_tool_effects(spec, ref):
+                dropped += 1
                 continue
             seen_task.add(tid)
             merged_specs.append(s)
             added += 1
-        for t in tr:
-            k = json.dumps(t, sort_keys=True)
-            if k in seen_trace:
-                continue
-            seen_trace.add(k)
-            merged_traces.append(t)
         per_contrib[c] = added
+        if dropped:
+            print(f"[merge] {c}: dropped {dropped} invalid/self-inconsistent specs from the root")
     print(
         f"[merge] union: {len(merged_specs)} specs / {len(merged_traces)} traces over "
         f"{len(contributors)} contributors {per_contrib}"

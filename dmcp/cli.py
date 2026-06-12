@@ -105,7 +105,7 @@ from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
 from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
-from dmcp.evaluator import tool_absent_checkpoints
+from dmcp.evaluator import gold_unsatisfied_tool_effects
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goal_gen import _fetch_tool_specs
@@ -1243,21 +1243,21 @@ def validate_corpus(
                 spec_obj = TaskSpec.model_validate(row)
                 ref = gold_traces.get(str(spec_obj.source_trace_id))
                 if ref is not None:
-                    absent = tool_absent_checkpoints(spec_obj, ref)
-                    if absent:
+                    bad = gold_unsatisfied_tool_effects(spec_obj, ref)
+                    if bad:
                         prov = row.get("provenance") or {}
                         prov["validator"] = {
-                            "model": "deterministic:tool_absent",
+                            "model": "deterministic:self_consistency",
                             "family": "deterministic",
                             "verdict": "invalid",
                             "reason": (
-                                f"self-inconsistent: checkpoint(s) {absent} require a tool "
-                                "absent from the gold trace (unpassable by construction)"
+                                f"self-inconsistent: the gold trace fails its own tool_effect "
+                                f"checkpoint(s) {bad} (tool absent or args mismatch) — unpassable"
                             ),
                         }
                         row["provenance"] = prov
                         typer.echo(
-                            f"[{row.get('task_id', '?')[:8]}] invalid (deterministic): tool-absent {absent}"
+                            f"[{row.get('task_id', '?')[:8]}] invalid (deterministic): gold-fails {bad}"
                         )
                         continue
             cp_view = [
