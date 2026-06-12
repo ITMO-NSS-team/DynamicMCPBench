@@ -1,7 +1,8 @@
-"""tool_absent_checkpoints: a spec whose tool_effect checkpoint demands a tool its
-own gold trace never called is self-inconsistent — unpassable by construction (no
-candidate replaying that world can call the missing tool). The cleaning filter and
-the validate-corpus guard both rely on this.
+"""Self-consistency detectors. A spec is broken if its OWN gold/reference trace fails
+one of its tool_effect checkpoints — the demanded tool is absent (``tool_absent_
+checkpoints``) or was called with non-matching args (``gold_unsatisfied_tool_effects``,
+the broader check that subsumes it). The cleaning filter, the merge union, and the
+validate-corpus guard all rely on these.
 """
 
 from __future__ import annotations
@@ -9,9 +10,9 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from dmcp.evaluator import tool_absent_checkpoints
+from dmcp.evaluator import gold_unsatisfied_tool_effects, tool_absent_checkpoints
 from dmcp.manifest import Dynamism
-from dmcp.spec import ComplexityProfile, TaskSpec, ToolEffectCheckpoint, ToolReference
+from dmcp.spec import ArgPredicate, ComplexityProfile, TaskSpec, ToolEffectCheckpoint, ToolReference
 from dmcp.trace import Step, StepKind, StepStatus, Trace
 
 
@@ -81,3 +82,48 @@ def test_wrong_server_same_tool_is_flagged():
     gold = _gold_calling("server_a", "lookup")
     spec = _spec([_tool_cp("needs_b", "server_b", "lookup")], gold.trace_id)
     assert tool_absent_checkpoints(spec, gold) == ["needs_b"]
+
+
+def _gold_calling_args(server: str, tool: str, args: dict) -> Trace:
+    tr = Trace(goal="g")
+    now = datetime.now(UTC)
+    tr.steps.append(
+        Step.build(
+            step_id=0,
+            kind=StepKind.call_tool_agent,
+            server_id=server,
+            tool_name=tool,
+            arguments=args,
+            started_at=now,
+            ended_at=now,
+            status=StepStatus.success,
+        )
+    )
+    return tr
+
+
+def test_gold_unsatisfied_catches_arg_mismatch_not_just_tool_absent():
+    # gold called the right tool but with args the checkpoint's predicate rejects:
+    # tool_absent misses it (tool IS present), gold_unsatisfied (broader) catches it.
+    gold = _gold_calling_args("s", "t", {"target": "abc123sha"})
+    cp = ToolEffectCheckpoint(
+        checkpoint_id="needs_head",
+        description="effect checkpoint",
+        equivalence_set=[ToolReference(server_id="s", tool_name="t")],
+        arg_predicate=ArgPredicate(must_include={"target": "HEAD~1"}),
+    )
+    spec = _spec([cp], gold.trace_id)
+    assert tool_absent_checkpoints(spec, gold) == []
+    assert gold_unsatisfied_tool_effects(spec, gold) == ["needs_head"]
+
+
+def test_gold_unsatisfied_passes_when_args_match():
+    gold = _gold_calling_args("s", "t", {"target": "HEAD~1"})
+    cp = ToolEffectCheckpoint(
+        checkpoint_id="needs_head",
+        description="effect checkpoint",
+        equivalence_set=[ToolReference(server_id="s", tool_name="t")],
+        arg_predicate=ArgPredicate(must_include={"target": "HEAD~1"}),
+    )
+    spec = _spec([cp], gold.trace_id)
+    assert gold_unsatisfied_tool_effects(spec, gold) == []
