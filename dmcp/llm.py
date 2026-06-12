@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -172,6 +173,13 @@ class OpenRouterClient:
         app_url: str = "https://github.com/jrzkaminski/DynamicMCPBench",
     ) -> None:
         _load_env_once()
+        # Local override: point EVERY model at one OpenAI-compatible server (e.g. a
+        # local Ollama/vLLM at http://localhost:11434/v1) by setting LOCAL_LLM_BASE_URL.
+        # The bare `model` name is sent through, so use the server's own tags (e.g.
+        # "gemma4:12b") — this is how the eval runs candidates on local agentic models.
+        if base_url is None and os.environ.get("LOCAL_LLM_BASE_URL"):
+            base_url = os.environ["LOCAL_LLM_BASE_URL"]
+            api_key = api_key or os.environ.get("LOCAL_LLM_API_KEY") or "local"
         # Auto-resolve the provider for `model` when caller didn't pin both.
         # Free-pool ids (deepseek-v4-pro, kimi-k2p*, glm-5p1, gpt-oss-120b,
         # minimax-m2p7) route to FREE_MODELS_BASE_URL + FREE_MODELS_API_KEY;
