@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
@@ -23,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from dmcp.spec import (
     ArgPredicate,
+    ArgValueMatch,
     Checkpoint,
     Minefield,
     OrderConstraint,
@@ -92,17 +94,19 @@ class EvaluationResult(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def _arg_value_text(value: Any) -> str:
-    """Searchable text for substring/regex matching of an argument value.
-
-    A plain string matches as-is. A list/dict arg (e.g. ``categories=["cs.AI",
-    "cs.CR"]`` or a nested ``filters={"geo": ["EA"]}``) is serialised to JSON so a
-    ``contains``/``regex`` matcher can find a value that lives *inside* the
-    collection — instead of silently failing because the arg is not a ``str``.
-    """
-    if isinstance(value, str):
-        return value
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+def _leaves(value: Any) -> Iterator[Any]:
+    """Scalar leaves of an argument value, recursing into lists/dicts. Predicates
+    match against these leaves directly — never a JSON-serialised blob — so a
+    ``contains``/``regex`` can never match a string that spans element boundaries or
+    the structural punctuation of the collection (a false positive)."""
+    if isinstance(value, dict):
+        for v in value.values():
+            yield from _leaves(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            yield from _leaves(v)
+    else:
+        yield value
 
 
 def _safe_search(pattern: str, text: str) -> bool:
@@ -113,6 +117,38 @@ def _safe_search(pattern: str, text: str) -> bool:
         return re.search(pattern, text) is not None
     except re.error:
         return False
+
+
+def _field_match(matcher: ArgValueMatch, value: Any) -> bool:
+    """Whether one argument value satisfies a matcher.
+
+    A string matches by substring/regex/prefix as written. For a list/dict arg the
+    matcher is applied to the collection's leaves: ``contains`` requires the needle to
+    be an *exact* leaf (so e.g. "cs.CR" never matches the distinct token "cs.CRYPTO"),
+    while ``regex``/``starts_with`` must be satisfied by some leaf. Keeping membership
+    exact stops a wrong argument from being counted correct via a loose substring.
+    """
+    if matcher.equals is not None and value != matcher.equals:
+        return False
+    if matcher.starts_with is not None:
+        if isinstance(value, str):
+            if not value.startswith(matcher.starts_with):
+                return False
+        elif not any(isinstance(le, str) and le.startswith(matcher.starts_with) for le in _leaves(value)):
+            return False
+    if matcher.contains is not None:
+        if isinstance(value, str):
+            if matcher.contains not in value:
+                return False
+        elif not any(matcher.contains == le or matcher.contains == str(le) for le in _leaves(value)):
+            return False
+    if matcher.regex is not None:
+        if isinstance(value, str):
+            if not _safe_search(matcher.regex, value):
+                return False
+        elif not any(_safe_search(matcher.regex, str(le)) for le in _leaves(value)):
+            return False
+    return True
 
 
 def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] | None) -> bool:
@@ -126,22 +162,7 @@ def _arg_predicate_matches(predicate: ArgPredicate | None, args: dict[str, Any] 
     for key, matcher in predicate.must_match.items():
         if key not in args:
             return False
-        value = args[key]
-        text = _arg_value_text(value)
-        if matcher.equals is not None and value != matcher.equals:
-            return False
-        if matcher.starts_with is not None:
-            prefixed = (
-                value.startswith(matcher.starts_with)
-                if isinstance(value, str)
-                else isinstance(value, list)
-                and any(isinstance(el, str) and el.startswith(matcher.starts_with) for el in value)
-            )
-            if not prefixed:
-                return False
-        if matcher.contains is not None and matcher.contains not in text:
-            return False
-        if matcher.regex is not None and not _safe_search(matcher.regex, text):
+        if not _field_match(matcher, args[key]):
             return False
     return True
 

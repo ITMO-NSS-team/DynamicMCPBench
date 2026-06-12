@@ -78,17 +78,28 @@ def _tool_result_to_str(result: dict[str, Any], max_chars: int) -> tuple[str, bo
 
 
 def _last_assistant_text(messages: list[dict[str, Any]]) -> str | None:
-    """The most recent assistant message that carried text content.
-
-    Final-message fallback for when the agent exhausts its budget mid tool-calling
-    (or ends on an empty turn): without it ``final_message`` stays ``None`` and every
-    ``value_produced`` checkpoint phantom-fails with 'no final_assistant_message
-    stashed', model-dependently penalising agents that keep calling tools to the
-    budget edge rather than wrapping up with a text answer."""
+    """The most recent assistant message that carried text content."""
     return next(
         (m["content"] for m in reversed(messages) if m.get("role") == "assistant" and m.get("content")),
         None,
     )
+
+
+def _resolve_final_message(
+    final_message: str | None, outcome: str, messages: list[dict[str, Any]]
+) -> str | None:
+    """The final answer to score, with a STRICT fallback.
+
+    A ``budget_exhausted`` run gets NO fallback: an agent that ran out of budget still
+    calling tools never delivered an answer, so it must fail ``value_produced`` rather
+    than be credited with mid-reasoning text — otherwise a non-completion is counted as
+    a pass. A *voluntary* completion whose final turn had empty content falls back to
+    the last assistant text, a real answer the harness would otherwise drop."""
+    if final_message:
+        return final_message
+    if outcome == "budget_exhausted":
+        return None
+    return _last_assistant_text(messages)
 
 
 async def explore(
@@ -201,8 +212,7 @@ async def explore(
                     rendered = f"[exception] {type(e).__name__}: {e}"
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": rendered})
 
-    if not final_message:
-        final_message = _last_assistant_text(messages)
+    final_message = _resolve_final_message(final_message, outcome, messages)
 
     cost = delta_snapshot(usage_before, llm.usage.snapshot())
     return ExplorationResult(
