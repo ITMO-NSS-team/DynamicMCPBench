@@ -551,3 +551,27 @@ def evaluate(
         summary=summary,
         had_sae=sae["total"] > 0,
     )
+
+
+def _gold_tool_set(reference: Trace) -> set[tuple[str, str]]:
+    """The (server_id, tool_name) pairs the gold/reference trace actually called."""
+    return {
+        (s.server_id, s.tool_name)
+        for s in reference.steps
+        if s.kind is StepKind.call_tool_agent and s.tool_name is not None
+    }
+
+
+def tool_absent_checkpoints(spec: TaskSpec, reference: Trace) -> list[str]:
+    """ids of tool_effect checkpoints whose equivalence_set contains NO tool the
+    reference (gold) trace ever called — so no candidate replaying that world can
+    satisfy them. A non-empty result means the spec is self-inconsistent (unpassable
+    by construction) and should be dropped, not counted as model failure."""
+    gold = _gold_tool_set(reference)
+    absent: list[str] = []
+    for cp in spec.checkpoints:
+        if isinstance(cp, ToolEffectCheckpoint):
+            eq = {(r.server_id, r.tool_name) for r in cp.equivalence_set}
+            if eq and not (eq & gold):
+                absent.append(cp.checkpoint_id)
+    return absent

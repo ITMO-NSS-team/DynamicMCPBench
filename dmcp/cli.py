@@ -105,6 +105,7 @@ from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
 from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
+from dmcp.evaluator import tool_absent_checkpoints
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goal_gen import _fetch_tool_specs
@@ -1186,6 +1187,15 @@ def validate_corpus(
             help="Output JSONL (defaults to in-place rewrite of `specs`).",
         ),
     ] = None,  # type: ignore[assignment]
+    reference_traces: Annotated[
+        Path,
+        typer.Option(
+            "--reference-traces",
+            help="Reference traces JSONL. When given, a spec whose tool_effect checkpoint "
+            "requires a tool absent from its gold trace is marked invalid deterministically "
+            "(before the LLM) — the self-inconsistency guard.",
+        ),
+    ] = None,  # type: ignore[assignment]
 ) -> None:
     """Pass each spec through a 4th-family validator LLM and stamp the verdict.
 
@@ -1217,7 +1227,39 @@ def validate_corpus(
                 if not line:
                     continue
                 rows.append(json.loads(line))
+        gold_traces: dict[str, Trace] = {}
+        if reference_traces is not None:
+            with reference_traces.open("r", encoding="utf-8") as tf:
+                for tline in tf:
+                    if not tline.strip():
+                        continue
+                    try:
+                        tr = Trace.model_validate_json(tline)
+                    except Exception:
+                        continue
+                    gold_traces[str(tr.trace_id)] = tr
         for row in rows:
+            if gold_traces:
+                spec_obj = TaskSpec.model_validate(row)
+                ref = gold_traces.get(str(spec_obj.source_trace_id))
+                if ref is not None:
+                    absent = tool_absent_checkpoints(spec_obj, ref)
+                    if absent:
+                        prov = row.get("provenance") or {}
+                        prov["validator"] = {
+                            "model": "deterministic:tool_absent",
+                            "family": "deterministic",
+                            "verdict": "invalid",
+                            "reason": (
+                                f"self-inconsistent: checkpoint(s) {absent} require a tool "
+                                "absent from the gold trace (unpassable by construction)"
+                            ),
+                        }
+                        row["provenance"] = prov
+                        typer.echo(
+                            f"[{row.get('task_id', '?')[:8]}] invalid (deterministic): tool-absent {absent}"
+                        )
+                        continue
             cp_view = [
                 {"id": cp.get("checkpoint_id"), "kind": cp.get("kind"), "desc": cp.get("description")}
                 for cp in (row.get("checkpoints") or [])
