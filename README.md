@@ -82,7 +82,7 @@ Forward exploration + LLM-driven distillation into TaskSpecs.
 - [x] Batched `dmcp generate` (goal-gen → explore → distill → write specs JSONL) with stratification summary
 - [x] Scaling demonstration: 60 goals → 56 specs (93% distill rate) on the 16-server manifest
 - [ ] Persona seeding library — currently free-form persona field; want a curated set of personas/intents that yields more diverse goals
-- [ ] Target ~2-3k task corpus stratified by trace depth × dynamism × cross-server × recovery (currently ~56 specs; need an order of magnitude more)
+- [ ] Target ~2-3k task corpus stratified by trace depth × dynamism × cross-server × recovery (currently 1527 validator-valid specs on the shared HF dataset after E8.7 v1+v2 across 4 contributors)
 - [ ] Cross-server scenarios with credentialed servers (blocked on Phase 1 credential tier)
 
 ### Phase 3 — Evaluation (Weeks 13-20 of the plan)
