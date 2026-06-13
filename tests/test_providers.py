@@ -122,6 +122,11 @@ def test_pool_keys_dedups_identical_keys(monkeypatch):
 def test_pool_keys_works_for_openrouter_provider(monkeypatch):
     """The same numbered-sibling convention extends to OpenRouter so
     paid runs can also lane-out when the user has multiple OR keys."""
+    # A real .env on a multi-key machine (and load_dotenv on first client
+    # construction) leaks OPENROUTER_API_KEY_3..8 into os.environ; clear them
+    # so the test asserts on exactly the two keys it sets.
+    for i in range(3, 9):
+        monkeypatch.delenv(f"OPENROUTER_API_KEY_{i}", raising=False)
     monkeypatch.setenv("OPENROUTER_API_KEY", "or1")
     monkeypatch.setenv("OPENROUTER_API_KEY_2", "or2")
     assert pool_keys(OPENROUTER) == ["or1", "or2"]
@@ -210,6 +215,75 @@ def test_openrouter_client_falls_through_to_openrouter_for_paid_ids(monkeypatch)
     client = OpenRouterClient(model="anthropic/claude-sonnet-4.6")
     assert "openrouter.ai" in str(client._client.base_url)
     assert "wrong.example.com" not in str(client._client.base_url)
+
+
+def _capture_create_kwargs(client, monkeypatch):
+    """Patch the underlying AsyncOpenAI create() to record kwargs and return a
+    minimal valid completion, so we can assert on request-shaping without a
+    network call."""
+    seen: dict = {}
+
+    class _Msg:
+        content = "ok"
+        tool_calls = None
+
+    class _Choice:
+        finish_reason = "stop"
+        message = _Msg()
+
+    class _Completion:
+        choices = [_Choice()]
+        usage = None
+
+        def model_dump(self, **_):
+            return {}
+
+    async def fake_create(**kwargs):
+        seen.clear()
+        seen.update(kwargs)
+        return _Completion()
+
+    monkeypatch.setattr(client._client.chat.completions, "create", fake_create)
+    return seen
+
+
+async def test_openrouter_pins_provider_when_tools_present(monkeypatch):
+    """OpenRouter must only route to providers that honour the tool schema —
+    else some upstreams silently return prose with no tool_calls (E8.10c)."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-test")
+    from dmcp.llm import OpenRouterClient
+
+    client = OpenRouterClient(model="deepseek/deepseek-v4-pro")
+    seen = _capture_create_kwargs(client, monkeypatch)
+    tools = [{"type": "function", "function": {"name": "s__t", "parameters": {}}}]
+    await client.chat(messages=[{"role": "user", "content": "hi"}], tools=tools)
+    assert seen["extra_body"]["provider"]["require_parameters"] is True
+
+
+async def test_openrouter_no_provider_pin_without_tools(monkeypatch):
+    """No tools → no tool-routing constraint needed; keep the request clean."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-test")
+    from dmcp.llm import OpenRouterClient
+
+    client = OpenRouterClient(model="deepseek/deepseek-v4-pro")
+    seen = _capture_create_kwargs(client, monkeypatch)
+    await client.chat(messages=[{"role": "user", "content": "hi"}])
+    assert "extra_body" not in seen
+
+
+async def test_free_endpoint_gets_no_openrouter_provider_pin(monkeypatch):
+    """The provider-routing extra is OpenRouter-only; a local/free endpoint
+    would reject the unknown field, so it must not be injected there."""
+    monkeypatch.setenv("FREE_MODELS_API_KEY", "free-test")
+    monkeypatch.setenv("FREE_MODELS_BASE_URL", "https://free.example.com/v1")
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    from dmcp.llm import OpenRouterClient
+
+    client = OpenRouterClient(model="kimi-k2p6")
+    seen = _capture_create_kwargs(client, monkeypatch)
+    tools = [{"type": "function", "function": {"name": "s__t", "parameters": {}}}]
+    await client.chat(messages=[{"role": "user", "content": "hi"}], tools=tools)
+    assert "extra_body" not in seen
 
 
 def test_openrouter_client_explicit_overrides_win(monkeypatch):
