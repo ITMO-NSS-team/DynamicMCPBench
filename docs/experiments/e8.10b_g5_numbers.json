@@ -1,0 +1,74 @@
+{
+ "pooled": [
+  {
+   "feat": "depth",
+   "beta_per_sd": 0.5712,
+   "p": 2.0989126979346645e-18,
+   "drop_loglik": 52.901
+  },
+  {
+   "feat": "cross_server",
+   "beta_per_sd": 0.2662,
+   "p": 6.554432653267812e-15,
+   "drop_loglik": 31.745
+  },
+  {
+   "feat": "runtime_branching",
+   "beta_per_sd": 0.0815,
+   "p": 0.026939503604076036,
+   "drop_loglik": 2.461
+  },
+  {
+   "feat": "state_coupling",
+   "beta_per_sd": 0.005,
+   "p": 0.8828249245539723,
+   "drop_loglik": 0.011
+  },
+  {
+   "feat": "recovery",
+   "beta_per_sd": 0.0643,
+   "p": 0.09050323582401087,
+   "drop_loglik": 1.457
+  }
+ ],
+ "per_model_top": {
+  "claude-haiku-4.5": [
+   "depth",
+   0.701
+  ],
+  "deepseek-v4-pro": [
+   "depth",
+   0.763
+  ],
+  "glm-5.1": [
+   "depth",
+   0.391
+  ],
+  "gpt-5.4-mini": [
+   "depth",
+   1.071
+  ],
+  "grok-4.3": [
+   "depth",
+   0.841
+  ],
+  "kimi-k2.6": [
+   "depth",
+   1.612
+  ],
+  "minimax-m3": [
+   "depth",
+   0.343
+  ],
+  "qwen3.7-max": [
+   "depth",
+   0.359
+  ]
+ },
+ "top_driver_tally": {
+  "depth": 8
+ },
+ "n": 6000,
+ "fail_rate": 0.723,
+ "note": "state_coupling perfectly collinear with dynamism=stateful_write in this corpus; n_servers dropped (=cross_server)"
+}
