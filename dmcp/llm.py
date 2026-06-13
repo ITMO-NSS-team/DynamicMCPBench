@@ -192,6 +192,9 @@ class OpenRouterClient:
             api_key = api_key or resolved_key
         self.model = model
         self.usage = UsageAccumulator(model=model)
+        # Whether we're talking to OpenRouter (vs a local server or the free
+        # endpoint). Gates OpenRouter-only request extras like provider routing.
+        self._is_openrouter = "openrouter.ai" in (base_url or "")
         self._client = AsyncOpenAI(
             api_key=api_key,
             base_url=base_url,
@@ -221,6 +224,16 @@ class OpenRouterClient:
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = tool_choice
+            # OpenRouter fans a model out across upstream providers, some of
+            # which silently ignore the tool schema and return prose with no
+            # tool_calls (HTTP 200, finish='stop' — invisible to error retries).
+            # Under concurrent load this systematically suppressed tool calls
+            # for whole models in E8.8b (see docs/experiments/e8.10c). Pin to
+            # providers that actually honour the tool/function schema.
+            if self._is_openrouter:
+                eb = kwargs.setdefault("extra_body", {})
+                provider = eb.setdefault("provider", {})
+                provider.setdefault("require_parameters", True)
         if extra:
             kwargs.update(extra)
 
