@@ -1,0 +1,577 @@
+{
+ "models": [
+  "glm-5.1",
+  "grok-4.3",
+  "minimax-m3",
+  "qwen3.7-max",
+  "gpt-5.4-mini",
+  "deepseek-v4-pro",
+  "claude-haiku-4.5",
+  "kimi-k2.6"
+ ],
+ "strategies": [
+  "ambiguous_intent",
+  "complementary",
+  "cross_domain",
+  "cross_server_alt",
+  "decoy",
+  "destructive_adjacent",
+  "hard_neg",
+  "homonym_trap",
+  "long_similar_chain",
+  "prerequisite_strict",
+  "random",
+  "recovery_required",
+  "same_name",
+  "sibling",
+  "stratified"
+ ],
+ "cells": {
+  "glm-5.1|ambiguous_intent": [
+   20,
+   50
+  ],
+  "glm-5.1|complementary": [
+   17,
+   50
+  ],
+  "glm-5.1|cross_domain": [
+   20,
+   50
+  ],
+  "glm-5.1|cross_server_alt": [
+   14,
+   50
+  ],
+  "glm-5.1|decoy": [
+   36,
+   50
+  ],
+  "glm-5.1|destructive_adjacent": [
+   21,
+   50
+  ],
+  "glm-5.1|hard_neg": [
+   27,
+   50
+  ],
+  "glm-5.1|homonym_trap": [
+   34,
+   50
+  ],
+  "glm-5.1|long_similar_chain": [
+   26,
+   50
+  ],
+  "glm-5.1|prerequisite_strict": [
+   26,
+   50
+  ],
+  "glm-5.1|random": [
+   26,
+   50
+  ],
+  "glm-5.1|recovery_required": [
+   27,
+   50
+  ],
+  "glm-5.1|same_name": [
+   27,
+   50
+  ],
+  "glm-5.1|sibling": [
+   32,
+   50
+  ],
+  "glm-5.1|stratified": [
+   6,
+   50
+  ],
+  "grok-4.3|ambiguous_intent": [
+   11,
+   50
+  ],
+  "grok-4.3|complementary": [
+   9,
+   50
+  ],
+  "grok-4.3|cross_domain": [
+   19,
+   50
+  ],
+  "grok-4.3|cross_server_alt": [
+   9,
+   50
+  ],
+  "grok-4.3|decoy": [
+   21,
+   50
+  ],
+  "grok-4.3|destructive_adjacent": [
+   15,
+   50
+  ],
+  "grok-4.3|hard_neg": [
+   15,
+   50
+  ],
+  "grok-4.3|homonym_trap": [
+   23,
+   50
+  ],
+  "grok-4.3|long_similar_chain": [
+   14,
+   50
+  ],
+  "grok-4.3|prerequisite_strict": [
+   18,
+   50
+  ],
+  "grok-4.3|random": [
+   13,
+   50
+  ],
+  "grok-4.3|recovery_required": [
+   21,
+   50
+  ],
+  "grok-4.3|same_name": [
+   20,
+   50
+  ],
+  "grok-4.3|sibling": [
+   18,
+   50
+  ],
+  "grok-4.3|stratified": [
+   11,
+   50
+  ],
+  "minimax-m3|ambiguous_intent": [
+   16,
+   50
+  ],
+  "minimax-m3|complementary": [
+   10,
+   50
+  ],
+  "minimax-m3|cross_domain": [
+   21,
+   50
+  ],
+  "minimax-m3|cross_server_alt": [
+   18,
+   50
+  ],
+  "minimax-m3|decoy": [
+   28,
+   50
+  ],
+  "minimax-m3|destructive_adjacent": [
+   22,
+   50
+  ],
+  "minimax-m3|hard_neg": [
+   21,
+   50
+  ],
+  "minimax-m3|homonym_trap": [
+   32,
+   50
+  ],
+  "minimax-m3|long_similar_chain": [
+   18,
+   50
+  ],
+  "minimax-m3|prerequisite_strict": [
+   21,
+   50
+  ],
+  "minimax-m3|random": [
+   23,
+   50
+  ],
+  "minimax-m3|recovery_required": [
+   6,
+   50
+  ],
+  "minimax-m3|same_name": [
+   0,
+   50
+  ],
+  "minimax-m3|sibling": [
+   0,
+   50
+  ],
+  "minimax-m3|stratified": [
+   0,
+   50
+  ],
+  "qwen3.7-max|ambiguous_intent": [
+   21,
+   50
+  ],
+  "qwen3.7-max|complementary": [
+   22,
+   50
+  ],
+  "qwen3.7-max|cross_domain": [
+   22,
+   50
+  ],
+  "qwen3.7-max|cross_server_alt": [
+   15,
+   50
+  ],
+  "qwen3.7-max|decoy": [
+   29,
+   50
+  ],
+  "qwen3.7-max|destructive_adjacent": [
+   22,
+   50
+  ],
+  "qwen3.7-max|hard_neg": [
+   24,
+   50
+  ],
+  "qwen3.7-max|homonym_trap": [
+   30,
+   50
+  ],
+  "qwen3.7-max|long_similar_chain": [
+   28,
+   50
+  ],
+  "qwen3.7-max|prerequisite_strict": [
+   13,
+   50
+  ],
+  "qwen3.7-max|random": [
+   0,
+   50
+  ],
+  "qwen3.7-max|recovery_required": [
+   0,
+   50
+  ],
+  "qwen3.7-max|same_name": [
+   0,
+   50
+  ],
+  "qwen3.7-max|sibling": [
+   0,
+   50
+  ],
+  "qwen3.7-max|stratified": [
+   0,
+   50
+  ],
+  "gpt-5.4-mini|ambiguous_intent": [
+   13,
+   50
+  ],
+  "gpt-5.4-mini|complementary": [
+   7,
+   50
+  ],
+  "gpt-5.4-mini|cross_domain": [
+   14,
+   50
+  ],
+  "gpt-5.4-mini|cross_server_alt": [
+   4,
+   50
+  ],
+  "gpt-5.4-mini|decoy": [
+   17,
+   50
+  ],
+  "gpt-5.4-mini|destructive_adjacent": [
+   13,
+   50
+  ],
+  "gpt-5.4-mini|hard_neg": [
+   14,
+   50
+  ],
+  "gpt-5.4-mini|homonym_trap": [
+   14,
+   50
+  ],
+  "gpt-5.4-mini|long_similar_chain": [
+   12,
+   50
+  ],
+  "gpt-5.4-mini|prerequisite_strict": [
+   9,
+   50
+  ],
+  "gpt-5.4-mini|random": [
+   10,
+   50
+  ],
+  "gpt-5.4-mini|recovery_required": [
+   17,
+   50
+  ],
+  "gpt-5.4-mini|same_name": [
+   21,
+   50
+  ],
+  "gpt-5.4-mini|sibling": [
+   16,
+   50
+  ],
+  "gpt-5.4-mini|stratified": [
+   12,
+   50
+  ],
+  "deepseek-v4-pro|ambiguous_intent": [
+   19,
+   50
+  ],
+  "deepseek-v4-pro|complementary": [
+   15,
+   50
+  ],
+  "deepseek-v4-pro|cross_domain": [
+   20,
+   50
+  ],
+  "deepseek-v4-pro|cross_server_alt": [
+   13,
+   50
+  ],
+  "deepseek-v4-pro|decoy": [
+   29,
+   50
+  ],
+  "deepseek-v4-pro|destructive_adjacent": [
+   21,
+   50
+  ],
+  "deepseek-v4-pro|hard_neg": [
+   28,
+   50
+  ],
+  "deepseek-v4-pro|homonym_trap": [
+   12,
+   50
+  ],
+  "deepseek-v4-pro|long_similar_chain": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|prerequisite_strict": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|random": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|recovery_required": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|same_name": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|sibling": [
+   0,
+   50
+  ],
+  "deepseek-v4-pro|stratified": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|ambiguous_intent": [
+   19,
+   50
+  ],
+  "claude-haiku-4.5|complementary": [
+   14,
+   50
+  ],
+  "claude-haiku-4.5|cross_domain": [
+   20,
+   50
+  ],
+  "claude-haiku-4.5|cross_server_alt": [
+   10,
+   50
+  ],
+  "claude-haiku-4.5|decoy": [
+   28,
+   50
+  ],
+  "claude-haiku-4.5|destructive_adjacent": [
+   17,
+   50
+  ],
+  "claude-haiku-4.5|hard_neg": [
+   21,
+   50
+  ],
+  "claude-haiku-4.5|homonym_trap": [
+   23,
+   50
+  ],
+  "claude-haiku-4.5|long_similar_chain": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|prerequisite_strict": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|random": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|recovery_required": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|same_name": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|sibling": [
+   0,
+   50
+  ],
+  "claude-haiku-4.5|stratified": [
+   0,
+   50
+  ],
+  "kimi-k2.6|ambiguous_intent": [
+   19,
+   50
+  ],
+  "kimi-k2.6|complementary": [
+   15,
+   50
+  ],
+  "kimi-k2.6|cross_domain": [
+   21,
+   50
+  ],
+  "kimi-k2.6|cross_server_alt": [
+   12,
+   50
+  ],
+  "kimi-k2.6|decoy": [
+   26,
+   50
+  ],
+  "kimi-k2.6|destructive_adjacent": [
+   9,
+   50
+  ],
+  "kimi-k2.6|hard_neg": [
+   0,
+   50
+  ],
+  "kimi-k2.6|homonym_trap": [
+   0,
+   50
+  ],
+  "kimi-k2.6|long_similar_chain": [
+   0,
+   50
+  ],
+  "kimi-k2.6|prerequisite_strict": [
+   0,
+   50
+  ],
+  "kimi-k2.6|random": [
+   0,
+   50
+  ],
+  "kimi-k2.6|recovery_required": [
+   0,
+   50
+  ],
+  "kimi-k2.6|same_name": [
+   0,
+   50
+  ],
+  "kimi-k2.6|sibling": [
+   0,
+   50
+  ],
+  "kimi-k2.6|stratified": [
+   0,
+   50
+  ]
+ },
+ "leaderboard": [
+  {
+   "model": "glm-5.1",
+   "passed": 359,
+   "n": 750,
+   "acc": 0.4786666666666667,
+   "lo": 0.44311447545593785,
+   "hi": 0.5144362885241874
+  },
+  {
+   "model": "grok-4.3",
+   "passed": 237,
+   "n": 750,
+   "acc": 0.316,
+   "lo": 0.2837359272067561,
+   "hi": 0.3501394121218243
+  },
+  {
+   "model": "minimax-m3",
+   "passed": 236,
+   "n": 750,
+   "acc": 0.31466666666666665,
+   "lo": 0.28244700917906485,
+   "hi": 0.3487752528982734
+  },
+  {
+   "model": "qwen3.7-max",
+   "passed": 226,
+   "n": 750,
+   "acc": 0.30133333333333334,
+   "lo": 0.26957532725237504,
+   "hi": 0.33511616231254154
+  },
+  {
+   "model": "gpt-5.4-mini",
+   "passed": 193,
+   "n": 750,
+   "acc": 0.25733333333333336,
+   "lo": 0.22733783227199109,
+   "hi": 0.28980210800193384
+  },
+  {
+   "model": "deepseek-v4-pro",
+   "passed": 157,
+   "n": 750,
+   "acc": 0.20933333333333334,
+   "lo": 0.1817344684129057,
+   "hi": 0.2398946908163011
+  },
+  {
+   "model": "claude-haiku-4.5",
+   "passed": 152,
+   "n": 750,
+   "acc": 0.20266666666666666,
+   "lo": 0.17544552924717952,
+   "hi": 0.2329182437258164
+  },
+  {
+   "model": "kimi-k2.6",
+   "passed": 102,
+   "n": 750,
+   "acc": 0.136,
+   "lo": 0.11331427754407522,
+   "hi": 0.16239563286681216
+  }
+ ]
+}
