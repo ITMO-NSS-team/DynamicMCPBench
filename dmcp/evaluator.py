@@ -241,6 +241,17 @@ def _eval_value_produced(
                 reason="no final_assistant_message stashed in trace.seed_metadata.exploration",
             )
         if _value_predicate_matches(cp.predicate, text):
+            # FP guard (cardinal rule): a value "produced" in the final message is only
+            # credited if the agent actually made >=1 successful tool call. With zero
+            # successful calls the value is ungrounded (echoed from the prompt or
+            # hallucinated) -> crediting it would be a false positive.
+            if not any(s.status is StepStatus.success for s in agent_calls):
+                return CheckpointResult(
+                    checkpoint_id=cp.checkpoint_id,
+                    kind=cp.kind.value,
+                    passed=False,
+                    reason="value in final message but no successful tool call (ungrounded; FP guard)",
+                )
             return CheckpointResult(
                 checkpoint_id=cp.checkpoint_id,
                 kind=cp.kind.value,
