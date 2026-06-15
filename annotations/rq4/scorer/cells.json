@@ -1,0 +1,2402 @@
+[
+ {
+  "cell_id": 1,
+  "task_id": "003f8b89-5d2f-40cd-87ad-01be5842712b",
+  "candidate_trace_id": "f63322a2-de12-4622-a206-3b5d5d7547d1",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 2,
+  "task_id": "00e0a975-e76b-45b5-ba96-6651eb5464a4",
+  "candidate_trace_id": "d60840aa-1a2b-48e4-b539-2a6a1c18b336",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 3,
+  "task_id": "010b4209-6298-4c9c-8817-6b60ada196e0",
+  "candidate_trace_id": "89f400b8-f77f-4da5-8631-30c74ad869be",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 4,
+  "task_id": "01219f7e-8fa1-4352-be91-a1f7e28c1347",
+  "candidate_trace_id": "2b752d4c-b88d-441a-80e1-2127fd75b7be",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 5,
+  "task_id": "015b5f81-86d8-4ead-b405-00611df73e3c",
+  "candidate_trace_id": "7529612d-5f59-4746-a65c-172ba2eae563",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 6,
+  "task_id": "05486de8-a8cb-4361-9ac4-f3b57a0611a1",
+  "candidate_trace_id": "752c5bca-86ff-401c-adb2-f4df2bd42ca3",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 7,
+  "task_id": "090173f4-dbf8-451c-8c10-c9ae5a1703bf",
+  "candidate_trace_id": "1c1d92f5-c9dd-4f04-96a0-8519eacd97cc",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 8,
+  "task_id": "09755b81-86d4-4aaf-bf1a-196b0200e1ee",
+  "candidate_trace_id": "99aa443f-2aed-4c64-97f0-8a1aa0479f90",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 9,
+  "task_id": "0a16e59e-6161-47cd-a253-f023879458a5",
+  "candidate_trace_id": "6b12520d-4ffa-42f4-9eb4-280de65250cf",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 10,
+  "task_id": "0b2ee3e3-a61b-4e27-a8c2-4c3d554b4740",
+  "candidate_trace_id": "a8a578ad-cbf7-4578-aeca-dda9daf50e24",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 11,
+  "task_id": "0b5993ca-cd9c-401d-a365-ba72501d0506",
+  "candidate_trace_id": "9e1cdfe8-ec6f-4ca9-9765-a47967c2e0c3",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 12,
+  "task_id": "0bbbbe00-12a8-4d47-9dae-38b2097902d3",
+  "candidate_trace_id": "23c49eeb-fc0b-4893-a065-078c6a7e7219",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 13,
+  "task_id": "0c4a8740-c26c-438f-a3ad-cc65a2341cbc",
+  "candidate_trace_id": "48504a1e-94fa-4f54-8f21-465a41cc874c",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 14,
+  "task_id": "0c563641-bb24-4e6c-a65b-57cf628570e3",
+  "candidate_trace_id": "040d24b7-69a5-474e-8279-356744caea54",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 15,
+  "task_id": "13af407b-34d3-475c-8263-8bc549f411dd",
+  "candidate_trace_id": "3776911f-a8fb-4a8d-8c7c-306e525aea0f",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 16,
+  "task_id": "14933004-6f19-4616-810a-b43957dea9aa",
+  "candidate_trace_id": "a46f0a10-5de3-468d-a424-bf2b20967975",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 17,
+  "task_id": "16369ab7-4a69-44fe-8d4a-68dbcc0eb54a",
+  "candidate_trace_id": "f05b6146-b1fd-48a8-9188-c4e48c91f9c7",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 18,
+  "task_id": "1674ea3e-f4e9-42d2-97e9-2c00a7a51f6e",
+  "candidate_trace_id": "a7dea390-e13c-4cc0-8983-f2c8d20b7217",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 19,
+  "task_id": "17bec39b-d8b1-466e-a44b-d3d5fe7f05ac",
+  "candidate_trace_id": "57c3e887-6e6d-4f39-936c-10ad26913b35",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 20,
+  "task_id": "18066ce0-f14c-4d0d-8517-946e928d7530",
+  "candidate_trace_id": "a9cb063c-6df8-4476-a415-0e307ae78a31",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 21,
+  "task_id": "18c9263b-2632-4d84-953f-31b432217608",
+  "candidate_trace_id": "6ba9af1a-4af2-4938-bf8a-7542e36c1e49",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 22,
+  "task_id": "1a1cea07-b88e-41aa-b19b-787de4a26cd4",
+  "candidate_trace_id": "28a90d31-f7cc-4b05-a11b-530c30be1151",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 23,
+  "task_id": "1adeeaf2-bfc5-4c46-9dd2-c99c93870b94",
+  "candidate_trace_id": "2477d891-6521-48c5-8680-0bed7b9ccd26",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 24,
+  "task_id": "1ca2ed68-18df-42b7-806a-cbd4d15a5102",
+  "candidate_trace_id": "718dffbc-7911-418a-88f6-91ef9e7ef9ef",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 25,
+  "task_id": "1cdc9eb8-0bea-4e93-a775-e804981ed423",
+  "candidate_trace_id": "f066a93e-c880-4dc8-bd99-4e5ea36321a3",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 26,
+  "task_id": "1ed0dab2-b869-44b3-8d5b-9197cb00ad07",
+  "candidate_trace_id": "55f077d2-68d3-488c-acf9-d8ed5029195b",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 27,
+  "task_id": "200bd6a2-d6c5-4ce9-894f-80bd8d826db0",
+  "candidate_trace_id": "b181fef3-eadd-47f2-8432-a774c5482a9a",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 28,
+  "task_id": "205a43d9-b164-4928-9df3-c444000dda01",
+  "candidate_trace_id": "00de3b99-81a4-493b-b230-a9526be4e60e",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 29,
+  "task_id": "21934c4c-d76e-4ce7-81b6-d986edfe5a02",
+  "candidate_trace_id": "85253ffe-e8d2-4a68-a7df-a4fc589fb685",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 30,
+  "task_id": "2203b6b7-f30d-47f4-b933-e8c1a2d24784",
+  "candidate_trace_id": "39afaf22-5f70-4503-88c1-cd9d0ee12e54",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 31,
+  "task_id": "23651b64-7ebb-4583-883a-45150be44ce8",
+  "candidate_trace_id": "dbc8b3ef-50d3-43cd-a96d-13c1fee5d97b",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 32,
+  "task_id": "25b73a60-f5cf-4680-9225-714a7d6de8e5",
+  "candidate_trace_id": "31728fab-51c4-4bcd-9be0-e77e02aaae63",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 33,
+  "task_id": "262b5731-6654-4863-afc4-260e99a1898b",
+  "candidate_trace_id": "864fc248-bf14-4929-81b8-4d327ead7b95",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 34,
+  "task_id": "278db912-5ffe-44c1-af95-46fef4ae303e",
+  "candidate_trace_id": "5673e8ea-4994-44a4-b68a-9af3e97585f5",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 35,
+  "task_id": "28518c98-97ea-4b87-b98d-54399d86606c",
+  "candidate_trace_id": "3128b38f-d122-4bb0-bcff-ae7dac672caa",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 36,
+  "task_id": "2a45cf40-b281-44ff-bfa2-8d8d95512795",
+  "candidate_trace_id": "0e183eb7-b5cf-4747-9753-3f6f67132575",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 37,
+  "task_id": "2b789f63-443c-41fd-aaf5-00446da42476",
+  "candidate_trace_id": "df35ea1d-a314-43bb-9e4c-381c3349668a",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 38,
+  "task_id": "2cabb8c3-7940-4cc9-a741-956bd9a73587",
+  "candidate_trace_id": "5b880561-4e02-4b68-8ec3-d38ac2aa6d30",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 39,
+  "task_id": "2ead862d-5a35-4929-a3d4-39047e567e5f",
+  "candidate_trace_id": "bfe8143a-414e-44b9-9196-444debbac21b",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 40,
+  "task_id": "2eae7c6f-2b63-4fef-983e-993a6fb620f0",
+  "candidate_trace_id": "930d3ee2-f486-46c2-ad0c-41665347efea",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 41,
+  "task_id": "305553d2-fb6d-4367-8fa5-ab8ac8ef38f6",
+  "candidate_trace_id": "bcf3d154-ce7c-4655-b3bc-6b6bf1381968",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 42,
+  "task_id": "30cd8392-5e22-4a68-b3f6-6c0344e224de",
+  "candidate_trace_id": "4e597b9e-ded1-432b-b23b-d2bf85312864",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 43,
+  "task_id": "32d4661d-b6cf-446a-8d68-a1103753ea22",
+  "candidate_trace_id": "f9a825ae-9288-4293-b3d1-9ffd78b0bdc1",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 44,
+  "task_id": "391c76c5-d971-4b93-b0f1-43edac52132f",
+  "candidate_trace_id": "574955c5-b843-4619-81f6-df601fbc034f",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 45,
+  "task_id": "3c6e85b1-dc23-4f65-bdc3-eff74209def8",
+  "candidate_trace_id": "72dac8c5-738a-4ec9-a6d1-e72715639278",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 46,
+  "task_id": "3d35db3f-08d0-4f2d-a8b7-2e6f5cb78a06",
+  "candidate_trace_id": "df4b7d10-6f33-45fd-ad18-5b6d6e12bfa8",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 47,
+  "task_id": "3e704a4e-29e1-41ac-8b1a-64ba3b94f162",
+  "candidate_trace_id": "55470bae-a1d8-4532-b649-8a7eb1ff80f0",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 48,
+  "task_id": "3e8557e7-f70c-403f-884a-30274ffa3bdd",
+  "candidate_trace_id": "6f4ce233-9428-4eea-af87-1d584470909e",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 49,
+  "task_id": "40724e53-1297-45c9-b61f-6c6d00836811",
+  "candidate_trace_id": "75420e87-70f0-4a7a-b06a-2b2a3c86c3ac",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 50,
+  "task_id": "40b9980a-7e35-4726-9491-6671f80e93b8",
+  "candidate_trace_id": "edf8a432-9946-4caa-9b56-7dfb253e865d",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 51,
+  "task_id": "40fb0dbf-b771-4869-9a6b-fafba69adfeb",
+  "candidate_trace_id": "15f374a2-6d1d-4819-b38d-5800349fdf3d",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 52,
+  "task_id": "41639071-ca1e-45c7-acb7-484962f0d944",
+  "candidate_trace_id": "8c2e8919-c983-48df-8711-f49ce05125e4",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 53,
+  "task_id": "41be1cfc-869a-41fa-bcb7-bf46ab606d4c",
+  "candidate_trace_id": "352c7dc7-66a0-4be9-a1f5-c5f7c4353c42",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 54,
+  "task_id": "41e38d54-10c7-496b-8989-f8ec3c8acc46",
+  "candidate_trace_id": "71824ae8-4238-422c-9acc-d0a76dd25999",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 55,
+  "task_id": "44b0fdaf-37f1-4fcb-a6eb-2942480bcdef",
+  "candidate_trace_id": "77b28c09-1da7-4e4f-ae20-e9a294ef9601",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 56,
+  "task_id": "45d76495-305f-4ad7-8da0-745ddcc69243",
+  "candidate_trace_id": "aa8aa5e3-8abf-4c1d-a12c-b006070bcb88",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 57,
+  "task_id": "45e746e7-e9ec-46e9-9af3-6f9765c03add",
+  "candidate_trace_id": "2da62f3a-3016-4f8e-b771-b511589633b0",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 58,
+  "task_id": "46cf9f04-f0f6-412c-bb54-f90944c0d382",
+  "candidate_trace_id": "6b0ea502-33b7-4bf3-8e69-504251c5d940",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 59,
+  "task_id": "476e4f06-0c23-4fa1-84fc-85f0d64be61f",
+  "candidate_trace_id": "d88dae1f-5b0b-4ae5-bc9f-d65245785a03",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 60,
+  "task_id": "47d3ca9b-0ef5-40ac-aa4f-4f6b6fb218fa",
+  "candidate_trace_id": "70243955-de5c-481a-8a17-176d43dfc993",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 61,
+  "task_id": "47fb359b-5c0f-4f85-94fb-01d941542a08",
+  "candidate_trace_id": "3e1f85af-ca63-44d4-80b2-63175c99b6df",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 62,
+  "task_id": "48383bd4-0f82-4675-b6d6-48b2709199f4",
+  "candidate_trace_id": "045730cc-db63-42cb-a07a-a25191e0d578",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 63,
+  "task_id": "483e96c9-019c-4c40-873d-9ba8b2591b80",
+  "candidate_trace_id": "4dc8da30-10bf-4aee-a0ac-9fabb32ab494",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 64,
+  "task_id": "49cf7acf-8821-4945-9dcb-1a10c2c00048",
+  "candidate_trace_id": "5a35497d-353a-43f7-86c2-0e0eb7d454bf",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 65,
+  "task_id": "4a11fceb-9bd6-483b-9835-af4befc60852",
+  "candidate_trace_id": "7813507a-52e4-4973-b0d0-6f51f5c0bbb6",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 66,
+  "task_id": "4a3f9ad6-12ef-41b5-981c-cb5d02e7f86e",
+  "candidate_trace_id": "ce32117e-b0de-4928-b453-da03772d4217",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 67,
+  "task_id": "4a544cd6-bc10-4365-b6bf-980292749ca5",
+  "candidate_trace_id": "1e2a01b1-3fce-4a4e-a85b-02bdda0b3181",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 68,
+  "task_id": "4a6243ba-eaba-42dd-aa8a-636b0b0661de",
+  "candidate_trace_id": "13164105-6253-408e-9c2f-3df353e3d78f",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 69,
+  "task_id": "4b45e03e-2840-434d-9c6e-e938603a9a56",
+  "candidate_trace_id": "19ff53a0-e0d1-48c8-842d-cd110a9b7825",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 70,
+  "task_id": "4bbd0fc3-42d6-4c70-bd71-1014ec489ac8",
+  "candidate_trace_id": "de450e2d-1b0c-4c71-87c3-1a4e513740ef",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 71,
+  "task_id": "4d3430c3-0ad9-4576-a66c-204a95e2c502",
+  "candidate_trace_id": "eb1e5f39-a7fe-4b87-a43a-c6421fca19a7",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 72,
+  "task_id": "4d98df02-06a6-480a-af98-f3cfb438f5ff",
+  "candidate_trace_id": "8e85ee9b-61af-40fb-96cd-fc637aa84bef",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 73,
+  "task_id": "505d8dcc-5214-47ad-a2ca-2e7412215197",
+  "candidate_trace_id": "c0acf092-89ce-4522-8e0f-4842b8b85e7a",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 74,
+  "task_id": "51ad0eea-b42d-4b9e-a330-1f9d658ef0ba",
+  "candidate_trace_id": "1359d452-e6e6-499b-a855-c0fd55b80956",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 75,
+  "task_id": "51d1b415-e5d9-42aa-bfbe-f36c3eb2de8c",
+  "candidate_trace_id": "44ee75cf-4913-4447-a95c-cebcdca5cf21",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 76,
+  "task_id": "54476d9d-9182-439c-a49c-4568c5ba8e57",
+  "candidate_trace_id": "d8796cd7-8980-46f6-96c4-b675c42d0f4f",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 77,
+  "task_id": "594f2d92-7a12-4fa0-a442-852e6aa9dba5",
+  "candidate_trace_id": "9aacff19-f49f-4f2e-8401-7afd715e2378",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 78,
+  "task_id": "5c807c7c-b012-4894-a848-0a55099a7e02",
+  "candidate_trace_id": "d277b971-0889-421b-bb9e-d8bd29f8a84d",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 79,
+  "task_id": "5c93ed21-2c0d-4db0-b104-176c965c723b",
+  "candidate_trace_id": "30f10705-cda1-4f8c-977c-ed7f21a33c55",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 80,
+  "task_id": "5e6c2a1a-52b4-41ac-ab93-b2aab21fd691",
+  "candidate_trace_id": "886eb3ac-018d-48e2-b042-b3eff017ff16",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 81,
+  "task_id": "5f9f7dee-ae4e-43bc-b4c0-ed5b420b3870",
+  "candidate_trace_id": "120b795c-575c-4d13-8a89-abe7382fd874",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 82,
+  "task_id": "630012ca-fc8e-4038-818f-be565abf2501",
+  "candidate_trace_id": "054cac07-2a53-4604-95aa-9ca87c3e3a0f",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 83,
+  "task_id": "64e453d2-5d07-4f9a-8cc8-bbb59edb6a94",
+  "candidate_trace_id": "1a4bbdfb-7976-4785-a89a-f1c4be683e2f",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 84,
+  "task_id": "69b999a0-04e3-44b8-816d-ca0e9749b783",
+  "candidate_trace_id": "37ad8b51-f4da-4814-9ed8-c1f6d417354d",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 85,
+  "task_id": "6a6436f1-fe2b-45c5-8bbd-03a23979373c",
+  "candidate_trace_id": "310c9812-4132-43bc-91f8-d1dc918a8357",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 86,
+  "task_id": "6adf0849-21da-4c61-b1c6-9010ac50f0eb",
+  "candidate_trace_id": "621a008c-1138-4f76-8290-569c826bf902",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 87,
+  "task_id": "6b84bf75-059f-41d7-b06c-6dac13a9bb46",
+  "candidate_trace_id": "1862eedb-0972-4965-bc27-edaaa6b30f0f",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 88,
+  "task_id": "6d774eb0-00ce-43f4-9d85-2eced96576d5",
+  "candidate_trace_id": "d8a94f10-2c5d-4ef9-9963-f619af86af73",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 89,
+  "task_id": "6e170c79-3e3b-40f9-8b9f-6718f596ac59",
+  "candidate_trace_id": "b5f34e13-7d8d-4185-a34b-58119764fa45",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 90,
+  "task_id": "70b043bb-7b20-4843-8752-64fd638fdfe9",
+  "candidate_trace_id": "26f552ea-1362-473e-9ee9-cb45270eb5a4",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 91,
+  "task_id": "7320d90a-4077-4eb6-a851-4347216a0cc5",
+  "candidate_trace_id": "bf6e7490-d5b0-450c-98e6-bae28aeeced6",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 92,
+  "task_id": "73fc3b17-8fc0-4cab-8383-64a1df3e8b9a",
+  "candidate_trace_id": "ff594604-fadb-4b96-be0b-5b75feabad15",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 93,
+  "task_id": "75148745-3349-4380-b277-b632905abd60",
+  "candidate_trace_id": "e6414666-7687-4c15-b497-6d036f0d1885",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 94,
+  "task_id": "75294d6e-75ce-4928-bc8b-843c8efaa184",
+  "candidate_trace_id": "f516c770-4fcc-4dea-ab77-4b620eb2d6ac",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 95,
+  "task_id": "75988d6c-c78f-4aea-ad52-ab779e45eb9a",
+  "candidate_trace_id": "f7655e0a-ac4c-4001-b33f-6caa7e2c28b9",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 96,
+  "task_id": "75b067d2-d8a0-4b6a-b8b3-7034feba71d6",
+  "candidate_trace_id": "ed9ebad2-3c9e-4b2e-9c16-ed3bf1fb500e",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 97,
+  "task_id": "76acbc9c-d853-4a2c-bb55-b7eaa499f0dd",
+  "candidate_trace_id": "c78ac01a-8f73-40cd-bbd9-956a42b02ddb",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 98,
+  "task_id": "7a17aa6f-e799-4e0b-9b92-961bb8834628",
+  "candidate_trace_id": "afd014be-b717-4620-9491-1f1185b5f497",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 99,
+  "task_id": "7af07549-4c57-48d1-b8e5-176d516415ef",
+  "candidate_trace_id": "d830cffe-dc02-40ba-a8cc-25e19d4a4e8a",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 100,
+  "task_id": "7bf551e8-94f2-4842-9ab6-d840a0b26715",
+  "candidate_trace_id": "c12e4032-e28b-46e3-b439-79e180b9bec2",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 0,
+  "raters": [
+   "alpha",
+   "beta",
+   "gamma"
+  ]
+ },
+ {
+  "cell_id": 101,
+  "task_id": "7dae2eec-494c-4153-929b-cc6f47116f95",
+  "candidate_trace_id": "64ba62e7-64bf-4ddc-86c7-5c5f26ef99a5",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 102,
+  "task_id": "81943f4a-099c-4539-a355-52bae9097f6a",
+  "candidate_trace_id": "9fa3fd0b-4e95-453b-b866-b0cbda6288be",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 103,
+  "task_id": "85347d5e-1a26-4a81-b418-627fe5cb1f38",
+  "candidate_trace_id": "8f4f4697-4db6-4431-95bc-61d2fd14c06f",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 104,
+  "task_id": "86211aff-9442-4110-aff8-6e6e0aaf526e",
+  "candidate_trace_id": "54ce4ea9-460a-499f-8831-8412faa47731",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 105,
+  "task_id": "871cf35e-3f7a-4169-a36c-54fabdc231e8",
+  "candidate_trace_id": "12b1c17d-2956-4363-b035-c3cc7b7ad1f8",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 106,
+  "task_id": "87cb2a49-70e0-4c95-865c-c57eed0c1dc4",
+  "candidate_trace_id": "8869a8b8-3634-4314-b387-9139c343a268",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 107,
+  "task_id": "88eead7d-e12d-4c95-b6b5-08193013d608",
+  "candidate_trace_id": "c6ba0873-f10e-4f9a-bd11-aa2061eb4253",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 108,
+  "task_id": "8993c101-9fc6-4c2c-a273-06b94faff0c6",
+  "candidate_trace_id": "99b995a0-9d80-4eb3-980c-5d9d24043ee4",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 109,
+  "task_id": "8b170687-ab2e-45ca-b150-15a24037d2f8",
+  "candidate_trace_id": "406c2970-2b8f-4db1-81c7-28b4698b9ed4",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 110,
+  "task_id": "8c2d33be-c343-45b1-bcea-1bc0c9936921",
+  "candidate_trace_id": "b81cc87d-2745-4a23-be4c-31291f315bf2",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 111,
+  "task_id": "8d0157c6-ca0f-446d-acdf-ac0381d20ffb",
+  "candidate_trace_id": "e28ebe87-3643-448b-ab6f-1ca0062ce6e3",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 112,
+  "task_id": "8f2e7ed9-74af-479e-b12d-481f10dd8364",
+  "candidate_trace_id": "c748c98a-72cd-4a1f-a86f-097bde5c0498",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 113,
+  "task_id": "90812883-90db-413e-a9db-4aec7f0d2300",
+  "candidate_trace_id": "5efb14ce-f15e-494a-8006-e411961c9f2b",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 114,
+  "task_id": "91bca086-8758-4195-ac5c-deef49f54922",
+  "candidate_trace_id": "838485d2-fbce-4b18-8157-08061fd9316f",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 115,
+  "task_id": "91c05166-e54b-4ba3-a664-20cdbc821f02",
+  "candidate_trace_id": "cbf40347-6612-43ff-8223-e7f82e193c7d",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 116,
+  "task_id": "91eeca73-da0c-436e-90c1-452b4df20886",
+  "candidate_trace_id": "364d7cde-2a65-4290-acc1-5d0ac6a5726b",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 117,
+  "task_id": "92fe18b3-ea1c-4db8-96bc-0cca57d868ed",
+  "candidate_trace_id": "3b4c4279-9d9e-474e-825f-2cd2a62c4f3f",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 118,
+  "task_id": "936c59ca-8f2e-474b-adcd-8221b586173d",
+  "candidate_trace_id": "c3d98481-1a23-49af-a38b-c3be72d134d8",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 119,
+  "task_id": "93d1b9db-a540-4fdd-9931-4dea19136da0",
+  "candidate_trace_id": "9fa1140c-57ce-49fa-b13a-3cdf6482b9c7",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 120,
+  "task_id": "958d2de3-85ef-43ac-a51d-f12905e39537",
+  "candidate_trace_id": "9ecc6612-9361-4ce2-8cfc-d62b04ebcfda",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 121,
+  "task_id": "959e7d10-dfe8-4363-a2b3-4a32e9a7cd2c",
+  "candidate_trace_id": "7ed4dbe7-1ead-44c4-b2c7-77ca6847e0de",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 122,
+  "task_id": "960dbcea-35a6-4fc8-9554-afcfab90fe97",
+  "candidate_trace_id": "76a4aa89-645c-47dd-a36d-e996c5ae7ed2",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 123,
+  "task_id": "968cf2a6-4931-40c4-a35e-0a0174038a50",
+  "candidate_trace_id": "37e69abf-300a-4130-9509-0c78a385a02d",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 124,
+  "task_id": "980a894a-8294-4b9a-8ab5-231295c5d77b",
+  "candidate_trace_id": "441592f2-30e7-44c3-8692-e011bc97c899",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 125,
+  "task_id": "984a0145-024e-4a9f-977d-3ce168151831",
+  "candidate_trace_id": "946e1957-de8b-4d02-bcd6-bac0606ab0e3",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 126,
+  "task_id": "9af0c668-6964-4678-9a13-15facc5a21ee",
+  "candidate_trace_id": "cf218eef-8803-497c-a72f-da8d2a68c897",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 127,
+  "task_id": "9b085f70-408c-4bc8-8604-e872f81abda3",
+  "candidate_trace_id": "c3c90bf9-8133-4b02-9fdf-2a904e7adf5f",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 128,
+  "task_id": "9bbcea07-18e1-4efb-8b02-65592e904c5d",
+  "candidate_trace_id": "051c1ef7-a05c-4d13-a7ae-a213dfe4f302",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 129,
+  "task_id": "a1472a18-7d1a-4f7e-bdb1-b51c68ef47df",
+  "candidate_trace_id": "d1223827-366f-4a5c-bd59-174d0fab276c",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 130,
+  "task_id": "a33b95a7-2032-4dff-846a-3b0a26af0ca2",
+  "candidate_trace_id": "abbc683d-3469-4d6d-8cf6-38cd1af82557",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 131,
+  "task_id": "a554e1fd-d27d-4068-aef3-feb124cb5a77",
+  "candidate_trace_id": "da57dd96-12f4-4705-880b-7ea164a303e6",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 132,
+  "task_id": "a6a38ad2-00f5-4d4d-bd1b-7c26d1ac8097",
+  "candidate_trace_id": "f602e40c-d049-4f8a-9294-6bffde57bba1",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 133,
+  "task_id": "a928af92-b46e-445b-9e7f-f9649ccbc355",
+  "candidate_trace_id": "4f6a578f-5201-4dc1-a040-f5d188b7927a",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 134,
+  "task_id": "a98c7116-2dff-4c0c-b5bb-7aa73b294014",
+  "candidate_trace_id": "80919374-3141-4b30-8cad-9b331819e8cd",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 135,
+  "task_id": "ab30f238-dffd-4026-8094-7f3f31912a1f",
+  "candidate_trace_id": "9c86eb9a-dcaf-4d20-a10a-12a7e8451656",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 136,
+  "task_id": "ab923c39-41a4-4b86-9571-8d4442251bde",
+  "candidate_trace_id": "86154efb-fbc7-4523-932c-84ffc1cab8fd",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 137,
+  "task_id": "ac18002c-b42e-47df-8fb2-b56a89b03e59",
+  "candidate_trace_id": "d6672354-2354-4511-9136-60213ebce64d",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 138,
+  "task_id": "ac90ec39-99e9-41a9-9d35-4b08af3b9b9f",
+  "candidate_trace_id": "e1672e7f-45d5-4da1-a541-f7733a251935",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 139,
+  "task_id": "addb480c-f7fe-4575-9412-5fb27e57848d",
+  "candidate_trace_id": "c4a1af8a-ed63-4c32-b6e6-8fade07c5db6",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 140,
+  "task_id": "ae05bc53-365e-4ad3-98ca-2852689fed14",
+  "candidate_trace_id": "c9aa5ca3-13bd-4a64-88c2-181969117027",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 141,
+  "task_id": "ae14d5d3-aa2a-4f6b-b711-89a622e6f274",
+  "candidate_trace_id": "2a7a52c1-2e2f-4bf7-aee5-b93a5376b848",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 142,
+  "task_id": "afb4dbd6-72f1-4471-9e78-fa76739a5088",
+  "candidate_trace_id": "090f4249-fd00-4b62-aca1-152b2c21bb9b",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 143,
+  "task_id": "afd2daf4-ebb7-4cb9-9738-82ceee016bf3",
+  "candidate_trace_id": "0212d300-1544-4b1f-8f3b-4ac52e1fcec7",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 144,
+  "task_id": "b051f18e-6927-41fe-b10b-b7df939f39b4",
+  "candidate_trace_id": "b7e2f2ae-94d4-428a-b1f6-2b7de0fb9cad",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 145,
+  "task_id": "b4f6c35d-979f-4492-9950-714d95ec9dbe",
+  "candidate_trace_id": "7b5e7c69-6b62-4b4b-a5b1-fe47b72767ac",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 146,
+  "task_id": "b6cb2933-5b8b-4b3c-8e15-8665ea114f5a",
+  "candidate_trace_id": "cb2a9c5d-8974-4c73-9b50-f8203f4743dc",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 147,
+  "task_id": "b85fca29-2e75-48f1-9726-e60f7191ab16",
+  "candidate_trace_id": "80fb7839-8d5e-434d-b6b3-02000b7b41f7",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 148,
+  "task_id": "b88d2da0-d704-4c8d-b4b3-cc4deffcaecf",
+  "candidate_trace_id": "2cf0d7dd-95ac-4f73-b773-693dca3b3d1f",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 149,
+  "task_id": "bad8a589-362e-468a-a7b7-6912f33e7984",
+  "candidate_trace_id": "30064465-9bff-4c7e-8a65-b397177838a3",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 150,
+  "task_id": "baee3c62-01d2-4fab-b3bd-2249a8963e81",
+  "candidate_trace_id": "4063ef9c-9727-4068-bd88-93ae83c4f5af",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 151,
+  "task_id": "baf16bfc-3623-405f-bc97-8a58861f86ba",
+  "candidate_trace_id": "625e9467-7fa5-47c1-9aa0-fc2560597b8e",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 152,
+  "task_id": "bb5adfbb-f8c1-43f9-9397-4529c81c95f1",
+  "candidate_trace_id": "e1fbd61b-4b2d-4d3a-9989-c030e35ba495",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 153,
+  "task_id": "bc7731c0-f7e8-4a18-b7d8-dcba3540e2b8",
+  "candidate_trace_id": "de09cd2d-464b-4224-b959-d17fa955cec0",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 154,
+  "task_id": "bdd8a2dc-003a-487a-8c64-3240d971cdfd",
+  "candidate_trace_id": "815c4b9c-8f1c-4f0e-8601-7c2e3dd56370",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 155,
+  "task_id": "c067673c-58a5-458a-9f10-9b17e683e5d6",
+  "candidate_trace_id": "50da28e3-7f22-42e2-b307-6a98a9b079ec",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 156,
+  "task_id": "c17cf978-7f98-495e-915e-7f0a4915d797",
+  "candidate_trace_id": "69679206-305e-46ea-8b6f-aedb66d8326e",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 157,
+  "task_id": "c3e40c05-a7ea-4dc2-a97c-77380c471276",
+  "candidate_trace_id": "392ae9ca-7d12-408c-8258-b42430ce6c05",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 158,
+  "task_id": "c6d01afa-9807-4a79-8b9f-3ff241276b57",
+  "candidate_trace_id": "931387f2-0532-4439-8d89-ce823132736a",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 159,
+  "task_id": "c7756019-389a-4cc0-a214-5b6158154d41",
+  "candidate_trace_id": "69a58254-4017-4b8f-9c47-efb87a5d2daf",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 160,
+  "task_id": "c7788644-3c59-4696-99fc-144bddb7abe9",
+  "candidate_trace_id": "02ac7c5b-ba2c-467f-9856-3e7d176635e5",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 161,
+  "task_id": "c966a608-a899-4815-bb06-cf0f6557367c",
+  "candidate_trace_id": "583af5f8-2234-4c5b-9360-3b18501dcf5f",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 162,
+  "task_id": "cad6dfb1-afce-4e21-99ee-11acd5817bd3",
+  "candidate_trace_id": "10eb74cc-ba14-4a98-81e5-e6359eedcd4c",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 163,
+  "task_id": "cb984dd0-69d5-4b7b-b890-74db46a142c5",
+  "candidate_trace_id": "c0e90f18-5e0b-45b4-8432-98dda19d452b",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 164,
+  "task_id": "d405a841-b01f-40be-b211-28358152ebd8",
+  "candidate_trace_id": "d40a7cbf-8f3d-4c19-b78d-763d64fac19d",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 165,
+  "task_id": "d521bdc8-61aa-41e5-9b8c-17fe690219ab",
+  "candidate_trace_id": "dab5a7a2-f1be-47db-9378-3af6515b0446",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 166,
+  "task_id": "d796f969-6061-409d-8237-bce67fdbfb91",
+  "candidate_trace_id": "022f2d53-b866-40be-94e7-2b0918ea6f8b",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 167,
+  "task_id": "daf85519-74ce-4dda-845a-2f5e02f27184",
+  "candidate_trace_id": "163c4ca0-cdb5-49a3-a091-43e9d5f207dc",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 168,
+  "task_id": "db2e39b8-1827-4a34-a58c-46e3a698933d",
+  "candidate_trace_id": "673c8914-23b5-4b41-bb7b-3ac5163921e6",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 169,
+  "task_id": "dfcb3c78-38ad-4e50-af2c-9421a2da1ea8",
+  "candidate_trace_id": "e672dcea-f9d5-4ac8-815d-67352b604a7f",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 170,
+  "task_id": "e0469ec9-8724-415e-82c3-3cf1ecc7aa20",
+  "candidate_trace_id": "fb3ca4ea-cc97-445d-98a4-298d5c33f10a",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 171,
+  "task_id": "e0dea4a2-d353-4cab-9da4-4e2e67df8b5b",
+  "candidate_trace_id": "5dd0f6af-bd12-4f0e-8b08-fae270606d10",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 172,
+  "task_id": "e213795a-7ea8-4f6f-9aff-ef6ee3a1e99f",
+  "candidate_trace_id": "4afd89e7-9046-4238-9e82-750137dcd66f",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 173,
+  "task_id": "e22b0308-4124-404c-9ad1-27005a9b7cfc",
+  "candidate_trace_id": "212d82c8-6727-403d-8b86-4a8782239582",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 174,
+  "task_id": "e25b3d6f-28e5-413b-a2c8-dab009fcb0ce",
+  "candidate_trace_id": "f206318f-a629-4f2b-95a6-9119dfd9eb4a",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 175,
+  "task_id": "e29f5834-c652-4c6d-96f9-681549dc0957",
+  "candidate_trace_id": "c1799f3b-bf9e-470b-9f7b-8b46e6007b99",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 176,
+  "task_id": "e3fbc629-22d4-45d8-b10a-1dc4d4c2c694",
+  "candidate_trace_id": "be6f48d8-7298-4f2b-883a-29cee3be967b",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 177,
+  "task_id": "e44d2ebd-5d54-415c-b891-278585860bab",
+  "candidate_trace_id": "35dd261b-46de-41de-b4ad-5fe3dccb5a33",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 178,
+  "task_id": "e5c00549-ef24-4ddd-9741-041ac3855c88",
+  "candidate_trace_id": "aa0ed88d-54fb-41a0-9b7f-6b41e8498b23",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 179,
+  "task_id": "e8f1264b-74e9-47f4-a31b-f787e6a1f5ba",
+  "candidate_trace_id": "f62fecd6-fae5-42fd-a5d9-4a78e356157b",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 180,
+  "task_id": "ea480caa-d68e-4ef7-8281-e5838e2dc366",
+  "candidate_trace_id": "3c380e0b-44da-41a6-b841-5a4b2d605726",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 181,
+  "task_id": "ea51d109-0c91-4d26-925c-178232772728",
+  "candidate_trace_id": "9b811fca-0094-4485-b036-85dec8ba4973",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 182,
+  "task_id": "ea5c0ff2-8250-44ac-8c10-443c8b4fd69b",
+  "candidate_trace_id": "9d4b610c-5d83-4a01-abad-1fb2233006fc",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 183,
+  "task_id": "ead81318-901a-4ec6-9424-e84382b9668f",
+  "candidate_trace_id": "9c32f200-43eb-4053-982e-af4bab7c95fb",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 184,
+  "task_id": "eb8d8605-a9aa-4137-a13e-dcc24854db19",
+  "candidate_trace_id": "28a722cf-f762-43dc-87b0-7ccc24265689",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 185,
+  "task_id": "ee6280e5-f9ce-4c45-8cfd-9ac576622b37",
+  "candidate_trace_id": "bd0d1ec5-3331-4f2a-abac-e8f5eed9f407",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 186,
+  "task_id": "efa93586-4be0-4627-b058-941b1520b88a",
+  "candidate_trace_id": "506726c1-cb13-4f96-8564-7e9e005b5c5c",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 187,
+  "task_id": "efabb862-6b0e-4baf-b4a7-f628d13e7d65",
+  "candidate_trace_id": "292a3ed7-ed34-40a5-b3a6-90d0f056bd4b",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 188,
+  "task_id": "f16f706f-4d74-4f0d-9c5c-0174b0be7ca6",
+  "candidate_trace_id": "b6a8fa98-4bdf-4f6e-8d88-5ebb47fd7079",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 189,
+  "task_id": "f20769a1-6f0d-471a-8af7-7ee387d5ac80",
+  "candidate_trace_id": "844a87ad-f62c-4786-bee6-ce0e7968b54b",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 190,
+  "task_id": "f2713e51-9cfb-4b46-89d5-649615edbc6f",
+  "candidate_trace_id": "91aa93ec-5abe-40a2-a45a-643bf4f59666",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 191,
+  "task_id": "f28f91a0-71e4-40c9-a18f-a526fe98d186",
+  "candidate_trace_id": "65bafe39-cdfe-4d36-996e-64de1bf66ed1",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 192,
+  "task_id": "f61a76f9-ac7d-4516-97dd-c003c11fc228",
+  "candidate_trace_id": "6112346d-6c8f-46b9-ae34-4685c0245631",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 193,
+  "task_id": "f77d1e7c-2d7c-48a7-8b00-55a99c7e95d5",
+  "candidate_trace_id": "83866ece-97ea-44dc-915e-772b778dabb9",
+  "candidate_model": "qwen/qwen3.7-max",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 194,
+  "task_id": "f8504244-6617-41a6-8887-65e122fe445e",
+  "candidate_trace_id": "c483ae47-82cb-4f8b-9e0f-144b4cfce89a",
+  "candidate_model": "z-ai/glm-5.1",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 195,
+  "task_id": "f9c15321-8764-44f6-aeb7-6f9ccca3878a",
+  "candidate_trace_id": "847fc6cb-5a73-42ea-8ac9-1140bec0248b",
+  "candidate_model": "deepseek/deepseek-v4-pro",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 196,
+  "task_id": "fa03f54c-30e0-4c1c-8bce-81b4718d8435",
+  "candidate_trace_id": "b50d9cef-264b-4abc-85b4-74faff926d74",
+  "candidate_model": "minimax/minimax-m3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 197,
+  "task_id": "fa9e8cea-5fa7-46c6-9e13-52956fcd26d2",
+  "candidate_trace_id": "876ebe1d-01da-4163-8838-f393f26159a6",
+  "candidate_model": "anthropic/claude-haiku-4.5",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 198,
+  "task_id": "fb141551-ec17-4341-8f7b-922aec98e928",
+  "candidate_trace_id": "abd30f76-93b9-4833-8826-f8fa13008894",
+  "candidate_model": "moonshotai/kimi-k2.6",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 199,
+  "task_id": "fb1f6979-94c9-41e5-b459-e4c708e9843e",
+  "candidate_trace_id": "acac0128-c435-4227-a7d1-e722800522e5",
+  "candidate_model": "x-ai/grok-4.3",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ },
+ {
+  "cell_id": 200,
+  "task_id": "fde84e4a-cba4-4363-b2f1-27a988ef35fd",
+  "candidate_trace_id": "143e40c1-06db-4ba8-8b34-78b1dfbfde26",
+  "candidate_model": "openai/gpt-5.4-mini",
+  "block": 1,
+  "raters": [
+   "delta",
+   "epsilon",
+   "zeta"
+  ]
+ }
+]
