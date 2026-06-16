@@ -38,6 +38,10 @@ CURVE_MODELS = {
     "glm-5.1": "z-ai/glm-5.1",
     "deepseek-v4-pro": "deepseek/deepseek-v4-pro",
     "qwen3.7-max": "qwen/qwen3.7-max",
+    # added to match colleague's expanded leaderboard set (curve coverage only;
+    # the G3.2 ablation H1 stays pre-registered on glm-5.1 + deepseek-v4-pro)
+    "gemma-4-31b-it": "google/gemma-4-31b-it",
+    "qwen3.6-35b-a3b": "qwen/qwen3.6-35b-a3b",
 }
 P_ALTS = ["0.0", "0.25", "0.5", "0.75", "1.0"]
 ABLATE_MODELS = {
@@ -66,9 +70,25 @@ def _units() -> list[tuple[Path, list[str]]]:
             units.append(
                 (
                     out,
-                    [DMCP, "curve", SPECS, "--model", model, "--manifest", MAN,
-                     "--reference-traces", REF, "--p-alts", p, "--pool-size", "8",
-                     "--budget", "12", "--output", str(out)],
+                    [
+                        DMCP,
+                        "curve",
+                        SPECS,
+                        "--model",
+                        model,
+                        "--manifest",
+                        MAN,
+                        "--reference-traces",
+                        REF,
+                        "--p-alts",
+                        p,
+                        "--pool-size",
+                        "8",
+                        "--budget",
+                        "12",
+                        "--output",
+                        str(out),
+                    ],
                 )
             )
     for slug, model in ABLATE_MODELS.items():
@@ -76,9 +96,23 @@ def _units() -> list[tuple[Path, list[str]]]:
         units.append(
             (
                 out,
-                [DMCP, "ablate", SPECS, "--model", model, "--manifest", MAN,
-                 "--reference-traces", REF, "--pool-size", "8", "--budget", "12",
-                 "--output", str(out)],
+                [
+                    DMCP,
+                    "ablate",
+                    SPECS,
+                    "--model",
+                    model,
+                    "--manifest",
+                    MAN,
+                    "--reference-traces",
+                    REF,
+                    "--pool-size",
+                    "8",
+                    "--budget",
+                    "12",
+                    "--output",
+                    str(out),
+                ],
             )
         )
     return units
@@ -98,7 +132,9 @@ def main() -> None:
             key = free_keys.pop()
             env = {**os.environ, "OPENROUTER_API_KEY": key}
             log = out.with_suffix(".log")
-            proc = subprocess.Popen(cmd, env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT)
+            # the log file must stay open for the subprocess's lifetime, so a
+            # `with` context manager (SIM115) would close it too early.
+            proc = subprocess.Popen(cmd, env=env, stdout=open(log, "w"), stderr=subprocess.STDOUT)  # noqa: SIM115
             running.append((proc, out, key))
             print(f"  ▶ {out.name}")
         time.sleep(5)
@@ -109,8 +145,10 @@ def main() -> None:
                 running.remove((proc, out, key))
                 free_keys.append(key)
     remaining = [o for o, _ in _units() if not (o.exists() and o.stat().st_size > 0)]
-    print(f"DONE. {len(_units()) - len(remaining)}/{len(_units())} units have output"
-          + (f"; MISSING: {[o.name for o in remaining]}" if remaining else " (all complete)"))
+    print(
+        f"DONE. {len(_units()) - len(remaining)}/{len(_units())} units have output"
+        + (f"; MISSING: {[o.name for o in remaining]}" if remaining else " (all complete)")
+    )
 
 
 if __name__ == "__main__":

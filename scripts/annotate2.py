@@ -6,7 +6,8 @@ Goal: confirm the auto-generated tasks are GOOD. Three one-tap questions per car
 No tool-pool dump, no checkpoint rubric, no category quiz — just read the prompt and the
 answer. Category is recorded from generation, so validity is reported per category for free.
 
-Annotator:  huggingface-cli login
+Annotator:  pip install rich huggingface_hub   # rich = the colour/arrow TUI (optional)
+            huggingface-cli login
             python3 scripts/annotate2.py fetch  --rater gamma
             python3 scripts/annotate2.py run    --rater gamma
             python3 scripts/annotate2.py submit --rater gamma
@@ -23,6 +24,15 @@ import os
 import random
 import shutil
 import sys
+
+try:  # rich is optional — visuals degrade to plain text if it's not installed
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.text import Text
+
+    _console: Console | None = Console()
+except Exception:  # pragma: no cover - cosmetic fallback
+    _console = None
 
 REPO = "TokenWasteGroup/DynamicMCPBench"
 ASSIGN_DIR = "human_eval/assignments"
@@ -253,34 +263,205 @@ def cmd_build(a):
 # --------------------------------------------------------------------------- run (TUI)
 
 
-def _ask(prompt, mapping, help=None):
-    d = help or mapping
-    lines = "\n".join(f"     [{k}] {d.get(k, mapping[k])}" for k in mapping)
+_ESC = "\x1b"
+
+
+def _supports_arrows():
+    """Arrow UI only when rich is present and we own a real terminal both ways."""
+    if _console is None or not sys.stdin.isatty() or not sys.stdout.isatty():
+        return False
+    try:
+        import termios  # noqa: F401
+        import tty  # noqa: F401
+
+        return True
+    except Exception:
+        return False
+
+
+def _getch():
+    """One keypress -> 'up' / 'down' / 'enter' / lowercased char (raw mode)."""
+    import termios
+    import tty
+
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = sys.stdin.read(1)
+        if ch == _ESC:
+            seq = sys.stdin.read(2)
+            return {"[A": "up", "[B": "down", "[C": "right", "[D": "left"}.get(seq, "esc")
+        if ch in ("\r", "\n"):
+            return "enter"
+        if ch == "\x03":
+            raise KeyboardInterrupt
+        return ch.lower()
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+def _menu_typed(prompt, rows, hotkeys):
+    """Fallback identical to the original typed flow (Enter=back, x=skip, q=quit)."""
+    lines = "\n".join(f"     [{hk}] {label}" for (_v, hk, label) in rows if hk)
     while True:
         x = input(f"  {prompt}\n{lines}\n     (Enter=back, x=skip, q=save&quit)\n   > ").strip().lower()
-        if x in ("", "x", "q"):
-            return {"": "back", "x": "skip", "q": "quit"}[x]
-        if x in mapping:
-            return mapping[x]
+        if x == "":
+            return "back"
+        if x in hotkeys:
+            return hotkeys[x]
         print("   ? not a valid key")
+
+
+def _menu(prompt, rows, hotkeys):
+    """Arrow-key single-select. rows: list of (value, hotkey|None, label).
+
+    Returns the chosen value. ↑/↓ (or j/k) move, Enter confirms; the original
+    letter keys still work as instant accelerators. Falls back to the typed
+    prompt when arrows aren't available — same return values either way.
+    """
+    if not _supports_arrows():
+        return _menu_typed(prompt, rows, hotkeys)
+    _console.print(f"  [bold]{prompt}[/]")
+    n = len(rows)
+    sel = 0
+
+    def draw(first):
+        out = []
+        if not first:
+            out.append(f"{_ESC}[{n}A")  # cursor up to repaint in place
+        for i, (_v, hk, label) in enumerate(rows):
+            out.append(f"\r{_ESC}[2K")  # carriage return + clear line
+            tag = f"[{hk}] " if hk else ""
+            if i == sel:
+                out.append(f"  {_ESC}[1;30;46m ❯ {tag}{label} {_ESC}[0m")
+            else:
+                out.append(f"  {_ESC}[2m   {tag}{label}{_ESC}[0m")
+            out.append("\n")
+        sys.stdout.write("".join(out))
+        sys.stdout.flush()
+
+    draw(True)
+    while True:
+        k = _getch()
+        if k in ("up", "k"):
+            sel = (sel - 1) % n
+        elif k in ("down", "j"):
+            sel = (sel + 1) % n
+        elif k == "enter":
+            return rows[sel][0]
+        elif k in hotkeys:
+            return hotkeys[k]
+        else:
+            continue
+        draw(False)
+
+
+def _ask(prompt, mapping, help=None):
+    """Same contract as before: returns a mapping value, or 'back'/'skip'/'quit'."""
+    d = help or mapping
+    rows = [(mapping[k], k, d.get(k, mapping[k])) for k in mapping]
+    rows += [
+        ("back", None, "← back to previous card"),
+        ("skip", "x", "skip this card"),
+        ("quit", "q", "save & quit"),
+    ]
+    hotkeys = {k: mapping[k] for k in mapping}
+    hotkeys["x"] = "skip"
+    hotkeys["q"] = "quit"
+    return _menu(prompt, rows, hotkeys)
+
+
+def _card_header(pos, total, left):
+    if _console:
+        _console.print()
+        _console.rule(f"[bold]CARD [cyan]{pos}[/]/[cyan]{total}[/]  [dim]({left} left)[/]")
+    else:
+        print("=" * 78)
+        print(f"CARD {pos}/{total}")
+
+
+def _panel(body, title, border):
+    """rich Panel from a literal Text body (no markup parsing -> injection-safe)."""
+    _console.print(Panel(body, title=title, border_style=border, padding=(0, 1)))
+
+
+def _section_prompt(prompt):
+    if _console:
+        _panel(Text(prompt, style="bold white"), "[bold yellow]USER ASKS[/]", "yellow")
+    else:
+        print(f"\nUSER ASKS:\n  {prompt}")
+
+
+def _section_tools(tools):
+    if _console:
+        t = Text()
+        for x in tools or ["(none recorded)"]:
+            t.append(f"• {x}\n", style="cyan")
+        _panel(t, "[bold]TOOLS[/] [dim](first sentence of each description)[/]", "bright_black")
+    else:
+        print("\nTOOLS (first sentence of each tool's description):")
+        for t in tools or ["  (none recorded)"]:
+            print(f"   {t}")
+        print("-" * 78)
+
+
+def _section_reference(calls, answer):
+    if _console:
+        t = Text()
+        t.append("the explorer called:\n", style="dim")
+        for c in calls or ["(no tool calls)"]:
+            t.append(f"   {c}\n", style="green")
+        t.append("\nit answered:\n", style="dim")
+        t.append(f"  {answer or '(no answer recorded)'}", style="white")
+        _panel(t, "[bold green]REFERENCE ANSWER[/] [dim](explorer's solution)[/]", "green")
+    else:
+        print("\nREFERENCE ANSWER (the explorer agent's solution).")
+        print("  the explorer called:")
+        for c in calls or ["   (no tool calls)"]:
+            print(f"     {c}")
+        print(f"  it answered:\n  {answer or '(no answer recorded)'}")
+
+
+def _section_model(n, calls, answer, is_pass):
+    verdict = "PASS" if is_pass else "FAIL"
+    if _console:
+        t = Text()
+        t.append("the model called:\n", style="dim")
+        for c in calls or ["(none — made no tool calls)"]:
+            t.append(f"   {c}\n", style="magenta")
+        t.append("\nMODEL ANSWER:\n", style="dim")
+        t.append(f"  {answer or '(empty)'}\n", style="white")
+        t.append("\nAUTO-GRADER said: ", style="dim")
+        t.append(verdict, style="bold green" if is_pass else "bold red")
+        _panel(t, f"[bold]A MODEL ATTEMPTED IT[/] [dim]({n} tool calls)[/]", "blue")
+    else:
+        print(f"\n  --- a model then attempted it ({n} tool calls) ---")
+        print("  the model called:")
+        for c in calls or ["   (none — made no tool calls)"]:
+            print(f"     {c}")
+        print(f"  MODEL ANSWER:\n  {answer or '(empty)'}")
+        print(f"  AUTO-GRADER said: {verdict}")
 
 
 def cmd_run(a):
     path = a.file or f"annotate_{a.rater}.jsonl"
     items = [json.loads(ln) for ln in _jsonl(path)]
     todo = [i for i, it in enumerate(items) if not it.get("ann")]
-    print(f"\n{path}: {len(items)} cards, {len(items) - len(todo)} done, {len(todo)} left.\n")
+    summary = f"{path}: {len(items)} cards, {len(items) - len(todo)} done, {len(todo)} left."
+    if _console:
+        _console.print()
+        _console.print(f"[bold]{summary}[/]  [dim]↑/↓ move · Enter select · letters jump[/]")
+        _console.print()
+    else:
+        print(f"\n{summary}\n")
     pos = 0
     while pos < len(todo):
         idx = todo[pos]
         it = items[idx]
-        print("=" * 78)
-        print(f"CARD {pos + 1}/{len(todo)}")
-        print(f"\nUSER ASKS:\n  {it['prompt']}")
-        print("\nTOOLS (first sentence of each tool's description):")
-        for t in it.get("tools_desc", []) or ["  (none recorded)"]:
-            print(f"   {t}")
-        print("-" * 78)
+        _card_header(pos + 1, len(todo), len(todo) - pos - 1)
+        _section_prompt(it["prompt"])
+        _section_tools(it.get("tools_desc", []))
         ann = {}
         q1 = _ask("Q1. Is this a valid, realistic task?", Q1, help=Q1_HELP)
         if q1 in ("back", "skip", "quit"):
@@ -289,11 +470,7 @@ def cmd_run(a):
                 return
             continue
         ann["valid"] = q1
-        print("\nREFERENCE ANSWER (the explorer agent's solution).")
-        print("  the explorer called:")
-        for c in it.get("gold_calls", []) or ["   (no tool calls)"]:
-            print(f"     {c}")
-        print(f"  it answered:\n  {it.get('gold_answer', '') or '(no answer recorded)'}")
+        _section_reference(it.get("gold_calls", []), it.get("gold_answer", ""))
         q2 = _ask("Q2. Does this REFERENCE answer correctly solve the task?", Q2, help=Q2_HELP)
         if q2 in ("back", "skip", "quit"):
             pos = _nav(q2, pos, path, items)
@@ -302,13 +479,12 @@ def cmd_run(a):
             continue
         ann["ref_ok"] = q2
         # Phase B: reveal the model attempt + the auto-grader verdict
-        verdict = "PASS" if it["_auto_pass"] else "FAIL"
-        print(f"\n  --- a model then attempted it ({it['model_calls_n']} tool calls) ---")
-        print("  the model called:")
-        for c in it.get("model_calls", []) or ["   (none — made no tool calls)"]:
-            print(f"     {c}")
-        print(f"  MODEL ANSWER:\n  {it.get('model_answer', '') or '(empty)'}")
-        print(f"  AUTO-GRADER said: {verdict}")
+        _section_model(
+            it["model_calls_n"],
+            it.get("model_calls", []),
+            it.get("model_answer", ""),
+            bool(it["_auto_pass"]),
+        )
         q3 = _ask("Q3. Do you agree with the auto-grader?", Q3, help=Q3_HELP)
         if q3 in ("back", "skip", "quit"):
             pos = _nav(q3, pos, path, items)
