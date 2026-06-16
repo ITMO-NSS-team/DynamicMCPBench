@@ -81,6 +81,13 @@ Q5_HELP = {
     "p": "partial — right approach / some correct results, but incomplete or partly wrong",
     "f": "fail — did nothing useful: wrong tools, errored, empty, or only restated the task",
 }
+Q5_FAIL_REASON = {
+    "w": "wrong-tools — called the wrong tools / wrong approach",
+    "e": "errored — tools errored or arguments were malformed",
+    "m": "empty — no usable final answer produced",
+    "r": "no-attempt — only restated the task / made no useful calls",
+    "o": "other (type a reason)",
+}
 Q6 = {"y": "fair", "l": "too-loose", "t": "too-strict", "w": "wrong-checkpoints"}
 Q6_HELP = {
     "y": "fair — the verdict matches reality",
@@ -359,6 +366,11 @@ def cmd_run(a):
             print("   *** scorer FALSE POSITIVE (auto=PASS, you=fail) ***")
         if ann["fn"]:
             print("   *** scorer FALSE NEGATIVE (auto=FAIL, you=success) ***")
+        if q5 == "fail":
+            fr = _ask("   why did it fail?", Q5_FAIL_REASON, allow_nav=False)
+            ann["fail_reason"] = fr
+            if fr == "other (type a reason)":
+                ann["fail_reason_text"] = input("   describe in your own words: ").strip()
         q6 = _ask("Q6. Is the auto-scorer's verdict fair for this run?", Q6, help=Q6_HELP)
         if q6 in ("back", "skip", "quit"):
             pos = _nav(q6, pos, path, items)
@@ -472,11 +484,14 @@ def cmd_report(a):
 
     cstat = collections.defaultdict(collections.Counter)
     conf = collections.Counter()
+    fail_tax = collections.Counter()
     fp = fn = ap = af = lenient = 0
     diff_pairs = []
     for r in rows:
         an = r["ann"]
         c = r["category_claimed"]
+        if an.get("model_success") == "fail" and an.get("fail_reason"):
+            fail_tax[an["fail_reason"].split(" ")[0]] += 1
         cstat[c]["n"] += 1
         cstat[c]["valid"] += an["valid"] in ("valid", "valid-but-ambiguous")
         cstat[c]["catok"] += an["category"] == "yes"
@@ -554,6 +569,11 @@ def cmd_report(a):
         out.append("\n## Category confusion (claimed -> human-corrected)\n")
         for (cl, real), k in conf.most_common(25):
             out.append(f"- {cl} -> {real}: {k}")
+    if fail_tax:
+        total_f = sum(fail_tax.values())
+        out.append("\n## Failure taxonomy (why the top model failed)\n")
+        for reason, k in fail_tax.most_common():
+            out.append(f"- {reason}: {k} ({100 * k / total_f:.0f}%)")
     if diff_pairs:
         byd = collections.defaultdict(list)
         for d, p in diff_pairs:
