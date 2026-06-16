@@ -1,4 +1,4 @@
-# DynamicMCPBench — Human Validation (≈90 min)
+# DynamicMCPBench — Human Validation (≈2 hours)
 
 We check that the auto-generated tasks are good. **3 one-tap questions per card.** Anonymous
 raters: **alpha, beta, gamma, delta, epsilon, zeta** (the lead tells you which you are).
@@ -16,9 +16,9 @@ python3 scripts/annotate2.py fetch  --rater <you>
 python3 scripts/annotate2.py run    --rater <you>
 python3 scripts/annotate2.py submit --rater <you>
 ```
-~175 cards, ~90 minutes. Progress saves after every card.
+~165 cards (every one of the 750 tasks gets validated), ~2 hours. Progress saves after every card.
 
-## Each card shows the prompt and the reference answer. You answer:
+## Each card shows the full request, the tools it uses (with descriptions), and the reference answer. You answer:
 - **Q1. Is this a valid, realistic task?**  `y` yes · `n` no (nonsensical / impossible)
 - **Q2. Does the REFERENCE answer correctly solve it?**  `y` yes · `p` partial · `n` no
 - *(then a model's attempt + the auto-grader's PASS/FAIL appear)*
@@ -34,7 +34,7 @@ overthink — go with your first read.
 ```
 python3 scripts/annotate2.py build --evals eval_qwen3.6-35b.jsonl --cand cand_qwen3.6-35b.jsonl \
    --specs data/hf_root/specs_50x15.jsonl --traces data/hf_root/traces_50x15.jsonl \
-   --raters alpha,beta,gamma,delta,epsilon,zeta --kappa 60 --push
+   --raters alpha,beta,gamma,delta,epsilon,zeta --kappa 45 --push   # all 750 tasks + 45 shared kappa
 python3 scripts/annotate2.py report --pull --out reports/human_validation.md \
    --json docs/experiments/human_validation.json
 ```

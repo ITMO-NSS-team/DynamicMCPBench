@@ -83,14 +83,37 @@ def _write_json(path, obj, indent=None):
 # --------------------------------------------------------------------------- build
 
 
-def _tools(tr, step_kind):
+def _desc_map(*traces):
+    """tool 'server.name' -> description, unioned across the given traces' tool_specs."""
+    m = {}
+    for tr in traces:
+        if tr is None:
+            continue
+        for server_id, specs in (tr.tool_specs or {}).items():
+            for sp in specs or []:
+                nm = getattr(sp, "name", None) or (sp.get("name") if isinstance(sp, dict) else None)
+                if not nm:
+                    continue
+                desc = (
+                    getattr(sp, "description", "")
+                    or (sp.get("description") if isinstance(sp, dict) else "")
+                    or ""
+                )
+                m[f"{server_id.split('__')[-1]}.{nm}"] = desc
+    return m
+
+
+def _tools_used(tr, step_kind, desc_map):
+    """Tools actually CALLED in this trace (deduped), each with its description."""
     seen, out = set(), []
     for s in tr.steps:
         if s.kind is step_kind.call_tool_agent and s.tool_name:
-            name = f"{s.server_id.split('__')[-1]}.{s.tool_name}"
-            if name not in seen:
-                seen.add(name)
-                out.append(name)
+            short = f"{s.server_id.split('__')[-1]}.{s.tool_name}"
+            if short in seen:
+                continue
+            seen.add(short)
+            d = (desc_map.get(short, "") or "").replace("\n", " ").strip()[:140]
+            out.append(f"{short} — {d}" if d else short)
     return out
 
 
@@ -142,14 +165,16 @@ def cmd_build(a):
         ct = cand.get(ev.get("candidate_trace_id", ""))
         gt = golds.get(str(s.source_trace_id))
         calls_n = ev["summary"]["agent_call_count"]
+        dm = _desc_map(gt, ct)
         items.append(
             {
                 "task_id": tid,
                 "category_claimed": cat.get(tid, "?"),
-                "prompt": s.prompt,
-                "gold_tools": _tools(gt, StepKind) if gt else [],
-                "gold_answer": _final(gt)[:600],
-                "model_answer": _final(ct)[:500],
+                "prompt": s.prompt,  # full
+                "gold_tools": _tools_used(gt, StepKind, dm) if gt else [],
+                "gold_answer": _final(gt)[:3000],
+                "model_tools": _tools_used(ct, StepKind, dm) if ct else [],
+                "model_answer": _final(ct)[:2500],
                 "model_calls_n": calls_n,
                 "_auto_pass": bool(ev["passed"]) and calls_n > 0,  # FP-guarded shown verdict
                 "ann": None,
@@ -173,6 +198,8 @@ def cmd_build(a):
     for it in rest:
         it["is_kappa"] = False
     rng.shuffle(rest)
+    if a.per_rater:  # cap unique cards per rater to fit a time budget (kappa added on top)
+        rest = rest[: a.per_rater * len(raters)]
     uniq = {r: [] for r in raters}
     for i, it in enumerate(rest):
         uniq[raters[i % len(raters)]].append(it)
@@ -227,10 +254,12 @@ def cmd_run(a):
         it = items[idx]
         print("=" * 78)
         print(f"CARD {pos + 1}/{len(todo)}")
-        print(f"\nUSER ASKS:\n  {it['prompt'][:600]}")
-        tools = ", ".join(it.get("gold_tools", [])[:10]) or "(none)"
-        print(f"\nREFERENCE ANSWER  (tools used: {tools})")
-        print(f"  {it.get('gold_answer', '')[:600] or '(no answer recorded)'}")
+        print(f"\nUSER ASKS:\n  {it['prompt']}")
+        print("\nTOOLS THE TASK IS BASED ON (the reference solution used these):")
+        for t in it.get("gold_tools", []) or ["  (none recorded)"]:
+            print(f"   {t}")
+        print("\nREFERENCE ANSWER:")
+        print(f"  {it.get('gold_answer', '') or '(no answer recorded)'}")
         print("-" * 78)
         ann = {}
         q1 = _ask("Q1. Is this a valid, realistic task?", Q1, help=Q1_HELP)
@@ -250,7 +279,10 @@ def cmd_run(a):
         # Phase B: reveal the model attempt + the auto-grader verdict
         verdict = "PASS" if it["_auto_pass"] else "FAIL"
         print(f"\n  --- a model then attempted it ({it['model_calls_n']} tool calls) ---")
-        print(f"  MODEL ANSWER:\n  {it.get('model_answer', '')[:500] or '(empty)'}")
+        print("  TOOLS THE MODEL USED:")
+        for t in it.get("model_tools", []) or ["   (none — made no tool calls)"]:
+            print(f"   {t}")
+        print(f"  MODEL ANSWER:\n  {it.get('model_answer', '') or '(empty)'}")
         print(f"  AUTO-GRADER said: {verdict}")
         q3 = _ask("Q3. Do you agree with the auto-grader?", Q3, help=Q3_HELP)
         if q3 in ("back", "skip", "quit"):
@@ -478,6 +510,13 @@ def main():
         b.add_argument("--" + o, required=True)
     b.add_argument("--raters", required=True)
     b.add_argument("--kappa", type=int, default=60)
+    b.add_argument(
+        "--per-rater",
+        dest="per_rater",
+        type=int,
+        default=0,
+        help="cap unique cards per rater (0 = cover all tasks); kappa set is added on top",
+    )
     b.add_argument("--seed", type=int, default=7)
     b.add_argument("--out", default="annotation_set")
     b.add_argument("--push", action="store_true")
