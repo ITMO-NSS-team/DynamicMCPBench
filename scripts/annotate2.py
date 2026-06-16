@@ -49,18 +49,52 @@ CATS = [
 
 # Phase A (blind)
 Q1 = {"v": "valid", "a": "valid-but-ambiguous", "u": "unsolvable", "b": "broken"}
+Q1_HELP = {
+    "v": "valid — a capable agent could solve it with these tools; prompt is clear",
+    "a": "valid-but-ambiguous — solvable, but the prompt is loose / has >1 reading",
+    "u": "unsolvable — the given tools genuinely cannot accomplish it",
+    "b": "broken — nonsensical, self-contradictory, or malformed task",
+}
 Q1_REASON = {
     "c": "contradictory",
     "t": "required-tool-missing",
     "p": "prompt-unclear",
     "d": "needs-external-data",
-    "o": "other",
+    "o": "other (type a reason)",
 }
 Q2 = {"y": "yes", "b": "borderline", "n": "no"}
+Q2_HELP = {
+    "y": "yes — the claimed category fits",
+    "b": "borderline — sort of, but weak",
+    "n": "no — wrong; you'll pick the real category",
+}
 Q3 = {"y": "yes", "p": "partial", "n": "no"}
+Q3_HELP = {
+    "y": "yes — the gold trace fully solves the task",
+    "p": "partial — gold does most of it but misses something",
+    "n": "no — the gold trace does NOT solve the task",
+}
 # Phase B (reveal)
 Q5 = {"s": "success", "p": "partial", "f": "fail"}
+Q5_HELP = {
+    "s": "success — did everything asked, correct result",
+    "p": "partial — right approach / some correct results, but incomplete or partly wrong",
+    "f": "fail — did nothing useful: wrong tools, errored, empty, or only restated the task",
+}
+Q5_FAIL_REASON = {
+    "w": "wrong-tools — called the wrong tools / wrong approach",
+    "e": "errored — tools errored or arguments were malformed",
+    "m": "empty — no usable final answer produced",
+    "r": "no-attempt — only restated the task / made no useful calls",
+    "o": "other (type a reason)",
+}
 Q6 = {"y": "fair", "l": "too-loose", "t": "too-strict", "w": "wrong-checkpoints"}
+Q6_HELP = {
+    "y": "fair — the verdict matches reality",
+    "l": "too-loose — it PASSED something that wasn't really done (FP risk)",
+    "t": "too-strict — it FAILED something that was actually done (FN risk)",
+    "w": "wrong-checkpoints — the rubric checks the wrong thing entirely",
+}
 
 
 def _jsonl(path):
@@ -227,11 +261,12 @@ def cmd_build(a):
 # --------------------------------------------------------------------------- run (TUI)
 
 
-def _ask(prompt, mapping, allow_nav=True):
-    keys = " ".join(f"[{k}]{v}" for k, v in mapping.items())
-    nav = "  (Enter=back, x=skip, q=save&quit)" if allow_nav else ""
+def _ask(prompt, mapping, allow_nav=True, help=None):
+    d = help or mapping
+    lines = "\n".join(f"     [{k}] {d.get(k, mapping[k])}" for k in mapping)
+    nav = "     (Enter=back, x=skip, q=save&quit)\n" if allow_nav else ""
     while True:
-        x = input(f"  {prompt}\n   {keys}{nav}\n   > ").strip().lower()
+        x = input(f"  {prompt}\n{lines}\n{nav}   > ").strip().lower()
         if allow_nav and x in ("", "x", "q"):
             return {"": "back", "x": "skip", "q": "quit"}[x]
         if x in mapping:
@@ -271,7 +306,7 @@ def cmd_run(a):
             print(f"   [{cp['kind']}] {cp['req']}")
         print("-" * 80 + "\n  --- PHASE A: judge the QUESTION (the model is hidden) ---")
         ann = {}
-        q1 = _ask("Q1. Is the task valid & solvable with the tools?", Q1)
+        q1 = _ask("Q1. Is the task valid & solvable with the tools?", Q1, help=Q1_HELP)
         if q1 in ("back", "skip", "quit"):
             pos = _nav(q1, pos, path, items)
             if q1 == "quit":
@@ -279,8 +314,11 @@ def cmd_run(a):
             continue
         ann["valid"] = q1
         if q1 in ("unsolvable", "broken"):
-            ann["valid_reason"] = _ask("   why?", Q1_REASON, allow_nav=False)
-        q2 = _ask("Q2. Is the claimed category correct?", Q2)
+            rsn = _ask("   why?", Q1_REASON, allow_nav=False)
+            ann["valid_reason"] = rsn
+            if rsn == "other (type a reason)":
+                ann["valid_reason_text"] = input("   describe in your own words: ").strip()
+        q2 = _ask("Q2. Is the claimed category correct?", Q2, help=Q2_HELP)
         if q2 in ("back", "skip", "quit"):
             pos = _nav(q2, pos, path, items)
             if q2 == "quit":
@@ -297,7 +335,7 @@ def cmd_run(a):
                     break
                 print("   ?")
         ann["category"] = q2
-        q3 = _ask("Q3. Does the GOLD trace actually solve the task?", Q3)
+        q3 = _ask("Q3. Does the GOLD trace actually solve the task?", Q3, help=Q3_HELP)
         if q3 in ("back", "skip", "quit"):
             pos = _nav(q3, pos, path, items)
             if q3 == "quit":
@@ -314,21 +352,26 @@ def cmd_run(a):
             print(f"     ... (+{len(it['model_calls']) - 12} more)")
         print(f"  MODEL FINAL: {it['model_final'][:300]!r}")
         print(f"  >>> AUTO-SCORER VERDICT: {'PASS' if it['_auto_pass'] else 'FAIL'}")
-        q5 = _ask("Q5. Did the model actually accomplish the user's intent?", Q5)
+        q5 = _ask("Q5. Did the model actually do what the user asked?", Q5, help=Q5_HELP)
         if q5 in ("back", "skip", "quit"):
             pos = _nav(q5, pos, path, items)
             if q5 == "quit":
                 return
             continue
         ann["model_success"] = q5
-        human_pass = q5 == "success"
-        ann["fp"] = bool(it["_auto_pass"] and not human_pass)
-        ann["fn"] = bool((not it["_auto_pass"]) and human_pass)
+        ann["fp"] = bool(it["_auto_pass"] and q5 == "fail")  # scored PASS but did nothing useful
+        ann["lenient"] = bool(it["_auto_pass"] and q5 == "partial")  # scored PASS but only partial
+        ann["fn"] = bool((not it["_auto_pass"]) and q5 == "success")
         if ann["fp"]:
-            print("   *** scorer FALSE POSITIVE (auto=PASS, you=not-success) ***")
+            print("   *** scorer FALSE POSITIVE (auto=PASS, you=fail) ***")
         if ann["fn"]:
             print("   *** scorer FALSE NEGATIVE (auto=FAIL, you=success) ***")
-        q6 = _ask("Q6. Is the auto-scorer's verdict fair for this run?", Q6)
+        if q5 == "fail":
+            fr = _ask("   why did it fail?", Q5_FAIL_REASON, allow_nav=False)
+            ann["fail_reason"] = fr
+            if fr == "other (type a reason)":
+                ann["fail_reason_text"] = input("   describe in your own words: ").strip()
+        q6 = _ask("Q6. Is the auto-scorer's verdict fair for this run?", Q6, help=Q6_HELP)
         if q6 in ("back", "skip", "quit"):
             pos = _nav(q6, pos, path, items)
             if q6 == "quit":
@@ -441,11 +484,14 @@ def cmd_report(a):
 
     cstat = collections.defaultdict(collections.Counter)
     conf = collections.Counter()
-    fp = fn = ap = af = 0
+    fail_tax = collections.Counter()
+    fp = fn = ap = af = lenient = 0
     diff_pairs = []
     for r in rows:
         an = r["ann"]
         c = r["category_claimed"]
+        if an.get("model_success") == "fail" and an.get("fail_reason"):
+            fail_tax[an["fail_reason"].split(" ")[0]] += 1
         cstat[c]["n"] += 1
         cstat[c]["valid"] += an["valid"] in ("valid", "valid-but-ambiguous")
         cstat[c]["catok"] += an["category"] == "yes"
@@ -455,6 +501,7 @@ def cmd_report(a):
         if r["_auto_pass"]:
             ap += 1
             fp += an.get("fp", False)
+            lenient += an.get("lenient", False)
         else:
             af += 1
             fn += an.get("fn", False)
@@ -462,11 +509,14 @@ def cmd_report(a):
             diff_pairs.append((an["difficulty"], 1 if passk_key[r["task_id"]] else 0))
 
     fn_line = f" | false-negative: {fn}/{af} ({100 * fn / af:.1f}%)" if af else ""
+    len_line = f"\n- scorer lenient (auto-PASS but human-partial): {lenient}/{ap}" if ap else ""
     out = [
         "# Human validation — generated-question quality + scorer audit\n",
         "Pre-registered: per-category validity & category-correctness; gate Fleiss kappa >= 0.7.\n",
         f"- annotated items: **{len(rows)}** | distinct tasks: **{len({r['task_id'] for r in rows})}**",
-        f"- scorer **false-positive rate: {fp}/{ap} ({100 * fp / ap:.1f}%)**" + fn_line,
+        f"- scorer **false-positive rate (auto-PASS but human-fail): {fp}/{ap} ({100 * fp / ap:.1f}%)**"
+        + fn_line
+        + len_line,
         "\n## Per-category quality\n",
         "| category | n | %valid | %category-correct | %gold-correct |",
         "|---|---|---|---|---|",
@@ -519,6 +569,11 @@ def cmd_report(a):
         out.append("\n## Category confusion (claimed -> human-corrected)\n")
         for (cl, real), k in conf.most_common(25):
             out.append(f"- {cl} -> {real}: {k}")
+    if fail_tax:
+        total_f = sum(fail_tax.values())
+        out.append("\n## Failure taxonomy (why the top model failed)\n")
+        for reason, k in fail_tax.most_common():
+            out.append(f"- {reason}: {k} ({100 * k / total_f:.0f}%)")
     if diff_pairs:
         byd = collections.defaultdict(list)
         for d, p in diff_pairs:
