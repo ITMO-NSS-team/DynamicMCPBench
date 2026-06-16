@@ -1,0 +1,52 @@
+\section{DynamicMCPBench Benchmark}
+\label{sec:benchmark}
+
+% TODO(benchmark-intro): one sentence --- we build the benchmark by observing
+%   successful agent trajectories on live MCP servers and distilling each into
+%   path-agnostic effect checkpoints, never string-matching a final answer.
+
+\subsection{Design Principles}
+\label{sec:benchmark:principles}
+% TODO: the hard invariants stated as principles ---
+%   (i)   the execution trace is the primitive;
+%   (ii)  never grade the final answer (effect-based scoring only);
+%   (iii) forward generation (explore -> distill), not backward graph-sampling;
+%   (iv)  deterministic, machine-independent replay;
+%   (v)   stateful_write servers are sandboxed by construction.
+
+\subsection{Substrate}
+\label{sec:benchmark:substrate}
+% TODO(run-ins): Server manifest. Dynamism classes (static / live_read /
+%   stateful_write). Sandboxing. Mining funnel (registry -> installable -> vetted).
+\input{tables/substrate}
+
+\subsection{Forward Generation and Distillation}
+\label{sec:benchmark:gen}
+% TODO(run-ins): Goal generation (goal_gen + deterministic persona seeding).
+%   Exploration (the explorer agent loop on the live substrate). Distillation
+%   (trace -> TaskSpec). TaskSpec anatomy: fuzzy prompt; tool_effect /
+%   value_produced checkpoints; equivalence sets; minefields; partial order;
+%   ComplexityProfile + dynamism class.
+\input{figures/trace_distill_example}
+
+\subsection{Tasks and Difficulty}
+\label{sec:benchmark:tasks}
+% TODO(run-ins): Generation strategies (6 base relationship samplers + 7 corner
+%   cases + 2 cross-server specials). Difficulty bins (simple 1--2 / medium 3--4 /
+%   hard 5+ long-similar-chain). Problem formulation: pass/fail over checkpoints,
+%   the pass^k reliability definition, and the server-attribution-error (SAE) rate.
+
+\subsection{Evaluation}
+\label{sec:benchmark:eval}
+% TODO(run-ins): Tier-1 deterministic effect scoring. Tier-2 LLM effect-
+%   equivalence judge (temperature 0, tool-call schema). Replay determinism
+%   (TraceReplayRecorder). What we never grade (the final answer). Models and
+%   protocol (>=5 candidate models under replay, repeated k times). Eval
+%   controls: pool modes (gold / target / full), the six sampler strategies,
+%   description normalization (Level A surface vs Level B semantic), the P_alt driver.
+
+\subsection{Living Bench: Refresh and Decay}
+\label{sec:benchmark:refresh}
+% TODO: dmcp refresh re-executes each spec's reference trace later against the
+%   live substrate and classifies every call identical / drifted / broken /
+%   skipped; stateful_write servers skipped by default.

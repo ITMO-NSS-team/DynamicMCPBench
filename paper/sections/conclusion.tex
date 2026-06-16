@@ -1,15 +1,9 @@
 \section{Conclusion}
 \label{sec:conclusion}
-
-We propose a benchmark generation and evaluation shape that \emph{does
-not grade the answer} and \emph{does not require a tool-list ground
-truth}. The trace is the primitive; effect checkpoints are the
-contract. Empirically, the alternative shapes both produce rankings
-that disagree sharply with the trace-grounded one (RQ1,
-\S\ref{sec:rq1}; RQ2, \S\ref{sec:rq2}). Trace-property regression
-isolates \emph{task dynamism} as the dominant failure driver (RQ3,
-\S\ref{sec:rq3}). The remaining piece~--- scorer-vs-human
-calibration~--- is gated behind a pre-registered annotation pass (RQ4,
-\S\ref{sec:rq4}). Code, manifests, and released datasets ship as the
-\texttt{dmcp} package (current repository) and a HuggingFace dataset
-(pending the leaderboard run).
+% TODO: restate the pivot --- the trace is the primitive, effect checkpoints are
+%   the contract, and we never grade the answer. Summarize RQ1--RQ4. Fold the
+%   former Discussion points: why trace-grounding works ("every tool in a trace
+%   was actually invoked, so 'unnecessary tool' is impossible by construction");
+%   what task dynamism explains and what it does not; where the answer string is
+%   still useful (stored and reported, never scored). Point to the release ---
+%   the dmcp package + the HuggingFace dataset.

@@ -10,7 +10,7 @@ regenerator (`paper/regenerate.py`); section prose is hand-edited.
 | path | role |
 |---|---|
 | `main.tex` | top-level paper; loads `acl.sty` in `[review]` mode and `\input`s every section |
-| `sections/<name>.tex` | one file per paper section (abstract, introduction, related_work, method, substrate, experiments, discussion, conclusion, limitations) |
+| `sections/<name>.tex` | one file per paper section, in reading order (abstract, introduction, related_work, benchmark, results, conclusion, limitations, reproducibility) |
 | `figures/<slug>.tex` | LaTeX `figure` block per `fig:<slug>` row in `figures.md` — regenerated, do not hand-edit |
 | `tables/<slug>.tex` | LaTeX `table` block per `tab:<slug>` row in `figures.md` — regenerated, do not hand-edit |
 | `figures.md` | the figure/table **index and contract** (status, gating step, data source); the regenerator reads this file |

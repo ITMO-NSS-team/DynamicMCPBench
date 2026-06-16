@@ -1,42 +1,7 @@
 \section*{Limitations}
 \label{sec:limitations}
-
-This section is mandatory for the EMNLP 2026 Industry Track and does
-not count toward the 6-page main-text limit.
-
-\paragraph{Substrate scale.} The numbers in
-\S\ref{sec:rq1}--\S\ref{sec:rq3} are on the 16-server v3 substrate.
-The paper-target scale ($\geq 100$ servers) is in progress; we re-derive
-every \S\ref{sec:experiments} number on the larger substrate before
-final submission. Until then RQ3's collinearity
-(\texttt{state\_coupling} $\equiv$ \texttt{dynamism\_stateful} in v3)
-limits per-feature decomposition.
-
-\paragraph{Human consensus is pending.} RQ4 ships the harness and the
-pre-registered protocol, not the $\kappa$ / $\alpha$ numbers. Until
-annotators complete the pass, \S\ref{sec:rq4} carries the placeholder
-verdict.
-
-\paragraph{LLM-judge non-determinism.} Tier-2 is the only
-non-deterministic scoring path; we mitigate by pinning model and
-temperature and reporting Tier-1 numbers alongside Tier-2. The
-Tier-1 / Tier-2 split is reproducible via the same eval JSONL.
-
-\paragraph{Distiller bias.} The distiller is an LLM; we pin it to a
-tool-call schema at temperature $0$, but it can still under- or
-over-emit checkpoints in edge cases. The mitigation is the
-trace-vs-spec reviewable record (\texttt{TaskSpec.notes}) plus the
-manual review that graduated v3 to a released dataset.
-
-\paragraph{Substrate coverage.} The local manifest leans heavily on
-English-language public-API servers; cross-lingual and proprietary
-sources are not represented. Generalising the dynamism stratification
-to those settings is straightforward in principle but unmeasured here.
-
-\paragraph{Operational risk of live exploration.} The forward generator
-calls live MCP servers during distillation. We mandate
-\texttt{sandbox=true} for \texttt{stateful\_write} servers, but this
-guards against in-substrate corruption, not against rate-limits or
-upstream service-of-record terms. Industry adopters must validate
-exploration policies against their compliance envelope before running
-the generator at scale.
+% Mandatory for the EMNLP 2026 Industry Track; placed before References and does
+% NOT count toward the 6-page main-text limit. Do not delete.
+% TODO(run-in leads): Substrate scale. Human consensus pending (RQ4).
+%   LLM-judge non-determinism (Tier-2). Distiller bias. Substrate coverage
+%   (English / public-API skew). Operational risk of live exploration.

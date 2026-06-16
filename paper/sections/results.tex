@@ -1,0 +1,67 @@
+\section{Results and Analysis}
+\label{sec:results}
+
+% Style: each finding is a run-in bold lead stating the takeaway. The
+% paper never re-derives numbers in prose --- it cites the experiment id and lets
+% the regenerated figure/table carry the value. Pre-registered decision rules
+% live in docs/experiments/<id>-*.md.
+
+\subsection{Main Results}
+\label{sec:results:main}
+
+\paragraph{Final-answer scoring inverts the leaderboard (RQ1).}
+% TODO: cite e4.4. Kendall's tau between the trace-align and answer-match model
+%   rankings; false-pass vs false-fail rates. The figure carries the numbers.
+\input{figures/rq1_kendall}
+
+\paragraph{Only forward distillation yields path-agnostic equivalence sets (RQ2).}
+% TODO: cite e4.3. Forward vs graph-sampling vs direct generate-then-verify;
+%   mean |eq_set|. Both baselines are singletons by construction.
+\input{tables/rq2_comparison}
+
+\paragraph{Capability profile across candidate models.}
+% TODO: >=5 models under replay; pass-rate / SAE-rate / pass^k by stratum.
+\input{tables/capability_profile}
+\input{figures/perf_by_dynamism_depth}
+
+\subsection{Benchmark Ablations}
+\label{sec:results:ablations}
+
+\paragraph{Task dynamism is the dominant failure driver (RQ3).}
+% TODO: cite e4.5. Ridge logistic regression of pass/fail on the
+%   ComplexityProfile + dynamism features; dynamism_live coefficient + drop-loglik.
+\input{tables/rq3_failure_drivers}
+
+\paragraph{Difficulty scales with trace depth.}
+% TODO: monotone pass-rate degradation across difficulty bins (E4.10).
+\input{figures/difficulty_curve}
+
+\paragraph{Generation strategy controls hardness and attribution error.}
+% TODO: per-strategy pass / SAE / pass^k (E4.9); the gen-strategy x eval-condition
+%   SAE heatmap locating the worst combinations.
+\input{tables/gen_strategy_ablation}
+\input{figures/gen_eval_sae_heatmap}
+
+\paragraph{Alternative-tool density degrades accuracy ($P_{\text{alt}}$).}
+% TODO: P_alt grid {0,.25,.5,.75,1}; accuracy and SAE vs P_alt with Wilson CIs,
+%   faceted by complexity bin.
+\input{figures/p_alt_degradation}
+
+\paragraph{Distractor sampling-strategy ablation.}
+% TODO: random / hard_neg / cross_domain / same_name / sibling / stratified ---
+%   accuracy + SAE per cell with paired tests (E2.8).
+\input{tables/ablation}
+
+\paragraph{Specs decay over time (living bench).}
+% TODO: per-server drift / broken / identical rates as the substrate ages.
+\input{figures/decay_curve}
+
+\subsection{Scorer Validation}
+\label{sec:results:validation}
+
+\paragraph{Human raters agree with the trace-align scorer (RQ4).}
+% TODO: cite e4.6. Cohen's kappa (Tier-1 / Tier-2) vs the majority-vote
+%   consensus; Krippendorff's alpha over the grid; replay flip rate. Report raw
+%   % agreement + Gwet's AC1 alongside kappa (the high-prevalence paradox bites
+%   the validity axis).
+\input{tables/rq4_agreement}
