@@ -103,21 +103,36 @@ def _desc_map(*traces):
     return m
 
 
-def _tools_used(tr, step_kind, desc_map):
-    """Tools actually CALLED in this trace (deduped), each with its description."""
-    seen, out = set(), []
+def _calls(tr, step_kind):
+    """The actual tool calls made in this trace: 'server.tool({args})' (full args)."""
+    out = []
     for s in tr.steps:
         if s.kind is step_kind.call_tool_agent and s.tool_name:
-            short = f"{s.server_id.split('__')[-1]}.{s.tool_name}"
-            if short in seen:
-                continue
-            seen.add(short)
-            raw = " ".join((desc_map.get(short, "") or "").split())  # collapse whitespace
-            cut = raw.find(". ")
-            d = raw[: cut + 1] if cut != -1 else raw  # first sentence only
-            if len(d) > 200:
-                d = d[:200].rsplit(" ", 1)[0] + "…"
-            out.append(f"{short} — {d}" if d else short)
+            args = json.dumps(s.arguments, ensure_ascii=False)
+            out.append(f"{s.server_id.split('__')[-1]}.{s.tool_name}({args})")
+    return out
+
+
+def _first_sentence(raw):
+    raw = " ".join((raw or "").split())
+    cut = raw.find(". ")
+    d = raw[: cut + 1] if cut != -1 else raw
+    return (d[:200].rsplit(" ", 1)[0] + "…") if len(d) > 200 else d
+
+
+def _tool_desc_list(call_lists, desc_map):
+    """Unique tools across the call lists, each with a one-line (first-sentence) description."""
+    names, seen = [], set()
+    for calls in call_lists:
+        for c in calls:
+            nm = c.split("(", 1)[0]
+            if nm not in seen:
+                seen.add(nm)
+                names.append(nm)
+    out = []
+    for nm in names:
+        d = _first_sentence(desc_map.get(nm, ""))
+        out.append(f"{nm} — {d}" if d else nm)
     return out
 
 
@@ -170,14 +185,17 @@ def cmd_build(a):
         gt = golds.get(str(s.source_trace_id))
         calls_n = ev["summary"]["agent_call_count"]
         dm = _desc_map(gt, ct)
+        gc = _calls(gt, StepKind) if gt else []
+        mc = _calls(ct, StepKind) if ct else []
         items.append(
             {
                 "task_id": tid,
                 "category_claimed": cat.get(tid, "?"),
                 "prompt": s.prompt,  # full
-                "gold_tools": _tools_used(gt, StepKind, dm) if gt else [],
+                "tools_desc": _tool_desc_list([gc, mc], dm),
+                "gold_calls": gc,
                 "gold_answer": _final(gt),
-                "model_tools": _tools_used(ct, StepKind, dm) if ct else [],
+                "model_calls": mc,
                 "model_answer": _final(ct),
                 "model_calls_n": calls_n,
                 "_auto_pass": bool(ev["passed"]) and calls_n > 0,  # FP-guarded shown verdict
@@ -259,8 +277,8 @@ def cmd_run(a):
         print("=" * 78)
         print(f"CARD {pos + 1}/{len(todo)}")
         print(f"\nUSER ASKS:\n  {it['prompt']}")
-        print("\nTOOLS AVAILABLE (what the task is built on) — first sentence of each tool's description:")
-        for t in it.get("gold_tools", []) or ["  (none recorded)"]:
+        print("\nTOOLS (first sentence of each tool's description):")
+        for t in it.get("tools_desc", []) or ["  (none recorded)"]:
             print(f"   {t}")
         print("-" * 78)
         ann = {}
@@ -271,8 +289,11 @@ def cmd_run(a):
                 return
             continue
         ann["valid"] = q1
-        print("\nREFERENCE ANSWER (how it was solved):")
-        print(f"  {it.get('gold_answer', '') or '(no answer recorded)'}")
+        print("\nREFERENCE ANSWER (the explorer agent's solution).")
+        print("  the explorer called:")
+        for c in it.get("gold_calls", []) or ["   (no tool calls)"]:
+            print(f"     {c}")
+        print(f"  it answered:\n  {it.get('gold_answer', '') or '(no answer recorded)'}")
         q2 = _ask("Q2. Does this REFERENCE answer correctly solve the task?", Q2, help=Q2_HELP)
         if q2 in ("back", "skip", "quit"):
             pos = _nav(q2, pos, path, items)
@@ -283,9 +304,9 @@ def cmd_run(a):
         # Phase B: reveal the model attempt + the auto-grader verdict
         verdict = "PASS" if it["_auto_pass"] else "FAIL"
         print(f"\n  --- a model then attempted it ({it['model_calls_n']} tool calls) ---")
-        print("  TOOLS THE MODEL USED:")
-        for t in it.get("model_tools", []) or ["   (none — made no tool calls)"]:
-            print(f"   {t}")
+        print("  the model called:")
+        for c in it.get("model_calls", []) or ["   (none — made no tool calls)"]:
+            print(f"     {c}")
         print(f"  MODEL ANSWER:\n  {it.get('model_answer', '') or '(empty)'}")
         print(f"  AUTO-GRADER said: {verdict}")
         q3 = _ask("Q3. Do you agree with the auto-grader?", Q3, help=Q3_HELP)
