@@ -128,6 +128,7 @@ def _final(tr):
 def cmd_build(a):
     sys.path.insert(0, "scripts")
     import release_hf
+
     from dmcp.spec import TaskSpec
     from dmcp.trace import StepKind, Trace
 
