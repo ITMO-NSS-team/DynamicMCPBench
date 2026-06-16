@@ -112,7 +112,7 @@ def _tools_used(tr, step_kind, desc_map):
             if short in seen:
                 continue
             seen.add(short)
-            d = (desc_map.get(short, "") or "").replace("\n", " ").strip()[:140]
+            d = (desc_map.get(short, "") or "").replace("\n", " ").strip()
             out.append(f"{short} — {d}" if d else short)
     return out
 
@@ -172,9 +172,9 @@ def cmd_build(a):
                 "category_claimed": cat.get(tid, "?"),
                 "prompt": s.prompt,  # full
                 "gold_tools": _tools_used(gt, StepKind, dm) if gt else [],
-                "gold_answer": _final(gt)[:3000],
+                "gold_answer": _final(gt),
                 "model_tools": _tools_used(ct, StepKind, dm) if ct else [],
-                "model_answer": _final(ct)[:2500],
+                "model_answer": _final(ct),
                 "model_calls_n": calls_n,
                 "_auto_pass": bool(ev["passed"]) and calls_n > 0,  # FP-guarded shown verdict
                 "ann": None,
