@@ -112,7 +112,11 @@ def _tools_used(tr, step_kind, desc_map):
             if short in seen:
                 continue
             seen.add(short)
-            d = (desc_map.get(short, "") or "").replace("\n", " ").strip()
+            raw = " ".join((desc_map.get(short, "") or "").split())  # collapse whitespace
+            cut = raw.find(". ")
+            d = raw[: cut + 1] if cut != -1 else raw  # first sentence only
+            if len(d) > 200:
+                d = d[:200].rsplit(" ", 1)[0] + "…"
             out.append(f"{short} — {d}" if d else short)
     return out
 
@@ -255,11 +259,9 @@ def cmd_run(a):
         print("=" * 78)
         print(f"CARD {pos + 1}/{len(todo)}")
         print(f"\nUSER ASKS:\n  {it['prompt']}")
-        print("\nTOOLS THE TASK IS BASED ON (the reference solution used these):")
+        print("\nTOOLS AVAILABLE (what the task is built on):")
         for t in it.get("gold_tools", []) or ["  (none recorded)"]:
             print(f"   {t}")
-        print("\nREFERENCE ANSWER:")
-        print(f"  {it.get('gold_answer', '') or '(no answer recorded)'}")
         print("-" * 78)
         ann = {}
         q1 = _ask("Q1. Is this a valid, realistic task?", Q1, help=Q1_HELP)
@@ -269,7 +271,9 @@ def cmd_run(a):
                 return
             continue
         ann["valid"] = q1
-        q2 = _ask("Q2. Does the REFERENCE answer correctly solve it?", Q2, help=Q2_HELP)
+        print("\nREFERENCE ANSWER (how it was solved):")
+        print(f"  {it.get('gold_answer', '') or '(no answer recorded)'}")
+        q2 = _ask("Q2. Does this REFERENCE answer correctly solve the task?", Q2, help=Q2_HELP)
         if q2 in ("back", "skip", "quit"):
             pos = _nav(q2, pos, path, items)
             if q2 == "quit":
