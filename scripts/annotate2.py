@@ -128,7 +128,6 @@ def _final(tr):
 def cmd_build(a):
     sys.path.insert(0, "scripts")
     import release_hf
-
     from dmcp.spec import TaskSpec
     from dmcp.trace import StepKind, Trace
 
@@ -259,7 +258,7 @@ def cmd_run(a):
         print("=" * 78)
         print(f"CARD {pos + 1}/{len(todo)}")
         print(f"\nUSER ASKS:\n  {it['prompt']}")
-        print("\nTOOLS AVAILABLE (what the task is built on):")
+        print("\nTOOLS AVAILABLE (what the task is built on) — first sentence of each tool's description:")
         for t in it.get("gold_tools", []) or ["  (none recorded)"]:
             print(f"   {t}")
         print("-" * 78)
