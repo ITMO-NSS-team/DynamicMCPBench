@@ -139,6 +139,28 @@ def _calls(tr, step_kind):
     ]
 
 
+def _pool(tr):
+    """Offered tool surface the agent chose from: tool_specs is dict[server_id -> [ToolSpec]]."""
+    out = []
+    specs_by_server = tr.tool_specs or {}
+    if not isinstance(specs_by_server, dict):
+        return out
+    for server_id, specs in specs_by_server.items():
+        short = server_id.split("__")[-1]
+        for sp in specs or []:
+            nm = getattr(sp, "name", None) or (sp.get("name") if isinstance(sp, dict) else None)
+            desc = (
+                getattr(sp, "description", None)
+                or (sp.get("description") if isinstance(sp, dict) else "")
+                or ""
+            )
+            if not nm:
+                continue
+            first = desc.replace("\n", " ").strip()[:90]
+            out.append(f"{short}.{nm}" + (f" — {first}" if first else ""))
+    return out
+
+
 def cmd_build(a):
     sys.path.insert(0, "scripts")
     import release_hf
@@ -193,6 +215,7 @@ def cmd_build(a):
                 "task_id": tid,
                 "category_claimed": cat.get(tid, "?"),
                 "prompt": s.prompt,
+                "tool_pool": _pool(ct) if ct else [],
                 "gold_calls": _calls(gt, StepKind) if gt else [],
                 "model_calls": _calls(ct, StepKind) if ct else [],
                 "model_final": final,
@@ -298,6 +321,10 @@ def cmd_run(a):
         print("=" * 80)
         print(f"[{pos + 1}/{len(todo)}]{kp}  claimed category: {it['category_claimed']}")
         print(f"\nUSER PROMPT:\n  {it['prompt'][:500]}")
+        pool = it.get("tool_pool", [])
+        print(f"\nAVAILABLE TOOLS — the pool the agent chose from ({len(pool)}):")
+        for tp in pool[:24]:
+            print(f"   {tp}")
         print("\nGOLD solution (reference):")
         for c in it["gold_calls"][:10]:
             print(f"   {c}")
