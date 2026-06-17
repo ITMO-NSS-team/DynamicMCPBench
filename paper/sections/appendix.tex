@@ -6,45 +6,45 @@ Table~\ref{tab:leaderboard} reports pass\textasciicircum{}3 with 95\% confidence
 intervals for all 24 models on the 750-task slice, the values summarized by
 the heatmap in \S\ref{sec:results:main}.
 
-\begin{table}[h]
+\begin{table*}[t]
   \centering
   \small
   \begin{tabular}{llr}
     \toprule
     Model & Group & pass\textasciicircum{}3 (\%, 95\% CI) \\
     \midrule
-    qwen3.7-max & API & 51.2 \, [47.6, 54.8] \\
-    glm-5.1 & API & 50.3 \, [46.7, 53.8] \\
-    deepseek-v4-pro & API & 46.4 \, [42.9, 50.0] \\
-    minimax-m3 & API & 42.4 \, [38.9, 46.0] \\
-    claude-haiku-4.5 & API & 41.1 \, [37.6, 44.6] \\
-    kimi-k2.6 & API & 40.7 \, [37.2, 44.2] \\
-    grok-4.3 & API & 31.6 \, [28.4, 35.0] \\
-    gpt-5.4-mini & API & 25.7 \, [22.7, 29.0] \\
+    qwen3.7-max~\cite{qwen37} & API & 51.2 \, [47.6, 54.8] \\
+    glm-5.1~\cite{glm5team2026glm5vibecodingagentic} & API & 50.3 \, [46.7, 53.8] \\
+    deepseek-v4-pro~\cite{deepseekai2026deepseekv4} & API & 46.4 \, [42.9, 50.0] \\
+    minimax-m3~\cite{lai2026minimaxsparseattention} & API & 42.4 \, [38.9, 46.0] \\
+    claude-haiku-4.5~\cite{ClaudeHaiku4.5} & API & 41.1 \, [37.6, 44.6] \\
+    kimi-k2.6~\cite{kimiteam2026kimik2openagentic} & API & 40.7 \, [37.2, 44.2] \\
+    grok-4.3~\cite{grok43_xai} & API & 31.6 \, [28.4, 35.0] \\
+    gpt-5.4-mini~\cite{singh2026openaigpt5card} & API & 25.7 \, [22.7, 29.0] \\
     \midrule
-    qwen3.6-35b & local & 48.5 \, [45.0, 52.1] \\
-    gemma4-31b & local & 42.5 \, [39.0, 46.1] \\
-    qwen3.5-4b & local & 27.3 \, [24.3, 30.6] \\
-    granite-3b & local & 22.5 \, [19.7, 25.7] \\
-    gemma4-e4b & local & 22.1 \, [19.3, 25.2] \\
-    qwen3-8b & local & 22.1 \, [19.3, 25.2] \\
-    nemotron-nano-4b & local & 21.9 \, [19.1, 25.0] \\
-    qwen2.5-7b & local & 21.1 \, [18.3, 24.1] \\
-    gemma4-e2b & local & 20.1 \, [17.4, 23.2] \\
-    xlam2-8b & local & 19.5 \, [16.8, 22.4] \\
-    toolace2-8b & local & 17.5 \, [14.9, 20.3] \\
-    qwen2.5-3b & local & 16.9 \, [14.4, 19.8] \\
-    hermes3-8b & local & 13.2 \, [11.0, 15.8] \\
-    ministral3-3b & local & 12.4 \, [10.2, 14.9] \\
-    hammer2.1-7b & local & 9.7 \, [7.8, 12.1] \\
-    smollm3-3b & local & 7.2 \, [5.6, 9.3] \\
+    qwen3.6-35b~\cite{qwen36_35b_a3b} & local & 48.5 \, [45.0, 52.1] \\
+    gemma4-31b~\cite{gemma4google} & local & 42.5 \, [39.0, 46.1] \\
+    qwen3.5-4b~\cite{qwen3.5} & local & 27.3 \, [24.3, 30.6] \\
+    granite-3b~\cite{stallone2024scalinggranitecodemodels} & local & 22.5 \, [19.7, 25.7] \\
+    gemma4-e4b~\cite{gemma4google} & local & 22.1 \, [19.3, 25.2] \\
+    qwen3-8b~\cite{qwen3technicalreport} & local & 22.1 \, [19.3, 25.2] \\
+    nemotron-nano-4b~\cite{parmar2024nemotron415btechnicalreport} & local & 21.9 \, [19.1, 25.0] \\
+    qwen2.5-7b~\cite{qwen2025qwen25technicalreport} & local & 21.1 \, [18.3, 24.1] \\
+    gemma4-e2b~\cite{gemma4google} & local & 20.1 \, [17.4, 23.2] \\
+    xlam2-8b~\cite{zhang2024xlamfamilylargeaction} & local & 19.5 \, [16.8, 22.4] \\
+    toolace2-8b~\cite{liu2025toolacewinningpointsllm} & local & 17.5 \, [14.9, 20.3] \\
+    qwen2.5-3b~\cite{qwen2025qwen25technicalreport} & local & 16.9 \, [14.4, 19.8] \\
+    hermes3-8b~\cite{teknium2024hermes3technicalreport} & local & 13.2 \, [11.0, 15.8] \\
+    ministral3-3b~\cite{liu2026ministral3} & local & 12.4 \, [10.2, 14.9] \\
+    hammer2.1-7b~\cite{lin2024hammerrobustfunctioncallingondevice} & local & 9.7 \, [7.8, 12.1] \\
+    smollm3-3b~\cite{bakouch2025smollm3} & local & 7.2 \, [5.6, 9.3] \\
     \bottomrule
   \end{tabular}
   \caption{Full leaderboard: pass\textasciicircum{}3 and 95\% confidence
     intervals over the 750-task slice, for the 8 API-served and 16
     locally-served models.}
   \label{tab:leaderboard}
-\end{table}
+\end{table*}
 
 \section{Task Categories}
 \label{app:categories}
