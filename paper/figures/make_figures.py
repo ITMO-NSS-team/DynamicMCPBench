@@ -32,7 +32,43 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 DATA = os.environ.get("DMCP_DATA", "/tmp/hf2")
 OUT = os.path.dirname(os.path.abspath(__file__))
-plt.rcParams.update({"font.size": 11, "axes.titlesize": 15, "axes.titleweight": "bold"})
+
+# ---- house style: clean, cohesive, colour-blind-friendly (Okabe-Ito) ----
+INK = "#1a1a1a"
+PALETTE = {"blue": "#0072B2", "vermillion": "#D55E00", "green": "#009E73", "orange": "#E69F00"}
+HEATMAP_CMAP = "viridis"
+plt.rcParams.update(
+    {
+        "figure.dpi": 150,
+        "savefig.dpi": 200,
+        "savefig.bbox": "tight",
+        "font.size": 11,
+        "font.family": "sans-serif",
+        "font.sans-serif": ["DejaVu Sans", "Arial", "Helvetica"],
+        "axes.titlesize": 14,
+        "axes.titleweight": "bold",
+        "axes.titlepad": 10,
+        "axes.labelsize": 11,
+        "axes.labelcolor": INK,
+        "axes.edgecolor": "#9aa0a6",
+        "axes.linewidth": 0.8,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.axisbelow": True,
+        "axes.grid": True,
+        "axes.grid.axis": "y",
+        "grid.color": "#e8e8e8",
+        "grid.linewidth": 0.9,
+        "xtick.color": INK,
+        "ytick.color": INK,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "text.color": INK,
+        "legend.frameon": False,
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
+    }
+)
 
 
 # ---- load the two leaderboards (pass^3 per model x category cell) ----
@@ -107,55 +143,101 @@ length_pct = [100 * a / n for a, n in binagg]
 
 # ============================ FIG: heatmap ============================
 M = [[cells[f"{m}|{s}"] for s in cats] for m in models]
+vmax = max(max(r) for r in M)
 fig, ax = plt.subplots(figsize=(12, 9))
-im = ax.imshow(M, aspect="auto", cmap="RdYlGn", vmin=0, vmax=max(max(r) for r in M))
+im = ax.imshow(M, aspect="auto", cmap=HEATMAP_CMAP, vmin=0, vmax=vmax)
 ax.set_xticks(range(len(cats)))
-ax.set_xticklabels([catlabel[s] for s in cats], rotation=45, ha="right", fontsize=9)
+ax.set_xticklabels([catlabel[s] for s in cats], rotation=40, ha="right", fontsize=9)
 ax.set_yticks(range(len(models)))
 ax.set_yticklabels(models, fontsize=9)
+# crisp white separators between cells; drop the inherited y-grid and the frame
+ax.set_xticks([j - 0.5 for j in range(len(cats) + 1)], minor=True)
+ax.set_yticks([i - 0.5 for i in range(len(models) + 1)], minor=True)
+ax.grid(which="major", visible=False)
+ax.grid(which="minor", color="white", linewidth=0.8)
+ax.tick_params(which="minor", length=0)
+ax.tick_params(which="major", length=0)
+for sp in ax.spines.values():
+    sp.set_visible(False)
 for i in range(len(models)):
     for j in range(len(cats)):
-        ax.text(j, i, f"{round(100 * M[i][j])}", ha="center", va="center", fontsize=6)
+        v = M[i][j]
+        ax.text(
+            j,
+            i,
+            f"{round(100 * v)}",
+            ha="center",
+            va="center",
+            fontsize=6.5,
+            color="white" if v < 0.55 * vmax else INK,
+        )
+# divider between the API and local model groups
+ax.axhline(len(api) - 0.5, color=INK, linewidth=1.3)
 ax.set_xlabel("task category")
 ax.set_ylabel("model")
-ax.set_title("pass^3 accuracy by model and task category (%)")
+ax.set_title("pass$^3$ accuracy by model and task category (%)")
 cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02)
-cb.set_label("pass^3")
+cb.set_label("pass$^3$")
+cb.outline.set_visible(False)
 fig.tight_layout()
-fig.savefig(f"{OUT}/fig_heatmap.png", dpi=150, bbox_inches="tight")
+fig.savefig(f"{OUT}/fig_heatmap.png")
 plt.close(fig)
 
 # ====================== FIG: difficulty (2 panels) ======================
 fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.2))
-axL.plot(["short\n(1-2)", "medium\n(3-4)", "long\n(5+)"], length_pct, "o-", lw=2.5, ms=9, color="#1f77b4")
+xlab = ["short\n(1-2)", "medium\n(3-4)", "long\n(5+)"]
+axL.plot(xlab, length_pct, "-", lw=2.6, color=PALETTE["blue"], zorder=3)
+axL.plot(xlab, length_pct, "o", ms=11, color=PALETTE["blue"], mec="white", mew=1.6, zorder=4)
 axL.set_ylim(0, max(length_pct) * 1.25)
 axL.set_xlabel("task length (tool-chain depth)")
-axL.set_ylabel("pass^3 (%)")
+axL.set_ylabel("pass$^3$ (%)")
 axL.set_title("accuracy vs task length")
+axL.grid(axis="y")
 for x, y in enumerate(length_pct):
-    axL.annotate(f"{y:.0f}%", (x, y), textcoords="offset points", xytext=(0, 8), ha="center")
+    axL.annotate(
+        f"{y:.0f}%",
+        (x, y),
+        textcoords="offset points",
+        xytext=(0, 11),
+        ha="center",
+        fontweight="bold",
+        color=PALETTE["blue"],
+    )
 order = sorted(cats, key=lambda s: cat_mean[s])
 vals = [100 * cat_mean[s] for s in order]
-axR.barh([catlabel[s] for s in order], vals, color="#4c78a8")
-axR.set_xlabel("mean pass^3 (%)")
+cmap = plt.get_cmap(HEATMAP_CMAP)
+norm = plt.Normalize(min(vals) * 0.6, max(vals))
+bars = axR.barh(
+    [catlabel[s] for s in order],
+    vals,
+    color=[cmap(norm(v)) for v in vals],
+    edgecolor="white",
+    linewidth=0.6,
+)
+axR.set_xlabel("mean pass$^3$ (%)")
 axR.set_title("accuracy by task category")
 axR.tick_params(axis="y", labelsize=9)
+axR.grid(axis="x")
+axR.set_xlim(0, max(vals) * 1.12)
+for b, v in zip(bars, vals, strict=True):
+    axR.text(v + 0.5, b.get_y() + b.get_height() / 2, f"{v:.0f}", va="center", fontsize=8, color="#555")
 fig.tight_layout()
-fig.savefig(f"{OUT}/fig_difficulty.png", dpi=150, bbox_inches="tight")
+fig.savefig(f"{OUT}/fig_difficulty.png")
 plt.close(fig)
 
 # ============================ FIG: compute ============================
 fig, ax = plt.subplots(figsize=(6.4, 4.6))
-for tag, color in (("API", "#d62728"), ("local", "#1f77b4")):
+for tag, color in (("API", PALETTE["vermillion"]), ("local", PALETTE["blue"])):
     xs = [ptok[m] / 1000 for m in models if group[m] == tag and m in ptok]
     ys = [100 * overall[m] for m in models if group[m] == tag and m in ptok]
-    ax.scatter(xs, ys, s=60, color=color, label=tag, alpha=0.85, edgecolor="white")
+    ax.scatter(xs, ys, s=72, color=color, label=tag, alpha=0.9, edgecolor="white", linewidth=1.2, zorder=3)
 ax.set_xlabel("prompt tokens per task (thousands)")
-ax.set_ylabel("pass^3 (%)")
+ax.set_ylabel("pass$^3$ (%)")
 ax.set_title("accuracy vs compute per task")
-ax.legend(frameon=False)
+ax.grid(axis="both")
+ax.legend(title="model class")
 fig.tight_layout()
-fig.savefig(f"{OUT}/fig_compute.png", dpi=150, bbox_inches="tight")
+fig.savefig(f"{OUT}/fig_compute.png")
 plt.close(fig)
 
 # ====================== FIG: size (local; appendix) ======================
@@ -166,12 +248,13 @@ for m in loc:
     if mm:
         sx.append(int(mm.group(1)))
         sy.append(100 * overall[m])
-ax.scatter(sx, sy, s=60, color="#1f77b4", alpha=0.85, edgecolor="white")
+ax.scatter(sx, sy, s=72, color=PALETTE["blue"], alpha=0.9, edgecolor="white", linewidth=1.2, zorder=3)
 ax.set_xlabel("model size (billion parameters)")
-ax.set_ylabel("pass^3 (%)")
+ax.set_ylabel("pass$^3$ (%)")
 ax.set_title("accuracy vs model size")
+ax.grid(axis="both")
 fig.tight_layout()
-fig.savefig(f"{OUT}/fig_size.png", dpi=150, bbox_inches="tight")
+fig.savefig(f"{OUT}/fig_size.png")
 plt.close(fig)
 
 # ---- echo the numbers rendered, for verification ----
