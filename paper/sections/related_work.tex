@@ -1,30 +1,85 @@
 \section{Related Work}
 \label{sec:related}
 
-% Style: short run-in bold paragraph leads, one per neighbouring strand,
-% each closing by positioning DynamicMCPBench. No subsections.
+Evaluating tool-using agents has progressed along several largely separate
+lines. Each has advanced the field, yet each leaves a gap that becomes
+acute once an agent must act over \emph{live, stateful} MCP servers.
+DynamicMCPBench sits at the intersection of these gaps---a reusable,
+forward-generating, effect-scored framework---and we review the prior lines
+in those terms.
 
-\paragraph{Tool-use and agent benchmarks.}
-% TODO: tau-bench, ToolSandbox, ToolBench, AgentBench --- answer / goal-state
-%   scoring over (often static) tool catalogs.
+A first line evaluates agents directly on MCP servers. These benchmarks
+push breadth---thousands of servers and tools \citep{fan2025mcptoolbench++,
+mo2025livemcpbench, lei2025mcpverse}, fuzzy multi-step instructions over
+live servers \citep{wang2025mcp}---and realism, with execution-grounded
+scoring \citep{servers25mcp, gao2025mcp} and claims-based partial credit
+over deliberately planted distractors \citep{bandi2026mcp}; others stress-
+test or diagnose failure \citep{wu2025mcpmark, yin2025livemcp, guo2026mcp},
+extend to graphical and computer-use settings \citep{yan2025mcpworld,
+jia2025osworld}, or probe security such as tool name-collisions
+\citep{zhang2025mcp}. Valuable as they are, each ships a \emph{fixed}
+dataset and scores a final answer, an outcome, or a tool selection; none is
+a framework a practitioner re-runs over their \emph{own} live servers, and
+none asks whether the agent produced the right \emph{effects} along any
+valid path---the two properties we target.
 
-\paragraph{MCP-native task synthesis.}
-% TODO: MCPEval (generate-then-verify), MCP-Bench, MCP-Atlas --- substrate
-%   breadth and synthesis-then-check, contrasted with explore-then-distill.
+These benchmarks build on older tool-use evaluation that set the templates
+we depart from: retrieval and selection over large API catalogs
+\citep{patil2024gorilla, qin2024toolllm}, choosing among confusable tools
+\citep{huang2024metatool}, and abstract-syntax-tree checks of call
+structure \citep{patil2025berkeley}. Closest to us in spirit,
+\citet{yao2024tau} compares the final database \emph{state} rather than the
+path and introduces $\mathrm{pass}^k$ to measure reliability. But these
+score answers, tool lists, or single-domain state over static catalogs, and
+\citet{qin2024toolllm} reports that a large fraction of its own synthesized
+queries and trajectories are flawed. We keep tau-bench's outcome-state idea
+and $\mathrm{pass}^k$ but generalize them to path-agnostic effects across
+many interacting live servers, and we ground every task in a \emph{real}
+successful trajectory rather than a synthesized plan.
 
-\paragraph{Graph- and tool-list-grounded evaluation.}
-% TODO: AgentGraphBench --- backward graph-sampling + back-instruction; the
-%   ~50%-noise GT-tool-list diagnosis we adopt as the disease (our cure differs).
+That contrast reflects a deeper split in how tasks are produced. The
+prevailing paradigm imposes structure and works backward---building a tool
+graph and back-instructing a matching question \citep{shen2024taskbench},
+sampling subgraphs by link prediction \citep{guo2026unitoolbench}, or
+generating and then verifying \citep{liu2025mcpeval, shi2025taskcraft};
+large real-server trajectory corpora are likewise assembled for training
+\citep{xu2025toucan}. The ground truth is then an \emph{imposed} tool set
+or plan that may not be executable and that treats a tool list as
+truth---yet tool lists are not recoverable from a prompt and accumulate
+spurious ``required'' tools. We invert the direction: forward exploration
+on the live servers yields real trajectories that we distill into tasks, so
+every tool in a task was actually used to reach the goal.
 
-\paragraph{Determinism and caching for reproducible tool eval.}
-% TODO: StableToolBench --- caching as a determinism mechanism; contrast with
-%   our deterministic replay over recorded traces.
+Because live tools drift, a separate line makes execution reproducible and
+grades what the agent \emph{did}. Some cache call responses behind a
+virtual server with a simulator fallback \citep{guo2024stabletoolbench,
+guo2025stabletoolbench} or retrieve semantically similar cached responses
+on a miss \citep{cheng2025travelbench}; others score milestones and
+forbidden actions \citep{lu2025toolsandbox}, dual-control state
+\citep{barres2025tau}, whole reasoning trajectories \citep{kim2025beyond},
+or compiled and proxy state rewards \citep{zeng2026logigen,
+chuang2026toward}. The caching line keeps \emph{answer}-matching stable but
+preserves individual calls, not whole paths; the state/trace line validates
+our answer-agnostic stance but is tied to specific domains or hand-built
+environments. DynamicMCPBench unifies the two: it records entire reference
+trajectories and replays them deterministically, then scores path-agnostic
+effect checkpoints and minefields distilled \emph{automatically} from those
+traces across a broad live substrate.
 
-\paragraph{Positioning: from answers and tool-lists to traces.}
-% TODO: the four-pillars orthogonality stance vs AGB, and pre-empt the three
-%   reviewer objections ("AGB without the graph?", "just MCPEval?",
-%   "multiple valid paths --- is that fair?").
-% TODO(table tab:agb_orthogonality): hand-authored four-pillars table ---
-%   organizing object / generation direction / substrate / ground truth /
-%   eval signal / final answer / difficulty axis. Verbatim source-of-truth:
-%   memory/feedback_agb_orthogonality.md.
+Finally, several findings undercut the proxies the lines above rely on. MCP
+tool descriptions are pervasively low quality---\citet{hasan2026model}
+report that 97\% carry at least one ``smell'', echoed at ecosystem scale by
+\citet{wang2026docs}---flat exposure of many tools degrades selection
+\citep{gan2025rag}, and models inflate their scores on benchmarks they
+themselves generated \citep{yuan2026silencer}. Together these argue against
+grading a final answer or a curated tool list, and for generating with many
+model families. DynamicMCPBench does both: effect-based scoring that never
+reads the answer, and a corpus authored by a diverse pool of families.
+
+In short, prior work is a fixed dataset, generates by imposing structure,
+or scores answers, tool lists, or cached calls over static catalogs.
+DynamicMCPBench is instead (i)~a reusable framework over live or
+user-supplied servers, (ii)~generated forward from real trajectories,
+(iii)~scored on path-agnostic effects under deterministic replay, and
+(iv)~stratified by task category and length. The next section details the
+framework; \S\ref{sec:results} reports the study it enables.
