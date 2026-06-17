@@ -23,17 +23,20 @@ We argue that the organizing object of the benchmark should be neither the
 answer nor the tool list, but the \emph{execution trace}.
 \textbf{DynamicMCPBench} is built around this idea, and it is a
 \emph{framework} rather than a fixed dataset. Pointed at any collection of
-MCP servers and any set of candidate models, it (i)~drives an explorer
-agent to solve realistic goals \emph{live} on the servers, recording
-successful trajectories; (ii)~distills each trajectory into a task whose
-ground truth is a set of path-agnostic \emph{effect checkpoints}---the
-state changes and intermediate values that any correct solution must
-produce---together with forbidden-action \emph{minefields} and a partial
-order over the effects; and (iii)~scores a candidate purely on whether its
-trajectory reproduces those effects, with \emph{any} effect-equivalent
-tool, never on its final answer (Figure~\ref{fig:pipeline}). Because every
-tool in a task was actually used to reach the goal, the ``unnecessary
-tool'' problem cannot arise by construction.
+MCP servers---which it can crawl, vet, and parse automatically, or accept
+as a manifest the user supplies---and any set of candidate models, it
+(i)~generates realistic user goals from the servers' tool surfaces;
+(ii)~drives an explorer agent to pursue each goal \emph{live} on the
+servers, recording successful trajectories; (iii)~distills each trajectory
+into a task whose ground truth is a set of path-agnostic \emph{effect
+checkpoints}---the state changes and intermediate values that any correct
+solution must produce---together with forbidden-action \emph{minefields}
+and a partial order over the effects; and (iv)~scores a candidate purely on
+whether its trajectory reproduces those effects, with \emph{any}
+effect-equivalent tool, never on its final answer
+(Figure~\ref{fig:pipeline}). Because every tool in a task was actually used
+to reach the goal, the ``unnecessary tool'' problem cannot arise by
+construction.
 
 To demonstrate the framework---and to chart where current agents
 stand---we run it at scale over a substrate of 121 live MCP servers,
