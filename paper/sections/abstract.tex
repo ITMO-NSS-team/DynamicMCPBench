@@ -3,14 +3,14 @@ Large language model (LLM) agents are increasingly deployed over Model
 Context Protocol (MCP) servers, yet the benchmarks used to evaluate them
 score the final answer or a fixed ``ground-truth'' list of tools---both
 of which are fragile once the underlying data is live and stateful. We
-present \textbf{DynamicMCPBench}, a \emph{reusable framework} rather than
-a fixed dataset. A practitioner can run it on their \emph{own} MCP servers
+present \textbf{DynamicMCPBench}, a reusable framework rather than
+a fixed dataset. A practitioner can run it on their own MCP servers
 to test models on their own tasks, or let it collect servers automatically
-to measure a model's \emph{general} ability to solve agentic tasks. Given
+to measure a model's general ability to solve agentic tasks. Given
 the servers and any set of models, it generates realistic goals, pursues
 each one live to record a successful trajectory, distills that trajectory
 into path-agnostic \emph{effect checkpoints}, and scores an agent on
-whether it reproduces those effects---\emph{never} on the final
+whether it reproduces those effects---never on the final
 answer.\footnote{Code and data are released anonymously for review: code
 at \url{https://anonymous.4open.science/r/DynamicMCPBench-4243/} and dataset at
 \url{https://huggingface.co/datasets/anonsubmitter/DynamicMCPBench}.} To show what the framework reveals, we run it at scale:
