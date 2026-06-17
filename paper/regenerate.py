@@ -783,12 +783,46 @@ def render_fig_gen_eval_sae_heatmap(row: FigureRow, root: Path) -> RenderResult:
 
 
 def render_rq4_agreement(row: FigureRow, root: Path) -> RenderResult:
-    return _placeholder(
-        row,
-        "human annotation pass not completed yet -- pre-registered in "
-        "docs/experiments/e4.6-rq4-scorer-vs-human.md; harness ready to consume "
-        "docs/experiments/e4.6_numbers.json once it lands.",
+    path = root / "docs" / "experiments" / "e4.6_numbers.json"
+    data = _load_json(path)
+    if data is None:
+        return _missing_data(row, path)
+    ac1 = data["ac1"]
+    sv = data["scorer_vs_human"]
+    tq = data["task_quality"]
+    body = (
+        _tex_header(row)
+        + "\\begin{table}[t]\n"
+        + "  \\centering\n"
+        + "  \\small\n"
+        + "  \\begin{tabular}{lr}\n"
+        + "    \\toprule\n"
+        + r"    metric & value \\"
+        + "\n    \\midrule\n"
+        + r"    \multicolumn{2}{l}{\emph{Inter-annotator agreement (Gwet's AC1)}} \\"
+        + "\n"
+        + f"    \\quad task validity & {ac1['validity']:.2f} \\\\\n"
+        + f"    \\quad reference correctness & {ac1['reference_correctness']:.2f} \\\\\n"
+        + f"    \\quad grader agreement & {ac1['grader_agreement']:.2f} \\\\\n"
+        + "    \\midrule\n"
+        + r"    \multicolumn{2}{l}{\emph{Scorer vs.\ human consensus}} \\"
+        + "\n"
+        + f"    \\quad overall agreement & {100 * sv['agreement']:.0f}\\% \\\\\n"
+        + f"    \\quad pass verdict upheld (precision) & {100 * sv['pass_precision']:.0f}\\% \\\\\n"
+        + f"    \\quad false-positive rate & {100 * sv['false_positive']:.1f}\\% \\\\\n"
+        + f"    \\quad false-negative rate & {100 * sv['false_negative']:.0f}\\% \\\\\n"
+        + "    \\midrule\n"
+        + r"    \multicolumn{2}{l}{\emph{Task quality}} \\"
+        + "\n"
+        + f"    \\quad valid task & {100 * tq['valid']:.0f}\\% \\\\\n"
+        + f"    \\quad reference answer fully correct & {100 * tq['reference_fully_correct']:.0f}\\% \\\\\n"
+        + "    \\bottomrule\n"
+        + "  \\end{tabular}\n"
+        + f"  \\caption{{{_wrap_caption(row)}}}\n"
+        + f"  \\label{{{row.id}}}\n"
+        + "\\end{table}\n"
     )
+    return RenderResult(id=row.id, body=body, used_data_source=True)
 
 
 def render_ablation(row: FigureRow, root: Path) -> RenderResult:
