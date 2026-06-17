@@ -1,0 +1,40 @@
+{
+  "experiment": "E4.6 / E8.12",
+  "n_raters": 6,
+  "n_tasks": 750,
+  "n_cards": 975,
+  "kappa_set_n": 45,
+  "candidate_model": "qwen3.6-35b-a3b",
+  "ac1": {
+    "_note": "Gwet's AC1, robust to the near-unanimous validity axis; computed on the 45-task shared set (all 6 raters).",
+    "validity": 0.99,
+    "reference_correctness": 0.65,
+    "grader_agreement": 0.76
+  },
+  "raw_agreement": {
+    "validity": 0.993,
+    "reference_correctness": 0.723,
+    "grader_agreement": 0.843
+  },
+  "scorer_vs_human": {
+    "_note": "vote-level over all annotated cards; PASS-precision is the benchmark-critical direction.",
+    "agreement": 0.737,
+    "pass_precision": 0.949,
+    "false_positive": 0.051,
+    "false_negative": 0.499,
+    "fp_n": 26, "fp_d": 514,
+    "fn_n": 230, "fn_d": 461
+  },
+  "task_quality": {
+    "valid": 0.99,
+    "reference_fully_correct": 0.79
+  },
+  "false_negative_decomposition": {
+    "_note": "spot-check attribution of the 183 task-level false-negatives (scorer FAIL, majority-human PASS).",
+    "scorer_over_strict_frac": 0.62,
+    "value_produced_dominant_of_overstrict": 0.75,
+    "candidate_specific_or_human_lenient_frac": 0.38,
+    "near_unpassable_tasks_frac_of_all": 0.27
+  },
+  "links": ["e4.6-rq4-scorer-vs-human.md", "e8.10e-sae-iae-profile.md"]
+}
