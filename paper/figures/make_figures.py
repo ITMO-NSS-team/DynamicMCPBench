@@ -107,18 +107,20 @@ length_pct = [100 * a / n for a, n in binagg]
 
 # ============================ FIG: heatmap ============================
 M = [[cells[f"{m}|{s}"] for s in cats] for m in models]
-fig, ax = plt.subplots(figsize=(11, 9))
+fig, ax = plt.subplots(figsize=(12, 9))
 im = ax.imshow(M, aspect="auto", cmap="RdYlGn", vmin=0, vmax=max(max(r) for r in M))
 ax.set_xticks(range(len(cats)))
 ax.set_xticklabels([catlabel[s] for s in cats], rotation=45, ha="right", fontsize=9)
 ax.set_yticks(range(len(models)))
 ax.set_yticklabels(models, fontsize=9)
-ax.axhline(len(api) - 0.5, color="black", lw=2)  # API | local separator
+for i in range(len(models)):
+    for j in range(len(cats)):
+        ax.text(j, i, f"{round(100 * M[i][j])}", ha="center", va="center", fontsize=6)
 ax.set_xlabel("task category")
 ax.set_ylabel("model")
-ax.set_title(r"pass$^3$ accuracy by model and task category")
+ax.set_title("pass^3 accuracy by model and task category (%)")
 cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.02)
-cb.set_label(r"pass$^3$")
+cb.set_label("pass^3")
 fig.tight_layout()
 fig.savefig(f"{OUT}/fig_heatmap.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
@@ -128,14 +130,14 @@ fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.2))
 axL.plot(["short\n(1-2)", "medium\n(3-4)", "long\n(5+)"], length_pct, "o-", lw=2.5, ms=9, color="#1f77b4")
 axL.set_ylim(0, max(length_pct) * 1.25)
 axL.set_xlabel("task length (tool-chain depth)")
-axL.set_ylabel(r"pass$^3$ (%)")
+axL.set_ylabel("pass^3 (%)")
 axL.set_title("accuracy vs task length")
 for x, y in enumerate(length_pct):
     axL.annotate(f"{y:.0f}%", (x, y), textcoords="offset points", xytext=(0, 8), ha="center")
 order = sorted(cats, key=lambda s: cat_mean[s])
 vals = [100 * cat_mean[s] for s in order]
 axR.barh([catlabel[s] for s in order], vals, color="#4c78a8")
-axR.set_xlabel(r"mean pass$^3$ (%)")
+axR.set_xlabel("mean pass^3 (%)")
 axR.set_title("accuracy by task category")
 axR.tick_params(axis="y", labelsize=9)
 fig.tight_layout()
@@ -149,7 +151,7 @@ for tag, color in (("API", "#d62728"), ("local", "#1f77b4")):
     ys = [100 * overall[m] for m in models if group[m] == tag and m in ptok]
     ax.scatter(xs, ys, s=60, color=color, label=tag, alpha=0.85, edgecolor="white")
 ax.set_xlabel("prompt tokens per task (thousands)")
-ax.set_ylabel(r"pass$^3$ (%)")
+ax.set_ylabel("pass^3 (%)")
 ax.set_title("accuracy vs compute per task")
 ax.legend(frameon=False)
 fig.tight_layout()
@@ -166,7 +168,7 @@ for m in loc:
         sy.append(100 * overall[m])
 ax.scatter(sx, sy, s=60, color="#1f77b4", alpha=0.85, edgecolor="white")
 ax.set_xlabel("model size (billion parameters)")
-ax.set_ylabel(r"pass$^3$ (%)")
+ax.set_ylabel("pass^3 (%)")
 ax.set_title("accuracy vs model size")
 fig.tight_layout()
 fig.savefig(f"{OUT}/fig_size.png", dpi=150, bbox_inches="tight")
