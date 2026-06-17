@@ -49,20 +49,16 @@ at all, and accuracy falls steadily as the required tool chain lengthens. A
 human validation study confirms that the automatic, answer-agnostic scoring
 is reliable.
 
-\paragraph{Contributions.}
-\begin{enumerate}
-  \item A \emph{reusable framework} that turns any set of live MCP servers
-    and models into a trace-grounded benchmark through forward exploration
-    and distillation, so practitioners can rerun the entire pipeline on
-    their own deployment (\S\ref{sec:benchmark}).
-  \item An \emph{answer-agnostic, effect-based} scoring method that credits
-    any trajectory reproducing the required effects and never grades the
-    final answer, validated against human judgment
-    (\S\ref{sec:benchmark}, \S\ref{sec:results}).
-  \item A large \emph{demonstration study}---24 models, 121 servers, 750
-    tasks---that exposes a consistent inability of current agents to handle
-    long, multi-step agentic tasks, with results stratified by task length
-    and category (\S\ref{sec:results}).
-  \item A public, anonymized release of both the framework and the
-    generated benchmark.
-\end{enumerate}
+The contributions of this paper are as follows: (i)~a \emph{reusable
+framework} that turns any set of live MCP servers and models into a
+trace-grounded benchmark through forward exploration and distillation, so
+practitioners can rerun the entire pipeline on their own deployment
+(\S\ref{sec:benchmark}); (ii)~an \emph{answer-agnostic, effect-based}
+scoring method that credits any trajectory reproducing the required effects
+and never grades the final answer, validated against human judgment
+(\S\ref{sec:benchmark},~\S\ref{sec:results}); (iii)~a large
+\emph{demonstration study}---24 models, 121 servers, 750 tasks---that
+exposes a consistent inability of current agents to handle long,
+multi-step agentic tasks, stratified by task length and category
+(\S\ref{sec:results}); and (iv)~a public, anonymized release of both the
+framework and the generated benchmark.
