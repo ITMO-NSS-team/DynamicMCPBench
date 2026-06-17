@@ -77,16 +77,17 @@ Appendix~\ref{app:config}, and all prompts in Appendix~\ref{app:prompts}.
 
 \subsection{Effect-based scoring}
 \label{sec:benchmark:eval}
-Given a candidate trajectory, a deterministic first tier checks each
+Given a candidate trajectory, a deterministic first tier (Tier-1) checks each
 checkpoint: that some tool in a tool-effect's equivalence set was called with
 arguments meeting its constraint; that a value-produced checkpoint's value
 appears; that no minefield was hit; and that the partial order holds. Because
 checkpoints carry equivalence sets, any path that achieves the required
 effects passes---on the released corpus 16\% of effect checkpoints admit two
 or more interchangeable tools (up to twelve)---so multiple valid trajectories
-are accepted rather than a single gold path. A second tier is an LLM judge
-that may upgrade only a \emph{failed} tool-effect when a different tool is
-genuinely effect-equivalent; it never reads or grades the final answer.
+are accepted rather than a single gold path. A second tier (Tier-2) is an LLM
+judge that may upgrade only a \emph{failed} tool-effect when a different tool
+is genuinely effect-equivalent; it never reads or grades the final answer. The
+headline leaderboard is scored by Tier-1 alone (Appendix~\ref{app:config}).
 Candidates are compared under deterministic replay, each task attempted three
 times and counted as solved only if all three attempts pass
 (\(\mathrm{pass}^3\); \citealp{yao2024tau}). To keep the setting controlled
