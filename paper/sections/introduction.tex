@@ -1,28 +1,68 @@
 \section{Introduction}
 \label{sec:intro}
 
-% Figure 1 --- the overview teaser placed right after the Introduction heading:
-% the end-to-end DynamicMCPBench pipeline.
 \input{figures/pipeline}
 
-% TODO(intro-motivation): LLM agents over Model Context Protocol (MCP) servers
-%   are a real deployment surface; their benchmarks are not. The two prevailing
-%   "did the agent do the right thing?" proxies both wobble under live, stateful
-%   data --- final-answer string matching and tool-list recall (the latter
-%   diagnosed by prior art as ~50% noise).
+Large language model (LLM) agents increasingly act through the Model
+Context Protocol (MCP), a fast-growing standard that exposes external
+tools---file stores, databases, web services, developer platforms---behind
+a uniform calling interface. As these agents move into production, the
+practical question is no longer \emph{whether} a model can call a tool but
+\emph{whether} the agent accomplishes the user's goal across many real,
+interacting services. The benchmarks used to answer that question, however,
+mostly score one of two proxies: the agent's final natural-language answer,
+matched against a reference string, or the \emph{set of tools} the agent
+was expected to call. Both are fragile precisely where deployment matters.
+A reference answer goes stale the moment it depends on live data---today's
+price, this morning's commit, the current contents of a table---and a fixed
+tool list cannot be recovered from the prompt alone, so it accumulates
+spurious ``required'' tools that penalize an agent for taking a different,
+equally valid route.
 
-% TODO(intro-pivot): change the organizing primitive from answer / tool set to
-%   the *execution trace* --- the only object that is unambiguously observable
-%   (we recorded it) and faithful (every tool in a trace was actually invoked).
+We argue that the organizing object of the benchmark should be neither the
+answer nor the tool list, but the \emph{execution trace}.
+\textbf{DynamicMCPBench} is built around this idea, and it is a
+\emph{framework} rather than a fixed dataset. Pointed at any collection of
+MCP servers and any set of candidate models, it (i)~drives an explorer
+agent to solve realistic goals \emph{live} on the servers, recording
+successful trajectories; (ii)~distills each trajectory into a task whose
+ground truth is a set of path-agnostic \emph{effect checkpoints}---the
+state changes and intermediate values that any correct solution must
+produce---together with forbidden-action \emph{minefields} and a partial
+order over the effects; and (iii)~scores a candidate purely on whether its
+trajectory reproduces those effects, with \emph{any} effect-equivalent
+tool, never on its final answer (Figure~\ref{fig:pipeline}). Because every
+tool in a task was actually used to reach the goal, the ``unnecessary
+tool'' problem cannot arise by construction.
 
-% TODO(intro-preview): one paragraph previewing the forward-generate then
-%   effect-score pipeline (Fig.~\ref{fig:pipeline}) and the headline ranking
-%   inversion (\S\ref{sec:results}).
+To demonstrate the framework---and to chart where current agents
+stand---we run it at scale over a substrate of 121 live MCP servers,
+generating 750 tasks spread evenly across 15 \emph{task categories} (50
+each)---each category targets a distinct tool-use challenge of the
+generated questions, from single-tool requests through long cross-server
+chains to look-alike-tool confusions---and we evaluate 24 models, both
+API-served and locally hosted. The picture is
+consistent across models: even the strongest agents solve only about half
+of the tasks under \(\mathrm{pass}^3\) (a task counts as solved only if all
+three independent attempts succeed), 31\% of tasks are solved by no model
+at all, and accuracy falls steadily as the required tool chain lengthens. A
+human validation study confirms that the automatic, answer-agnostic scoring
+is reliable.
 
-% TODO(intro-contributions): "Our contributions can be summarized as follows:"
-%   1. A forward generator (explore -> distill) that compiles a live successful
-%      trajectory into a path-agnostic TaskSpec with non-trivial equivalence sets.
-%   2. A trace/effect alignment scorer (Tier-1 deterministic + Tier-2 judge) that
-%      never grades the final answer.
-%   3. A trace-property failure model isolating task dynamism as the dominant driver.
-%   4. A living-bench refresh protocol over a reproducible, sandboxed MCP substrate.
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item A \emph{reusable framework} that turns any set of live MCP servers
+    and models into a trace-grounded benchmark through forward exploration
+    and distillation, so practitioners can rerun the entire pipeline on
+    their own deployment (\S\ref{sec:benchmark}).
+  \item An \emph{answer-agnostic, effect-based} scoring method that credits
+    any trajectory reproducing the required effects and never grades the
+    final answer, validated against human judgment
+    (\S\ref{sec:benchmark}, \S\ref{sec:results}).
+  \item A large \emph{demonstration study}---24 models, 121 servers, 750
+    tasks---that exposes a consistent inability of current agents to handle
+    long, multi-step agentic tasks, with results stratified by task length
+    and category (\S\ref{sec:results}).
+  \item A public, anonymized release of both the framework and the
+    generated benchmark.
+\end{enumerate}
