@@ -387,12 +387,63 @@ destructive action even when an adjacent safe tool would do.
   \label{fig:failure}
 \end{figure*}
 
-\section{Server-Attribution Errors}
+\section{Server-Attribution Errors and Distractor Robustness}
 \label{app:sae}
-At the default evaluation setting, server-attribution errors---calling the
-right tool on the wrong server---fire on only 0.2\% of runs (108 of
+At the default evaluation setting, server-attribution errors (SAE)---calling
+the right tool on the wrong server---fire on only 0.2\% of runs (108 of
 54{,}000), so failures are dominated by chain length and composition rather
-than by confusing one server for another. A controlled sweep of the
-alternative-tool density, which would test whether this rate rises as
-same-name distractors become more prevalent, is supported by the framework
-and is the subject of ongoing work.
+than by confusing one server for another (Appendix~\ref{app:failure}). We
+probe this directly along two axes: the \emph{quantity} of distractors and
+their \emph{strategy}.
+
+\paragraph{Distractor quantity.} We sweep the fraction of the offered tool pool
+that is spurious alternatives, $P_\mathrm{alt}$, from 0 to 1 over five models on
+a 350-task stratified subset ($n{=}350$ per cell). Both accuracy and the SAE
+rate stay \emph{flat} (Figure~\ref{fig:palt}): accuracy remains within its
+confidence interval across the whole range, and SAE never leaves the
+${\sim}1\%$ floor---even when \emph{every} distractor in the pool is a same-name
+look-alike ($P_\mathrm{alt}{=}1$). Filling the pool with alternatives does not
+induce server confusion.
+
+\paragraph{Distractor strategy.} Nor does distractor \emph{quality}. We
+pre-registered the hypothesis that adversarially-mined hard-negative distractors
+would induce at least 15 points more SAE than random fillers
+($\mathrm{SAE}(\textsf{hard\_neg}) - \mathrm{SAE}(\textsf{random}) \ge 15$\,pp).
+A strategy ablation (Table~\ref{tab:distractor}) rejects it decisively: the
+observed gap is $0.6$\,pp for both models---roughly $25\times$ below the
+threshold, and not significant (Fisher exact $p \approx 0.5$)---and every
+strategy sits at the $0$--$0.6\%$ SAE floor while accuracy is unmoved. Server
+confusion is a near-absent failure mode of current capable agents, inducible
+neither by distractor quantity nor by adversarial distractor construction.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_palt.png}
+  \caption{Distractor-quantity robustness. As the spurious-alternative fraction
+    $P_\mathrm{alt}$ sweeps $0\!\to\!1$, accuracy (left) stays flat and the
+    server-attribution-error rate (right) stays at the ${\sim}1\%$ floor, for
+    all five models (350-task subset, $n{=}350$/cell).}
+  \label{fig:palt}
+\end{figure*}
+
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{2}{c}{glm-5.1} & \multicolumn{2}{c}{deepseek-v4-pro} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    strategy & SAE & acc & SAE & acc \\
+    \midrule
+    \textsf{random}       & 0.0\% & 59\% & 0.0\% & 55\% \\
+    \textsf{hard\_neg}    & 0.6\% & 56\% & 0.6\% & 58\% \\
+    \textsf{cross\_domain}& 0.0\% & 58\% & 0.0\% & 59\% \\
+    \textsf{same\_name}   & 0.6\% & 61\% & 0.3\% & 57\% \\
+    \midrule
+    $\Delta$ (\textsf{hard\_neg}$-$\textsf{random}) & \multicolumn{2}{c}{$+0.6$\,pp} & \multicolumn{2}{c}{$+0.6$\,pp} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Distractor-strategy ablation (SAE rate and pass$^3$ accuracy,
+    $n{=}350$/cell). The pre-registered $\ge 15$\,pp \textsf{hard\_neg} effect
+    does not appear; SAE stays at the floor under every strategy.}
+  \label{tab:distractor}
+\end{table}
