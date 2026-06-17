@@ -12,9 +12,11 @@ answer.\footnote{Code and data are released anonymously for review: code
 at \url{https://anonymous.4open.science/r/dynamicmcpbench} and dataset at
 \url{https://huggingface.co/datasets/anonymous/dynamicmcpbench}
 (placeholders).} To show what the framework reveals, we run it at scale:
-24 models over 121 servers and 750 tasks (50 in each of 15 categories),
-each scored by \(\mathrm{pass}^3\)---a task counts as solved only if all
-three independent attempts succeed. Even the strongest agents solve only
+24 models over 121 servers and 750 tasks spread evenly over 15 task
+categories (50 each), where each category targets a distinct tool-use
+challenge of the generated questions. Each task is scored by
+\(\mathrm{pass}^3\)---it counts as solved only if all three independent
+attempts succeed. Even the strongest agents solve only
 about half of the tasks, 31\% of tasks are solved by no model at all, and
 accuracy collapses as the required tool chain grows longer (from 39\% on
 the shortest chains to 13\% on the longest). A human validation study
