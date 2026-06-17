@@ -4,22 +4,22 @@
 Evaluating tool-using agents has progressed along several largely separate
 lines. Each has advanced the field, yet each leaves a gap that becomes
 acute once an agent must act over \emph{live, stateful} MCP servers.
-DynamicMCPBench sits at the intersection of these gaps---a reusable,
-forward-generating, effect-scored framework---and we review the prior lines
+DynamicMCPBench sits at the intersection of these gaps (a reusable,
+forward-generating, effect-scored framework), and we review the prior lines
 in those terms.
 
 A first line evaluates agents directly on MCP servers. These benchmarks
-push breadth---thousands of servers and tools \citep{fan2025mcptoolbench++,
+push breadth (thousands of servers and tools \citep{fan2025mcptoolbench++,
 mo2025livemcpbench, lei2025mcpverse}, fuzzy multi-step instructions over
-live servers \citep{wang2025mcp}---and realism, with execution-grounded
+live servers \citep{wang2025mcp}) and realism, with execution-grounded
 scoring \citep{servers25mcp, gao2025mcp} and claims-based partial credit
 over deliberately planted distractors \citep{bandi2026mcp}; others stress-
 test or diagnose failure \citep{wu2025mcpmark, yin2025livemcp, guo2026mcp},
 extend to graphical and computer-use settings \citep{yan2025mcpworld,
 jia2025osworld}, or probe security such as tool name-collisions
-\citep{zhang2025mcp}. Valuable as they are, each ships a \emph{fixed}
+\citep{zhang2025mcp}. Valuable as they are, each ships a fixed
 dataset and scores a final answer, an outcome, or a tool selection; none is
-a framework a practitioner re-runs over their \emph{own} live servers, and
+a framework a practitioner re-runs over their own live servers, and
 none asks whether the agent produced the right \emph{effects} along any
 valid path---the two properties we target.
 
@@ -34,16 +34,16 @@ score answers, tool lists, or single-domain state over static catalogs, and
 \citet{qin2024toolllm} reports that a large fraction of its own synthesized
 queries and trajectories are flawed. We keep tau-bench's outcome-state idea
 and pass\textasciicircum{}k but generalize them to path-agnostic effects across
-many interacting live servers, and we ground every task in a \emph{real}
+many interacting live servers, and we ground every task in a real
 successful trajectory rather than a synthesized plan.
 
 That contrast reflects a deeper split in how tasks are produced. The
-prevailing paradigm imposes structure and works backward---building a tool
+prevailing approach imposes structure and works backward, building a tool
 graph and back-instructing a matching question \citep{shen2024taskbench},
 sampling subgraphs by link prediction \citep{guo2026unitoolbench}, or
 generating and then verifying \citep{liu2025mcpeval, shi2025taskcraft};
 large real-server trajectory corpora are likewise assembled for training
-\citep{xu2025toucan}. The ground truth is then an \emph{imposed} tool set
+\citep{xu2025toucan}. The ground truth is then an imposed tool set
 or plan that may not be executable and that treats a tool list as
 truth---yet tool lists are not recoverable from a prompt and accumulate
 spurious ``required'' tools. We invert the direction: forward exploration
@@ -63,13 +63,13 @@ preserves individual calls, not whole paths; the state/trace line validates
 our answer-agnostic stance but is tied to specific domains or hand-built
 environments. DynamicMCPBench unifies the two: it records entire reference
 trajectories and replays them deterministically, then scores path-agnostic
-effect checkpoints and minefields distilled \emph{automatically} from those
+effect checkpoints and minefields distilled automatically from those
 traces across a broad live substrate.
 
 Finally, several findings undercut the proxies the lines above rely on. MCP
-tool descriptions are pervasively low quality---\citet{hasan2026model}
-report that 97\% carry at least one ``smell'', echoed at ecosystem scale by
-\citet{wang2026docs}---flat exposure of many tools degrades selection
+tool descriptions are pervasively low quality (\citet{hasan2026model}
+report that 97\% carry at least one ``smell'', echoed at scale by
+\citet{wang2026docs}); flat exposure of many tools degrades selection
 \citep{gan2025rag}, and models inflate their scores on benchmarks they
 themselves generated \citep{yuan2026silencer}. Together these argue against
 grading a final answer or a curated tool list, and for generating with many
