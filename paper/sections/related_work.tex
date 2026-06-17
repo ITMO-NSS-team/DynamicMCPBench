@@ -3,7 +3,7 @@
 
 Evaluating tool-using agents has progressed along several largely separate
 lines. Each has advanced the field, yet each leaves a gap that becomes
-acute once an agent must act over \emph{live, stateful} MCP servers.
+acute once an agent must act over live, stateful MCP servers.
 DynamicMCPBench sits at the intersection of these gaps (a reusable,
 forward-generating, effect-scored framework), and we review the prior lines
 in those terms.
@@ -20,7 +20,7 @@ jia2025osworld}, or probe security such as tool name-collisions
 \citep{zhang2025mcp}. Valuable as they are, each ships a fixed
 dataset and scores a final answer, an outcome, or a tool selection; none is
 a framework a practitioner re-runs over their own live servers, and
-none asks whether the agent produced the right \emph{effects} along any
+none asks whether the agent produced the right effects along any
 valid path---the two properties we target.
 
 These benchmarks build on older tool-use evaluation that set the templates
@@ -28,7 +28,7 @@ we depart from: retrieval and selection over large API catalogs
 \citep{patil2024gorilla, qin2024toolllm}, choosing among confusable tools
 \citep{huang2024metatool}, and abstract-syntax-tree checks of call
 structure \citep{patil2025berkeley}. Closest to us in spirit,
-\citet{yao2024tau} compares the final database \emph{state} rather than the
+\citet{yao2024tau} compares the final database state rather than the
 path and introduces pass\textasciicircum{}k to measure reliability. But these
 score answers, tool lists, or single-domain state over static catalogs, and
 \citet{qin2024toolllm} reports that a large fraction of its own synthesized
@@ -51,14 +51,14 @@ on the live servers yields real trajectories that we distill into tasks, so
 every tool in a task was actually used to reach the goal.
 
 Because live tools drift, a separate line makes execution reproducible and
-grades what the agent \emph{did}. Some cache call responses behind a
+grades what the agent did. Some cache call responses behind a
 virtual server with a simulator fallback \citep{guo2024stabletoolbench,
 guo2025stabletoolbench} or retrieve semantically similar cached responses
 on a miss \citep{cheng2025travelbench}; others score milestones and
 forbidden actions \citep{lu2025toolsandbox}, dual-control state
 \citep{barres2025tau}, whole reasoning trajectories \citep{kim2025beyond},
 or compiled and proxy state rewards \citep{zeng2026logigen,
-chuang2026toward}. The caching line keeps \emph{answer}-matching stable but
+chuang2026toward}. The caching line keeps answer-matching stable but
 preserves individual calls, not whole paths; the state/trace line validates
 our answer-agnostic stance but is tied to specific domains or hand-built
 environments. DynamicMCPBench unifies the two: it records entire reference
