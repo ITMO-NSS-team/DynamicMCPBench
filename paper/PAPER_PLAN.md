@@ -77,9 +77,9 @@ Calling the right tool on the **wrong server** fires on **0.20%** of runs at the
 | … full 24 → Appendix | | | | |
 Spread: prompt **3.2k–25.7k tok**, completion **0.2k–1.9k**, **1.5–5.0 calls**; the heaviest model averages ~26k prompt tokens per attempt → a **≥32k-token context window** is needed in practice. Local models run on **a single H100**. → **Token budget does not predict capability** — the most accurate model is not the most token-hungry, and models at similar prompt sizes differ by 20+ pass^3 points.
 
-### 1.11 Scorer validity — human study (Qwen3.6-35B, all 750) — **(MAIN)**
-Validity **99%**; reference-answer fully correct **78%** (rest partial); auto-grader agreement **73%**. Inter-annotator AC1: validity **0.99**, reference-correctness **0.70**, grader-agreement **0.77** (Fleiss κ reported alongside; on the 99%-prevalence validity axis κ is paradox-deflated → AC1 is the headline). When the scorer reports a pass, raters concur **~95%**.
-→ (a) effect scoring agrees with humans at **AC1 0.77** and ~95% concurrence on passes — a wrong run is almost never scored correct. (b) **Answer-agnostic justification:** questions valid 99% but the reference *answer* fully correct only 78% — grading the answer would wrongly penalize ~1 task in 5; we grade effects.
+### 1.11 Scorer validity — human study (Qwen3.6-35B, all 750, full annotator set) — **(MAIN)**
+Validity **99%**; reference-answer fully correct **79%** (rest partial); auto-grader agreement **74%**. Inter-annotator AC1: validity **0.99**, reference-correctness **0.65**, grader-agreement **0.76** (Fleiss κ reported alongside; on the 99%-prevalence validity axis κ is paradox-deflated → AC1 is the headline). When the scorer reports a pass, the human concurs **~95%** of the time (26/514 grader-pass annotations disputed).
+→ (a) effect scoring agrees with humans at **AC1 0.76** and ~95% concurrence on passes — a wrong run is almost never scored correct. (b) **Answer-agnostic justification:** questions valid 99% but the reference *answer* fully correct only 79% — grading the answer would wrongly penalize ~1 task in 5; we grade effects. *(975 annotations over the full 750-task set; verified from HF 2026-06-17.)*
 
 ### 1.12 Generator self-preference check (validity) — **(MAIN one line + APP data table)**
 The corpus is multi-family (§1.2); a few models served as both generators and test-takers. A same-family-vs-other check (a model's pass^3 on tasks authored by its **own** family vs others) shows **no systematic advantage: mean +0.5pp, median −0.2pp** across candidates → the multi-family pool neutralizes generator self-preference. Per-model deltas live in an Appendix data table and are **not narrated** (no model singled out).
@@ -167,8 +167,8 @@ All choices follow the same four principles: **fairness/comparability, reproduci
 2. **A clarification node before distillation** — agents that ask a clarifying question can fail even though clarifying is reasonable, penalizing "asks-first" models; add a refinement step (goal → explore → **refine question** → distill) so specs account for legitimate clarification.
 
 ## 7. Incoming data (slots wired; no invented numbers until they land)
-- **Additional annotations** → refresh §1.11 (validity / reference / grader %, AC1); no counts stated.
-- **Alternative-tool-density ablation** (glm, qwen-max, gemma4, qwen-35b, deepseek) → §1.9 + an Appendix figure (SAE / accuracy vs density).
+- **Human validation: COMPLETE** — full annotator set is in; §1.11 finalized (validity 99% / reference 79% / grader 74%; AC1 0.99/0.65/0.76; ~95% concurrence on passes). No counts stated in the paper.
+- **Alternative-tool-density ablation** (glm, qwen-max, gemma4, qwen-35b, deepseek) → §1.9 + an Appendix figure (SAE / accuracy vs density). *(still pending)*
 
 ## 8. Reproducibility / Use of LLMs / Ethics (back matter)
 - **Reproducibility:** anonymized code + dataset; deterministic replay; **all reported numbers are regenerated from the released evaluation records**; the scoring procedure and every design parameter are specified in words (§2). *(Internal, not in the paper: we audited the scoring code — all-attempts pass^3 semantics, the zero-call false-positive guard, equivalence-set matching, SAE/IAE accounting — and confirmed it reproduces the released leaderboard exactly.)*
