@@ -93,6 +93,57 @@ rather than the anchor sampler.
     data-dependency edges; one tool's output feeds the next tool's input.
 \end{itemize}
 
+\section{A Worked Example}
+\label{app:example}
+Figure~\ref{fig:example} traces one task end to end: forward exploration records
+a successful reference trajectory (left), which is distilled into the
+path-agnostic \texttt{TaskSpec} on the right. A candidate is then scored on
+whether it reproduces each effect with \emph{any} member of that checkpoint's
+equivalence set, in any order consistent with the partial order---never by
+matching the answer text. Checkpoint~3 is the path-agnostic core: the reference
+fetched the one-year history with \texttt{download}, but a candidate that
+retrieved it via \texttt{get\_price\_history} satisfies the checkpoint equally.
+
+\begin{figure*}[t]
+\centering
+\small
+\fbox{\begin{minipage}[t]{0.46\textwidth}
+\textbf{(a) Forward exploration $\rightarrow$ reference trace}\par\smallskip
+\emph{Prompt.}~Compare the financial health and recent performance of Apple
+(AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most
+recent quarterly earnings, and one year of price history.\par\medskip
+\emph{Recorded agent tool calls.}\par\smallskip
+{\footnotesize\ttfamily
+get\_tickers\_info(symbols=[AAPL,MSFT,GOOGL])\\[1pt]
+get\_earnings(symbol, period=quarterly) $\times3$\\[1pt]
+download(symbols=[\ldots], period=1y)\\[1pt]
+get\_financials(stmt=balance, period=yearly) $\times3$\\[1pt]
+get\_financials(stmt=income, period=yearly) $\times3$\par}
+\end{minipage}}\hfill
+\fbox{\begin{minipage}[t]{0.48\textwidth}
+\textbf{(b) Distilled \texttt{TaskSpec}: effect checkpoints}\par\smallskip
+{\footnotesize
+1.~\textsc{tool\_effect} \texttt{get\_tickers\_info},\\
+\hspace*{1.4em}args $\supseteq$ \{symbols:[AAPL,MSFT,GOOGL]\}\\[2pt]
+2.~\textsc{tool\_effect} \texttt{get\_earnings}, args $\supseteq$ \{period:quarterly\}\\[2pt]
+3.~\textsc{tool\_effect} \{\,\texttt{download} $|$ \texttt{get\_price\_history}\,\},\\
+\hspace*{1.4em}args $\supseteq$ \{period:1y\}\hfill$\leftarrow$\,\emph{equivalence set}\\[2pt]
+4.~\textsc{tool\_effect} \texttt{get\_financials}, args $\supseteq$ \{stmt:balance, period:yearly\}\\[2pt]
+5.~\textsc{tool\_effect} \texttt{get\_financials}, args $\supseteq$ \{stmt:income, period:yearly\}\\[2pt]
+6.~\textsc{value\_produced} final message $\supseteq$\\
+\hspace*{1.4em}\{Apple, Microsoft, Google, fundamentals, earnings, balance sheet\}\par}
+\smallskip
+\emph{minefields:} none \quad\textbar\quad \emph{partial order:} none (independent)
+\end{minipage}}
+\caption{A task end to end. Forward exploration records a successful trajectory
+\textbf{(a)}, distilled into path-agnostic effect checkpoints \textbf{(b)}. A
+candidate is scored on whether it reproduces each effect with \emph{any}
+equivalence-set member (e.g.\ checkpoint~3), in any order allowed by the partial
+order, with the final message satisfying the \textsc{value\_produced}
+predicate---never on answer-string matching.}
+\label{fig:example}
+\end{figure*}
+
 \section{Framework Configuration}
 \label{app:config}
 We report the configuration that produced the released results; the framework
