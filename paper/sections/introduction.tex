@@ -1,7 +1,20 @@
 \section{Introduction}
 \label{sec:intro}
 
-\input{figures/pipeline}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_pipeline.png}
+  \caption{The DynamicMCPBench pipeline. \textbf{Forward generation:} a
+    goal-seeded agent explores live MCP servers, and each successful execution
+    trace is distilled into a path-agnostic \emph{TaskSpec}---effect
+    checkpoints, minefields, and a partial order over the effects.
+    \textbf{Effect-scored evaluation:} a candidate agent runs on deterministic
+    replay and is graded purely on whether it reproduces those effects (with
+    \emph{any} effect-equivalent tool), never on its final answer. A periodic
+    \emph{refresh} re-runs the references and classifies drift, keeping the
+    benchmark live.}
+  \label{fig:pipeline}
+\end{figure*}
 
 Large language model (LLM) agents increasingly act through the Model
 Context Protocol (MCP), a fast-growing standard that exposes external
