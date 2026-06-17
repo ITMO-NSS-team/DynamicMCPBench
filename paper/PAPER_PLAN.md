@@ -113,7 +113,7 @@ All choices follow the same four principles: **fairness/comparability, reproduci
 
 ## 3. Section-by-section outline (each bullet → a §1 number)
 
-**Abstract.** Framework, not a dataset → run it on your own MCP servers + models; forward-explore live servers, distill real trajectories into effect checkpoints, score effects not answers. Demonstration: 24 models, 121 servers, 750 tasks; **even the strongest agents solve only ~half** (pass^3), **31% of tasks are solved by none**, and **accuracy collapses with chain length** (39→23→13%); human-validated (AC1 0.77). *Footnote: code [anonymized URL], data [anonymized URL].*
+**Abstract.** Framework, not a dataset → run it on your own MCP servers + models (the framework can crawl/vet/parse servers, or take a manifest); generate goals → explore live → distill real trajectories into effect checkpoints → score effects not answers. Demonstration: 24 models, 121 servers, 750 tasks; **even the strongest agents solve only ~half** (pass^3), **31% of tasks are solved by none**, and **accuracy collapses with chain length** (39→23→13%); human-validated (AC1 0.77). *Footnote: code [anonymized URL], data [anonymized URL].*
 
 **1 Introduction.** Fig 1 (pipeline). MCP agents are a real deployment surface; answer-string and tool-list scoring break on live, stateful data. Pivot to the execution trace as primitive. Contributions written **inline as a sentence** — "The contributions of this paper are as follows: (i)… (ii)… (iii)… (iv)…" — *not* a `\paragraph{Contributions.}` header + list: (i) reusable forward-generate→effect-score pipeline for any servers/models; (ii) answer-agnostic effect scoring (§1.11); (iii) a 24-model demonstration at scale; (iv) public release.
 
@@ -139,7 +139,7 @@ All choices follow the same four principles: **fairness/comparability, reproduci
 ---
 
 ## 4. Figures (REDRAW — one big title, labeled axes, nothing else; prose carries all explanation)
-- **Fig 1** pipeline: crawl→explore→distill→effect-score→refresh. Title "The DynamicMCPBench framework".
+- **Fig 1** pipeline: crawl/parse servers → generate goals → explore live → distill → effect-score → refresh. Title "The DynamicMCPBench framework".
 - **Fig 2 (flagship)** heatmap: rows = 24 models grouped (API | local), best→worst within group; cols = 15 categories (sorted); cell = pass^3. Title "pass^3 by model and task category".
 - **Fig 3** line: x = task length (short/medium/long), y = pass^3, **one line aggregated across models**. Title "accuracy vs task length".
 - **Fig 4** bars: x = 15 categories (sorted), y = mean pass^3. Title "accuracy by task category".

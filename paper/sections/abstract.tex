@@ -4,11 +4,11 @@ Context Protocol (MCP) servers, yet the benchmarks used to evaluate them
 score the final answer or a fixed ``ground-truth'' list of tools---both
 of which are fragile once the underlying data is live and stateful. We
 present \textbf{DynamicMCPBench}, a \emph{reusable framework} rather than
-a fixed dataset: pointed at any set of MCP servers and any set of models,
-it forward-explores the live servers, distills real successful
-trajectories into path-agnostic \emph{effect checkpoints}, and scores an
-agent on whether it reproduces those effects---\emph{never} on the final
-answer.\footnote{Code and data are released anonymously for review: code
+a fixed dataset: pointed at any set of MCP servers---which it can crawl, vet, and parse, or
+take as a manifest---and any set of models, it generates realistic goals,
+explores them live to record successful trajectories, distills those into
+path-agnostic \emph{effect checkpoints}, and scores an agent on whether it
+reproduces those effects---\emph{never} on the final answer.\footnote{Code and data are released anonymously for review: code
 at \url{https://anonymous.4open.science/r/dynamicmcpbench} and dataset at
 \url{https://huggingface.co/datasets/anonymous/dynamicmcpbench}
 (placeholders).} To show what the framework reveals, we run it at scale:
