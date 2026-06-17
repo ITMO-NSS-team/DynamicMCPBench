@@ -4,11 +4,14 @@ Context Protocol (MCP) servers, yet the benchmarks used to evaluate them
 score the final answer or a fixed ``ground-truth'' list of tools---both
 of which are fragile once the underlying data is live and stateful. We
 present \textbf{DynamicMCPBench}, a \emph{reusable framework} rather than
-a fixed dataset: pointed at any set of MCP servers---which it can crawl, vet, and parse, or
-which the user supplies directly---and any set of models, it generates realistic goals,
-explores them live to record successful trajectories, distills those into
-path-agnostic \emph{effect checkpoints}, and scores an agent on whether it
-reproduces those effects---\emph{never} on the final answer.\footnote{Code and data are released anonymously for review: code
+a fixed dataset. A practitioner can run it on their \emph{own} MCP servers
+to test models on their own tasks, or let it collect servers automatically
+to measure a model's \emph{general} ability to solve agentic tasks. Given
+the servers and any set of models, it generates realistic goals, pursues
+each one live to record a successful trajectory, distills that trajectory
+into path-agnostic \emph{effect checkpoints}, and scores an agent on
+whether it reproduces those effects---\emph{never} on the final
+answer.\footnote{Code and data are released anonymously for review: code
 at \url{https://anonymous.4open.science/r/dynamicmcpbench} and dataset at
 \url{https://huggingface.co/datasets/anonymous/dynamicmcpbench}
 (placeholders).} To show what the framework reveals, we run it at scale:
@@ -16,13 +19,12 @@ at \url{https://anonymous.4open.science/r/dynamicmcpbench} and dataset at
 categories (50 each), where each category targets a distinct tool-use
 challenge of the generated questions. Each task is scored by
 \(\mathrm{pass}^3\)---it counts as solved only if all three independent
-attempts succeed. Even the strongest agents solve only
-about half of the tasks, 31\% of tasks are solved by no model at all, and
-accuracy collapses as the required tool chain grows longer (from 39\% on
-the shortest chains to 13\% on the longest). A human validation study
-confirms the automatic scoring is reliable (chance-corrected agreement of
-0.76). DynamicMCPBench thus turns benchmark construction into something
-practitioners can rerun on their own servers and models, while exposing a
-consistent inability of current agents to handle long, multi-step agentic
-tasks.
+attempts succeed. Even the strongest agents solve only about half of the
+tasks, 31\% of tasks are solved by no model at all, and accuracy collapses
+as the required tool chain grows longer (from 39\% on the shortest chains
+to 13\% on the longest). A human validation study confirms the automatic
+scoring is reliable (chance-corrected agreement of 0.76). DynamicMCPBench
+thus turns benchmark construction into something practitioners can rerun on
+their own servers and models, while exposing a consistent inability of
+current agents to handle long, multi-step agentic tasks.
 \end{abstract}

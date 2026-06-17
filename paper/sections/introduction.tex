@@ -22,9 +22,11 @@ equally valid route.
 We argue that the organizing object of the benchmark should be neither the
 answer nor the tool list, but the \emph{execution trace}.
 \textbf{DynamicMCPBench} is built around this idea, and it is a
-\emph{framework} rather than a fixed dataset. Pointed at any collection of
-MCP servers---which it can crawl, vet, and parse automatically, or which
-the user supplies directly---and any set of candidate models, it
+\emph{framework} rather than a fixed dataset, usable two ways: a practitioner can point it
+at their \emph{own} MCP servers to test models on their own tasks, or let
+it collect servers automatically to measure a model's \emph{general}
+ability to solve agentic tasks. Given a set of servers and a set of
+candidate models, it
 (i)~generates realistic user goals from the servers' tool surfaces;
 (ii)~drives an explorer agent to pursue each goal \emph{live} on the
 servers, recording successful trajectories; (iii)~distills each trajectory
