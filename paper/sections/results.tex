@@ -1,67 +1,97 @@
-\section{Results and Analysis}
+\section{Results \& Analysis}
 \label{sec:results}
 
-% Style: each finding is a run-in bold lead stating the takeaway. The
-% paper never re-derives numbers in prose --- it cites the experiment id and lets
-% the regenerated figure/table carry the value. Pre-registered decision rules
-% live in docs/experiments/<id>-*.md.
+We run the framework over the live substrate and evaluate 24 models on the
+balanced 750-task slice. Every number is \(\mathrm{pass}^3\) under
+deterministic replay, and we read the results as the state of the
+field---what current agents can and cannot do---rather than as a ranking of
+individual systems.
 
-\subsection{Main Results}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_heatmap.png}
+  \caption{Per-model, per-category \(\mathrm{pass}^3\) over the 750-task
+    slice; API models (top) and locally-served models (below the line),
+    each ordered best to worst, against the 15 categories ordered hardest
+    to easiest.}
+  \label{fig:heatmap}
+\end{figure*}
+
+\subsection{The benchmark is far from solved}
 \label{sec:results:main}
+Figure~\ref{fig:heatmap} shows \(\mathrm{pass}^3\) for every model and
+category. Even the strongest agents top out near half of the tasks: the
+field spans \textbf{7\% to 51\%}, \textbf{31\%} of the 750 tasks are solved
+by no model at all, and only 2\% are solved by every model (95\% confidence
+intervals (CIs) are tabulated in the appendix). Strong and weak agents
+appear in \emph{both} the API and locally-served groups, so capable agentic
+behaviour is not the preserve of API-served models. The dominant pattern in
+the figure is vertical structure shared across models---some categories are
+hard for everyone---which points to difficulty being a property of the
+tasks rather than of any one system.
 
-\paragraph{Final-answer scoring inverts the leaderboard (RQ1).}
-% TODO: cite e4.4. Kendall's tau between the trace-align and answer-match model
-%   rankings; false-pass vs false-fail rates. The figure carries the numbers.
-\input{figures/rq1_kendall}
+\subsection{Difficulty is driven by length and structure}
+\label{sec:results:difficulty}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_difficulty.png}
+  \caption{Aggregated across all 24 models: \(\mathrm{pass}^3\) versus task
+    length (left) and mean \(\mathrm{pass}^3\) per category (right).}
+  \label{fig:difficulty}
+\end{figure*}
+Aggregated across all 24 models, accuracy falls monotonically with the
+length of the required tool chain---\textbf{39\%} on short chains (1--2
+tools), \textbf{23\%} on medium (3--4), and \textbf{13\%} on long (5+)
+(Figure~\ref{fig:difficulty}, left)---so longer dependency chains, not the
+weakness of any single model, are the dominant difficulty axis. By category
+(right), the hardest tasks require choosing among servers and composing
+several steps (cross-server-alternative and complementary, \(\approx\)14\%),
+whereas isolated single-tool confusions are easiest (decoy, homonym-trap,
+same-name, \(\approx\)40\%). Model size predicts capability only coarsely:
+the two largest models lead, but below \(\sim\)30B parameters size barely
+predicts accuracy---a 4B model outperforms every 7--8B model, and at a fixed
+8B size \(\mathrm{pass}^3\) ranges from 13\% to 22\%---so training and
+architecture matter more than parameter count.
 
-\paragraph{Only forward distillation yields path-agnostic equivalence sets (RQ2).}
-% TODO: cite e4.3. Forward vs graph-sampling vs direct generate-then-verify;
-%   mean |eq_set|. Both baselines are singletons by construction.
-\input{tables/rq2_comparison}
+\subsection{Reliability and operating requirements}
+\label{sec:results:reliability}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig_compute.png}
+  \caption{Accuracy versus mean prompt tokens per task; the most accurate
+    models are not the most token-hungry.}
+  \label{fig:compute}
+\end{figure}
+Agents are inconsistent across repeats: single-attempt accuracy exceeds
+\(\mathrm{pass}^3\) by 7--8 points for the strongest models, so one-shot
+numbers overstate dependability and motivate the all-attempts criterion. On
+operating requirements, a task consumes \textbf{3.4k--25.7k} prompt tokens,
+0.2k--1.9k completion tokens, and 1.5--5.0 tool or model calls per attempt;
+because the heaviest prompts approach 26k tokens, a \(\geq\)32k-token
+context window is needed in practice, and the locally-served models run on a
+single H100 graphics processing unit (GPU). Crucially, accuracy is not
+bought by compute (Figure~\ref{fig:compute}): the most accurate models are
+not the most token-hungry, and models at similar prompt sizes differ by more
+than 20 points.
 
-\paragraph{Capability profile across candidate models.}
-% TODO: >=5 models under replay; pass-rate / SAE-rate / pass^k by stratum.
-\input{tables/capability_profile}
-\input{figures/perf_by_dynamism_depth}
-
-\subsection{Benchmark Ablations}
-\label{sec:results:ablations}
-
-\paragraph{Task dynamism is the dominant failure driver (RQ3).}
-% TODO: cite e4.5. Ridge logistic regression of pass/fail on the
-%   ComplexityProfile + dynamism features; dynamism_live coefficient + drop-loglik.
-\input{tables/rq3_failure_drivers}
-
-\paragraph{Difficulty scales with trace depth.}
-% TODO: monotone pass-rate degradation across difficulty bins (E4.10).
-\input{figures/difficulty_curve}
-
-\paragraph{Generation strategy controls hardness and attribution error.}
-% TODO: per-strategy pass / SAE / pass^k (E4.9); the gen-strategy x eval-condition
-%   SAE heatmap locating the worst combinations.
-\input{tables/gen_strategy_ablation}
-\input{figures/gen_eval_sae_heatmap}
-
-\paragraph{Alternative-tool density degrades accuracy ($P_{\text{alt}}$).}
-% TODO: P_alt grid {0,.25,.5,.75,1}; accuracy and SAE vs P_alt with Wilson CIs,
-%   faceted by complexity bin.
-\input{figures/p_alt_degradation}
-
-\paragraph{Distractor sampling-strategy ablation.}
-% TODO: random / hard_neg / cross_domain / same_name / sibling / stratified ---
-%   accuracy + SAE per cell with paired tests (E2.8).
-\input{tables/ablation}
-
-\paragraph{Specs decay over time (living bench).}
-% TODO: per-server drift / broken / identical rates as the substrate ages.
-\input{figures/decay_curve}
-
-\subsection{Scorer Validation}
-\label{sec:results:validation}
-
-\paragraph{Human raters agree with the trace-align scorer (RQ4).}
-% TODO: cite e4.6. Cohen's kappa (Tier-1 / Tier-2) vs the majority-vote
-%   consensus; Krippendorff's alpha over the grid; replay flip rate. Report raw
-%   % agreement + Gwet's AC1 alongside kappa (the high-prevalence paradox bites
-%   the validity axis).
-\input{tables/rq4_agreement}
+\subsection{The scoring is valid}
+\label{sec:results:validity}
+To check that effect-based scoring is trustworthy, annotators reviewed all
+750 results of the strongest locally-served model. They judged \textbf{99\%}
+of the questions valid and agreed with the automatic grader on \textbf{74\%}
+of cases; inter-annotator agreement, measured with Gwet's first-order
+agreement coefficient (AC1) so as to remain robust on the near-unanimous
+validity axis, is \textbf{0.99} for validity, 0.65 for reference
+correctness, and \textbf{0.76} for grader agreement. Most important for
+benchmark integrity, \emph{when the scorer reports a pass the human concurs
+about 95\% of the time}---a wrong run is almost never scored correct. The
+same study supports grading effects rather than answers: although 99\% of
+questions are valid, the reference \emph{answer} is fully correct only 79\%
+of the time, so grading the final answer would wrongly penalize roughly one
+task in five. Two further checks reinforce validity. First, the multi-family
+corpus shows no systematic self-preference---a model's accuracy on tasks
+authored by its own family is within \(+\)0.5 points of its accuracy on the
+rest. Second, server-attribution errors (SAE; calling the right tool on the
+wrong server) are near-floor at the default setting (0.2\% of runs), so
+failures are dominated by chain length and composition rather than by
+confusing one server for another.
