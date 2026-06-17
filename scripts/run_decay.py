@@ -25,11 +25,13 @@ TIMEOUT = int(sys.argv[4]) if len(sys.argv) > 4 else 120
 DMCP = os.path.join(os.path.dirname(__file__), "..", ".venv", "bin", "dmcp")
 
 traces = {}
-for ln in open(TRACES, encoding="utf-8"):
-    if ln.strip():
-        t = json.loads(ln)
-        traces[str(t["trace_id"])] = t
-specs = [json.loads(ln) for ln in open(SPECS, encoding="utf-8") if ln.strip()]
+with open(TRACES, encoding="utf-8") as fh:
+    for ln in fh:
+        if ln.strip():
+            t = json.loads(ln)
+            traces[str(t["trace_id"])] = t
+with open(SPECS, encoding="utf-8") as fh:
+    specs = [json.loads(ln) for ln in fh if ln.strip()]
 
 
 def primary_server(t):
@@ -84,6 +86,7 @@ for sp in specs:
     print(f"[{done}/{len(specs)}] {srv:10} {status}", flush=True)
 
 result = {"overall": dict(overall), "per_server": {k: dict(v) for k, v in per_server.items()}}
-json.dump(result, open("/tmp/decay_results.json", "w"), indent=2)
+with open("/tmp/decay_results.json", "w") as fh:
+    json.dump(result, fh, indent=2)
 print("\n=== DECAY SUMMARY ===")
 print(json.dumps(result, indent=2))

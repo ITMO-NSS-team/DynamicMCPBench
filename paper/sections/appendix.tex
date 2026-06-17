@@ -488,6 +488,7 @@ neither by distractor quantity nor by adversarial distractor construction.
 
 \begin{table}[t]
   \centering \small
+  \setlength{\tabcolsep}{4.5pt}
   \begin{tabular}{lcccc}
     \toprule
     & \multicolumn{2}{c}{glm-5.1} & \multicolumn{2}{c}{deepseek-v4-pro} \\
@@ -498,13 +499,16 @@ neither by distractor quantity nor by adversarial distractor construction.
     \textsf{hard\_neg}    & 0.6\% & 56\% & 0.6\% & 58\% \\
     \textsf{cross\_domain}& 0.0\% & 58\% & 0.0\% & 59\% \\
     \textsf{same\_name}   & 0.6\% & 61\% & 0.3\% & 57\% \\
+    \textsf{sibling}      & 0.3\% & 60\% & 0.3\% & 59\% \\
+    \textsf{stratified}   & 0.3\% & 57\% & 0.3\% & 57\% \\
     \midrule
     $\Delta$ (\textsf{hard\_neg}$-$\textsf{random}) & \multicolumn{2}{c}{$+0.6$\,pp} & \multicolumn{2}{c}{$+0.6$\,pp} \\
     \bottomrule
   \end{tabular}
   \caption{Distractor-strategy ablation (SAE rate and pass$^3$ accuracy,
-    $n{=}350$/cell). The pre-registered $\ge 15$\,pp \textsf{hard\_neg} effect
-    does not appear; SAE stays at the floor under every strategy.}
+    $n{=}350$/cell), across all six strategies. The pre-registered
+    $\ge 15$\,pp \textsf{hard\_neg} effect does not appear; SAE stays at the
+    floor under every strategy.}
   \label{tab:distractor}
 \end{table}
 
