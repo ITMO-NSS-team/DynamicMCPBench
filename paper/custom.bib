@@ -68,3 +68,252 @@
 	Volume = {6},
 	Year = {2005}
 }
+
+% =====================================================================
+% DynamicMCPBench references. Curated from our planning docs and
+% content-verified against arXiv/ACL/PMLR on 2026-06-17 (title, authors,
+% year, venue, and that the attributed claim matches the abstract).
+% "[TODO]" marks a field not yet confirmable from a public record -- the
+% author fills it before camera-ready (deliberately NOT invented here).
+% Each "why:" line records the motivation for citing the work.
+% =====================================================================
+
+% ---------- MCP-native benchmarks ----------
+@misc{mcpradar,
+  title={{MCP-RADAR}: A Multi-Dimensional Benchmark for Evaluating Tool Use Capabilities in Large Language Models},
+  author={Gao, Xuanqi and others}, year={2025},
+  eprint={2505.16700}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: first MCP-specific benchmark; multi-dimensional scoring; no distractor control.
+
+@misc{mcpeval,
+  title={{MCPEval}: Automatic {MCP}-based Deep Evaluation for {AI} Agent Models},
+  author={Liu, Zhiwei and others}, year={2025},
+  eprint={2507.12806}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: closest generate-then-verify MCP synthesis; we contrast explore-then-distill and score effects, not the generated plan.
+
+@misc{mcpbench,
+  title={{MCP-Bench}: Benchmarking Tool-Using {LLM} Agents with Complex Real-World Tasks via {MCP} Servers},
+  author={Wang, Zhenting and others}, year={2025},
+  eprint={2508.20453}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: 28 live servers, fuzzy instructions; outcome scoring; SAE not isolated.
+
+@misc{mcpverse,
+  title={{MCPVerse}: An Expansive, Real-World Benchmark for Agentic Tool Use},
+  author={Lei, Fei and others}, year={2025},
+  eprint={2508.16260}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: Oracle/Standard/Max-Scale modes echo our gold/target/full pools, but distractors not density-controlled.
+
+@misc{mcpuniverse,
+  title={{MCP-Universe}: Benchmarking Large Language Models with Real-World Model Context Protocol Servers},
+  author={Luo, Ziyang and others}, year={2025},
+  eprint={2508.14704}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: execution-based MCP eval; documents an "unknown-tools challenge" but cannot separate server-confusion from mis-typing.
+
+@misc{livemcpbench,
+  title={{LiveMCPBench}: Can Agents Navigate an Ocean of {MCP} Tools?},
+  author={Mo, Guozhao and others}, year={2025},
+  eprint={2508.01780}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: largest tool space (70 servers / 527 tools) with an 81%-human-agreement judge; flat outcome scoring.
+
+@misc{livemcp101,
+  title={{LiveMCP-101}: Stress Testing and Diagnosing {MCP}-enabled Agents on Challenging Queries},
+  author={Yin, Ming and others}, year={2025},
+  eprint={2508.15760}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: multi-tool queries vs ground-truth plans; frontier LLMs <60%; failure-taxonomy peer, plan-matched not effect-scored.
+
+@misc{mcpagentbench,
+  title={{MCP-AgentBench}: Evaluating Real-World Language Agent Performance with {MCP}-Mediated Tools},
+  author={Guo, Zikang and others}, year={2025},
+  eprint={2509.09734}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: 33 servers / 188 tools; difficulty set manually, not derived from interaction structure.
+
+@misc{mcptoolbenchpp,
+  title={{MCPToolBench++}: A Large Scale {AI} Agent Model Context Protocol {MCP} Tool Use Benchmark},
+  author={Fan, S. and others}, year={2025},
+  eprint={2508.07575}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: largest substrate breadth (4000+ servers); no semantic-proximity control.
+
+@misc{mcpmark,
+  title={{MCPMark}: A Benchmark for Stress-Testing Realistic and Comprehensive {MCP} Use},
+  author={Wu and others}, year={2025},
+  eprint={2509.24002}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: realistic stress scenarios; even top models struggle -- corroborates our difficulty finding.
+
+@misc{mcpworld,
+  title={{MCPWorld}: A Unified Benchmarking Testbed for {API}, {GUI}, and Hybrid Computer-Use Agents},
+  author={Yan, Yunhe and others}, year={2025},
+  eprint={2506.07672}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: API+GUI+hybrid testbed; complementary, GUI-oriented scope.
+
+@misc{oworldmcp,
+  title={{OSWorld-MCP}: Benchmarking {MCP} Tool Invocation in Computer-Use Agents},
+  author={Jia, H. and others}, year={2025},
+  eprint={2510.24563}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: MCP tool invocation in computer-use agents; even strong models invoke tools only ~36%.
+
+@misc{mcpatlas,
+  title={{MCP-Atlas}: A Large-Scale Benchmark for Tool-Use Competency with Real {MCP} Servers},
+  author={Bandi, Chaithanya and others}, year={2026},
+  eprint={2602.00933}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: closest prior art -- claims-based partial credit, explicit plausible distractors; distractor strategy not varied, answer/claim-based scoring.
+
+% msb: author = TODO (first-author initial Z.)
+@misc{msb,
+  title={{MCP} Security Bench ({MSB}): Benchmarking Attacks Against Model Context Protocol in {LLM} Agents},
+  author={TODO}, year={2025},
+  eprint={2510.15994}, archivePrefix={arXiv}, primaryClass={cs.CR}}
+% why: 12-attack taxonomy incl. name-collision -- the security-side analogue of our server-attribution axis.
+
+@inproceedings{unitoolbench,
+  title={{UniToolBench}: A Benchmark for Tool-Augmented {LLMs} in Cross-Domain, Universal Task Automation},
+  author={Guo, Xiaojie and Zhang, Yang and Zhang, Bing and Kawahara, Ryo and Takeuchi, Mikio and Zhu, Yada},
+  year={2026}, booktitle={Findings of the Association for Computational Linguistics: EACL 2026},
+  note={ACL Anthology 2026.findings-eacl.248}}
+% why: graph-based generator (link-prediction + confidence beam-search subgraph sampling -- NOT back-instruct) we contrast against as a non-forward generator.
+
+% ---------- Tool-use & agent benchmarks ----------
+@misc{gorilla,
+  title={{Gorilla}: Large Language Model Connected with Massive {APIs}},
+  author={Patil, Shishir G. and Zhang, Tianjun and Wang, Xin and Gonzalez, Joseph E.},
+  year={2023}, eprint={2305.15334}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  note={NeurIPS 2024}}
+% why: established the tool-retrieval evaluation paradigm we depart from.
+
+@misc{toolllm,
+  title={{ToolLLM}: Facilitating Large Language Models to Master 16000+ Real-world {APIs}},
+  author={Qin, Yujia and others}, year={2023},
+  eprint={2307.16789}, archivePrefix={arXiv}, primaryClass={cs.AI},
+  note={ICLR 2024}}
+% why: ToolBench corpus at scale, but up to 50% of queries / 75% of trajectories had quality issues -- motivates grounding tasks in real successful traces.
+
+@misc{metatool,
+  title={{MetaTool} Benchmark for Large Language Models: Deciding Whether to Use Tools and Which to Use},
+  author={Huang, Yue and others}, year={2023},
+  eprint={2310.03128}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  note={ICLR 2024}}
+% why: "tool selection with similar choices" subtask -- nearest precedent for the confusion our hard-negative / same-name categories probe.
+
+@inproceedings{bfcl,
+  title={The {Berkeley} Function Calling Leaderboard ({BFCL}): From Tool Use to Agentic Evaluation of Large Language Models},
+  author={Patil, Shishir G. and others}, year={2025},
+  booktitle={Proceedings of the 42nd International Conference on Machine Learning (ICML)},
+  note={PMLR v267 (patil25a)}}
+% why: AST-based deterministic structural checking -- precedent for our Tier-1 deterministic scoring.
+
+@misc{taubench,
+  title={{$\tau$-bench}: A Benchmark for Tool-Agent-User Interaction in Real-World Domains},
+  author={Yao, Shunyu and others}, year={2024},
+  eprint={2406.12045}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: source of pass^k reliability and of database-state (outcome) comparison robust to multiple valid paths -- both adopted here.
+
+@misc{toolsandbox,
+  title={{ToolSandbox}: A Stateful, Conversational, Interactive Evaluation Benchmark for {LLM} Tool Use Capabilities},
+  author={Lu, Jiarui and others}, year={2024},
+  eprint={2408.04682}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  note={Apple}}
+% why: origin of milestone/minefield checking -- our minefields adopt this; we add path-agnostic effect checkpoints.
+
+% ---------- Graph / tool-list-grounded evaluation ----------
+% agb: TODO -- no public record found 2026-06-17 (concurrent/anonymous submission)
+@misc{agb,
+  title={{AgentGraphBench}},
+  author={TODO}, year={TODO},
+  note={Concurrent submission; no public arXiv/ACL/OpenReview record located. Diagnosed that ground-truth tool lists are ~50\% noise.}}
+% why: the graph-lane peer we are deliberately orthogonal to; we adopt its GT-tool-noise diagnosis and answer it structurally via trace grounding.
+
+@misc{taskbench,
+  title={{TaskBench}: Benchmarking Large Language Models for Task Automation},
+  author={Shen, Yongliang and others}, year={2023},
+  eprint={2311.18760}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  note={NeurIPS 2024 Datasets and Benchmarks}}
+% why: canonical Tool-Graph + Back-Instruct (subgraph -> invent a matching query) -- the paradigm we invert with forward exploration.
+
+% ---------- Task generation / corpora ----------
+% toucan: author = TODO (org: Agent-Ark)
+@misc{toucan,
+  title={{TOUCAN}: Synthesizing 1.5M Tool-Agentic Data from Real-World {MCP} Environments},
+  author={TODO}, year={2025},
+  eprint={2510.01179}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: onboarded 495 real MCP servers -- feasibility precedent for crawling hundreds of live servers.
+
+@misc{taskcraft,
+  title={{TaskCraft}: Automated Generation of Agentic Tasks},
+  author={Shi, Dingfeng and others}, year={2026},
+  eprint={2506.10055}, archivePrefix={arXiv}, primaryClass={cs.AI},
+  note={ICLR 2026}}
+% why: depth/width-expanded, rejection-sampling-validated agentic-task generation -- a generation peer over (non-live) tools.
+
+% ---------- Determinism & reproducible tool environments ----------
+@misc{stabletoolbench,
+  title={{StableToolBench}: Towards Stable Large-Scale Benchmarking on Tool Learning of Large Language Models},
+  author={Guo, Zhicheng and others}, year={2024},
+  eprint={2403.07714}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  note={ACL 2024 Findings}}
+% why: caching (cache -> real API -> simulator) as the standard determinism mechanism; our deterministic replay records whole trajectories instead.
+
+@misc{mirrorapi,
+  title={{StableToolBench-MirrorAPI}: Modeling Tool Environments as Mirrors of 7,000+ Real-World {APIs}},
+  author={Guo, Zhicheng and others}, year={2025},
+  eprint={2503.20527}, archivePrefix={arXiv}, primaryClass={cs.CL}}
+% why: trained LLM tool-response simulator for cache misses; contrast with our recorded-trace replay.
+
+% travelbench: author = TODO
+@misc{travelbench,
+  title={{TravelBench}: A Broader Real-World Benchmark for Multi-Turn and Tool-Using Travel Planning},
+  author={TODO}, year={2025},
+  eprint={2512.22673}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: semantic-retrieval cache fallback (embedding + FAISS top-k on cache miss) -- the recipe for our replay cache-miss handling.
+
+% ---------- State / trace-based evaluation ----------
+@misc{taubench2,
+  title={{$\tau^2$-Bench}: Evaluating Conversational Agents in a Dual-Control Environment},
+  author={Barres, Victor and others}, year={2025},
+  eprint={2506.07982}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: dual-control shared dynamic environment -- trace/state evaluation lineage we build on.
+
+@misc{tracebench,
+  title={Beyond the Final Answer: Evaluating the Reasoning Trajectories of Tool-Augmented Agents},
+  author={Kim, Wonjoong and others}, year={2025},
+  eprint={2510.02837}, archivePrefix={arXiv}, primaryClass={cs.AI},
+  note={TRACE; ICML 2026}}
+% why: reference-free trajectory evaluation -- direct precedent for scoring traces over final answers.
+
+@misc{logigen,
+  title={{LOGIGEN}: Logic-Driven Generation of Verifiable Agentic Tasks},
+  author={Zeng, Yucheng and others}, year={2026},
+  eprint={2603.00540}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: deterministic state-verification / dense state-rewards -- the state-reward framing behind our effect-equivalence judging.
+
+@misc{proxystate,
+  title={Toward Scalable Verifiable Reward: Proxy State-Based Evaluation for Multi-turn Tool-Calling {LLM} Agents},
+  author={Chuang, Yun-Shiuan and others}, year={2026},
+  eprint={2602.16246}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: proxy-state reward when no deterministic state read exists -- the role our Tier-2 effect-equivalence judge plays.
+
+% ---------- Self-bias in LLM-generated benchmarks ----------
+@misc{silencer,
+  title={{Silencer}: From Discovery to Mitigation of Self-Bias in {LLM}-as-Benchmark-Generator},
+  author={Yuan, Peiwen and others}, year={2025},
+  eprint={2505.20738}, archivePrefix={arXiv}, primaryClass={cs.CL}}
+% why: defines self-bias, mitigates via generator heterogeneity -- the principle behind our multi-family generation (no systematic same-family advantage).
+
+% ---------- MCP tool-description quality ----------
+@misc{smellydesc,
+  title={Model Context Protocol ({MCP}) Tool Descriptions Are Smelly! Towards Improving {AI} Agent Efficiency with Augmented {MCP} Tool Descriptions},
+  author={Hasan and others}, year={2026},
+  eprint={2602.14878}, archivePrefix={arXiv}, primaryClass={cs.SE}}
+% why: 97.1% of tool descriptions have >=1 "smell" -- motivates why tool-list/description grounding is fragile.
+
+% docstodesc: author = TODO
+@misc{docstodesc,
+  title={From Docs to Descriptions: Smell-Aware Evaluation of {MCP} Server Descriptions},
+  author={TODO}, year={2026},
+  eprint={2602.18914}, archivePrefix={arXiv}, primaryClass={cs.SE}}
+% why: 18 smell categories over 10k+ servers -- corroborates description-quality noise across the ecosystem.
+
+% ---------- Tool retrieval ----------
+@misc{ragmcp,
+  title={{RAG-MCP}: Mitigating Prompt Bloat in {LLM} Tool Selection via Retrieval-Augmented Generation},
+  author={Gan, Tiantian and Sun, Qiyao}, year={2025},
+  eprint={2505.03275}, archivePrefix={arXiv}, primaryClass={cs.AI}}
+% why: flat exposure of all tool descriptions degrades selection -- motivates our flat-vs-retrieval exposure ablation.
