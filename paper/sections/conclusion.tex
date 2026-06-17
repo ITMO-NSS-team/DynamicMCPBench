@@ -1,9 +1,19 @@
 \section{Conclusion}
 \label{sec:conclusion}
-% TODO: restate the pivot --- the trace is the primitive, effect checkpoints are
-%   the contract, and we never grade the answer. Summarize RQ1--RQ4. Fold the
-%   former Discussion points: why trace-grounding works ("every tool in a trace
-%   was actually invoked, so 'unnecessary tool' is impossible by construction");
-%   what task dynamism explains and what it does not; where the answer string is
-%   still useful (stored and reported, never scored). Point to the release ---
-%   the dmcp package + the HuggingFace dataset.
+We argued that the right ground truth for an MCP-agent benchmark is neither
+the final answer nor a list of tools, but the \emph{execution trace}, and we
+built DynamicMCPBench around it: a reusable framework that (i)~runs over live
+or user-supplied servers instead of shipping a fixed dataset, (ii)~generates
+tasks forward from real successful trajectories instead of imposing a graph
+or a plan, (iii)~scores path-agnostic \emph{effects} under deterministic
+replay instead of answers, tool lists, or cached responses, and
+(iv)~stratifies difficulty by task category and length. Because every tool
+in a task was actually used to reach its goal, an ``unnecessary tool'' cannot
+appear, and because scoring reads effects rather than the reply, the
+benchmark survives live, changing data. Running the framework over 121
+servers and 24 models shows how far current agents still have to go: even the
+strongest solve only about half of the tasks, roughly a third are solved by
+no model, and accuracy falls steadily as the required tool chain lengthens,
+while a human study confirms the answer-agnostic scoring is reliable. We
+release the framework and the generated benchmark so that practitioners can
+rerun the entire pipeline on their own servers and models.

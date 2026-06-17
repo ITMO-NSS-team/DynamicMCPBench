@@ -1,9 +1,23 @@
 \section*{Reproducibility Statement}
 \label{sec:reproducibility}
-% Optional under EMNLP 2026 Industry Track; does NOT count toward the page limit.
-% TODO: anonymous code + dataset repositories; pre-registered decision rules in
-%   docs/experiments/<id>-*.md; every number regenerated from
-%   docs/experiments/*_numbers.json via paper/regenerate.py (no hand-typed
-%   numbers); the deterministic, machine-independent replay protocol.
-% TODO(final version only --- de-anonymized): a "Use of Large Language Models"
-%   statement and "Acknowledgments" go here, after the Reproducibility Statement.
+All reported numbers are regenerated directly from the released evaluation
+records: the per-run verdicts and the two leaderboards are public, and the
+figures in \S\ref{sec:results} are produced from them by a committed script.
+Evaluation is deterministic---each task is scored by replaying its recorded
+world---so re-runs reproduce the same verdicts, and the scoring procedure and
+every design parameter are described in \S\ref{sec:benchmark}. The code and
+dataset are released in anonymized repositories.
+
+\section*{Use of Large Language Models}
+The objects of study in this paper are large language models: the agents
+under evaluation, the model families that generate the corpus, and the
+second-tier effect-equivalence judge are all LLMs, as described in
+\S\ref{sec:benchmark}. Large language models were additionally used to assist
+with copy-editing the manuscript; all technical contributions, experiments,
+and analysis are the authors' own.
+
+\section*{Ethical Considerations}
+The framework executes real tools during exploration. To prevent side
+effects, every state-changing server is required to run in a sandbox, and
+exploration and scoring operate only against sandboxed or read-only servers,
+so no real external state is modified.
