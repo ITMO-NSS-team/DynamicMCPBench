@@ -1,52 +1,111 @@
-\section{DynamicMCPBench Benchmark}
+\section{DynamicMCPBench}
 \label{sec:benchmark}
 
-% TODO(benchmark-intro): one sentence --- we build the benchmark by observing
-%   successful agent trajectories on live MCP servers and distilling each into
-%   path-agnostic effect checkpoints, never string-matching a final answer.
+We build the benchmark by observing what works on real servers: an explorer
+agent solves goals \emph{live} on MCP servers, and each successful
+trajectory is distilled into a task whose ground truth is the
+\emph{effects} it produced. The artifact is therefore not a fixed dataset
+but a pipeline (Figure~\ref{fig:pipeline}) that a practitioner re-runs on
+their own servers and models.
 
-\subsection{Design Principles}
+\subsection{Design principles}
 \label{sec:benchmark:principles}
-% TODO: the hard invariants stated as principles ---
-%   (i)   the execution trace is the primitive;
-%   (ii)  never grade the final answer (effect-based scoring only);
-%   (iii) forward generation (explore -> distill), not backward graph-sampling;
-%   (iv)  deterministic, machine-independent replay;
-%   (v)   stateful_write servers are sandboxed by construction.
+Five principles fix the design. (1)~\emph{The trace is the primitive}: tasks
+come from recorded successful trajectories, so every required tool was
+actually used and a spurious ``unnecessary'' tool cannot arise. (2)~\emph{We
+never grade the final answer}: scoring checks effects, not whether a
+free-form reply matches a reference string---a match that is unstable the
+moment the answer depends on live data. (3)~\emph{Generation is forward}: we
+explore and then distill, rather than imposing a structure and
+back-instructing a question to fit it. (4)~\emph{Scoring is deterministic
+and machine-independent}: candidates are evaluated by replaying each task's
+recorded world, so two models face an identical environment and reruns
+agree. (5)~\emph{State-changing servers are sandboxed}: any server that can
+write must run in a sandbox, so exploration and scoring cause no real side
+effects.
 
-\subsection{Substrate}
+\paragraph{Why ``dynamic''.} The substrate is live and stateful: 88\% of
+tasks read live data and 12\% change server state (none are static), and the
+underlying servers drift over time. We freeze each task's world through
+deterministic replay for fair scoring, while a refresh step re-runs the
+reference trajectories against the live servers and flags any task whose
+effects can no longer be reproduced.
+
+\paragraph{Safety.} Beyond the effects a task requires, it may also declare
+\emph{minefields}---effects that must \emph{not} occur, such as a
+destructive or wrong-target write; any minefield hit fails the task
+outright \citep{lu2025toolsandbox}. One task category stresses this directly,
+placing destructive look-alike tools beside the intended ones.
+
+\subsection{Substrate and corpus}
 \label{sec:benchmark:substrate}
-% TODO(run-ins): Server manifest. Dynamism classes (static / live_read /
-%   stateful_write). Sandboxing. Mining funnel (registry -> installable -> vetted).
-\input{tables/substrate}
+The released corpus contains 1{,}845 tasks distilled from 2{,}051 reference
+trajectories over 121 live MCP servers, and it is authored by a diverse pool
+of frontier model families (the largest contributing 18\% of the tasks) so
+that no single generator shapes it. Tasks span 15 \emph{categories}, each
+targeting a distinct tool-use challenge of the generated question: a
+baseline of unconstrained tasks (\emph{random}); semantic near-misses that
+tempt the wrong tool (\emph{hard-negative}, \emph{same-name},
+\emph{homonym-trap}, \emph{sibling}, \emph{cross-domain}); cross-server and
+multi-step structure (\emph{cross-server-alternative}, \emph{complementary},
+\emph{long-similar-chain}); ordering and prerequisite demands
+(\emph{prerequisite-strict}, \emph{recovery-required}); traps (\emph{decoy},
+\emph{destructive-adjacent}); under-specification (\emph{ambiguous-intent});
+and a controlled blend (\emph{stratified}). Tasks are further stratified by
+\emph{dynamism} (live-read vs.\ state-changing), by \emph{length}---the depth
+of the tool-dependency chain, which ranges from~1 to~77 with a mean
+of~5.2---and by \emph{scope}, intra- vs.\ cross-server (29\% of tasks span
+more than one server). For the study we evaluate on a balanced slice of 50
+tasks per category, 750 in total.
 
-\subsection{Forward Generation and Distillation}
+\subsection{Forward generation and distillation}
 \label{sec:benchmark:gen}
-% TODO(run-ins): Goal generation (goal_gen + deterministic persona seeding).
-%   Exploration (the explorer agent loop on the live substrate). Distillation
-%   (trace -> TaskSpec). TaskSpec anatomy: fuzzy prompt; tool_effect /
-%   value_produced checkpoints; equivalence sets; minefields; partial order;
-%   ComplexityProfile + dynamism class.
-\input{figures/trace_distill_example}
+A goal generator turns each server's tool surface into realistic user goals,
+with persona-varied phrasing for diversity; an explorer agent then pursues
+one goal live, and a successful run is handed to a distiller that emits a
+\emph{task specification}. A specification has a fuzzy natural-language
+prompt (tool names removed); one or more \emph{checkpoints} of two kinds---a
+\emph{tool-effect} checkpoint (some tool from an \emph{equivalence set} of
+interchangeable tools must be called, optionally meeting an argument
+constraint) and a \emph{value-produced} checkpoint (a demanded value must
+appear in a tool result); optional \emph{minefields}; and a \emph{partial
+order} that constrains two effects only where one genuinely depends on the
+other, leaving parallel steps unordered. Each specification also records a
+complexity profile (chain depth, cross-server, branching) used for the
+stratification above. The choices that shape the corpus are deliberate:
+generation is forward and trace-grounded so tasks are provably achievable;
+categories are balanced at 50 tasks each so no category dominates; seed
+difficulty is scaled to span short and long chains; and authorship is spread
+across model families. The distiller never introduces a checkpoint the trace
+does not justify.
 
-\subsection{Tasks and Difficulty}
-\label{sec:benchmark:tasks}
-% TODO(run-ins): Generation strategies (6 base relationship samplers + 7 corner
-%   cases + 2 cross-server specials). Difficulty bins (simple 1--2 / medium 3--4 /
-%   hard 5+ long-similar-chain). Problem formulation: pass/fail over checkpoints,
-%   the pass^k reliability definition, and the server-attribution-error (SAE) rate.
-
-\subsection{Evaluation}
+\subsection{Effect-based scoring}
 \label{sec:benchmark:eval}
-% TODO(run-ins): Tier-1 deterministic effect scoring. Tier-2 LLM effect-
-%   equivalence judge (temperature 0, tool-call schema). Replay determinism
-%   (TraceReplayRecorder). What we never grade (the final answer). Models and
-%   protocol (>=5 candidate models under replay, repeated k times). Eval
-%   controls: pool modes (gold / target / full), the six sampler strategies,
-%   description normalization (Level A surface vs Level B semantic), the P_alt driver.
+Given a candidate trajectory, a deterministic first tier checks each
+checkpoint: that some tool in a tool-effect's equivalence set was called with
+arguments meeting its constraint; that a value-produced checkpoint's value
+appears; that no minefield was hit; and that the partial order holds. Because
+checkpoints carry equivalence sets, any path that achieves the required
+effects passes---on the released corpus 16\% of effect checkpoints admit two
+or more interchangeable tools (up to twelve)---so multiple valid trajectories
+are accepted rather than a single gold path. A second tier is an LLM judge
+that may upgrade only a \emph{failed} tool-effect when a different tool is
+genuinely effect-equivalent; it never reads or grades the final answer.
+Candidates are compared under deterministic replay, each task attempted three
+times and counted as solved only if all three attempts pass
+(\(\mathrm{pass}^3\); \citealp{yao2024tau}). To keep the setting controlled
+and identical across models, each candidate is offered the tools it needs
+plus a fixed set of distractor tools, half of them same-name tools on other
+servers; the action budget is generous enough for the longest chains; and the
+main configuration presents tool descriptions as written and exposes all
+tools directly, so the headline measures the agent rather than a description
+rewriter or a retriever.
 
-\subsection{Living Bench: Refresh and Decay}
-\label{sec:benchmark:refresh}
-% TODO: dmcp refresh re-executes each spec's reference trace later against the
-%   live substrate and classifies every call identical / drifted / broken /
-%   skipped; stateful_write servers skipped by default.
+\subsection{Applying the framework to your own servers}
+\label{sec:benchmark:apply}
+Because every stage---collecting servers, generating goals, exploring,
+distilling, and scoring---is automated, the same pipeline runs end to end on
+a practitioner's own servers and chosen models, yielding a benchmark and a
+leaderboard for their deployment. Pointed instead at servers collected
+automatically, it measures a model's general ability to solve agentic tasks;
+that is the mode behind the study in \S\ref{sec:results}.
