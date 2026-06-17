@@ -14,20 +14,25 @@
     "qwen3.6-35b-a3b": {"0.0": {"acc": 50, "acc_ci": [45, 55], "sae": 0}, "0.25": {"acc": 50, "acc_ci": [45, 55], "sae": 0}, "0.5": {"acc": 50, "acc_ci": [45, 55], "sae": 1}, "0.75": {"acc": 50, "acc_ci": [45, 55], "sae": 1}, "1.0": {"acc": 51, "acc_ci": [46, 57], "sae": 1}}
   },
   "g3_1_finding": "flat; no accuracy degradation or SAE elevation beyond CI across P_alt 0->1, all 5 models; classification NEGATIVE/null for degradation hypothesis",
-  "g3_2_ablation_partial": {
-    "_schema": "model -> strategy -> {sae_n, sae_pct, pass_n, pass_pct} (n=350)",
+  "g3_2_ablation": {
+    "_schema": "model -> strategy -> {sae_n, sae_pct, pass_n, pass_pct} (n=350); all 6 strategies complete",
     "glm-5.1": {
       "random":       {"sae_n": 0, "sae_pct": 0.0, "pass_n": 207, "pass_pct": 59.1},
       "hard_neg":     {"sae_n": 2, "sae_pct": 0.57, "pass_n": 197, "pass_pct": 56.3},
       "cross_domain": {"sae_n": 0, "sae_pct": 0.0, "pass_n": 202, "pass_pct": 57.7},
-      "same_name":    {"sae_n": 2, "sae_pct": 0.57, "pass_n": 212, "pass_pct": 60.6}
+      "same_name":    {"sae_n": 2, "sae_pct": 0.57, "pass_n": 212, "pass_pct": 60.6},
+      "sibling":      {"sae_n": 1, "sae_pct": 0.29, "pass_n": 209, "pass_pct": 59.7},
+      "stratified":   {"sae_n": 1, "sae_pct": 0.29, "pass_n": 200, "pass_pct": 57.1}
     },
     "deepseek-v4-pro": {
       "random":       {"sae_n": 0, "sae_pct": 0.0, "pass_n": 191, "pass_pct": 54.6},
       "hard_neg":     {"sae_n": 2, "sae_pct": 0.57, "pass_n": 202, "pass_pct": 57.7},
-      "cross_domain": {"sae_n": 0, "sae_pct": 0.0, "pass_n": 205, "pass_pct": 58.6}
+      "cross_domain": {"sae_n": 0, "sae_pct": 0.0, "pass_n": 205, "pass_pct": 58.6},
+      "same_name":    {"sae_n": 1, "sae_pct": 0.29, "pass_n": 200, "pass_pct": 57.1},
+      "sibling":      {"sae_n": 1, "sae_pct": 0.29, "pass_n": 208, "pass_pct": 59.4},
+      "stratified":   {"sae_n": 1, "sae_pct": 0.29, "pass_n": 199, "pass_pct": 56.9}
     },
-    "deferred": ["sibling", "stratified", "holm_omnibus", "H2", "H3", "gen_eval_heatmap"]
+    "deferred": ["holm_omnibus", "H2", "H3", "gen_eval_heatmap"]
   },
   "g3_2_H1_preregistered": {
     "rule": "SAE(hard_neg) - SAE(random) >= 15pp",
