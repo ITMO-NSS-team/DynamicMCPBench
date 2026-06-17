@@ -60,9 +60,9 @@ evaluation-time distractor selectors.
     anchor (near-duplicates removed), probing look-alike confusion.
   \item \emph{cross-domain}: similar tools whose server domain (tags) differs
     from the anchor's, probing wrong-domain look-alikes.
-  \item \emph{same-name}: tools with the same name on a \emph{different} server
+  \item \emph{same-name}: tools with the same name on a different server
     (plus near-collisions), the server-attribution primitive.
-  \item \emph{sibling}: other tools on the \emph{same} server, probing
+  \item \emph{sibling}: other tools on the same server, probing
     intra-server confusion.
   \item \emph{stratified}: a round-robin mix of the five above.
 \end{itemize}
@@ -155,7 +155,7 @@ relationship sampler picks the seed set, whose size is set by a complexity
 level (simple~$=2$, medium~$=4$, hard~$=6$ tools) swept to span short and long
 chains; phrasing is persona-seeded for linguistic diversity. Authorship is
 spread across many model families, with the explorer and the distiller
-constrained to \emph{different} families to limit self-preference. The
+constrained to different families to limit self-preference. The
 explorer runs with a 12-turn budget; the distiller emits the task
 specification deterministically (temperature~0) under a large token budget so
 that reasoning models do not truncate the structured output. Each choice
@@ -418,8 +418,8 @@ The incomplete-aggregation rate is also the single strongest predictor of
 accuracy (Figure~\ref{fig:failure}, right): across all 24 models it correlates
 with pass\textasciicircum{}3 at $r=-0.98$, far tighter than any other signal we
 measured. Some of these unmet value checkpoints reflect the scorer's deliberate
-conservatism rather than a true aggregation failure (see Limitations), but the
-ranking implication is robust---the models that most often stop short of
+conservatism rather than an aggregation failure (see Limitations), but the
+ranking implication holds: the models that most often stop short of
 aggregating the required evidence are the models that score lowest.
 
 \paragraph{Safety.} Of the 8{,}496 runs in which a destructive-adjacent
@@ -444,7 +444,7 @@ At the default evaluation setting, server-attribution errors (SAE)---calling
 the right tool on the wrong server---fire on only 0.2\% of runs (108 of
 54{,}000), so failures are dominated by chain length and composition rather
 than by confusing one server for another (Appendix~\ref{app:failure}). We
-probe this directly along two axes: the \emph{quantity} of distractors and
+probe this directly along two axes: the quantity of distractors and
 their \emph{strategy}.
 
 \paragraph{Distractor quantity.} We sweep the fraction of the offered tool pool
@@ -456,7 +456,7 @@ ${\sim}1\%$ floor---even when \emph{every} distractor in the pool is a same-name
 look-alike ($P_\mathrm{alt}{=}1$). Filling the pool with alternatives does not
 induce server confusion.
 
-\paragraph{Distractor strategy.} Nor does distractor \emph{quality}. We
+\paragraph{Distractor strategy.} Nor does distractor quality. We
 pre-registered the hypothesis that adversarially-mined hard-negative distractors
 would induce at least 15 points more SAE than random fillers
 ($\mathrm{SAE}(\textsf{hard\_neg}) - \mathrm{SAE}(\textsf{random}) \ge 15$\,pp).

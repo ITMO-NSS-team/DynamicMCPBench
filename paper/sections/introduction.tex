@@ -18,16 +18,16 @@
 
 Large language model (LLM) agents increasingly act through the Model
 Context Protocol (MCP), a fast-growing standard that exposes external
-tools---file stores, databases, web services, developer platforms---behind
+tools (file stores, databases, web services, developer platforms) behind
 a uniform calling interface. As these agents move into production, the
 practical question is no longer \emph{whether} a model can call a tool but
 \emph{whether} the agent accomplishes the user's goal across many real,
 interacting services. The benchmarks used to answer that question, however,
 mostly score one of two proxies: the agent's final natural-language answer,
-matched against a reference string, or the \emph{set of tools} the agent
+matched against a reference string, or the set of tools the agent
 was expected to call. Both are fragile precisely where deployment matters.
-A reference answer goes stale the moment it depends on live data---today's
-price, this morning's commit, the current contents of a table---and a fixed
+A reference answer goes stale the moment it depends on live data (today's
+price, this morning's commit, the current contents of a table), and a fixed
 tool list cannot be recovered from the prompt alone, so it accumulates
 spurious ``required'' tools that penalize an agent for taking a different,
 equally valid route.
@@ -35,9 +35,9 @@ equally valid route.
 We argue that the organizing object of the benchmark should be neither the
 answer nor the tool list, but the \emph{execution trace}.
 \textbf{DynamicMCPBench} is built around this idea, and it is a
-\emph{framework} rather than a fixed dataset, usable two ways: a practitioner can point it
-at their \emph{own} MCP servers to test models on their own tasks, or let
-it collect servers automatically to measure a model's \emph{general}
+framework rather than a fixed dataset, usable two ways: a practitioner can point it
+at their own MCP servers to test models on their own tasks, or let
+it collect servers automatically to measure a model's general
 ability to solve agentic tasks. Given a set of servers and a set of
 candidate models, it
 (i)~generates realistic user goals from the servers' tool surfaces;
@@ -75,7 +75,7 @@ practitioners can rerun the entire pipeline on their own deployment
 scoring method that credits any trajectory reproducing the required effects
 and never grades the final answer, validated against human judgment
 (\S\ref{sec:benchmark},~\S\ref{sec:results}); (iii)~a large
-\emph{demonstration study}---24 models, 121 servers, 750 tasks---that
+demonstration study (24 models, 121 servers, 750 tasks) that
 exposes a consistent inability of current agents to handle long,
 multi-step agentic tasks, stratified by task length and category
 (\S\ref{sec:results}); and (iv)~a public, anonymized release of both the

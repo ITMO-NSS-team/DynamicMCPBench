@@ -4,7 +4,7 @@
 We run the framework over the live substrate and evaluate 24 models on the
 balanced 750-task slice. Every number is pass\textasciicircum{}3 under
 deterministic replay, and we read the results as the state of the
-field---what current agents can and cannot do---rather than as a ranking of
+field (what current agents can and cannot do) rather than as a ranking of
 individual systems.
 
 \begin{figure*}[t]
@@ -70,7 +70,7 @@ operating requirements, a task consumes \textbf{3.4k--25.7k} prompt tokens,
 0.2k--1.9k completion tokens, and 1.5--5.0 tool or model calls per attempt;
 because the heaviest prompts approach 26k tokens, a \(\geq\)32k-token
 context window is needed in practice, and the locally-served models run on a
-single H100 graphics processing unit (GPU). Crucially, accuracy is not
+single H100 graphics processing unit (GPU). Accuracy is not
 bought by compute (Figure~\ref{fig:compute}): the most accurate models are
 not the most token-hungry, and models at similar prompt sizes differ by more
 than 20 points.
