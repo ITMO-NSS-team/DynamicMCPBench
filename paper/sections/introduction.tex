@@ -1,27 +1,14 @@
 \section{Introduction}
 \label{sec:intro}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig_pipeline.png}
-  \caption{The DynamicMCPBench pipeline. \textbf{Forward generation:} a
-    goal-seeded agent explores live MCP servers, and each successful execution
-    trace is distilled into a path-agnostic \emph{TaskSpec}---effect
-    checkpoints, minefields, and a partial order over the effects.
-    \textbf{Effect-scored evaluation:} a candidate agent runs on deterministic
-    replay and is graded purely on whether it reproduces those effects (with
-    \emph{any} effect-equivalent tool), never on its final answer. A periodic
-    \emph{refresh} re-runs the references and classifies drift, keeping the
-    benchmark live.}
-  \label{fig:pipeline}
-\end{figure*}
+
 
 Large language model (LLM) agents increasingly act through the Model
 Context Protocol (MCP), a fast-growing standard that exposes external
 tools (file stores, databases, web services, developer platforms) behind
 a uniform calling interface. As these agents move into production, the
-practical question is no longer \emph{whether} a model can call a tool but
-\emph{whether} the agent accomplishes the user's goal across many real,
+practical question is no longer whether a model can call a tool but
+whether the agent accomplishes the user's goal across many real,
 interacting services. The benchmarks used to answer that question, however,
 mostly score one of two proxies: the agent's final natural-language answer,
 matched against a reference string, or the set of tools the agent
@@ -31,6 +18,21 @@ price, this morning's commit, the current contents of a table), and a fixed
 tool list cannot be recovered from the prompt alone, so it accumulates
 spurious ``required'' tools that penalize an agent for taking a different,
 equally valid route.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_pipeline.png}
+  \caption{The DynamicMCPBench pipeline. \textbf{Forward generation:} a
+    goal-seeded agent explores live MCP servers, and each successful execution
+    trace is distilled into a path-agnostic \emph{TaskSpec}: effect
+    checkpoints, minefields, and a partial order over the effects.
+    \textbf{Effect-scored evaluation:} a candidate agent runs on deterministic
+    replay and is graded purely on whether it reproduces those effects (with
+    \emph{any} effect-equivalent tool), never on its final answer. A periodic
+    \emph{refresh} re-runs the references and classifies drift, keeping the
+    benchmark live.}
+  \label{fig:pipeline}
+\end{figure*}
 
 We argue that the organizing object of the benchmark should be neither the
 answer nor the tool list, but the \emph{execution trace}.
@@ -44,8 +46,8 @@ candidate models, it
 (ii)~drives an explorer agent to pursue each goal \emph{live} on the
 servers, recording successful trajectories; (iii)~distills each trajectory
 into a task whose ground truth is a set of path-agnostic \emph{effect
-checkpoints}---the state changes and intermediate values that any correct
-solution must produce---together with forbidden-action \emph{minefields}
+checkpoints}, the state changes and intermediate values that any correct
+solution must produce, together with forbidden-action \emph{minefields}
 and a partial order over the effects; and (iv)~scores a candidate purely on
 whether its trajectory reproduces those effects, with \emph{any}
 effect-equivalent tool, never on its final answer
@@ -53,12 +55,12 @@ effect-equivalent tool, never on its final answer
 to reach the goal, the ``unnecessary tool'' problem cannot arise by
 construction.
 
-To demonstrate the framework---and to chart where current agents
-stand---we run it at scale over a substrate of 121 live MCP servers,
-generating 750 tasks spread evenly across 15 \emph{task categories} (50
-each)---each category targets a distinct tool-use challenge of the
+To demonstrate the framework and to chart where current agents
+stand, we run it at scale over a substrate of 121 live MCP servers,
+generating 750 tasks spread evenly across 15 task categories (50
+each). Each category targets a distinct tool-use challenge of the
 generated questions, from single-tool requests through long cross-server
-chains to look-alike-tool confusions---and we evaluate 24 models, both
+chains to look-alike-tool confusions. We evaluate 24 models, both
 API-served and locally hosted. The picture is
 consistent across models: even the strongest agents solve only about half
 of the tasks under pass\textasciicircum{}3 (a task counts as solved only if all

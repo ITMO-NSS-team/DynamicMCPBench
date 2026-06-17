@@ -4,7 +4,7 @@
 We build the benchmark by observing what works on real servers: an explorer
 agent solves goals \emph{live} on MCP servers, and each successful
 trajectory is distilled into a task whose ground truth is the
-\emph{effects} it produced. The artifact is therefore not a fixed dataset
+effects it produced. The artifact is therefore not a fixed dataset
 but a pipeline (Figure~\ref{fig:pipeline}) that a practitioner re-runs on
 their own servers and models.
 
@@ -14,7 +14,7 @@ Five principles fix the design. (1)~\emph{The trace is the primitive}: tasks
 come from recorded successful trajectories, so every required tool was
 actually used and a spurious ``unnecessary'' tool cannot arise. (2)~\emph{We
 never grade the final answer}: scoring checks effects, not whether a
-free-form reply matches a reference string---a match that is unstable the
+free-form reply matches a reference string, a match that is unstable the
 moment the answer depends on live data. (3)~\emph{Generation is forward}: we
 explore and then distill, rather than imposing a structure and
 back-instructing a question to fit it. (4)~\emph{Scoring is deterministic
@@ -43,14 +43,14 @@ The released corpus contains 1{,}845 tasks distilled from 2{,}051 reference
 trajectories over 121 live MCP servers, and it is authored by a diverse pool
 of frontier model families (the largest contributing 18\% of the tasks) so
 that no single generator shapes it. Tasks span 15 \emph{categories}, each
-targeting a distinct tool-use challenge of the generated question---from a
+targeting a distinct tool-use challenge of the generated question, from a
 neutral baseline through semantic near-misses, cross-server and multi-step
 structure, ordering and recovery demands, traps, and under-specification;
 Appendix~\ref{app:categories} defines all fifteen, and
 Appendix~\ref{app:corpus} reports the corpus composition. Tasks are further stratified by
-\emph{dynamism} (live-read vs.\ state-changing), by \emph{length}---the depth
+\emph{dynamism} (live-read vs.\ state-changing), by \emph{length}, the depth
 of the tool-dependency chain, which ranges from~1 to~77 with a mean
-of~5.2---and by \emph{scope}, intra- vs.\ cross-server (29\% of tasks span
+of~5.2, and by \emph{scope}, intra- vs.\ cross-server (29\% of tasks span
 more than one server). For the study we evaluate on a balanced slice of 50
 tasks per category, 750 in total.
 
@@ -84,8 +84,8 @@ checkpoint: that some tool in a tool-effect's equivalence set was called with
 arguments meeting its constraint; that a value-produced checkpoint's value
 appears; that no minefield was hit; and that the partial order holds. Because
 checkpoints carry equivalence sets, any path that achieves the required
-effects passes---on the released corpus 16\% of effect checkpoints admit two
-or more interchangeable tools (up to twelve)---so multiple valid trajectories
+effects passes. On the released corpus, 16\% of effect checkpoints admit two
+or more interchangeable tools (up to twelve), so multiple valid trajectories
 are accepted rather than a single gold path (Appendix~\ref{app:eqset}). A second tier (Tier-2) is an LLM
 judge that may upgrade only a \emph{failed} tool-effect when a different tool
 is genuinely effect-equivalent; it never reads or grades the final answer. The
@@ -102,8 +102,8 @@ rewriter or a retriever.
 
 \subsection{Applying the framework to your own servers}
 \label{sec:benchmark:apply}
-Because every stage---collecting servers, generating goals, exploring,
-distilling, and scoring---is automated, the same pipeline runs end to end on
+Because every stage (collecting servers, generating goals, exploring,
+distilling, and scoring) is automated, the same pipeline runs end to end on
 a practitioner's own servers and chosen models, yielding a benchmark and a
 leaderboard for their deployment. Pointed instead at servers collected
 automatically, it measures a model's general ability to solve agentic tasks;

@@ -1,10 +1,10 @@
 \section*{Limitations}
 \label{sec:limitations}
 Several limitations qualify our results. First, the scorer is deliberately
-\emph{conservative}: it accepts a run only when the required effects are
+conservative: it accepts a run only when the required effects are
 demonstrably present, so it can fail an otherwise-valid alternative
 trajectory, and the reported accuracies should therefore be read as
-\emph{lower bounds} on true capability. Second, 12\% of tasks change server
+lower bounds on true capability. Second, 12\% of tasks change server
 state and so depend on sandboxes; although we require sandboxing for every
 state-changing server, these tasks are more fragile to reproduce than the
 read-only majority. Third, inter-annotator reliability on the near-unanimous
@@ -13,7 +13,7 @@ why we report Gwet's AC1 there rather than a kappa coefficient. Fourth, the
 human study covers all results of the single strongest locally-served model
 rather than of every model. Finally, the substrate leans toward
 English-language, public-API servers, so generalization to private or
-non-English deployments is untested---though running the framework on exactly
+non-English deployments is untested, though running the framework on exactly
 such servers is its intended use.
 
 \paragraph{Future work.} The validation pass surfaced two concrete
