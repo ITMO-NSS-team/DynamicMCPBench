@@ -312,7 +312,16 @@ Table~\ref{tab:tech} reports, per model, single-attempt accuracy (pass@1)
 beside pass\textasciicircum{}3, and the mean prompt tokens, completion tokens,
 and tool/model calls per attempt. Single-attempt accuracy exceeds
 pass\textasciicircum{}3 for every model, confirming that one-shot numbers
-overstate reliability.
+overstate reliability. Figure~\ref{fig:compute} relates accuracy to the mean
+prompt tokens a task consumes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.82\columnwidth]{figures/fig_compute.png}
+  \caption{Accuracy versus mean prompt tokens per task; the most accurate
+    models are not the most token-hungry.}
+  \label{fig:compute}
+\end{figure}
 
 \begin{table}[h]
   \centering \footnotesize \setlength{\tabcolsep}{4pt}

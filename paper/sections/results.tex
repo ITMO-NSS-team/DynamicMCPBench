@@ -9,7 +9,7 @@ individual systems.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/fig_heatmap.png}
+  \includegraphics[width=0.70\textwidth]{figures/fig_heatmap.png}
   \caption{Per-model, per-category pass\textasciicircum{}3 over the 750-task
     slice; API models (top) and locally-served models (below the line),
     each ordered best to worst, against the 15 categories ordered hardest
@@ -34,7 +34,7 @@ tasks rather than of any one system.
 \label{sec:results:difficulty}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/fig_difficulty.png}
+  \includegraphics[width=0.88\textwidth]{figures/fig_difficulty.png}
   \caption{Aggregated across all 24 models: pass\textasciicircum{}3 versus task
     length (left) and mean pass\textasciicircum{}3 per category (right).}
   \label{fig:difficulty}
@@ -55,13 +55,6 @@ architecture matter more than parameter count (Appendix~\ref{app:size}).
 
 \subsection{Reliability and operating requirements}
 \label{sec:results:reliability}
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/fig_compute.png}
-  \caption{Accuracy versus mean prompt tokens per task; the most accurate
-    models are not the most token-hungry.}
-  \label{fig:compute}
-\end{figure}
 Agents are inconsistent across repeats: single-attempt accuracy exceeds
 pass\textasciicircum{}3 by 7--8 points for the strongest models, so one-shot
 numbers overstate dependability and motivate the all-attempts criterion
