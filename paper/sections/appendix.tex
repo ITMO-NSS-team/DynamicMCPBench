@@ -2,7 +2,7 @@
 
 \section{Full Leaderboard}
 \label{app:leaderboard}
-Table~\ref{tab:leaderboard} reports \(\mathrm{pass}^3\) with 95\% confidence
+Table~\ref{tab:leaderboard} reports pass\textasciicircum{}3 with 95\% confidence
 intervals for all 24 models on the 750-task slice, the values summarized by
 the heatmap in \S\ref{sec:results:main}.
 
@@ -11,7 +11,7 @@ the heatmap in \S\ref{sec:results:main}.
   \small
   \begin{tabular}{llr}
     \toprule
-    Model & Group & \(\mathrm{pass}^3\) (\%, 95\% CI) \\
+    Model & Group & pass\textasciicircum{}3 (\%, 95\% CI) \\
     \midrule
     qwen3.7-max & API & 51.2 \, [47.6, 54.8] \\
     glm-5.1 & API & 50.3 \, [46.7, 53.8] \\
@@ -40,7 +40,7 @@ the heatmap in \S\ref{sec:results:main}.
     smollm3-3b & local & 7.2 \, [5.6, 9.3] \\
     \bottomrule
   \end{tabular}
-  \caption{Full leaderboard: \(\mathrm{pass}^3\) and 95\% confidence
+  \caption{Full leaderboard: pass\textasciicircum{}3 and 95\% confidence
     intervals over the 750-task slice, for the 8 API-served and 16
     locally-served models.}
   \label{tab:leaderboard}
@@ -116,7 +116,7 @@ personas add phrasing diversity.
 \noindent\textbf{Evaluation.} Candidates are scored under deterministic replay
 against each task's recorded world, so every model faces an identical
 environment. Each task is run three times and counts as solved only if all
-three runs pass (\(\mathrm{pass}^3\)). The candidate is offered a
+three runs pass (pass\textasciicircum{}3). The candidate is offered a
 \emph{target} tool pool: the tools the task needs plus eight distractors, half
 of them same-name tools on other servers (the rest near-misses), which gives a
 controlled, identical-across-models server-attribution stress. Tool
@@ -234,10 +234,10 @@ Call `emit_equivalence_judgment` exactly once with your decision.
 
 \section{Accuracy versus Model Size}
 \label{app:size}
-Figure~\ref{fig:size} plots \(\mathrm{pass}^3\) against parameter count for
+Figure~\ref{fig:size} plots pass\textasciicircum{}3 against parameter count for
 the locally-served models. The two largest lead, but below $\sim$30B
 parameters size predicts accuracy only weakly: a 4B model outperforms every
-7--8B model and, at a fixed 8B size, \(\mathrm{pass}^3\) ranges from 13\% to
+7--8B model and, at a fixed 8B size, pass\textasciicircum{}3 ranges from 13\% to
 22\%.
 
 \begin{figure}[h]
@@ -246,3 +246,115 @@ parameters size predicts accuracy only weakly: a 4B model outperforms every
   \caption{Accuracy versus model size (locally-served models).}
   \label{fig:size}
 \end{figure}
+
+\section{Corpus Composition}
+\label{app:corpus}
+The released corpus of 1{,}845 tasks breaks down as follows. By \emph{length}:
+891 short (chain depth 1--2), 427 medium (3--4), and 527 long (5+). By
+\emph{dynamism}: 1{,}628 live-read (88\%) and 217 state-changing (12\%); none
+are static. By \emph{scope}: 528 tasks (29\%) span more than one server. The
+750-task evaluation slice draws 50 tasks from each of the 15 categories.
+
+\section{Operating Requirements and Reliability}
+\label{app:tech}
+Table~\ref{tab:tech} reports, per model, single-attempt accuracy (pass@1)
+beside pass\textasciicircum{}3, and the mean prompt tokens, completion tokens,
+and tool/model calls per attempt. Single-attempt accuracy exceeds
+pass\textasciicircum{}3 for every model, confirming that one-shot numbers
+overstate reliability.
+
+\begin{table}[h]
+  \centering \footnotesize \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llrrrrr}
+    \toprule
+    Model & Grp & p\textasciicircum{}3 & p@1 & in & out & calls \\
+    \midrule
+    qwen3.7-max & API & 51.2 & 58.9 & 18.9k & 1.5k & 4.2 \\
+    glm-5.1 & API & 50.3 & 58.0 & 18.5k & 1.2k & 4.4 \\
+    deepseek-v4-pro & API & 46.4 & 57.8 & 24.2k & 1.9k & 4.8 \\
+    minimax-m3 & API & 42.4 & 53.6 & 17.0k & 1.2k & 3.9 \\
+    claude-haiku-4.5 & API & 41.1 & 46.5 & 20.0k & 1.0k & 3.7 \\
+    kimi-k2.6 & API & 40.7 & 51.4 & 15.0k & 1.5k & 4.2 \\
+    grok-4.3 & API & 31.6 & 38.2 & 10.7k & 0.7k & 3.5 \\
+    gpt-5.4-mini & API & 25.7 & 29.2 & 14.0k & 0.5k & 5.2 \\
+    \midrule
+    qwen3.6-35b & loc & 48.5 & 55.5 & 25.7k & 1.6k & 5.0 \\
+    gemma4-31b & loc & 42.5 & 45.3 & 12.1k & 0.5k & 3.7 \\
+    qwen3.5-4b & loc & 27.3 & 32.3 & 9.8k & 0.9k & 4.0 \\
+    granite-3b & loc & 22.5 & 25.6 & 8.7k & 0.5k & 3.8 \\
+    gemma4-e4b & loc & 22.1 & 25.3 & 5.7k & 0.3k & 3.0 \\
+    qwen3-8b & loc & 22.1 & 27.6 & 6.2k & 2.0k & 2.8 \\
+    nemotron-nano-4b & loc & 21.9 & 28.6 & 8.2k & 0.7k & 3.3 \\
+    qwen2.5-7b & loc & 21.1 & 24.7 & 7.6k & 0.4k & 3.4 \\
+    gemma4-e2b & loc & 20.1 & 22.1 & 5.1k & 0.2k & 2.7 \\
+    xlam2-8b & loc & 19.5 & 21.6 & 9.9k & 0.2k & 4.1 \\
+    toolace2-8b & loc & 17.5 & 20.0 & 6.6k & 0.2k & 2.8 \\
+    qwen2.5-3b & loc & 16.9 & 19.7 & 7.9k & 0.5k & 3.4 \\
+    hermes3-8b & loc & 13.2 & 15.0 & 6.0k & 0.2k & 2.5 \\
+    ministral3-3b & loc & 12.4 & 15.6 & 10.2k & 0.4k & 4.4 \\
+    hammer2.1-7b & loc & 9.7 & 10.1 & 7.8k & 0.2k & 3.4 \\
+    smollm3-3b & loc & 7.2 & 14.5 & 3.4k & 2.1k & 1.6 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Per model: pass\textasciicircum{}3 (p\textasciicircum{}3) and
+    single-attempt accuracy (p@1), both \%, and the mean prompt (in) and
+    completion (out) tokens and tool/model calls per attempt.}
+  \label{tab:tech}
+\end{table}
+
+\section{Path-Agnostic Equivalence Sets}
+\label{app:eqset}
+Across the 4{,}651 tool-effect checkpoints in the corpus, the distribution of
+equivalence-set sizes is 3{,}930 of size~1, 575 of size~2, 93 of size~3, 30 of
+size~4, and 23 of size~5 or more (maximum~12). Thus 15.5\% of effect
+checkpoints admit two or more interchangeable tools, so many tasks accept more
+than one valid trajectory rather than a single gold path.
+
+\section{Generator Self-Preference}
+\label{app:family}
+Table~\ref{tab:family} reports, for each candidate whose family also authored
+part of the corpus, its pass\textasciicircum{}3 on tasks generated by its own
+family versus on the rest. The mean difference is $+0.5$ points (median
+$-0.2$): no systematic self-preference. Two models show a clear positive
+effect (glm-5.1 $+25.5$, gpt-5.4-mini $+28.2$), offset by negatives elsewhere.
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrrr}
+    \toprule
+    Model & own-family & other & $\Delta$ \\
+    \midrule
+    qwen3.7-max & 45.1 & 52.0 & $-7.0$ \\
+    glm-5.1 & 71.9 & 46.4 & $+25.5$ \\
+    deepseek-v4-pro & 46.7 & 46.3 & $+0.4$ \\
+    minimax-m3 & 24.0 & 43.0 & $-19.0$ \\
+    claude-haiku-4.5 & 23.3 & 41.8 & $-18.5$ \\
+    kimi-k2.6 & 48.2 & 39.3 & $+8.9$ \\
+    grok-4.3 & 33.3 & 31.4 & $+1.9$ \\
+    gpt-5.4-mini & 52.2 & 24.0 & $+28.2$ \\
+    qwen3.6-35b & 41.8 & 49.5 & $-7.7$ \\
+    gemma4-31b & 40.0 & 42.7 & $-2.7$ \\
+    qwen3.5-4b & 27.5 & 27.3 & $+0.2$ \\
+    gemma4-e4b & 27.5 & 21.8 & $+5.7$ \\
+    qwen3-8b & 22.0 & 22.2 & $-0.2$ \\
+    qwen2.5-7b & 18.7 & 21.4 & $-2.7$ \\
+    gemma4-e2b & 25.0 & 19.9 & $+5.1$ \\
+    qwen2.5-3b & 14.3 & 17.3 & $-3.0$ \\
+    ministral3-3b & 5.9 & 12.9 & $-7.0$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{pass\textasciicircum{}3 (\%) on same-family-authored tasks versus
+    the rest, for each candidate whose family also generated tasks; $\Delta$
+    in points.}
+  \label{tab:family}
+\end{table}
+
+\section{Server-Attribution Errors}
+\label{app:sae}
+At the default evaluation setting, server-attribution errors---calling the
+right tool on the wrong server---fire on only 0.2\% of runs (108 of
+54{,}000), so failures are dominated by chain length and composition rather
+than by confusing one server for another. A controlled sweep of the
+alternative-tool density, which would test whether this rate rises as
+same-name distractors become more prevalent, is supported by the framework
+and is the subject of ongoing work.

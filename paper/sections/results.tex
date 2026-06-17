@@ -2,7 +2,7 @@
 \label{sec:results}
 
 We run the framework over the live substrate and evaluate 24 models on the
-balanced 750-task slice. Every number is \(\mathrm{pass}^3\) under
+balanced 750-task slice. Every number is pass\textasciicircum{}3 under
 deterministic replay, and we read the results as the state of the
 field---what current agents can and cannot do---rather than as a ranking of
 individual systems.
@@ -10,7 +10,7 @@ individual systems.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/fig_heatmap.png}
-  \caption{Per-model, per-category \(\mathrm{pass}^3\) over the 750-task
+  \caption{Per-model, per-category pass\textasciicircum{}3 over the 750-task
     slice; API models (top) and locally-served models (below the line),
     each ordered best to worst, against the 15 categories ordered hardest
     to easiest.}
@@ -19,7 +19,7 @@ individual systems.
 
 \subsection{The benchmark is far from solved}
 \label{sec:results:main}
-Figure~\ref{fig:heatmap} shows \(\mathrm{pass}^3\) for every model and
+Figure~\ref{fig:heatmap} shows pass\textasciicircum{}3 for every model and
 category. Even the strongest agents top out near half of the tasks: the
 field spans \textbf{7\% to 51\%}, \textbf{31\%} of the 750 tasks are solved
 by no model at all, and only 2\% are solved by every model (95\% confidence
@@ -35,8 +35,8 @@ tasks rather than of any one system.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/fig_difficulty.png}
-  \caption{Aggregated across all 24 models: \(\mathrm{pass}^3\) versus task
-    length (left) and mean \(\mathrm{pass}^3\) per category (right).}
+  \caption{Aggregated across all 24 models: pass\textasciicircum{}3 versus task
+    length (left) and mean pass\textasciicircum{}3 per category (right).}
   \label{fig:difficulty}
 \end{figure*}
 Aggregated across all 24 models, accuracy falls monotonically with the
@@ -50,7 +50,7 @@ whereas isolated single-tool confusions are easiest (decoy, homonym-trap,
 same-name, \(\approx\)40\%). Model size predicts capability only coarsely:
 the two largest models lead, but below \(\sim\)30B parameters size barely
 predicts accuracy---a 4B model outperforms every 7--8B model, and at a fixed
-8B size \(\mathrm{pass}^3\) ranges from 13\% to 22\%---so training and
+8B size pass\textasciicircum{}3 ranges from 13\% to 22\%---so training and
 architecture matter more than parameter count (Appendix~\ref{app:size}).
 
 \subsection{Reliability and operating requirements}
@@ -63,8 +63,9 @@ architecture matter more than parameter count (Appendix~\ref{app:size}).
   \label{fig:compute}
 \end{figure}
 Agents are inconsistent across repeats: single-attempt accuracy exceeds
-\(\mathrm{pass}^3\) by 7--8 points for the strongest models, so one-shot
-numbers overstate dependability and motivate the all-attempts criterion. On
+pass\textasciicircum{}3 by 7--8 points for the strongest models, so one-shot
+numbers overstate dependability and motivate the all-attempts criterion
+(Appendix~\ref{app:tech}). On
 operating requirements, a task consumes \textbf{3.4k--25.7k} prompt tokens,
 0.2k--1.9k completion tokens, and 1.5--5.0 tool or model calls per attempt;
 because the heaviest prompts approach 26k tokens, a \(\geq\)32k-token
@@ -91,7 +92,8 @@ of the time, so grading the final answer would wrongly penalize roughly one
 task in five. Two further checks reinforce validity. First, the multi-family
 corpus shows no systematic self-preference---a model's accuracy on tasks
 authored by its own family is within \(+\)0.5 points of its accuracy on the
-rest. Second, server-attribution errors (SAE; calling the right tool on the
-wrong server) are near-floor at the default setting (0.2\% of runs), so
+rest (Appendix~\ref{app:family}). Second, server-attribution errors (SAE;
+calling the right tool on the wrong server) are near-floor at the default
+setting (0.2\% of runs; Appendix~\ref{app:sae}), so
 failures are dominated by chain length and composition rather than by
 confusing one server for another.
