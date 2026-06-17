@@ -1,11 +1,26 @@
 \begin{abstract}
-% TODO(abstract): ~150--200 words, one paragraph ---
-%   (1) the deployment surface (LLM agents over live MCP servers) and the
-%       fragility of scoring the final answer / a tool-list ground truth;
-%   (2) what DynamicMCPBench is: trace-grounded, forward-generated,
-%       effect-scored (checkpoints + minefields, path-agnostic);
-%   (3) headline empirical results --- RQ1 ranking inversion, RQ2 equivalence
-%       sets, RQ3 dynamism as the dominant failure driver;
-%   (4) the takeaway. No citations. Numbers flow from the experiment ids, never
-%       hand-typed here.
+Large language model (LLM) agents are increasingly deployed over Model
+Context Protocol (MCP) servers, yet the benchmarks used to evaluate them
+score the final answer or a fixed ``ground-truth'' list of tools---both
+of which are fragile once the underlying data is live and stateful. We
+present \textbf{DynamicMCPBench}, a \emph{reusable framework} rather than
+a fixed dataset: pointed at any set of MCP servers and any set of models,
+it forward-explores the live servers, distills real successful
+trajectories into path-agnostic \emph{effect checkpoints}, and scores an
+agent on whether it reproduces those effects---\emph{never} on the final
+answer.\footnote{Code and data are released anonymously for review: code
+at \url{https://anonymous.4open.science/r/dynamicmcpbench} and dataset at
+\url{https://huggingface.co/datasets/anonymous/dynamicmcpbench}
+(placeholders).} To show what the framework reveals, we run it at scale:
+24 models over 121 servers and 750 tasks (50 in each of 15 categories),
+each scored by \(\mathrm{pass}^3\)---a task counts as solved only if all
+three independent attempts succeed. Even the strongest agents solve only
+about half of the tasks, 31\% of tasks are solved by no model at all, and
+accuracy collapses as the required tool chain grows longer (from 39\% on
+the shortest chains to 13\% on the longest). A human validation study
+confirms the automatic scoring is reliable (chance-corrected agreement of
+0.77). DynamicMCPBench thus turns benchmark construction into something
+practitioners can rerun on their own servers and models, while exposing a
+consistent inability of current agents to handle long, multi-step agentic
+tasks.
 \end{abstract}
