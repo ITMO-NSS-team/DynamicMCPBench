@@ -11,6 +11,7 @@ Outputs (committed PNGs, \\includegraphics'd by sections/results.tex):
   fig_difficulty.png  accuracy vs task length | accuracy by task category
   fig_compute.png     accuracy vs prompt tokens per task
   fig_size.png        accuracy vs model size (local; appendix)
+  fig_failure.png     failure-mode taxonomy | IAE rate vs accuracy (appendix)
 
 Every number is read straight from the dataset; nothing is hard-coded.
 Run:  DMCP_DATA=/path/to/dataset uv run --with matplotlib python paper/figures/make_figures.py
@@ -29,6 +30,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 DATA = os.environ.get("DMCP_DATA", "/tmp/hf2")
 OUT = os.path.dirname(os.path.abspath(__file__))
@@ -114,6 +116,9 @@ def dbin(t):
 
 passk = collections.defaultdict(dict)  # model -> task -> bool
 ptok = {}  # model -> mean prompt tokens / run
+etax = collections.Counter()  # pooled auto-classified failure-mode counts
+iae_tot = collections.defaultdict(lambda: [0, 0])  # model -> [iae events, opportunities]
+mine_present = mine_hit = 0  # runs with a minefield available / that invoked one
 for vf in glob.glob(f"{DATA}/leaderboard_*/verdicts/*.jsonl"):
     mdl = os.path.basename(vf)[:-6].replace("evals_", "")
     runs = collections.defaultdict(list)
@@ -124,9 +129,18 @@ for vf in glob.glob(f"{DATA}/leaderboard_*/verdicts/*.jsonl"):
                 continue
             r = json.loads(ln)
             runs[r["task_id"]].append(bool(r["passed"]))
-            c = (r.get("summary") or {}).get("cost") or {}
+            s = r.get("summary") or {}
+            c = s.get("cost") or {}
             if c.get("prompt_tokens"):
                 toks.append(c["prompt_tokens"])
+            for k, v in (s.get("error_taxonomy") or {}).get("counts", {}).items():
+                etax[k] += v
+            iae = s.get("iae") or {}
+            iae_tot[mdl][0] += iae.get("total", 0)
+            iae_tot[mdl][1] += iae.get("opportunities", 0)
+            if s.get("minefields_total", 0) > 0:
+                mine_present += 1
+                mine_hit += s.get("minefields_hit", 0) > 0
     for t, res in runs.items():
         passk[mdl][t] = bool(res) and all(res)
     if toks:
@@ -256,6 +270,63 @@ ax.grid(axis="both")
 fig.tight_layout()
 fig.savefig(f"{OUT}/fig_size.png")
 plt.close(fig)
+
+# ================== FIG: failure analysis (2 panels; appendix) ==================
+# Left: pooled auto-classified failure modes. Right: IAE rate vs accuracy.
+# Active modes only (E1/E2/E5 are unpopulated: E2 is not auto-classified in v0,
+# and prerequisite/ordering checkpoints are rare in this corpus).
+FMODE = {
+    "E3": ("incomplete\naggregation", PALETTE["vermillion"]),
+    "E6": ("tool-blindness", PALETTE["orange"]),
+    "E7": ("argument\nhallucination", PALETTE["green"]),
+    "E4": ("server confusion\n(SAE)", PALETTE["blue"]),
+}
+active = sorted(FMODE, key=lambda k: -etax[k])
+etot = sum(etax.values()) or 1
+shares = [100 * etax[k] / etot for k in active]
+fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.4))
+axL.barh(range(len(active)), shares, color=[FMODE[k][1] for k in active], edgecolor="white")
+axL.set_yticks(range(len(active)))
+axL.set_yticklabels([FMODE[k][0] for k in active], fontsize=10)
+axL.invert_yaxis()
+axL.set_xlabel("share of classified failures (%)")
+axL.set_title("how agents fail")
+axL.grid(axis="x")
+axL.set_xlim(0, max(shares) * 1.15)
+for i, v in enumerate(shares):
+    axL.text(v + 1, i, f"{v:.0f}%", va="center", fontsize=9, color="#555")
+ix = {m: 100 * iae_tot[m][0] / max(iae_tot[m][1], 1) for m in models}
+for tag, color in (("API", PALETTE["vermillion"]), ("local", PALETTE["blue"])):
+    gx = [ix[m] for m in models if group[m] == tag]
+    gy = [100 * overall[m] for m in models if group[m] == tag]
+    axR.scatter(gx, gy, s=62, color=color, label=tag, alpha=0.9, edgecolor="white", linewidth=1.0, zorder=3)
+xs = np.array([ix[m] for m in models])
+ys = np.array([100 * overall[m] for m in models])
+rr = float(np.corrcoef(xs, ys)[0, 1])
+sl, ic = np.polyfit(xs, ys, 1)
+xr = np.array([xs.min(), xs.max()])
+axR.plot(xr, sl * xr + ic, color=INK, lw=1.5, ls="--", zorder=2)
+axR.text(
+    0.96,
+    0.95,
+    f"r = {rr:.2f}",
+    transform=axR.transAxes,
+    ha="right",
+    va="top",
+    fontsize=13,
+    fontweight="bold",
+)
+axR.set_xlabel("incomplete-aggregation rate (%)")
+axR.set_ylabel("pass$^3$ (%)")
+axR.set_title("aggregation failure predicts accuracy")
+axR.grid(axis="both")
+axR.legend(title="model class", loc="lower left")
+fig.tight_layout()
+fig.savefig(f"{OUT}/fig_failure.png")
+plt.close(fig)
+print("failure modes (% of classified):", [(k, round(100 * etax[k] / etot, 1)) for k in active])
+_mr = 100 * mine_hit / mine_present
+print(f"IAE-accuracy r = {rr:.3f} | minefield hit {mine_hit}/{mine_present} ({_mr:.2f}%)")
 
 # ---- echo the numbers rendered, for verification ----
 print("models:", len(models), "| API:", len(api), "| local:", len(loc))

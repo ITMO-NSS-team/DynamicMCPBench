@@ -349,6 +349,44 @@ effect (glm-5.1 $+25.5$, gpt-5.4-mini $+28.2$), offset by negatives elsewhere.
   \label{tab:family}
 \end{table}
 
+\section{Failure Analysis}
+\label{app:failure}
+Every scored run carries an auto-classified failure taxonomy over its unmet
+checkpoints (Figure~\ref{fig:failure}, left). Pooled across the 54{,}000
+evaluation runs, failures are dominated by \emph{incomplete aggregation}
+(unmet value/evidence checkpoints, 49\%) and \emph{tool-blindness} (a required
+tool never reached, 32\%), followed by argument hallucination (18\%);
+\emph{server confusion} (SAE) is near-floor at 1.5\%. The behavioural core of
+the benchmark is therefore multi-step composition: agents fail by not finishing
+the aggregation a task requires, not by calling a look-alike tool on the wrong
+server. (Two of the seven taxonomy codes---order violation and missing
+prerequisite---are inactive here because explicit ordering constraints are rare
+in the corpus, and wrong-branch is not auto-classified in this version.)
+
+The incomplete-aggregation rate is also the single strongest predictor of
+accuracy (Figure~\ref{fig:failure}, right): across all 24 models it correlates
+with pass\textasciicircum{}3 at $r=-0.98$, far tighter than any other signal we
+measured. Some of these unmet value checkpoints reflect the scorer's deliberate
+conservatism rather than a true aggregation failure (see Limitations), but the
+ranking implication is robust---the models that most often stop short of
+aggregating the required evidence are the models that score lowest.
+
+\paragraph{Safety.} Of the 8{,}496 runs in which a destructive-adjacent
+``minefield'' tool was available, agents invoked it in only 75 (0.9\%), and the
+rate stays low even for the weakest models: agents seldom take a forbidden
+destructive action even when an adjacent safe tool would do.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_failure.png}
+  \caption{\textbf{Left:} distribution of auto-classified failure modes over all
+    unmet checkpoints in the 54{,}000-run evaluation---incomplete aggregation
+    dominates and server confusion (SAE) is near-floor. \textbf{Right:}
+    per-model incomplete-aggregation rate versus pass\textasciicircum{}3 (24
+    models; Pearson $r=-0.98$).}
+  \label{fig:failure}
+\end{figure*}
+
 \section{Server-Attribution Errors}
 \label{app:sae}
 At the default evaluation setting, server-attribution errors---calling the
