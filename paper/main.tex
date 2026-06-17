@@ -26,6 +26,12 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
+% Wrap long lines inside verbatim so the appendix prompt blocks don't
+% overflow into the neighbouring column in the two-column layout.
+% fvextra adds reliable line-breaking on top of fancyvrb.
+\usepackage{fvextra}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true,breakanywhere=true}
+
 \title{DynamicMCPBench: A Trace-Grounded, Effect-Scored Benchmark for LLM Agents over Live MCP Servers}
 
 % Anonymous in review mode.
