@@ -43,15 +43,10 @@ The released corpus contains 1{,}845 tasks distilled from 2{,}051 reference
 trajectories over 121 live MCP servers, and it is authored by a diverse pool
 of frontier model families (the largest contributing 18\% of the tasks) so
 that no single generator shapes it. Tasks span 15 \emph{categories}, each
-targeting a distinct tool-use challenge of the generated question: a
-baseline of unconstrained tasks (\emph{random}); semantic near-misses that
-tempt the wrong tool (\emph{hard-negative}, \emph{same-name},
-\emph{homonym-trap}, \emph{sibling}, \emph{cross-domain}); cross-server and
-multi-step structure (\emph{cross-server-alternative}, \emph{complementary},
-\emph{long-similar-chain}); ordering and prerequisite demands
-(\emph{prerequisite-strict}, \emph{recovery-required}); traps (\emph{decoy},
-\emph{destructive-adjacent}); under-specification (\emph{ambiguous-intent});
-and a controlled blend (\emph{stratified}). Tasks are further stratified by
+targeting a distinct tool-use challenge of the generated question---from a
+neutral baseline through semantic near-misses, cross-server and multi-step
+structure, ordering and recovery demands, traps, and under-specification;
+Appendix~\ref{app:categories} defines all fifteen. Tasks are further stratified by
 \emph{dynamism} (live-read vs.\ state-changing), by \emph{length}---the depth
 of the tool-dependency chain, which ranges from~1 to~77 with a mean
 of~5.2---and by \emph{scope}, intra- vs.\ cross-server (29\% of tasks span
@@ -77,7 +72,8 @@ generation is forward and trace-grounded so tasks are provably achievable;
 categories are balanced at 50 tasks each so no category dominates; seed
 difficulty is scaled to span short and long chains; and authorship is spread
 across model families. The distiller never introduces a checkpoint the trace
-does not justify.
+does not justify. The full generation and evaluation configuration appears in
+Appendix~\ref{app:config}, and all prompts in Appendix~\ref{app:prompts}.
 
 \subsection{Effect-based scoring}
 \label{sec:benchmark:eval}
