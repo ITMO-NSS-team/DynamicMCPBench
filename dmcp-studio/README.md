@@ -18,7 +18,8 @@ dmcp-studio/
 ├── backend/                    # FastAPI app wrapping the dmcp pipeline (A1)
 │   ├── INTEGRATION_NOTES.md    # A0: the pipeline map (built)
 │   └── fixtures/               # frozen REPLAY runs (A1/E3)
-├── frontend/                   # SPA built from the dmcp_studio.html mockup (A2)
+├── frontend/                   # SPA: TypeScript (src/app.ts) bundled by Bun
+│   ├── src/app.ts              # source; built to app.js via `bun run build`
 ├── experiments/                # studio validation: E1 agreement, E2 latency
 └── scripts/                    # run_demo.sh (A6)
 ```
@@ -43,9 +44,16 @@ uv pip install -e ".[studio]"        # fastapi + uvicorn + sse-starlette
 # (re)build the frozen showcase fixture — asserts the three verdicts
 uv run python dmcp-studio/experiments/e3_curate.py
 
-# run the REPLAY backend
+# build the TypeScript frontend (Bun) → frontend/app.js
+cd dmcp-studio/frontend && bun install && bun run build && cd -
+
+# run the REPLAY backend (serves the SPA same-origin)
 cd dmcp-studio && uvicorn backend.app:app --reload
 ```
+
+The frontend is TypeScript (`frontend/src/app.ts`), bundled to `frontend/app.js`
+by Bun. The bundle is committed so the demo runs without a build step; rerun
+`bun run build` (or `bun run check` to typecheck first) after editing the source.
 
 Then the API is live (default `mode=replay`):
 

@@ -273,6 +273,10 @@ paper_demo/main.pdf
 paper_demo/main.synctex.gz
 paper_demo/main.toc
 
+# DMCP Studio frontend: Bun deps (the bundled app.js IS committed so the demo
+# runs without a build step; rebuild it with `bun run build` in frontend/).
+dmcp-studio/frontend/node_modules/
+
 # docker-compose git-mcp bind-mount sandbox (root-owned, container-created)
 /repos/
 /manifests/subset.json

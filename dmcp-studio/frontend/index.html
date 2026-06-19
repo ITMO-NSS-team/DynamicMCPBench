@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMCP Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-name">DMCP Studio<small>trace-grounded · effect-scored</small></div>
+  </div>
+  <div class="stepper" id="stepper">
+    <div class="step active" data-step="0"><span class="step-num">1</span><span class="step-label">Collect servers</span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="1"><span class="step-num">2</span><span class="step-label">Explore live</span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="2"><span class="step-num">3</span><span class="step-label">Distill to TaskSpec</span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="3"><span class="step-num">4</span><span class="step-label">Score a candidate</span></div>
+  </div>
+  <div class="topbar-tag">replay: <b>deterministic</b></div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ STAGE 1: COLLECT ============ -->
+  <section class="stage active" id="stage-0">
+    <div class="stage-head">
+      <div class="eyebrow">Stage 1 — Substrate</div>
+      <h1>Pick the live MCP servers to benchmark</h1>
+      <p>Point the studio at servers you already run, or use the public set. The pipeline collects each server's tool surface and tags it by dynamism. Nothing here is a fixed dataset — these tools are live.</p>
+    </div>
+    <div class="grid-servers" id="serverGrid"></div>
+    <div class="footer-nav">
+      <span></span>
+      <button class="btn btn-primary" id="toExplore" disabled>Generate a goal &amp; explore →</button>
+    </div>
+    <div class="note">Demo runs on public servers from the paper. <b>Tip:</b> the real framework takes any server URL or your private fleet — same pipeline end to end.</div>
+  </section>
+
+  <!-- ============ STAGE 2: EXPLORE ============ -->
+  <section class="stage" id="stage-1">
+    <div class="stage-head">
+      <div class="eyebrow">Stage 2 — Forward generation</div>
+      <h1>Explore the goal live and record what works</h1>
+      <p>A goal generator turns the tool surface into a realistic user request. An explorer agent then pursues it against the live servers; every successful tool call is recorded into the reference trace. We generate forward, then distill — no graph is imposed.</p>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Generated goal</div>
+          <div class="panel-sub" id="goalPersona">persona-seeded</div>
+        </div>
+        <div class="panel-body">
+          <div class="goal-box">
+            <span class="lbl">User goal</span>
+            <span id="goalText">Generating a goal from the tool surface…</span>
+          </div>
+          <button class="btn btn-primary" id="runExplore"><span class="dot"></span> Run exploration</button>
+          <div class="note" style="margin-top:14px">Tool names are visible to the explorer here. They get stripped from the candidate's prompt later, so candidates can't cheat off the reference path.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="live-dot" id="exploreDot" style="background:var(--mute);box-shadow:none"></span> Reference trace</div>
+          <div class="panel-sub" id="exploreCount">0 calls</div>
+        </div>
+        <div class="panel-body" id="traceStream">
+          <div class="empty">Run exploration to record a successful trajectory.<br>Each live tool call streams in here.</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-nav">
+      <button class="btn btn-ghost" data-goto="0">← Servers</button>
+      <button class="btn btn-primary" id="toDistill" disabled>Distill this trace →</button>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 3: DISTILL ============ -->
+  <section class="stage" id="stage-2">
+    <div class="stage-head">
+      <div class="eyebrow">Stage 3 — Distillation</div>
+      <h1>Compile the trace into a path-agnostic TaskSpec</h1>
+      <p>The distiller turns the successful trace into effect checkpoints, optional minefields, and a partial order. A checkpoint demands an <i>effect</i> — that some tool from an equivalence set ran with the right arguments, or that a value appeared — never a specific path. Every required tool was actually used, so a spurious "unnecessary tool" can't appear.</p>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Recorded trace</div>
+          <div class="panel-sub" id="traceMirrorCount">— calls</div>
+        </div>
+        <div class="panel-body" id="traceMirror"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Distilled TaskSpec</div>
+          <div class="panel-sub" id="ckptCount">compiling…</div>
+        </div>
+        <div class="panel-body">
+          <div id="ckptList"></div>
+          <div class="spec-meta" id="specMeta" style="display:none">
+            <span>minefields: <b id="mfCount">none</b></span>
+            <span>partial order: <b>none</b> (evidence is independent)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-nav">
+      <button class="btn btn-ghost" data-goto="1">← Explore</button>
+      <button class="btn btn-primary" id="toScore" disabled>Score a candidate →</button>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 4: SCORE ============ -->
+  <section class="stage" id="stage-3">
+    <div class="stage-head">
+      <div class="eyebrow">Stage 4 — Effect-scored evaluation</div>
+      <h1>Run a candidate and grade the effects, not the answer</h1>
+      <p>Pick a candidate, then watch its trajectory replay against the checkpoints. Toggle how it's scored. The verdict flips — and that flip is the whole point.</p>
+    </div>
+
+    <div class="score-ctrl">
+      <span class="seg-label">candidate</span>
+      <div class="candidate-pick" id="candPick"></div>
+    </div>
+    <div class="score-ctrl">
+      <span class="seg-label">score by</span>
+      <div class="seg" id="modeSeg">
+        <button data-mode="effect" class="on">Effect</button>
+        <button data-mode="answer">Answer</button>
+      </div>
+      <button class="btn btn-primary" id="runCand"><span class="dot"></span> Run candidate</button>
+      <span class="panel-sub" id="passk" style="margin-left:auto"></span>
+    </div>
+
+    <div class="verdict-bar" id="verdictBar">
+      <div class="verdict-chip" id="verdictChip">—</div>
+      <div class="verdict-why">
+        <div class="vw-mode" id="vwMode">awaiting run</div>
+        <div class="vw-text" id="vwText">Choose a candidate and run it to see how effect-scoring and answer-matching disagree.</div>
+      </div>
+    </div>
+
+    <div class="score-cols">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="live-dot" id="candDot" style="background:var(--mute);box-shadow:none"></span> Candidate trajectory</div>
+          <div class="panel-sub" id="candCount">0 calls</div>
+        </div>
+        <div class="panel-body" id="candStream">
+          <div class="empty">Run the candidate to replay its calls against the recorded world.</div>
+        </div>
+        <div class="panel-body" style="border-top:1px solid var(--line);padding-top:14px" id="faWrap" hidden>
+          <div class="final-answer" id="finalAnswer"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Checkpoint ledger</div>
+          <div class="panel-sub" id="ledgerScore">—</div>
+        </div>
+        <div class="panel-body" id="ledger"></div>
+      </div>
+    </div>
+
+    <div class="note" id="scoreNote"></div>
+
+    <div class="footer-nav">
+      <button class="btn btn-ghost" data-goto="2">← Distill</button>
+      <button class="btn btn-ghost" id="showLb">See the leaderboard →</button>
+    </div>
+
+    <div class="panel" id="lbPanel" style="margin-top:18px; display:none">
+      <div class="panel-head">
+        <div class="panel-title">pass³ leaderboard · parent study</div>
+        <div class="panel-sub">deterministic replay · all 3 attempts must pass</div>
+      </div>
+      <div class="panel-body">
+        <table class="lb" id="lbTable"></table>
+        <div class="note" id="lbNote" style="margin-top:14px">Best agents top out near half. <b>31% of tasks are solved by no model at all</b>, and accuracy falls from 39% on short chains to 13% on the longest.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
