@@ -1,0 +1,21 @@
+% E2 -- per-stage latency budget.
+% TODO(E2): fill from experiments/e2_latency.py. Do NOT fabricate; leave TBD
+% until the run is committed. Columns: median wall-clock, #tool calls, mode.
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{stage} & \textbf{median} & \textbf{calls} & \textbf{booth mode} \\
+    \midrule
+    goal generation & \textit{TBD} & --- & \textit{TBD} \\
+    explore (live)   & \textit{TBD} & TBD & \textit{TBD} \\
+    distill          & \textit{TBD} & --- & \textit{TBD} \\
+    score            & \textit{TBD} & TBD & \textit{TBD} \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{E2: per-stage latency budget.} Median wall-clock and
+    tool-call counts per stage in LIVE mode, with the resulting booth
+    decision (run LIVE vs.\ serve a REPLAY fixture). \emph{Numbers pending
+    the E2 run.}}
+  \label{tab:latency}
+\end{table}

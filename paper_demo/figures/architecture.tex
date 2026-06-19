@@ -1,0 +1,16 @@
+% System architecture figure (single column; \input from system.tex).
+% TODO(figure): replace with a clean diagram (TikZ or PNG). The placeholder
+% keeps the build green until the asset lands.
+\begin{figure}[t]
+  \centering
+  \placeholderfig[\columnwidth]{architecture --- browser (SSE) $\leftrightarrow$
+    FastAPI back-end $\leftrightarrow$ dmcp\_adapter (thin shim)
+    $\leftrightarrow$ existing pipeline; mode = LIVE \textbar{} REPLAY
+    (TODO: diagram)}
+  \caption{\textbf{Architecture.} The studio front-end talks to a FastAPI
+    back-end over fetch and Server-Sent Events; all real work flows through
+    a thin adapter that wraps the published pipeline, so the back-end never
+    reimplements distillation or scoring. A single LIVE/REPLAY mode backs
+    every stage with real calls or frozen, deterministic fixtures.}
+  \label{fig:architecture}
+\end{figure}

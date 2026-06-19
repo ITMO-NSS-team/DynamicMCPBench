@@ -1,0 +1,20 @@
+% E1 -- studio-vs-batch verdict agreement.
+% TODO(E1): fill from experiments/e1_agreement.py. Do NOT fabricate; leave
+% TBD until the run is committed. Pre-registered target: 100% Tier-1.
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lcc}
+    \toprule
+    & \textbf{pairs} & \textbf{agreement} \\
+    \midrule
+    Tier-1 (deterministic effects) & TBD & \textit{TBD} (target 100\%) \\
+    Tier-2 (equivalence judge)     & TBD & \textit{TBD} \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{E1: studio-vs-batch agreement.} Each \emph{(task,
+    candidate)} pair is scored through the studio back-end and the original
+    batch pipeline. Tier-1 verdicts are deterministic and must agree exactly;
+    Tier-2 (non-deterministic LLM judge) is reported separately and is off
+    the demo's critical path. \emph{Numbers pending the E1 run.}}
+  \label{tab:agreement}
+\end{table}

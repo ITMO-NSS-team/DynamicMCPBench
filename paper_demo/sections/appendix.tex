@@ -1,0 +1,35 @@
+\appendix
+
+% NOTE: the System Demonstrations track caps the appendix at 2 pages
+% (stricter than the main track). Keep this section tight.
+
+\section{Worked Example: the Verdict Flip}
+\label{sec:appendix-example}
+
+The default showcase compares the financial health of Apple (AAPL),
+Microsoft (MSFT), and Google (GOOGL): latest ticker info, most recent
+quarterly earnings, and one year of price history. The explorer records a
+successful trajectory over the \texttt{yfinance} server, which the distiller
+compiles into six checkpoints---five tool effects (one carrying a
+\{\texttt{download}, \texttt{get\_price\_history}\} equivalence set) and one
+value-produced effect over the final message. Table~\ref{tab:agreement} and
+the three fixtures of \S\ref{sec:eval} are drawn from this example.
+
+\section{API Contract}
+\label{sec:appendix-api}
+
+The back-end exposes six routes; \texttt{mode}\,$\in$\,\{\texttt{live},
+\texttt{replay}\} defaults to \texttt{replay}.
+
+\begin{itemize}\itemsep1pt
+  \item \texttt{GET /api/servers} --- collected servers with dynamism tags.
+  \item \texttt{POST /api/goal} --- generate a goal from a tool surface.
+  \item \texttt{GET /api/explore} --- \textbf{SSE} stream of explorer calls.
+  \item \texttt{POST /api/distill} --- compile a trace into a TaskSpec.
+  \item \texttt{GET /api/score} --- \textbf{SSE} stream of candidate calls
+    and per-checkpoint verdicts; the \texttt{done} event returns
+    \emph{both} \texttt{effect\_pass} and \texttt{answer\_pass}, so the
+    Effect/Answer toggle is a pure front-end re-render.
+  \item \texttt{GET /api/leaderboard} --- parent-study results for the peek
+    panel (loaded from the real study, never invented).
+\end{itemize}

@@ -1,0 +1,25 @@
+% Qualitative systems comparison (CFP Q6). Checkmarks are defensible from the
+% cited systems' own descriptions; no quantitative claims are made.
+\begin{table}[t]
+  \centering \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lcccc}
+    \toprule
+    & \textbf{live} & \textbf{effect} & \textbf{forward} & \textbf{inter-} \\
+    \textbf{system} & \textbf{servers} & \textbf{scored} & \textbf{gen.} & \textbf{active} \\
+    \midrule
+    MCP batch benchmarks$^{a}$        & \checkmark & --        & --        & -- \\
+    Replay environments$^{b}$         & --        & \checkmark & --        & -- \\
+    Task generators$^{c}$             & \checkmark & --        & --        & -- \\
+    \textbf{DMCP Studio}              & \checkmark & \checkmark & \checkmark & \checkmark \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{Where DMCP Studio sits.} \emph{Effect-scored} = grades
+    path-agnostic effects, not the answer or a tool list; \emph{forward
+    gen.} = tasks distilled from real trajectories rather than imposed
+    graphs; \emph{interactive} = a visual studio rather than a CLI/batch
+    harness. $^{a}$\citet{fan2025mcptoolbench++, mo2025livemcpbench,
+    wang2025mcp}; $^{b}$\citet{guo2024stabletoolbench, lu2025toolsandbox,
+    yao2024tau}; $^{c}$\citet{liu2025mcpeval, shen2024taskbench}.}
+  \label{tab:comparison}
+\end{table}

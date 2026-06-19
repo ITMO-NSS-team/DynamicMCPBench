@@ -1,0 +1,86 @@
+\section{System}
+\label{sec:system}
+
+\subsection{Architecture}
+
+DMCP Studio is a static single-page front-end over a FastAPI back-end whose
+only job is to \emph{wrap} the published DynamicMCPBench pipeline through a
+thin adapter (Figure~\ref{fig:architecture}). The adapter exposes one
+function per pipeline stage and returns the pipeline's own
+\texttt{pydantic} models; the back-end never reimplements distillation or
+scoring. The two slow stages---exploration and candidate scoring---stream
+call-by-call to the browser over Server-Sent Events (SSE), so the UI fills
+as the agent acts rather than after it finishes. This ``wrap, don't
+rewrite'' boundary is what lets us claim the studio shows the real system:
+every verdict on screen is computed by the same code path the methodology
+paper reports.
+
+\input{figures/architecture}
+
+\subsection{Four stages}
+
+\paragraph{1. Collect.} The visitor points the studio at MCP servers---the
+three public servers from the worked example, or any server URL---and the
+collector returns each server's tool surface tagged by dynamism (live-read
+vs.\ stateful-write). State-changing servers are marked and, per the
+sandbox rule (Ethical Considerations), never invoked unless flagged
+sandboxed.
+
+\paragraph{2. Explore.} A goal generator turns the selected tool surface
+into a realistic user request; an explorer agent then pursues it
+\emph{live}, and every successful tool call streams into a reference trace.
+Generation is forward: we explore first and distill second, so no tool
+dependency graph is ever imposed. Tool names are visible to the explorer
+here but stripped from the candidate's prompt later, so a candidate cannot
+copy the reference path.
+
+\paragraph{3. Distill.} The distiller compiles the recorded trace into a
+path-agnostic \emph{TaskSpec}: a set of effect checkpoints (a tool effect,
+demanding that \emph{some} tool from an equivalence set ran with the right
+arguments, or a \emph{value-produced} effect), optional forbidden-action
+minefields, and a partial order. Because every checkpoint comes from a tool
+that was actually used to reach the goal, a spurious ``unnecessary tool''
+cannot appear. The studio renders each checkpoint as a card and---crucially---
+renders equivalence sets as \textbf{editable chips} the visitor can toggle.
+
+\paragraph{4. Score.} The visitor picks a candidate agent and watches its
+trajectory replay against the checkpoint ledger. The scoring endpoint
+returns \emph{both} an effect verdict and an answer verdict on every call;
+the Effect/Answer toggle is therefore a pure front-end re-render over one
+payload, never a second backend call. Toggling an equivalence-set member
+re-scores Tier-1 effects live, so the visitor can watch a pass become a
+failure by disabling the very tool the candidate happened to use.
+
+\subsection{The verdict flip}
+
+The studio is organized around making answer-matching and effect-scoring
+\emph{disagree on screen}. Three curated cases (frozen as REPLAY fixtures,
+\S\ref{sec:eval}) each reproduce a different disagreement:
+
+\begin{enumerate}\itemsep2pt
+  \item \textbf{Equivalent-tool pass.} The candidate reaches the
+    price-history effect with \texttt{get\_price\_history} where the
+    reference used \texttt{download}. Effect-scoring passes it via the
+    equivalence set; a tool-list grader would flag a ``wrong'' tool.
+  \item \textbf{Answer-pass, effect-fail.} A fluent agent skips the
+    income-statement step, then writes a confident summary. Answer-matching
+    accepts the prose; effect-scoring marks the missing checkpoint
+    \textsf{unmet}. This \emph{incomplete-aggregation} failure is the
+    dominant failure mode in the parent study.
+  \item \textbf{Answer-fail, effect-pass.} A correct agent reports live
+    returns that no longer match the stored reference string. Answer-matching
+    penalizes a genuinely correct run; effect-scoring passes it. This is
+    exactly the fragility of grading the answer on live data.
+\end{enumerate}
+
+\subsection{LIVE vs.\ REPLAY}
+
+A mode switch in the header backs every stage with either real pipeline
+calls (LIVE) or frozen fixtures served deterministically (REPLAY). REPLAY is
+the public default: it makes the demo reproducible on a booth laptop and is
+on-thesis, because the methodology grades under deterministic replay. LIVE
+drives the real pipeline against read-only servers as proof, with per-stage
+timeouts and a graceful fall-back to the REPLAY fixture if a live server is
+unreachable, so a flaky network never bricks the demo. The headline verdict
+uses Tier-1 deterministic scoring (matching the paper); the optional Tier-2
+effect-equivalence judge is shown as an upgrade, never on the critical path.

@@ -1,0 +1,82 @@
+\section{Introduction}
+\label{sec:intro}
+
+Large language model (LLM) agents increasingly act through the Model
+Context Protocol (MCP), a fast-growing standard that exposes external tools
+(file stores, databases, web services, developer platforms) behind a
+uniform calling interface. Once such an agent is deployed, the practical
+question is not whether it can call a tool but whether it accomplishes the
+user's goal across many real, interacting services. Yet the benchmarks used
+to answer that question mostly score one of two proxies: the agent's final
+natural-language answer, matched against a reference string, or the set of
+tools the agent was expected to call. \textbf{Both are fragile precisely
+where deployment matters.} A reference answer goes stale the moment it
+depends on live data---today's price, this morning's commit, the current
+contents of a table---and a fixed tool list cannot be recovered from the
+prompt alone, so it accumulates spurious ``required'' tools that penalize an
+agent for taking a different, equally valid route.
+
+The companion methodology paper, DynamicMCPBench
+\citep{dynamicmcpbench2026}, argues that the organizing object of the
+benchmark should be neither the answer nor the tool list but the
+\emph{execution trace}: explore a goal live, distill the successful
+trajectory into path-agnostic \emph{effect checkpoints}, and grade a
+candidate purely on whether it reproduces those effects. That argument is
+easy to state and hard to feel. A reader of the paper sees tables; what they
+do not see is the moment a confident, fluent answer is marked
+\textsf{FAILED} because the agent never produced a required piece of
+evidence, or the moment a ``wrong'' answer is marked \textsf{SOLVED} because
+the live data simply moved.
+
+\begin{figure*}[t]
+  \centering
+  \input{figures/studio_screenshot}
+  \caption{\textbf{DMCP Studio.} The four-stage stepper (collect
+    $\rightarrow$ explore $\rightarrow$ distill $\rightarrow$ score) runs the
+    full pipeline in the browser. In the scoring stage, the
+    Effect\,$\rightleftharpoons$\,Answer toggle re-grades the \emph{same}
+    recorded run two ways; the verdict bar flips between \textsf{SOLVED} and
+    \textsf{FAILED} without a second backend call. An editable equivalence
+    set (highlighted) lets the visitor enable or disable interchangeable
+    tools and watch the effect verdict re-compute live.}
+  \label{fig:studio}
+\end{figure*}
+
+\textbf{DMCP Studio} makes those moments interactive. It is a web
+application that wraps the existing DynamicMCPBench pipeline and walks a
+visitor through it in four live stages---\emph{collect} servers,
+\emph{explore} a generated goal into a reference trace, \emph{distill} that
+trace into a TaskSpec of effect checkpoints, and \emph{score} a candidate
+against them (Figure~\ref{fig:studio}). The studio's centerpiece is a single
+control: an \textbf{Effect\,$\rightleftharpoons$\,Answer toggle} that grades
+one candidate run under both regimes and flips the verdict on screen. Three
+curated cases make the disagreement concrete: (1)~a clean pass that reaches
+every effect through a \emph{different but equivalent} tool; (2)~a confident
+agent that passes answer-matching but \emph{fails} effect-scoring because it
+skipped required work (incomplete aggregation); and (3)~a correct agent that
+\emph{fails} answer-matching but passes effect-scoring because the live data
+drifted since the reference was recorded.
+
+Two design choices keep the demo both honest and robust. First, a
+\textbf{LIVE/REPLAY} mode switch: REPLAY serves frozen fixtures
+deterministically---this is at once a booth-safety measure and on-thesis,
+since the methodology itself scores under deterministic replay---while LIVE
+drives the real pipeline against read-only servers as proof. Second, the
+studio never reimplements scoring: all real work flows through a thin
+adapter over the published pipeline, so what the visitor sees is the system,
+not a mock-up of it.
+
+\paragraph{Audience.} DMCP Studio targets three groups: agent builders who
+need a deployment-specific diagnostic on their own MCP fleet, evaluation
+researchers comparing scoring methodologies, and practitioners who want to
+understand \emph{why} answer-matching misleads on live, stateful tools
+before adopting an effect-based alternative.
+
+\paragraph{Contributions.} (i)~An interactive studio that exposes a
+trace-grounded, answer-agnostic evaluation pipeline end-to-end in the
+browser, with a verdict-flipping Effect/Answer toggle as its central
+interaction (\S\ref{sec:system}); (ii)~a LIVE/REPLAY design that makes the
+demo deterministic and booth-safe while remaining provably wired to the real
+system (\S\ref{sec:system}); and (iii)~an evaluation of the system
+itself---studio-vs-batch verdict agreement, a per-stage latency budget, and
+an informal usability pass (\S\ref{sec:eval}).

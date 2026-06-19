@@ -1,0 +1,36 @@
+\section*{Availability and License}
+\label{sec:availability}
+
+% CFP HARD REQUIREMENT: a live demo URL or installable-package link MUST
+% appear in the PDF, or the paper is desk-rejected. Replace the placeholder
+% below with the deployed URL before submission.
+A live, hosted instance of DMCP Studio is available at
+\url{https://TODO-demo-url.example/dmcp-studio}, and a one-command local
+deployment ships with the code. A screencast (\textless\,2.5\,min) walks
+through the four stages and the verdict flip.\footnote{Screencast:
+\url{https://TODO-screencast-url}.}
+% TODO(license): confirm the project license with the team. Stated as
+% Apache-2.0 as a placeholder; the CFP asks the question explicitly.
+The studio and the underlying pipeline are released under the Apache-2.0
+license; the released datasets are distributed under their respective
+source-server terms.
+
+\section*{Ethical Considerations}
+
+The studio executes real tools during LIVE exploration. To prevent side
+effects, the adapter enforces a default-deny rule: no tool on a
+state-changing (\texttt{stateful\_write}) server is invoked unless that
+server is explicitly flagged sandboxed, and exploration and scoring
+otherwise operate only against read-only servers, so no real external state
+is modified. REPLAY mode touches no network at all. The system handles no
+personal data; the public servers in the default showcase expose only public
+market, scholarly, and encyclopedic data. The work conforms to the ACM Code
+of Ethics.
+
+\section*{Use of Large Language Models}
+
+LLMs are the objects of study (the agents under evaluation), components of
+the pipeline the studio wraps (the goal generator, the explorer agent, and
+the optional Tier-2 effect-equivalence judge), and were additionally used to
+assist with copy-editing this manuscript. All system design, experiments,
+and analysis are the authors' own.
