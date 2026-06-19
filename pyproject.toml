@@ -35,6 +35,13 @@ annotate = [
     "rich>=13.0",
     "huggingface-hub>=0.23",
 ]
+# DMCP Studio (demo-track web app). Optional so core dmcp stays lean.
+#   uv pip install -e ".[studio]"
+studio = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sse-starlette>=2.1",
+]
 
 [project.scripts]
 dmcp = "dmcp.cli:app"

@@ -36,8 +36,23 @@ dmcp-studio/
 
 ## Quickstart
 
-_Backend/frontend land in A1–A2. Until then:_
+```bash
+# from the repo root
+uv pip install -e ".[studio]"        # fastapi + uvicorn + sse-starlette
+
+# (re)build the frozen showcase fixture — asserts the three verdicts
+uv run python dmcp-studio/experiments/e3_curate.py
+
+# run the REPLAY backend
+cd dmcp-studio && uvicorn backend.app:app --reload
+```
+
+Then the API is live (default `mode=replay`):
 
 ```bash
-uv pip install -e ".[servers,dev]"   # from the repo root; [studio] extra lands with A1
+curl localhost:8000/api/servers
+curl "localhost:8000/api/explore?delay=0"                       # SSE: 7 calls + done
+curl "localhost:8000/api/score?candidate=hermes3-8b&delay=0"    # effect-fail / answer-pass
 ```
+
+The frontend (built from the `dmcp_studio.html` mockup) wires to these in A2.

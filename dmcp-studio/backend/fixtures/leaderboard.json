@@ -1,0 +1,41 @@
+{
+  "_placeholder": true,
+  "_note": "Replace with a real export from the parent study before any public demo.",
+  "rows": [
+    {
+      "model": "qwen3.7-max",
+      "group": "API",
+      "pass3": 51.2
+    },
+    {
+      "model": "glm-5.1",
+      "group": "API",
+      "pass3": 50.3
+    },
+    {
+      "model": "qwen3.6-35b-a3b",
+      "group": "local",
+      "pass3": 48.5
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "group": "API",
+      "pass3": 46.4
+    },
+    {
+      "model": "gemma-4-31b-it",
+      "group": "local",
+      "pass3": 42.5
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "group": "API",
+      "pass3": 41.1
+    },
+    {
+      "model": "hermes3-8b",
+      "group": "local",
+      "pass3": 13.2
+    }
+  ]
+}

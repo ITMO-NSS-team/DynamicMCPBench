@@ -1,0 +1,1217 @@
+{
+  "id": "showcase_aapl",
+  "servers": [
+    {
+      "server_id": "yfinance",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Live market data: quotes, earnings, fundamentals, and price history for tickers.",
+      "tools": [
+        "get_tickers_info",
+        "get_earnings",
+        "download",
+        "get_price_history",
+        "get_financials"
+      ]
+    },
+    {
+      "server_id": "arxiv",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Scholarly metadata and full-text search over arXiv preprints.",
+      "tools": [
+        "search",
+        "get_paper",
+        "list_authors",
+        "get_citations"
+      ]
+    },
+    {
+      "server_id": "wikipedia",
+      "dynamism": "live_read",
+      "sandbox": false,
+      "description": "Encyclopedic lookups; mostly stable content with occasional edits.",
+      "tools": [
+        "search",
+        "get_summary",
+        "get_page",
+        "get_links"
+      ]
+    },
+    {
+      "server_id": "github-sandbox",
+      "dynamism": "stateful_write",
+      "sandbox": true,
+      "description": "Developer platform in a sandbox. State-changing tools run isolated.",
+      "tools": [
+        "create_issue",
+        "list_repos",
+        "get_file",
+        "delete_branch"
+      ]
+    }
+  ],
+  "goal": {
+    "goal": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+    "persona": "A retail investor comparing three large-cap tech stocks before rebalancing."
+  },
+  "reference_trace": {
+    "trace_id": "11111111-1111-1111-1111-111111111111",
+    "schema_version": "0.1.0",
+    "recorder_version": "",
+    "goal": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+    "seed_metadata": {
+      "exploration": {
+        "outcome": "completed",
+        "final_message": "Compared AAPL, MSFT and GOOGL on quotes, quarterly earnings, 1-year price history, and balance-sheet + income-statement evidence.",
+        "successful_tool_calls": 7
+      }
+    },
+    "servers": [
+      {
+        "server_id": "yfinance",
+        "transport": "stdio",
+        "endpoint": "stdio:yfinance",
+        "server_name": null,
+        "server_version": null,
+        "protocol_version": null,
+        "capabilities": null,
+        "tool_count": 5,
+        "tool_surface_hash": "",
+        "observed_at": "2026-06-19T19:24:37.653781Z"
+      }
+    ],
+    "tool_specs": {
+      "yfinance": [
+        {
+          "name": "get_tickers_info",
+          "description": "Latest quote/ticker info for symbols.",
+          "input_schema": null,
+          "output_schema": null
+        },
+        {
+          "name": "get_earnings",
+          "description": "Quarterly or annual earnings for a symbol.",
+          "input_schema": null,
+          "output_schema": null
+        },
+        {
+          "name": "download",
+          "description": "Download OHLCV price history for symbols over a period.",
+          "input_schema": null,
+          "output_schema": null
+        },
+        {
+          "name": "get_price_history",
+          "description": "Price history for a symbol over a period.",
+          "input_schema": null,
+          "output_schema": null
+        },
+        {
+          "name": "get_financials",
+          "description": "Balance-sheet / income-statement financials.",
+          "input_schema": null,
+          "output_schema": null
+        }
+      ]
+    },
+    "steps": [
+      {
+        "step_id": 0,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_tickers_info",
+        "arguments": {
+          "symbols": [
+            "AAPL",
+            "MSFT",
+            "GOOGL"
+          ]
+        },
+        "arguments_canonical": "{\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "AAPL 201.5; MSFT 430.1; GOOGL 178.2"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 1,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_earnings",
+        "arguments": {
+          "symbol": "AAPL",
+          "period": "quarterly"
+        },
+        "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"AAPL\"}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "AAPL Q earnings: EPS 1.53, beat"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 2,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_earnings",
+        "arguments": {
+          "symbol": "MSFT",
+          "period": "quarterly"
+        },
+        "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"MSFT\"}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "MSFT Q earnings: EPS 3.05, beat"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 3,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_earnings",
+        "arguments": {
+          "symbol": "GOOGL",
+          "period": "quarterly"
+        },
+        "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"GOOGL\"}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "GOOGL Q earnings: EPS 2.12, beat"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 4,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "download",
+        "arguments": {
+          "symbols": [
+            "AAPL",
+            "MSFT",
+            "GOOGL"
+          ],
+          "period": "1y"
+        },
+        "arguments_canonical": "{\"period\":\"1y\",\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "1y OHLCV for 3 symbols"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 5,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_financials",
+        "arguments": {
+          "stmt": "balance",
+          "period": "yearly"
+        },
+        "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"balance\"}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Balance sheets: cash, debt, equity per company"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      },
+      {
+        "step_id": 6,
+        "parent_step_id": null,
+        "kind": "call_tool_agent",
+        "server_id": "yfinance",
+        "tool_name": "get_financials",
+        "arguments": {
+          "stmt": "income",
+          "period": "yearly"
+        },
+        "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"income\"}",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Income statements: revenue, net income per company"
+            }
+          ],
+          "isError": false
+        },
+        "result_truncated": false,
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z",
+        "latency_ms": 0.0,
+        "status": "success",
+        "error": null
+      }
+    ],
+    "started_at": "2026-01-02T15:00:00Z",
+    "ended_at": "2026-01-02T15:00:00Z"
+  },
+  "task_spec": {
+    "task_id": "22222222-2222-2222-2222-222222222222",
+    "schema_version": "0.2.0",
+    "distiller_version": "0.1.0",
+    "source_trace_id": "11111111-1111-1111-1111-111111111111",
+    "prompt": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+    "dynamism": "live_read",
+    "servers_used": [
+      "yfinance"
+    ],
+    "complexity": {
+      "trace_depth": 7,
+      "distinct_servers": 1,
+      "cross_server": false,
+      "runtime_branching": false,
+      "state_coupling": false,
+      "recovery_required": false
+    },
+    "checkpoints": [
+      {
+        "kind": "tool_effect",
+        "checkpoint_id": "cp1",
+        "description": "Look up latest ticker info for the three symbols.",
+        "equivalence_set": [
+          {
+            "server_id": "yfinance",
+            "tool_name": "get_tickers_info"
+          }
+        ],
+        "arg_predicate": null,
+        "must_succeed": true
+      },
+      {
+        "kind": "tool_effect",
+        "checkpoint_id": "cp2",
+        "description": "Pull the most recent quarterly earnings.",
+        "equivalence_set": [
+          {
+            "server_id": "yfinance",
+            "tool_name": "get_earnings"
+          }
+        ],
+        "arg_predicate": {
+          "must_include": {
+            "period": "quarterly"
+          },
+          "must_match": {}
+        },
+        "must_succeed": true
+      },
+      {
+        "kind": "tool_effect",
+        "checkpoint_id": "cp3",
+        "description": "Retrieve one year of price history (any equivalent tool).",
+        "equivalence_set": [
+          {
+            "server_id": "yfinance",
+            "tool_name": "download"
+          },
+          {
+            "server_id": "yfinance",
+            "tool_name": "get_price_history"
+          }
+        ],
+        "arg_predicate": {
+          "must_include": {
+            "period": "1y"
+          },
+          "must_match": {}
+        },
+        "must_succeed": true
+      },
+      {
+        "kind": "tool_effect",
+        "checkpoint_id": "cp4",
+        "description": "Read the balance sheet.",
+        "equivalence_set": [
+          {
+            "server_id": "yfinance",
+            "tool_name": "get_financials"
+          }
+        ],
+        "arg_predicate": {
+          "must_include": {
+            "stmt": "balance"
+          },
+          "must_match": {}
+        },
+        "must_succeed": true
+      },
+      {
+        "kind": "tool_effect",
+        "checkpoint_id": "cp5",
+        "description": "Read the income statement.",
+        "equivalence_set": [
+          {
+            "server_id": "yfinance",
+            "tool_name": "get_financials"
+          }
+        ],
+        "arg_predicate": {
+          "must_include": {
+            "stmt": "income"
+          },
+          "must_match": {}
+        },
+        "must_succeed": true
+      },
+      {
+        "kind": "value_produced",
+        "checkpoint_id": "cp6",
+        "description": "Final answer surfaces earnings and balance-sheet evidence.",
+        "predicate": {
+          "contains_any": null,
+          "contains_all": [
+            "earnings",
+            "balance"
+          ],
+          "regex": null
+        },
+        "scope": "final_assistant_message"
+      }
+    ],
+    "minefields": [],
+    "ordering": [],
+    "notes": null,
+    "provenance": {},
+    "created_at": "2026-06-19T19:24:37.653998Z"
+  },
+  "candidates": [
+    {
+      "name": "qwen3.7-max",
+      "note": "clean run \u00b7 different tool",
+      "answer_looks_right": true,
+      "trace": {
+        "trace_id": "33333333-3333-3333-3333-333333333333",
+        "schema_version": "0.1.0",
+        "recorder_version": "",
+        "goal": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+        "seed_metadata": {
+          "exploration": {
+            "outcome": "completed",
+            "final_message": "Across AAPL, MSFT and GOOGL: Microsoft leads on quarterly earnings growth, Apple shows the strongest balance sheet, and Google trails on 1-year price return. Fundamentals, earnings and balance-sheet evidence are summarized per company.",
+            "successful_tool_calls": 7
+          }
+        },
+        "servers": [
+          {
+            "server_id": "yfinance",
+            "transport": "stdio",
+            "endpoint": "stdio:yfinance",
+            "server_name": null,
+            "server_version": null,
+            "protocol_version": null,
+            "capabilities": null,
+            "tool_count": 5,
+            "tool_surface_hash": "",
+            "observed_at": "2026-06-19T19:24:37.654087Z"
+          }
+        ],
+        "tool_specs": {
+          "yfinance": [
+            {
+              "name": "get_tickers_info",
+              "description": "Latest quote/ticker info for symbols.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_earnings",
+              "description": "Quarterly or annual earnings for a symbol.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "download",
+              "description": "Download OHLCV price history for symbols over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_price_history",
+              "description": "Price history for a symbol over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_financials",
+              "description": "Balance-sheet / income-statement financials.",
+              "input_schema": null,
+              "output_schema": null
+            }
+          ]
+        },
+        "steps": [
+          {
+            "step_id": 0,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_tickers_info",
+            "arguments": {
+              "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL"
+              ]
+            },
+            "arguments_canonical": "{\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AAPL 201; MSFT 430; GOOGL 178"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 1,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "AAPL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"AAPL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AAPL EPS 1.53"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 2,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "MSFT",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"MSFT\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "MSFT EPS 3.05"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 3,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "GOOGL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"GOOGL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "GOOGL EPS 2.12"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 4,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_price_history",
+            "arguments": {
+              "symbol": "AAPL",
+              "period": "1y"
+            },
+            "arguments_canonical": "{\"period\":\"1y\",\"symbol\":\"AAPL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "1y price history"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 5,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_financials",
+            "arguments": {
+              "stmt": "balance",
+              "period": "yearly"
+            },
+            "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"balance\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "balance sheets"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 6,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_financials",
+            "arguments": {
+              "stmt": "income",
+              "period": "yearly"
+            },
+            "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"income\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "income statements"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          }
+        ],
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z"
+      }
+    },
+    {
+      "name": "hermes3-8b",
+      "note": "incomplete aggregation",
+      "answer_looks_right": true,
+      "trace": {
+        "trace_id": "44444444-4444-4444-4444-444444444444",
+        "schema_version": "0.1.0",
+        "recorder_version": "",
+        "goal": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+        "seed_metadata": {
+          "exploration": {
+            "outcome": "completed",
+            "final_message": "Comparing Apple, Microsoft and Google: all three show solid fundamentals and steady earnings, with healthy balance sheets and positive one-year price trends. Microsoft looks strongest overall on financial health.",
+            "successful_tool_calls": 6
+          }
+        },
+        "servers": [
+          {
+            "server_id": "yfinance",
+            "transport": "stdio",
+            "endpoint": "stdio:yfinance",
+            "server_name": null,
+            "server_version": null,
+            "protocol_version": null,
+            "capabilities": null,
+            "tool_count": 5,
+            "tool_surface_hash": "",
+            "observed_at": "2026-06-19T19:24:37.654213Z"
+          }
+        ],
+        "tool_specs": {
+          "yfinance": [
+            {
+              "name": "get_tickers_info",
+              "description": "Latest quote/ticker info for symbols.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_earnings",
+              "description": "Quarterly or annual earnings for a symbol.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "download",
+              "description": "Download OHLCV price history for symbols over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_price_history",
+              "description": "Price history for a symbol over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_financials",
+              "description": "Balance-sheet / income-statement financials.",
+              "input_schema": null,
+              "output_schema": null
+            }
+          ]
+        },
+        "steps": [
+          {
+            "step_id": 0,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_tickers_info",
+            "arguments": {
+              "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL"
+              ]
+            },
+            "arguments_canonical": "{\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "quotes"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 1,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "AAPL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"AAPL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AAPL EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 2,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "MSFT",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"MSFT\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "MSFT EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 3,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "GOOGL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"GOOGL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "GOOGL EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 4,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "download",
+            "arguments": {
+              "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL"
+              ],
+              "period": "1y"
+            },
+            "arguments_canonical": "{\"period\":\"1y\",\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "1y prices"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 5,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_financials",
+            "arguments": {
+              "stmt": "balance",
+              "period": "yearly"
+            },
+            "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"balance\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "balance sheets"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          }
+        ],
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z"
+      }
+    },
+    {
+      "name": "grok-4.3 (stale)",
+      "note": "correct path \u00b7 live data moved",
+      "answer_looks_right": false,
+      "trace": {
+        "trace_id": "55555555-5555-5555-5555-555555555555",
+        "schema_version": "0.1.0",
+        "recorder_version": "",
+        "goal": "Compare the financial health and recent performance of Apple (AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent quarterly earnings, and one year of price history.",
+        "seed_metadata": {
+          "exploration": {
+            "outcome": "completed",
+            "final_message": "AAPL 1-year return +18.4%, MSFT +12.1%, GOOGL +9.7% (as of today). Full fundamentals, quarterly earnings and balance-sheet + income-statement evidence reported per company.",
+            "successful_tool_calls": 7
+          }
+        },
+        "servers": [
+          {
+            "server_id": "yfinance",
+            "transport": "stdio",
+            "endpoint": "stdio:yfinance",
+            "server_name": null,
+            "server_version": null,
+            "protocol_version": null,
+            "capabilities": null,
+            "tool_count": 5,
+            "tool_surface_hash": "",
+            "observed_at": "2026-06-19T19:24:37.654317Z"
+          }
+        ],
+        "tool_specs": {
+          "yfinance": [
+            {
+              "name": "get_tickers_info",
+              "description": "Latest quote/ticker info for symbols.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_earnings",
+              "description": "Quarterly or annual earnings for a symbol.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "download",
+              "description": "Download OHLCV price history for symbols over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_price_history",
+              "description": "Price history for a symbol over a period.",
+              "input_schema": null,
+              "output_schema": null
+            },
+            {
+              "name": "get_financials",
+              "description": "Balance-sheet / income-statement financials.",
+              "input_schema": null,
+              "output_schema": null
+            }
+          ]
+        },
+        "steps": [
+          {
+            "step_id": 0,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_tickers_info",
+            "arguments": {
+              "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL"
+              ]
+            },
+            "arguments_canonical": "{\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "quotes"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 1,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "AAPL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"AAPL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AAPL EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 2,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "MSFT",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"MSFT\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "MSFT EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 3,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_earnings",
+            "arguments": {
+              "symbol": "GOOGL",
+              "period": "quarterly"
+            },
+            "arguments_canonical": "{\"period\":\"quarterly\",\"symbol\":\"GOOGL\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "GOOGL EPS"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 4,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "download",
+            "arguments": {
+              "symbols": [
+                "AAPL",
+                "MSFT",
+                "GOOGL"
+              ],
+              "period": "1y"
+            },
+            "arguments_canonical": "{\"period\":\"1y\",\"symbols\":[\"AAPL\",\"MSFT\",\"GOOGL\"]}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "1y prices"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 5,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_financials",
+            "arguments": {
+              "stmt": "balance",
+              "period": "yearly"
+            },
+            "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"balance\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "balance sheets"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          },
+          {
+            "step_id": 6,
+            "parent_step_id": null,
+            "kind": "call_tool_agent",
+            "server_id": "yfinance",
+            "tool_name": "get_financials",
+            "arguments": {
+              "stmt": "income",
+              "period": "yearly"
+            },
+            "arguments_canonical": "{\"period\":\"yearly\",\"stmt\":\"income\"}",
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "income statements"
+                }
+              ],
+              "isError": false
+            },
+            "result_truncated": false,
+            "started_at": "2026-01-02T15:00:00Z",
+            "ended_at": "2026-01-02T15:00:00Z",
+            "latency_ms": 0.0,
+            "status": "success",
+            "error": null
+          }
+        ],
+        "started_at": "2026-01-02T15:00:00Z",
+        "ended_at": "2026-01-02T15:00:00Z"
+      }
+    }
+  ]
+}
