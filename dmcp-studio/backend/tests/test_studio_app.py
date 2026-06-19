@@ -74,3 +74,11 @@ def test_score_equiv_override_via_query():
 def test_leaderboard_route():
     r = client.get("/api/leaderboard")
     assert r.status_code == 200 and r.json()["placeholder"] is True
+
+
+def test_spa_served_without_shadowing_api():
+    # the static mount serves the SPA at /, and /api still resolves
+    index = client.get("/")
+    assert index.status_code == 200 and "DMCP Studio" in index.text
+    assert client.get("/app.js").status_code == 200
+    assert client.get("/api/servers").status_code == 200

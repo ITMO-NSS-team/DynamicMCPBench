@@ -9,8 +9,8 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 |---|---|---|
 | A0 | Map the existing pipeline | ✅ done — `backend/INTEGRATION_NOTES.md` |
 | A1 | Adapter + REPLAY-only backend | ✅ done — FastAPI app, 6 routes, SSE |
-| A2 | Port the frontend to the backend | ⬜ next |
-| A3 | Wire LIVE mode | ⬜ |
+| A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
+| A3 | Wire LIVE mode | ⬜ next |
 | A4 | Bring-your-own-server (stretch) | ⬜ |
 | A5 | Polish & demo-safety | ⬜ |
 | A6 | Package for submission | ⬜ |
@@ -20,6 +20,17 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log
 
+- **A2 done.** Ported the `dmcp studio.html` mockup into `frontend/`
+  (`index.html` + `styles.css` verbatim from the mockup, `app.js` rewired to
+  `fetch` + `EventSource`). The four-stage click-through now runs against the
+  real backend: servers → goal → explore (SSE) → distill (renders the TaskSpec +
+  editable equivalence chips) → score (SSE). The Effect/Answer toggle is a pure
+  re-render over the one `done` payload (both verdicts), never a second call;
+  toggling an equivalence-set member re-scores live via `equiv_overrides`.
+  FastAPI serves the SPA same-origin (no CORS). 19 studio tests (added SPA
+  serving). **Acceptance:** live HTTP click-through reproduces all three
+  verdicts; disabling `get_price_history` flips the clean candidate to FAILED.
+  `app.js` passes `node --check`. (Remaining: a real in-browser pass.)
 - **A1 done.** REPLAY-only backend, all six routes (build plan §4) over a
   FastAPI app; explore/score stream call-by-call over SSE. The adapter
   (`backend/dmcp_adapter.py`) is the sole integration point and runs the **real

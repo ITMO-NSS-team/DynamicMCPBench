@@ -13,10 +13,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
@@ -123,3 +125,10 @@ def _sandbox_handler(_req, exc: adapter.SandboxViolation) -> JSONResponse:
 @app.exception_handler(NotImplementedError)
 def _live_handler(_req, exc: NotImplementedError) -> JSONResponse:
     return JSONResponse(status_code=501, content={"error": "live_unsupported", "detail": str(exc)})
+
+
+# Serve the SPA same-origin (no CORS). Mounted LAST so it only catches paths the
+# /api/* routes above didn't match.
+_FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
+if _FRONTEND.is_dir():
+    app.mount("/", StaticFiles(directory=str(_FRONTEND), html=True), name="frontend")
