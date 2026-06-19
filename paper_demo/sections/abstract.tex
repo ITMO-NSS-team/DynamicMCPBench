@@ -1,0 +1,24 @@
+\begin{abstract}
+Benchmarks for LLM agents over Model Context Protocol (MCP) servers
+typically grade the final answer against a reference string or check a
+fixed ``ground-truth'' list of tools, both of which break once the
+underlying servers are live and stateful. We present \textbf{DMCP
+Studio}, an interactive web application that makes an alternative
+visible and inspectable: \emph{grade effects, not the answer}. The studio
+walks a user through the full pipeline in four live stages---collect MCP
+servers, explore a generated goal to record a successful trajectory,
+distill that trajectory into path-agnostic \emph{effect checkpoints}, and
+score a candidate agent on whether it reproduces those effects. Its
+signature interaction is an \textbf{Effect\,$\rightleftharpoons$\,Answer
+toggle} that re-grades the same run two ways and \emph{flips the verdict},
+dramatizing three failure modes that answer-matching gets wrong: a clean
+pass via an equivalent tool, a confident answer that skips required work,
+and a correct run penalized only because live data drifted. A
+LIVE/REPLAY switch backs every stage with either real pipeline calls or
+frozen, deterministic fixtures, so the demo is reproducible on a booth
+laptop yet provably wired to the real system. We report a studio-vs-batch
+verdict-agreement study, a per-stage latency budget, and an informal
+usability pass. DMCP Studio turns a static evaluation methodology into a
+hands-on tool that agent builders and evaluation researchers can drive on
+their own MCP servers.
+\end{abstract}

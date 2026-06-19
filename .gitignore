@@ -262,6 +262,17 @@ paper/main.pdf
 paper/main.synctex.gz
 paper/main.toc
 
+# LaTeX build outputs from `pdflatex paper_demo/main.tex` (demo-track paper).
+# Source .tex files under paper_demo/ are tracked; intermediates are not.
+paper_demo/main.aux
+paper_demo/main.bbl
+paper_demo/main.blg
+paper_demo/main.log
+paper_demo/main.out
+paper_demo/main.pdf
+paper_demo/main.synctex.gz
+paper_demo/main.toc
+
 # docker-compose git-mcp bind-mount sandbox (root-owned, container-created)
 /repos/
 /manifests/subset.json

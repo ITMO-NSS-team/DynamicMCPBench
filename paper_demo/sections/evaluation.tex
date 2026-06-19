@@ -1,0 +1,56 @@
+\section{Evaluation}
+\label{sec:eval}
+
+A demonstration paper must show that the system works, not re-establish the
+methodology (done in \citealp{dynamicmcpbench2026}). We therefore evaluate
+three properties of the \emph{studio}: that its verdicts match the batch
+pipeline, that it is fast enough to drive live, and that visitors can reach
+the verdict flip unaided.
+
+\subsection{E1: Studio-vs-batch verdict agreement}
+
+The studio is only credible if it reproduces the pipeline's verdicts. We
+score the same set of \emph{(task, candidate)} pairs two ways---through the
+studio back-end and through the original batch pipeline---and measure
+agreement on the Tier-1 effect verdict, which is deterministic and so should
+agree exactly. Table~\ref{tab:agreement} reports the result.
+
+\input{tables/agreement}
+
+\noindent The pre-registered target is 100\% Tier-1 agreement; any
+discrepancy indicates the adapter diverged from the pipeline and is a bug to
+fix, not a tolerance to accept. Tier-2 (the LLM effect-equivalence judge) is
+reported separately, since it is not deterministic and is off the demo's
+critical path.
+
+\subsection{E2: Per-stage latency budget}
+
+Whether a stage runs LIVE or from a REPLAY fixture in the booth is decided
+by its wall-clock cost. We measure per-stage latency---goal generation,
+exploration, distillation, scoring---across server families, recording
+token and tool-call counts, and derive the rule for which stages are
+pre-cached. Table~\ref{tab:latency} reports the budget.
+
+\input{tables/latency}
+
+\noindent The decision rule follows directly: stages that exceed an
+interaction-comfortable threshold default to REPLAY in the booth, with LIVE
+offered as an explicit, clearly-labelled proof run.
+
+\subsection{E3: Showcase fixtures}
+
+From real runs we curate and freeze the three verdict-flip fixtures of
+\S\ref{sec:system}, plus the worked-example default (the AAPL/MSFT/GOOGL
+financial-comparison task), so the demo deterministically reproduces each
+disagreement. Each fixture carries a one-line rationale and is served by the
+REPLAY back-end; LIVE re-derives the same TaskSpec against the read-only
+servers.
+
+\subsection{E5: Informal usability}
+
+We ran an informal pass with a handful of users unfamiliar with the system,
+measuring time-to-first-verdict-flip and noting points of confusion; no
+formal user study is claimed. The observations fed directly back into the
+interface (labelling of the toggle, the equivalence-set hint, and the
+LIVE/REPLAY affordance). \emph{[Fill from the E5 session: median
+time-to-first-flip and the one or two fixes folded back.]}
