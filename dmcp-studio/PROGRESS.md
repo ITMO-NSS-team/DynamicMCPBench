@@ -21,8 +21,12 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 ## Log
 
 - **A2 done.** Ported the `dmcp studio.html` mockup into `frontend/`
-  (`index.html` + `styles.css` verbatim from the mockup, `app.js` rewired to
-  `fetch` + `EventSource`). The four-stage click-through now runs against the
+  (`index.html` + `styles.css` verbatim from the mockup). The script is
+  **TypeScript** (`frontend/src/app.ts`, strict), bundled to `frontend/app.js`
+  by **Bun** (`bun run build`; `bun run check` typechecks first). API payloads
+  are typed to mirror `backend/models.py`. The committed bundle lets the demo
+  run without a build step. Rewired from canned data to
+  `fetch` + `EventSource`. The four-stage click-through now runs against the
   real backend: servers → goal → explore (SSE) → distill (renders the TaskSpec +
   editable equivalence chips) → score (SSE). The Effect/Answer toggle is a pure
   re-render over the one `done` payload (both verdicts), never a second call;
