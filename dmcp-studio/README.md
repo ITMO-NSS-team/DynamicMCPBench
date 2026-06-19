@@ -63,4 +63,17 @@ curl "localhost:8000/api/explore?delay=0"                       # SSE: 7 calls +
 curl "localhost:8000/api/score?candidate=hermes3-8b&delay=0"    # effect-fail / answer-pass
 ```
 
-The frontend (built from the `dmcp_studio.html` mockup) wires to these in A2.
+The frontend (built from the `dmcp studio.html` mockup) wires to these.
+
+### LIVE mode
+
+The header toggle switches **REPLAY** (default, deterministic, booth-safe) to
+**LIVE**, which drives the real pipeline for collect/goal/explore/distill against
+read-only servers in `manifests/local.json`; if a server is unreachable the stage
+falls back to the REPLAY fixture. **Scoring always uses deterministic replay** —
+the graded path. A real end-to-end live run (paid LLM calls; needs
+`OPENROUTER_API_KEY` and `".[servers]"`):
+
+```bash
+uv run python dmcp-studio/scripts/live_smoke.py --yes-spend   # default: yfinance
+```
