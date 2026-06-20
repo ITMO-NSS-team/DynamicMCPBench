@@ -14,7 +14,9 @@ var state = {
   mode: "effect",
   ran: false,
   lastDone: null,
-  es: null
+  es: null,
+  goal: "",
+  persona: null
 };
 function $(id) {
   const e = document.getElementById(id);
@@ -60,6 +62,46 @@ $("stepper").addEventListener("click", (e) => {
   gotoStep(i);
 });
 document.querySelectorAll("[data-goto]").forEach((b) => b.addEventListener("click", () => gotoStep(Number(b.dataset.goto))));
+$("modeToggle").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b)
+    return;
+  const m = b.dataset.m;
+  if (m === MODE)
+    return;
+  MODE = m;
+  $("modeToggle").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  resetFlow();
+});
+function resetFlow() {
+  if (state.es)
+    state.es.close();
+  state.servers = new Set;
+  state.explored = false;
+  state.distilled = false;
+  state.refCalls = [];
+  state.spec = null;
+  state.equivSets = {};
+  state.equivOn = {};
+  state.candidate = null;
+  state.ran = false;
+  state.lastDone = null;
+  state.goal = "";
+  state.persona = null;
+  goalLoaded = false;
+  candidatesLoaded = false;
+  steps.forEach((s) => s.classList.remove("done"));
+  ["toDistill", "toScore"].forEach((id) => {
+    $(id).disabled = true;
+  });
+  $("traceStream").innerHTML = '<div class="empty">Run exploration to record a successful trajectory.</div>';
+  $("ckptList").innerHTML = "";
+  $("candPick").innerHTML = "";
+  $("goalText").textContent = "Generating a goal from the tool surface…";
+  resetRun();
+  gotoStep(0);
+  loadServers();
+}
 async function loadServers() {
   const grid = $("serverGrid");
   const servers = await getJSON(`/api/servers?mode=${MODE}`);
@@ -98,10 +140,13 @@ async function ensureGoal() {
   if (goalLoaded)
     return;
   goalLoaded = true;
-  const g = await postJSON(`/api/goal?mode=${MODE}`, { server_ids: [...state.servers] });
+  const g = await postJSON(`/api/goal?mode=${MODE}`, {
+    server_ids: [...state.servers]
+  });
+  state.goal = g.goal;
+  state.persona = g.persona;
   $("goalText").textContent = g.goal;
-  if (g.persona)
-    $("goalPersona").textContent = g.persona;
+  $("goalPersona").textContent = g.fellback ? "fixture goal (live fell back)" : g.persona || "persona-seeded";
 }
 function fmtArgs(args) {
   return Object.entries(args || {}).map(([k, v]) => `${k}=${Array.isArray(v) ? "[" + v.join(",") + "]" : String(v)}`).join(", ");
@@ -124,8 +169,20 @@ $("runExplore").addEventListener("click", () => {
   dot.style.background = "var(--signal)";
   dot.style.boxShadow = "0 0 8px var(--signal-glow)";
   dot.classList.add("pulsing");
-  const es = new EventSource(`/api/explore?mode=${MODE}&delay=${DELAY}`);
+  let url = `/api/explore?mode=${MODE}&delay=${DELAY}`;
+  if (MODE === "live") {
+    url += `&server_ids=${encodeURIComponent([...state.servers].join(","))}` + `&goal=${encodeURIComponent(state.goal)}` + (state.persona ? `&persona=${encodeURIComponent(state.persona)}` : "");
+  }
+  const es = new EventSource(url);
   state.es = es;
+  es.addEventListener("fellback", (e) => {
+    const d = JSON.parse(e.data);
+    const banner = document.createElement("div");
+    banner.className = "note";
+    banner.style.marginBottom = "10px";
+    banner.innerHTML = `<b>Live server unreachable</b> — falling back to the deterministic replay fixture. (${d.reason})`;
+    stream.prepend(banner);
+  });
   es.addEventListener("call", (e) => {
     const c = JSON.parse(e.data);
     state.refCalls.push(c);
@@ -386,6 +443,9 @@ function renderScore(done) {
     }
   } else {
     note = effectPass ? `Both modes agree here. The interesting cases are the confident-but-incomplete agent (answer pass, effect fail) and the stale-but-correct agent (answer fail, effect pass).` : `Both modes fail this run.`;
+  }
+  if (MODE === "live") {
+    note = `<b>LIVE mode:</b> scoring runs on deterministic replay (the graded path); live drives collect/explore/distill. ${note}`;
   }
   $("finalAnswer").innerHTML = `<span class="fa-lbl">candidate's final answer</span>${done.final_answer}`;
   $("vwMode").textContent = modeLabel;

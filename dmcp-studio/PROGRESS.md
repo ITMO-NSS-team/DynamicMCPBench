@@ -10,8 +10,8 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A0 | Map the existing pipeline | ✅ done — `backend/INTEGRATION_NOTES.md` |
 | A1 | Adapter + REPLAY-only backend | ✅ done — FastAPI app, 6 routes, SSE |
 | A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
-| A3 | Wire LIVE mode | ⬜ next |
-| A4 | Bring-your-own-server (stretch) | ⬜ |
+| A3 | Wire LIVE mode | ✅ done — live collect/goal/explore/distill + fallback |
+| A4 | Bring-your-own-server (stretch) | ⬜ next |
 | A5 | Polish & demo-safety | ⬜ |
 | A6 | Package for submission | ⬜ |
 | E1 | Studio-vs-batch agreement | ⬜ |
@@ -20,6 +20,20 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log
 
+- **A3 done.** LIVE mode wires the real pipeline for **collect / goal /
+  explore / distill** (`backend/live.py`), backed by `manifests/local.json`
+  (curated read-only set: yfinance, arxiv, wikipedia). Explore streams real
+  tool calls via a `StreamingRecorder` wrapper (wrap, don't patch `explore()`);
+  a recorded trace is cached in-process so live `/api/distill` finds it. Every
+  stage has a timeout and **graceful fallback to the REPLAY fixture** if a
+  server is unreachable (surfaced to the UI as a `fellback` event / banner).
+  **Scoring stays deterministic replay** even in LIVE — the graded path (risk
+  register). Sandbox default-deny gate runs before any live connection. Header
+  has a **LIVE/REPLAY toggle** (default REPLAY) that restarts the walkthrough.
+  8 new deterministic tests (streaming wrapper, manifest server list, and
+  fallback for every live route) — **no network in the gate**. Real runs are
+  the opt-in `scripts/live_smoke.py --yes-spend`. 27 studio tests; frontend
+  typechecks + bundles. *Real live end-to-end not yet executed here (paid).*
 - **A2 done.** Ported the `dmcp studio.html` mockup into `frontend/`
   (`index.html` + `styles.css` verbatim from the mockup). The script is
   **TypeScript** (`frontend/src/app.ts`, strict), bundled to `frontend/app.js`

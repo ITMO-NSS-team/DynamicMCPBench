@@ -5,7 +5,7 @@
    Build:  bun run build   (emits ../app.js)
    ============================================================ */
 
-const MODE = "replay"; // LIVE toggle lands in A3
+let MODE: "replay" | "live" = "replay"; // toggled in the header
 const DELAY = 0.4; // SSE pacing hint (server-side sleep, seconds)
 
 /* ---------------- API types (mirror backend/models.py) ---------------- */
@@ -96,6 +96,8 @@ interface State {
   ran: boolean;
   lastDone: ScoreDone | null;
   es: EventSource | null;
+  goal: string;
+  persona: string | null;
 }
 
 const state: State = {
@@ -112,6 +114,8 @@ const state: State = {
   ran: false,
   lastDone: null,
   es: null,
+  goal: "",
+  persona: null,
 };
 
 /* ---------------- DOM helpers ---------------- */
@@ -158,6 +162,49 @@ document.querySelectorAll<HTMLElement>("[data-goto]").forEach((b) =>
   b.addEventListener("click", () => gotoStep(Number(b.dataset.goto))),
 );
 
+/* ---------------- LIVE / REPLAY toggle ---------------- */
+$("modeToggle").addEventListener("click", (e) => {
+  const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button");
+  if (!b) return;
+  const m = b.dataset.m as "replay" | "live";
+  if (m === MODE) return;
+  MODE = m;
+  $("modeToggle")
+    .querySelectorAll<HTMLElement>("button")
+    .forEach((x) => x.classList.toggle("on", x === b));
+  resetFlow(); // start the walkthrough over in the new mode
+});
+
+function resetFlow(): void {
+  if (state.es) state.es.close();
+  state.servers = new Set<string>();
+  state.explored = false;
+  state.distilled = false;
+  state.refCalls = [];
+  state.spec = null;
+  state.equivSets = {};
+  state.equivOn = {};
+  state.candidate = null;
+  state.ran = false;
+  state.lastDone = null;
+  state.goal = "";
+  state.persona = null;
+  goalLoaded = false;
+  candidatesLoaded = false;
+  steps.forEach((s) => s.classList.remove("done"));
+  (["toDistill", "toScore"] as const).forEach((id) => {
+    ($(id) as HTMLButtonElement).disabled = true;
+  });
+  $("traceStream").innerHTML =
+    '<div class="empty">Run exploration to record a successful trajectory.</div>';
+  $("ckptList").innerHTML = "";
+  $("candPick").innerHTML = "";
+  $("goalText").textContent = "Generating a goal from the tool surface…";
+  resetRun();
+  gotoStep(0);
+  void loadServers();
+}
+
 /* ---------------- stage 1: servers ---------------- */
 async function loadServers(): Promise<void> {
   const grid = $("serverGrid");
@@ -197,9 +244,13 @@ let goalLoaded = false;
 async function ensureGoal(): Promise<void> {
   if (goalLoaded) return;
   goalLoaded = true;
-  const g = await postJSON<GoalOut>(`/api/goal?mode=${MODE}`, { server_ids: [...state.servers] });
+  const g = await postJSON<GoalOut & { fellback?: string }>(`/api/goal?mode=${MODE}`, {
+    server_ids: [...state.servers],
+  });
+  state.goal = g.goal;
+  state.persona = g.persona;
   $("goalText").textContent = g.goal;
-  if (g.persona) $("goalPersona").textContent = g.persona;
+  $("goalPersona").textContent = g.fellback ? "fixture goal (live fell back)" : g.persona || "persona-seeded";
 }
 
 interface LineStatus {
@@ -231,8 +282,23 @@ $("runExplore").addEventListener("click", () => {
   dot.style.boxShadow = "0 0 8px var(--signal-glow)";
   dot.classList.add("pulsing");
 
-  const es = new EventSource(`/api/explore?mode=${MODE}&delay=${DELAY}`);
+  let url = `/api/explore?mode=${MODE}&delay=${DELAY}`;
+  if (MODE === "live") {
+    url +=
+      `&server_ids=${encodeURIComponent([...state.servers].join(","))}` +
+      `&goal=${encodeURIComponent(state.goal)}` +
+      (state.persona ? `&persona=${encodeURIComponent(state.persona)}` : "");
+  }
+  const es = new EventSource(url);
   state.es = es;
+  es.addEventListener("fellback", (e) => {
+    const d = JSON.parse((e as MessageEvent).data) as { reason: string };
+    const banner = document.createElement("div");
+    banner.className = "note";
+    banner.style.marginBottom = "10px";
+    banner.innerHTML = `<b>Live server unreachable</b> — falling back to the deterministic replay fixture. (${d.reason})`;
+    stream.prepend(banner);
+  });
   es.addEventListener("call", (e) => {
     const c = JSON.parse((e as MessageEvent).data) as ExploreCall;
     state.refCalls.push(c);
@@ -524,6 +590,9 @@ function renderScore(done: ScoreDone): void {
       : `Both modes fail this run.`;
   }
 
+  if (MODE === "live") {
+    note = `<b>LIVE mode:</b> scoring runs on deterministic replay (the graded path); live drives collect/explore/distill. ${note}`;
+  }
   $("finalAnswer").innerHTML = `<span class="fa-lbl">candidate's final answer</span>${done.final_answer}`;
   $("vwMode").textContent = modeLabel;
   $("vwText").innerHTML = why;
