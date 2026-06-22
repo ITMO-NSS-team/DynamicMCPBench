@@ -12,14 +12,24 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
 | A3 | Wire LIVE mode | ✅ plumbing done; live-explore blocked upstream (see below) |
 | A4 | Bring-your-own-server (stretch) | ⬜ |
-| A5 | Polish & demo-safety | ⬜ |
-| A6 | Package for submission | ⬜ |
+| A5 | Polish & demo-safety | ✅ done — run_demo.sh, pre-warm, errors, a11y |
+| A6 | Package for submission | ⬜ next |
 | E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
 | E2 | Latency budget | ✅ done — REPLAY booth path sub-ms; booth=REPLAY |
 | E3 | Showcase fixtures | ✅ done — showcase_aapl frozen (A1) |
 
 ## Log (newest first)
 
+- **A5 done — polish & demo-safety.** (1) `scripts/run_demo.sh`: one command —
+  builds the frontend if Bun is present, builds fixtures if missing, serves the
+  SPA + API (verified end-to-end). (2) Backend pre-warms the REPLAY fixtures on
+  startup (FastAPI lifespan) so the first request is hot. (3) Friendly,
+  in-voice error banners on every data-load path (servers/goal/distill/
+  candidates/leaderboard + interrupted SSE) — no stack traces to the visitor.
+  (4) **A11y fix:** `prefers-reduced-motion` previously left trace-lines at
+  `opacity:0` (invisible) — now forced visible (verified: 6/6 lines visible
+  under reduced motion); plus a `:focus-visible` outline. Frontend typechecks +
+  rebuilds; +1 pre-warm test (28 studio tests).
 - **E2 done — latency budget.** `experiments/e2_latency.py` times the REPLAY
   booth path through the real routes (SSE pacing disabled → compute, not the
   cosmetic delay), n=200/stage: every stage is **< 1.4 ms**, the evaluator is

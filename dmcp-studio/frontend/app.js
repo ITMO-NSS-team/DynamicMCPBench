@@ -25,7 +25,10 @@ function $(id) {
   return e;
 }
 async function getJSON(url) {
-  return (await fetch(url)).json();
+  const r = await fetch(url);
+  if (!r.ok)
+    throw new Error(`${url} → ${r.status}`);
+  return r.json();
 }
 async function postJSON(url, body) {
   const r = await fetch(url, {
@@ -33,7 +36,27 @@ async function postJSON(url, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
+  if (!r.ok)
+    throw new Error(`${url} → ${r.status}`);
   return r.json();
+}
+function showError(message) {
+  const stage = stages[state.step];
+  if (!stage)
+    return;
+  stage.querySelectorAll(".error-banner").forEach((n) => n.remove());
+  const head = stage.querySelector(".stage-head");
+  const el = document.createElement("div");
+  el.className = "error-banner";
+  el.setAttribute("role", "alert");
+  el.innerHTML = `<b>Something went wrong.</b> ${message} The studio stays on the deterministic replay path — try again, or reload.`;
+  if (head && head.parentElement)
+    head.parentElement.insertBefore(el, head.nextSibling);
+  else
+    stage.prepend(el);
+}
+function clearError() {
+  stages[state.step]?.querySelectorAll(".error-banner").forEach((n) => n.remove());
 }
 var stages = [...document.querySelectorAll(".stage")];
 var steps = [...document.querySelectorAll(".step")];
@@ -104,7 +127,16 @@ function resetFlow() {
 }
 async function loadServers() {
   const grid = $("serverGrid");
-  const servers = await getJSON(`/api/servers?mode=${MODE}`);
+  grid.innerHTML = '<div class="empty">Loading servers…</div>';
+  let servers;
+  try {
+    servers = await getJSON(`/api/servers?mode=${MODE}`);
+  } catch {
+    grid.innerHTML = "";
+    showError("Couldn't reach the studio backend to list servers.");
+    return;
+  }
+  clearError();
   grid.innerHTML = "";
   servers.forEach((s, idx) => {
     const isWrite = s.dynamism === "stateful_write";
@@ -140,13 +172,19 @@ async function ensureGoal() {
   if (goalLoaded)
     return;
   goalLoaded = true;
-  const g = await postJSON(`/api/goal?mode=${MODE}`, {
-    server_ids: [...state.servers]
-  });
-  state.goal = g.goal;
-  state.persona = g.persona;
-  $("goalText").textContent = g.goal;
-  $("goalPersona").textContent = g.fellback ? "fixture goal (live fell back)" : g.persona || "persona-seeded";
+  try {
+    const g = await postJSON(`/api/goal?mode=${MODE}`, {
+      server_ids: [...state.servers]
+    });
+    state.goal = g.goal;
+    state.persona = g.persona;
+    $("goalText").textContent = g.goal;
+    $("goalPersona").textContent = g.fellback ? "fixture goal (live fell back)" : g.persona || "persona-seeded";
+  } catch {
+    goalLoaded = false;
+    $("goalText").textContent = "Couldn't generate a goal — reload to try again.";
+    showError("The goal generator didn't respond.");
+  }
 }
 function fmtArgs(args) {
   return Object.entries(args || {}).map(([k, v]) => `${k}=${Array.isArray(v) ? "[" + v.join(",") + "]" : String(v)}`).join(", ");
@@ -189,8 +227,10 @@ $("runExplore").addEventListener("click", () => {
     stream.appendChild(traceLine(c.idx, c.tool_name, c.arguments, { cls: "ok", txt: "200 ok" }));
     $("exploreCount").textContent = `${c.idx} calls`;
   });
+  let exploreDone = false;
   es.addEventListener("done", (e) => {
     const d = JSON.parse(e.data);
+    exploreDone = true;
     es.close();
     dot.classList.remove("pulsing");
     $("exploreCount").textContent = `${d.n_calls} calls · ${d.success ? "success" : "incomplete"}`;
@@ -203,6 +243,8 @@ $("runExplore").addEventListener("click", () => {
     es.close();
     dot.classList.remove("pulsing");
     btn.disabled = false;
+    if (!exploreDone)
+      showError("The exploration stream was interrupted.");
   };
 });
 $("toDistill").addEventListener("click", () => {
@@ -244,7 +286,15 @@ async function runDistill() {
   const list = $("ckptList");
   list.innerHTML = "";
   $("ckptCount").textContent = "compiling…";
-  const res = await postJSON(`/api/distill?mode=${MODE}`, { trace_id: null });
+  let res;
+  try {
+    res = await postJSON(`/api/distill?mode=${MODE}`, { trace_id: null });
+  } catch {
+    $("ckptCount").textContent = "failed";
+    showError("The distiller didn't return a TaskSpec.");
+    return;
+  }
+  clearError();
   state.spec = res.task_spec;
   state.equivSets = res.equivalence_sets || {};
   state.equivOn = {};
@@ -299,7 +349,15 @@ async function loadCandidates() {
     return;
   candidatesLoaded = true;
   const pick = $("candPick");
-  const cands = await getJSON(`/api/candidates?mode=${MODE}`);
+  let cands;
+  try {
+    cands = await getJSON(`/api/candidates?mode=${MODE}`);
+  } catch {
+    candidatesLoaded = false;
+    showError("Couldn't load the candidate agents.");
+    return;
+  }
+  clearError();
   pick.innerHTML = "";
   cands.forEach((c, idx) => {
     const el = document.createElement("div");
@@ -370,7 +428,9 @@ function runCandidate() {
     stream.appendChild(traceLine(c.idx, c.tool_name, c.arguments, { cls: "ok", txt: "ok" }));
     $("candCount").textContent = `${c.idx} calls`;
   });
+  let scoreDone = false;
   es.addEventListener("done", (e) => {
+    scoreDone = true;
     es.close();
     dot.classList.remove("pulsing");
     if (nCalls)
@@ -385,6 +445,8 @@ function runCandidate() {
     es.close();
     dot.classList.remove("pulsing");
     btn.disabled = false;
+    if (!scoreDone)
+      showError("The scoring stream was interrupted.");
   };
 }
 function renderLedger(done) {
@@ -472,7 +534,14 @@ $("showLb").addEventListener("click", async () => {
   $("showLb").textContent = open ? "See the leaderboard →" : "Hide leaderboard";
   if (!open && !lbLoaded) {
     lbLoaded = true;
-    const lb = await getJSON(`/api/leaderboard?mode=${MODE}`);
+    let lb;
+    try {
+      lb = await getJSON(`/api/leaderboard?mode=${MODE}`);
+    } catch {
+      lbLoaded = false;
+      showError("Couldn't load the leaderboard.");
+      return;
+    }
     const max = Math.max(...lb.rows.map((r) => r.pass3));
     $("lbTable").innerHTML = "<tr><th>Model</th><th>Group</th><th style='width:46%'>pass³</th><th>%</th></tr>" + lb.rows.map((r) => `<tr>
         <td class="m">${r.model}</td>

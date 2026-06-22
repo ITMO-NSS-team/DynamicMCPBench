@@ -255,4 +255,16 @@
 
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important; transition:none !important}
+    /* elements that rely on an entrance animation/transition to reach their
+       visible state must not be left hidden when motion is disabled */
+    .trace-line,.ckpt{opacity:1 !important; transform:none !important}
   }
+
+  /* visible keyboard focus everywhere (A5 demo-safety) */
+  :focus-visible{outline:2px solid var(--signal); outline-offset:2px; border-radius:6px}
+  .error-banner{
+    font-family:var(--ui); font-size:13px; color:var(--alert);
+    border:1px solid var(--alert); background:var(--alert-dim);
+    border-radius:9px; padding:11px 14px; margin-bottom:14px; line-height:1.5;
+  }
+  .error-banner b{color:var(--alert)}

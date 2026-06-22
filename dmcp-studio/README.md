@@ -37,17 +37,22 @@ dmcp-studio/
 
 ## Quickstart
 
-```bash
-# from the repo root
-uv pip install -e ".[studio]"        # fastapi + uvicorn + sse-starlette
+One command (builds the frontend if Bun is present, builds fixtures if missing,
+serves the SPA + API):
 
+```bash
+uv pip install -e ".[studio]"        # once: fastapi + uvicorn + sse-starlette
+dmcp-studio/scripts/run_demo.sh      # → http://127.0.0.1:8000  (PORT=… to override)
+```
+
+Or run the pieces by hand:
+
+```bash
 # (re)build the frozen showcase fixture — asserts the three verdicts
 uv run python dmcp-studio/experiments/e3_curate.py
-
 # build the TypeScript frontend (Bun) → frontend/app.js
 cd dmcp-studio/frontend && bun install && bun run build && cd -
-
-# run the REPLAY backend (serves the SPA same-origin)
+# run the REPLAY backend (serves the SPA same-origin; fixtures pre-warmed on boot)
 cd dmcp-studio && uvicorn backend.app:app --reload
 ```
 

@@ -12,7 +12,9 @@ Run:  cd dmcp-studio && uvicorn backend.app:app --reload
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+import logging
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
@@ -24,10 +26,25 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 from . import dmcp_adapter as adapter
-from . import live
+from . import live, replay_store
 from .models import Mode
 
-app = FastAPI(title="DMCP Studio", version="0.1.0")
+log = logging.getLogger("dmcp_studio")
+
+
+@contextlib.asynccontextmanager
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    # Pre-warm the REPLAY fixtures so the first request is already hot (A5).
+    try:
+        replay_store.load_showcase()
+        replay_store.load_leaderboard()
+        log.info("REPLAY fixtures pre-warmed")
+    except Exception as e:  # a missing fixture shouldn't crash boot; routes surface it
+        log.warning("fixture pre-warm skipped: %s", e)
+    yield
+
+
+app = FastAPI(title="DMCP Studio", version="0.1.0", lifespan=_lifespan)
 
 # Default inter-event pacing for SSE (build plan §4: 300–600 ms). Overridable
 # per request via ?delay= so tests can run with no wait.
