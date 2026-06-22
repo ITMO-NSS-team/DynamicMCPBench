@@ -155,29 +155,22 @@ def candidate_calls(mode: Mode, candidate: str) -> list[dict[str, Any]]:
     return calls
 
 
-def score(
-    mode: Mode,
-    task_id: str | None,
-    candidate: str,
-    equiv_overrides: set[str] | None = None,
+def score_pair(
+    spec: TaskSpec,
+    ctrace: Trace,
+    *,
+    answer_looks_right: bool,
+    candidate_model: str | None = None,
 ) -> ScoreDone:
-    """Run the REAL deterministic evaluator on the frozen candidate trace.
+    """Score one (spec, candidate trace) pair through the REAL deterministic
+    evaluator and shape the studio's ``ScoreDone``. This is the single scoring
+    core both the ``/api/score`` route and the E1 agreement harness use, so E1
+    exercises the exact code path the running studio does.
 
     ``effect_pass`` comes from ``dmcp.evaluator.evaluate``. ``answer_pass`` is the
-    studio-side demo foil (the canned answer-match verdict), never from the
-    pipeline.
+    studio-side demo foil, never from the pipeline.
     """
-    if mode == "live":
-        _live_unsupported("score")
-    fx = load_showcase()
-    if candidate not in fx.candidates:
-        raise KeyError(candidate)
-    cand = fx.candidates[candidate]
-    ctrace: Trace = cand["trace"]
-    spec = _apply_equiv_overrides(fx.task_spec, equiv_overrides)
-
-    ev = evaluate(spec, ctrace, candidate_model=candidate, evaluation_mode="replay")
-
+    ev = evaluate(spec, ctrace, candidate_model=candidate_model, evaluation_mode="replay")
     verdicts = [
         CheckpointVerdict(
             n=i + 1,
@@ -191,11 +184,33 @@ def score(
     final_answer = (ctrace.seed_metadata.get("exploration") or {}).get("final_message") or ""
     return ScoreDone(
         effect_pass=ev.passed,
-        answer_pass=bool(cand["answer_looks_right"]),  # demo foil, not a benchmark verdict
+        answer_pass=bool(answer_looks_right),  # demo foil, not a benchmark verdict
         final_answer=final_answer,
         met_count=sum(1 for v in verdicts if v.met),
         required=len(verdicts),
         checkpoints=verdicts,
+    )
+
+
+def score(
+    mode: Mode,
+    task_id: str | None,
+    candidate: str,
+    equiv_overrides: set[str] | None = None,
+) -> ScoreDone:
+    """Run the REAL deterministic evaluator on the frozen candidate trace."""
+    if mode == "live":
+        _live_unsupported("score")
+    fx = load_showcase()
+    if candidate not in fx.candidates:
+        raise KeyError(candidate)
+    cand = fx.candidates[candidate]
+    spec = _apply_equiv_overrides(fx.task_spec, equiv_overrides)
+    return score_pair(
+        spec,
+        cand["trace"],
+        answer_looks_right=cand["answer_looks_right"],
+        candidate_model=candidate,
     )
 
 

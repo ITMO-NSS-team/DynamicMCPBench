@@ -19,7 +19,10 @@ agree exactly. Table~\ref{tab:agreement} reports the result.
 
 \noindent The pre-registered target is 100\% Tier-1 agreement; any
 discrepancy indicates the adapter diverged from the pipeline and is a bug to
-fix, not a tolerance to accept. Tier-2 (the LLM effect-equivalence judge) is
+fix, not a tolerance to accept. Across 118 deterministic pairs (22 pass, 96
+fail) the studio reproduces the batch verdict exactly---both overall and for
+all 708 per-checkpoint comparisons---so the demo shows the pipeline's own
+scorer, not a re-implementation. Tier-2 (the LLM effect-equivalence judge) is
 reported separately, since it is not deterministic and is off the demo's
 critical path.
 

@@ -1,20 +1,24 @@
-% E1 -- studio-vs-batch verdict agreement.
-% TODO(E1): fill from experiments/e1_agreement.py. Do NOT fabricate; leave
-% TBD until the run is committed. Pre-registered target: 100% Tier-1.
+% E1 -- studio-vs-batch verdict agreement. Numbers from
+% dmcp-studio/experiments/e1_agreement.py (report:
+% docs/experiments/studio-e1-agreement.md). Tier-1 is deterministic; the
+% pre-registered bar is exact 100% agreement.
 \begin{table}[t]
   \centering \small
   \begin{tabular}{lcc}
     \toprule
-    & \textbf{pairs} & \textbf{agreement} \\
+    & \textbf{comparisons} & \textbf{agreement} \\
     \midrule
-    Tier-1 (deterministic effects) & TBD & \textit{TBD} (target 100\%) \\
-    Tier-2 (equivalence judge)     & TBD & \textit{TBD} \\
+    Overall verdict        & 118 & \textbf{100.0\%} \\
+    Per-checkpoint (Tier-1) & 708 & \textbf{100.0\%} \\
     \bottomrule
   \end{tabular}
-  \caption{\textbf{E1: studio-vs-batch agreement.} Each \emph{(task,
-    candidate)} pair is scored through the studio back-end and the original
-    batch pipeline. Tier-1 verdicts are deterministic and must agree exactly;
-    Tier-2 (non-deterministic LLM judge) is reported separately and is off
-    the demo's critical path. \emph{Numbers pending the E1 run.}}
+  \caption{\textbf{E1: studio-vs-batch agreement.} Each of 118 deterministic
+    \emph{(spec, candidate)} pairs (22 pass / 96 fail) is scored through the
+    studio backend and through the original batch pipeline (the \texttt{dmcp
+    eval} CLI, a separate process). The studio's JSON round-trip and result
+    shaping reproduce the pipeline's deterministic Tier-1 verdict exactly
+    --- overall and for every checkpoint --- meeting the pre-registered 100\%
+    bar. Tier-2 (the non-deterministic LLM equivalence judge) is off the demo's
+    critical path.}
   \label{tab:agreement}
 \end{table}

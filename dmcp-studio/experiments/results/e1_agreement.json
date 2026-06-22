@@ -1,0 +1,10 @@
+{
+  "experiment": "E1",
+  "n_pairs": 118,
+  "verdict_pass": 22,
+  "verdict_fail": 96,
+  "overall_verdict_agreement": 1.0,
+  "checkpoint_verdict_agreement": 1.0,
+  "checkpoint_comparisons": 708,
+  "disagreements": []
+}
