@@ -29,16 +29,21 @@ critical path.
 \subsection{E2: Per-stage latency budget}
 
 Whether a stage runs LIVE or from a REPLAY fixture in the booth is decided
-by its wall-clock cost. We measure per-stage latency---goal generation,
-exploration, distillation, scoring---across server families, recording
-token and tool-call counts, and derive the rule for which stages are
-pre-cached. Table~\ref{tab:latency} reports the budget.
+by its wall-clock cost. We measure the per-stage \emph{compute} of the REPLAY
+booth path through the real routes (inter-event pacing disabled, so we time
+the system rather than the cosmetic animation delay).
+Table~\ref{tab:latency} reports the budget.
 
 \input{tables/latency}
 
-\noindent The decision rule follows directly: stages that exceed an
-interaction-comfortable threshold default to REPLAY in the booth, with LIVE
-offered as an explicit, clearly-labelled proof run.
+\noindent Every stage is sub-millisecond and cold-start to first verdict is
+${\approx}1.3$\,ms---roughly four orders of magnitude under the 30\,s target
+(\S\ref{sec:limitations})---so the only delay a visitor perceives is the
+deliberate, configurable inter-event pacing ($\sim$0.45\,s/call). The decision
+rule follows: the booth runs REPLAY for every stage. LIVE exploration, which
+would be dominated by LLM and network seconds, is offered as an explicit proof
+run rather than the graded path---consistent with scoring under deterministic
+replay throughout.
 
 \subsection{E3: Showcase fixtures}
 
