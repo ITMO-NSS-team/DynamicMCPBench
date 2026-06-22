@@ -125,7 +125,9 @@ function $(id: string): HTMLElement {
   return e;
 }
 async function getJSON<T>(url: string): Promise<T> {
-  return (await fetch(url)).json() as Promise<T>;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url} → ${r.status}`);
+  return r.json() as Promise<T>;
 }
 async function postJSON<T>(url: string, body: unknown): Promise<T> {
   const r = await fetch(url, {
@@ -133,7 +135,25 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  if (!r.ok) throw new Error(`${url} → ${r.status}`);
   return r.json() as Promise<T>;
+}
+
+/* Friendly, in-voice error banner on the active stage (never a stack trace). */
+function showError(message: string): void {
+  const stage = stages[state.step];
+  if (!stage) return;
+  stage.querySelectorAll(".error-banner").forEach((n) => n.remove());
+  const head = stage.querySelector(".stage-head");
+  const el = document.createElement("div");
+  el.className = "error-banner";
+  el.setAttribute("role", "alert");
+  el.innerHTML = `<b>Something went wrong.</b> ${message} The studio stays on the deterministic replay path — try again, or reload.`;
+  if (head && head.parentElement) head.parentElement.insertBefore(el, head.nextSibling);
+  else stage.prepend(el);
+}
+function clearError(): void {
+  stages[state.step]?.querySelectorAll(".error-banner").forEach((n) => n.remove());
 }
 
 /* ---------------- nav ---------------- */
@@ -208,7 +228,16 @@ function resetFlow(): void {
 /* ---------------- stage 1: servers ---------------- */
 async function loadServers(): Promise<void> {
   const grid = $("serverGrid");
-  const servers = await getJSON<ServerCard[]>(`/api/servers?mode=${MODE}`);
+  grid.innerHTML = '<div class="empty">Loading servers…</div>';
+  let servers: ServerCard[];
+  try {
+    servers = await getJSON<ServerCard[]>(`/api/servers?mode=${MODE}`);
+  } catch {
+    grid.innerHTML = "";
+    showError("Couldn't reach the studio backend to list servers.");
+    return;
+  }
+  clearError();
   grid.innerHTML = "";
   servers.forEach((s, idx) => {
     const isWrite = s.dynamism === "stateful_write";
@@ -244,13 +273,21 @@ let goalLoaded = false;
 async function ensureGoal(): Promise<void> {
   if (goalLoaded) return;
   goalLoaded = true;
-  const g = await postJSON<GoalOut & { fellback?: string }>(`/api/goal?mode=${MODE}`, {
-    server_ids: [...state.servers],
-  });
-  state.goal = g.goal;
-  state.persona = g.persona;
-  $("goalText").textContent = g.goal;
-  $("goalPersona").textContent = g.fellback ? "fixture goal (live fell back)" : g.persona || "persona-seeded";
+  try {
+    const g = await postJSON<GoalOut & { fellback?: string }>(`/api/goal?mode=${MODE}`, {
+      server_ids: [...state.servers],
+    });
+    state.goal = g.goal;
+    state.persona = g.persona;
+    $("goalText").textContent = g.goal;
+    $("goalPersona").textContent = g.fellback
+      ? "fixture goal (live fell back)"
+      : g.persona || "persona-seeded";
+  } catch {
+    goalLoaded = false; // allow a retry
+    $("goalText").textContent = "Couldn't generate a goal — reload to try again.";
+    showError("The goal generator didn't respond.");
+  }
 }
 
 interface LineStatus {
@@ -305,8 +342,10 @@ $("runExplore").addEventListener("click", () => {
     stream.appendChild(traceLine(c.idx, c.tool_name, c.arguments, { cls: "ok", txt: "200 ok" }));
     $("exploreCount").textContent = `${c.idx} calls`;
   });
+  let exploreDone = false;
   es.addEventListener("done", (e) => {
     const d = JSON.parse((e as MessageEvent).data) as ExploreDone;
+    exploreDone = true;
     es.close();
     dot.classList.remove("pulsing");
     $("exploreCount").textContent = `${d.n_calls} calls · ${d.success ? "success" : "incomplete"}`;
@@ -319,6 +358,7 @@ $("runExplore").addEventListener("click", () => {
     es.close();
     dot.classList.remove("pulsing");
     btn.disabled = false;
+    if (!exploreDone) showError("The exploration stream was interrupted.");
   };
 });
 $("toDistill").addEventListener("click", () => {
@@ -369,7 +409,15 @@ async function runDistill(): Promise<void> {
   const list = $("ckptList");
   list.innerHTML = "";
   $("ckptCount").textContent = "compiling…";
-  const res = await postJSON<DistillOut>(`/api/distill?mode=${MODE}`, { trace_id: null });
+  let res: DistillOut;
+  try {
+    res = await postJSON<DistillOut>(`/api/distill?mode=${MODE}`, { trace_id: null });
+  } catch {
+    $("ckptCount").textContent = "failed";
+    showError("The distiller didn't return a TaskSpec.");
+    return;
+  }
+  clearError();
   state.spec = res.task_spec;
   state.equivSets = res.equivalence_sets || {};
   state.equivOn = {};
@@ -426,7 +474,15 @@ async function loadCandidates(): Promise<void> {
   if (candidatesLoaded) return;
   candidatesLoaded = true;
   const pick = $("candPick");
-  const cands = await getJSON<CandidateCard[]>(`/api/candidates?mode=${MODE}`);
+  let cands: CandidateCard[];
+  try {
+    cands = await getJSON<CandidateCard[]>(`/api/candidates?mode=${MODE}`);
+  } catch {
+    candidatesLoaded = false;
+    showError("Couldn't load the candidate agents.");
+    return;
+  }
+  clearError();
   pick.innerHTML = "";
   cands.forEach((c, idx) => {
     const el = document.createElement("div");
@@ -505,7 +561,9 @@ function runCandidate(): void {
     stream.appendChild(traceLine(c.idx, c.tool_name, c.arguments, { cls: "ok", txt: "ok" }));
     $("candCount").textContent = `${c.idx} calls`;
   });
+  let scoreDone = false;
   es.addEventListener("done", (e) => {
+    scoreDone = true;
     es.close();
     dot.classList.remove("pulsing");
     if (nCalls) $("candCount").textContent = `${nCalls} calls`;
@@ -519,6 +577,7 @@ function runCandidate(): void {
     es.close();
     dot.classList.remove("pulsing");
     btn.disabled = false;
+    if (!scoreDone) showError("The scoring stream was interrupted.");
   };
 }
 
@@ -621,7 +680,14 @@ $("showLb").addEventListener("click", async () => {
   $("showLb").textContent = open ? "See the leaderboard →" : "Hide leaderboard";
   if (!open && !lbLoaded) {
     lbLoaded = true;
-    const lb = await getJSON<Leaderboard>(`/api/leaderboard?mode=${MODE}`);
+    let lb: Leaderboard;
+    try {
+      lb = await getJSON<Leaderboard>(`/api/leaderboard?mode=${MODE}`);
+    } catch {
+      lbLoaded = false;
+      showError("Couldn't load the leaderboard.");
+      return;
+    }
     const max = Math.max(...lb.rows.map((r) => r.pass3));
     $("lbTable").innerHTML =
       "<tr><th>Model</th><th>Group</th><th style='width:46%'>pass³</th><th>%</th></tr>" +

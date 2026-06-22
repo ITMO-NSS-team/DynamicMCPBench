@@ -82,3 +82,11 @@ def test_spa_served_without_shadowing_api():
     assert index.status_code == 200 and "DMCP Studio" in index.text
     assert client.get("/app.js").status_code == 200
     assert client.get("/api/servers").status_code == 200
+
+
+def test_lifespan_prewarms_fixtures():
+    from backend import replay_store
+
+    replay_store.load_showcase.cache_clear()
+    with TestClient(app):  # entering the context runs the lifespan startup
+        assert replay_store.load_showcase.cache_info().currsize == 1  # pre-warmed
