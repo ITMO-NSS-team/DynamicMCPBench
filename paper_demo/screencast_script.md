@@ -14,11 +14,13 @@ the committed fixture.
 - Optional: upload to an unlisted YouTube link and put it in the paper, or
   attach the MP4 as supplementary.
 
-> **Live note.** The build plan suggested showing one genuinely LIVE explore as
-> proof. LIVE is currently wired but falls back to REPLAY (a known upstream
-> dependency issue; see `dmcp-studio/PROGRESS.md`). Record entirely in REPLAY and
-> narrate the LIVE/REPLAY toggle as a design point — do **not** claim a live run
-> the video doesn't show.
+> **Live note.** Record the main flow against **REPLAY** for booth reliability
+> (deterministic, instant). LIVE mode now works end to end (collect → explore →
+> distill over real servers), so you *may* add one brief genuine LIVE explore as
+> proof — flip the toggle, pick a server, run one exploration — then return to
+> REPLAY for the verdict beats. Keep any live segment short (it spends a few
+> seconds and a few cents of LLM budget) and only show it if the network is
+> reliable on the day; the verdict flip itself is always REPLAY.
 
 ---
 

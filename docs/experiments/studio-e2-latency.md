@@ -2,9 +2,10 @@
 
 **Status:** done. The REPLAY booth path is effectively instant (every stage
 < 1.4 ms compute; cold-start to first verdict ≈ 1.3 ms vs. a 30 s target), so the
-booth runs REPLAY for every stage. Live per-stage timing is not reported: live
-exploration is blocked upstream (see *Known blocker* in
-`dmcp-studio/PROGRESS.md`) and is not on the booth's critical path.
+booth runs REPLAY for every stage. Live per-stage timing is not reported here:
+LIVE exploration is the *proof* path (not the booth's graded path) and would be
+dominated by LLM/network seconds. (LIVE works end to end since the recorder fix;
+the earlier "blocked upstream" caveat is resolved — see `dmcp-studio/PROGRESS.md`.)
 
 ## Question / hypothesis
 
