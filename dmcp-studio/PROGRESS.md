@@ -10,13 +10,50 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A0 | Map the existing pipeline | ✅ done — `backend/INTEGRATION_NOTES.md` |
 | A1 | Adapter + REPLAY-only backend | ✅ done — FastAPI app, 6 routes, SSE |
 | A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
-| A3 | Wire LIVE mode | ✅ done — live collect/goal/explore/distill + fallback |
-| A4 | Bring-your-own-server (stretch) | ⬜ next |
+| A3 | Wire LIVE mode | ✅ plumbing done; live-explore blocked upstream (see below) |
+| A4 | Bring-your-own-server (stretch) | ⬜ |
 | A5 | Polish & demo-safety | ⬜ |
 | A6 | Package for submission | ⬜ |
 | E1 | Studio-vs-batch agreement | ⬜ |
 | E2 | Latency budget | ⬜ |
 | E3 | Showcase fixtures | ⬜ |
+
+## Known blocker — live-explore disabled by a dependency regression
+
+The live smoke (real run) surfaced a pipeline/dependency bug that blocks live
+goal-gen/explore end-to-end. **REPLAY (the default, graded path) is unaffected;
+LIVE falls back to REPLAY automatically, so the demo is safe.** Two findings,
+both reproduced with NO studio code and NO paid calls:
+
+1. **`dmcp/goal_gen.py::_fetch_tool_specs`** wraps the recorder in
+   `anyio.move_on_after`, which raises `RuntimeError: Attempted to exit a cancel
+   scope that isn't the current task's current cancel scope` under
+   `asyncio.run`. Fix is known (wrap a self-contained capture coroutine in
+   `asyncio.wait_for`) — not landed (shared pipeline code; needs sign-off).
+2. **`TraceRecorder` teardown persistently poisons the event loop.** After one
+   recorder closes, *every* subsequent `anyio.to_thread` on that loop is
+   `CancelledError` (verified across 3 consecutive calls). openai 2.x runs its
+   one-time `get_platform()` via `anyio.to_thread`, so the first LLM call after
+   any recorder teardown dies — and the whole uvicorn loop stays poisoned.
+   Repro:
+   ```python
+   async with TraceRecorder(...): pass
+   await anyio.to_thread.run_sync(time.sleep, 0)   # -> CancelledError, persistently
+   ```
+
+**Root cause:** version drift. Installed `openai 2.38.0` (pin is only `>=1.40`),
+`mcp 1.27.1`, `anyio 4.13.0`. openai 2.x is the proximate trigger; the
+mcp/anyio recorder teardown is the underlying poison. Because the poison is
+persistent and loop-local, cheap studio-side workarounds (pre-warm) do NOT
+work — the recorder and the LLM call cannot share a loop once a teardown
+happens.
+
+**Decision:** do NOT rush a fix into shared pipeline code under the demo
+deadline. Keep the studio REPLAY-default + LIVE-fallback (shipped in A3). The
+fix is its own deliberate task: try an `openai<2` pin (or an mcp/anyio bump) in
+a throwaway env; if that doesn't clear it, isolate each recorder session in its
+own event loop/thread so the poison can't reach the LLM loop. Revisit
+post-demo-priority.
 
 ## Log
 
