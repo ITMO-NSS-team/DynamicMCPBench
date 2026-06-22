@@ -20,6 +20,11 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **Screencast script drafted.** `paper_demo/screencast_script.md` — a
+  beat-by-beat, timed (~2:20, under the 2:30 cap) script for the mandatory
+  screencast, grounded in the working REPLAY demo (collect → explore → distill →
+  the hermes3-8b verdict flip → the stale-answer case → close). Honest about
+  LIVE being REPLAY-backed. The user records the actual video.
 - **A6 done — installable package (Docker).** The CFP's required demo link is
   satisfied by an installable package (accepted in lieu of a hosted URL).
   `dmcp-studio/Dockerfile` (+ `docker-compose.yml`, root `.dockerignore`) builds
