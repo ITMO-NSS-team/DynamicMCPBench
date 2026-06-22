@@ -29,10 +29,10 @@ from dmcp.explorer import explore as run_explore
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goal_gen import generate_goals
 from dmcp.llm import DEFAULT_MODEL, OpenRouterClient
-from dmcp.manifest import Manifest
+from dmcp.manifest import Dynamism, Manifest, ServerEntry
 from dmcp.recorder import TraceRecorder
 from dmcp.spec import TaskSpec
-from dmcp.trace import StepKind, StepStatus, ToolSpec, Trace
+from dmcp.trace import StepKind, StepStatus, ToolSpec, Trace, TransportKind
 
 from .dmcp_adapter import ensure_sandbox_safe
 from .models import GoalOut, ServerCard
@@ -49,10 +49,22 @@ STAGE_TIMEOUT_S = 90.0
 # In-process only — fine for a single-session booth demo.
 _LIVE_TRACES: dict[str, Trace] = {}
 
+# Bring-your-own-server registry (A4): servers a visitor registers at runtime.
+# In-process only; keyed by server_id.
+_REGISTERED: dict[str, ServerEntry] = {}
+
 
 @lru_cache(maxsize=1)
 def load_manifest() -> Manifest:
     return Manifest.load(MANIFEST_PATH)
+
+
+def augmented_manifest() -> Manifest:
+    """The built-in manifest plus any runtime-registered (BYO) servers, so the
+    live goal/explore/distill path can resolve both."""
+    entries = {e.server_id: e for e in load_manifest().servers}
+    entries.update(_REGISTERED)  # BYO servers extend (and may override) the manifest
+    return Manifest(servers=list(entries.values()))
 
 
 def _gate(server_ids: list[str], manifest: Manifest) -> None:
@@ -61,6 +73,57 @@ def _gate(server_ids: list[str], manifest: Manifest) -> None:
     for sid in server_ids:
         e = manifest.by_id(sid)
         ensure_sandbox_safe(server_id=e.server_id, dynamism=e.dynamism.value, sandbox=e.sandbox)
+
+
+def _entry_from_spec(spec: dict[str, Any]) -> ServerEntry:
+    """Build a (validated) ServerEntry from a BYO registration request. Defaults
+    to read-only (`live_read`); `ServerEntry` itself rejects a `stateful_write`
+    server without `sandbox=true` (sandbox default-deny)."""
+    sid = (spec.get("server_id") or "").strip()
+    if not sid:
+        raise ValueError("server_id is required")
+    transport = TransportKind(spec.get("transport") or "stdio")
+    dynamism = Dynamism(spec.get("dynamism") or "live_read")
+    common = {
+        "server_id": sid,
+        "transport": transport,
+        "dynamism": dynamism,
+        "sandbox": bool(spec.get("sandbox", False)),
+        "description": spec.get("description") or "(your server)",
+        "tags": ["byo"],
+    }
+    if transport is TransportKind.stdio:
+        command = (spec.get("command") or "").strip()
+        if not command:
+            raise ValueError("stdio servers need a command")
+        return ServerEntry(**common, command=command, args=list(spec.get("args") or []))
+    endpoint = (spec.get("endpoint") or "").strip()
+    if not endpoint:
+        raise ValueError(f"{transport.value} servers need an endpoint URL")
+    return ServerEntry(**common, endpoint=endpoint)
+
+
+async def register_server(spec: dict[str, Any]) -> ServerCard:
+    """Register a BYO MCP server: validate, enforce the sandbox gate, and open it
+    once to collect its tool surface (live, no LLM). On success it's added to the
+    registry so the live pipeline can explore it."""
+    entry = _entry_from_spec(spec)  # raises ValueError on bad input
+    ensure_sandbox_safe(server_id=entry.server_id, dynamism=entry.dynamism.value, sandbox=entry.sandbox)
+    recorder = TraceRecorder(servers=[entry.to_config()], goal=f"register:{entry.server_id}")
+    async with recorder:
+        booted = {fp.server_id for fp in recorder.trace.servers}
+        if entry.server_id not in booted:
+            failures = recorder.trace.seed_metadata.get("boot_failures") or [{"error": "no tools"}]
+            raise RuntimeError(f"server did not boot: {failures[-1].get('error')}")
+        specs = recorder.trace.tool_specs.get(entry.server_id, [])
+    _REGISTERED[entry.server_id] = entry
+    return ServerCard(
+        server_id=entry.server_id,
+        dynamism=entry.dynamism.value,
+        sandbox=entry.sandbox,
+        description=entry.description or "(your server)",
+        tools=[s.name for s in specs],
+    )
 
 
 def live_servers() -> list[ServerCard]:
@@ -80,12 +143,24 @@ def live_servers() -> list[ServerCard]:
                 tools=[],  # tool surface is fetched lazily on explore (avoids opening every server)
             )
         )
+    # Append any runtime-registered (BYO) servers.
+    for e in _REGISTERED.values():
+        cards.append(
+            ServerCard(
+                server_id=e.server_id,
+                dynamism=e.dynamism.value,
+                sandbox=e.sandbox,
+                description=e.description or "(your server)",
+                tools=[],
+            )
+        )
     return cards
 
 
 async def live_goal(server_ids: list[str]) -> GoalOut:
-    m = load_manifest()
-    ids = [s for s in server_ids if s in {e.server_id for e in m.servers}] or SHOWCASE_SERVER_IDS
+    m = augmented_manifest()
+    known = {e.server_id for e in m.servers}
+    ids = [s for s in server_ids if s in known] or SHOWCASE_SERVER_IDS
     _gate(ids, m)
     llm = OpenRouterClient(model=DEFAULT_MODEL)
     goals = await asyncio.wait_for(
@@ -162,7 +237,7 @@ async def stream_explore(server_ids: list[str], goal: str, persona: str | None) 
     """Async-iterate SSE events for a live exploration: one ``call`` per tool
     call, then a ``done`` with the trace id. Raises if the servers can't be
     reached / the run fails *before* completion, so the route can fall back."""
-    m = load_manifest()
+    m = augmented_manifest()
     _gate(server_ids, m)
     configs = m.configs(server_ids)
     llm = OpenRouterClient(model=DEFAULT_MODEL)
@@ -205,5 +280,5 @@ async def live_distill(trace_id: str | None) -> TaskSpec:
     trace = get_cached_trace(trace_id)
     llm = OpenRouterClient(model=DEFAULT_MODEL)
     return await asyncio.wait_for(
-        run_distill(trace, llm=llm, manifest=load_manifest()), timeout=STAGE_TIMEOUT_S
+        run_distill(trace, llm=llm, manifest=augmented_manifest()), timeout=STAGE_TIMEOUT_S
     )

@@ -11,7 +11,7 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A1 | Adapter + REPLAY-only backend | ✅ done — FastAPI app, 6 routes, SSE |
 | A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
 | A3 | Wire LIVE mode | ✅ done — live goal/explore/distill working (recorder bug fixed) |
-| A4 | Bring-your-own-server (stretch) | ⬜ next |
+| A4 | Bring-your-own-server (stretch) | ✅ done — register a server, explore it live |
 | A5 | Polish & demo-safety | ✅ done — run_demo.sh, pre-warm, errors, a11y |
 | A6 | Package for submission | ✅ done — Docker image, <10-min clean-checkout |
 | E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
@@ -20,6 +20,17 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **A4 done — bring-your-own-server.** A visitor can register a read-only MCP
+  server at runtime (stdio command or http(s) URL) on Stage 1; the backend
+  validates it, enforces the sandbox default-deny (`stateful_write` refused
+  unless sandboxed), opens it once to collect its tool surface (live, no LLM),
+  and adds it to an in-process registry that the live goal/explore/distill path
+  resolves (`augmented_manifest`). Frontend: a BYO form that switches to LIVE,
+  reloads the grid, and auto-selects the new server. New route
+  `POST /api/register-server`; 6 tests (input + sandbox validation; real
+  collection of the local `time` server; bad-command 502). Verified headless:
+  form → register → byo_time appears selected in LIVE. Depends on the recorder
+  fix below (live capture). 457 tests green.
 - **Recorder bug FIXED — LIVE mode works.** Rewrote `TraceRecorder`'s session
   management: each MCP server runs in its own `_SessionActor` task so the
   transport/`ClientSession` context managers open+close in LIFO order in one

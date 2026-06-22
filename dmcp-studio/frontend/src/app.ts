@@ -183,15 +183,18 @@ document.querySelectorAll<HTMLElement>("[data-goto]").forEach((b) =>
 );
 
 /* ---------------- LIVE / REPLAY toggle ---------------- */
+function setModeUI(m: "replay" | "live"): void {
+  MODE = m;
+  $("modeToggle")
+    .querySelectorAll<HTMLElement>("button")
+    .forEach((x) => x.classList.toggle("on", x.dataset.m === m));
+}
 $("modeToggle").addEventListener("click", (e) => {
   const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button");
   if (!b) return;
   const m = b.dataset.m as "replay" | "live";
   if (m === MODE) return;
-  MODE = m;
-  $("modeToggle")
-    .querySelectorAll<HTMLElement>("button")
-    .forEach((x) => x.classList.toggle("on", x === b));
+  setModeUI(m);
   resetFlow(); // start the walkthrough over in the new mode
 });
 
@@ -239,30 +242,78 @@ async function loadServers(): Promise<void> {
   }
   clearError();
   grid.innerHTML = "";
-  servers.forEach((s, idx) => {
-    const isWrite = s.dynamism === "stateful_write";
-    const sel = idx === 0; // pre-select the first (yfinance)
-    if (sel) state.servers.add(s.server_id);
-    const el = document.createElement("div");
-    el.className = "server-card" + (sel ? " sel" : "");
-    const pill = isWrite
-      ? `<span class="pill write">stateful-write · ${s.sandbox ? "sandboxed" : "UNSANDBOXED"}</span>`
-      : `<span class="pill live">${s.dynamism === "static" ? "static" : "live-read"}</span>`;
-    el.innerHTML = `
+  servers.forEach((s, idx) =>
+    grid.appendChild(makeServerCard(s, preselectId ? s.server_id === preselectId : idx === 0)),
+  );
+  preselectId = null; // consume one-shot preselect
+  ($("toExplore") as HTMLButtonElement).disabled = state.servers.size === 0;
+}
+let preselectId: string | null = null;
+
+function makeServerCard(s: ServerCard, selected: boolean): HTMLElement {
+  const isWrite = s.dynamism === "stateful_write";
+  if (selected) state.servers.add(s.server_id);
+  const el = document.createElement("div");
+  el.className = "server-card" + (selected ? " sel" : "");
+  const pill = isWrite
+    ? `<span class="pill write">stateful-write · ${s.sandbox ? "sandboxed" : "UNSANDBOXED"}</span>`
+    : `<span class="pill live">${s.dynamism === "static" ? "static" : "live-read"}</span>`;
+  el.innerHTML = `
       <div class="sc-name">${s.server_id}</div>
       <div class="sc-meta">${pill}</div>
       <div class="sc-desc">${s.description}</div>
       <div class="sc-tools">${(s.tools || []).join(" · ")}</div>`;
-    el.addEventListener("click", () => {
-      if (state.servers.has(s.server_id)) state.servers.delete(s.server_id);
-      else state.servers.add(s.server_id);
-      el.classList.toggle("sel");
-      ($("toExplore") as HTMLButtonElement).disabled = state.servers.size === 0;
-    });
-    grid.appendChild(el);
+  el.addEventListener("click", () => {
+    if (state.servers.has(s.server_id)) state.servers.delete(s.server_id);
+    else state.servers.add(s.server_id);
+    el.classList.toggle("sel");
+    ($("toExplore") as HTMLButtonElement).disabled = state.servers.size === 0;
   });
-  ($("toExplore") as HTMLButtonElement).disabled = state.servers.size === 0;
+  return el;
 }
+
+/* Bring-your-own-server (A4): register a server, then explore it in LIVE mode. */
+async function addByoServer(): Promise<void> {
+  const id = ($("byoId") as HTMLInputElement).value.trim();
+  const raw = ($("byoCmd") as HTMLInputElement).value.trim();
+  if (!id || !raw) {
+    showError("Enter a server id and a launch command (or URL).");
+    return;
+  }
+  const isUrl = /^https?:\/\//i.test(raw);
+  const payload = isUrl
+    ? { server_id: id, transport: "streamable_http", endpoint: raw }
+    : { server_id: id, transport: "stdio", command: raw.split(/\s+/)[0], args: raw.split(/\s+/).slice(1) };
+  const btn = $("byoAdd") as HTMLButtonElement;
+  btn.disabled = true;
+  try {
+    const r = await fetch("/api/register-server", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const card = (await r.json()) as ServerCard & { detail?: string };
+    if (!r.ok) {
+      showError(`Couldn't register that server: ${card.detail || r.status}`);
+      return;
+    }
+    clearError();
+    ($("byoId") as HTMLInputElement).value = "";
+    ($("byoCmd") as HTMLInputElement).value = "";
+    // BYO servers can only be explored live (no replay fixture). Switch to LIVE
+    // and reload the grid — live_servers() now includes the registered server,
+    // which we auto-select so the visitor can explore it immediately.
+    preselectId = card.server_id;
+    setModeUI("live");
+    resetFlow();
+  } catch {
+    showError("Couldn't reach the backend to register the server.");
+  } finally {
+    btn.disabled = false;
+  }
+}
+$("byoAdd").addEventListener("click", () => void addByoServer());
+
 $("toExplore").addEventListener("click", () => {
   void ensureGoal();
   gotoStep(1);

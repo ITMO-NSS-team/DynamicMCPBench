@@ -85,6 +85,10 @@ $("stepper").addEventListener("click", (e) => {
   gotoStep(i);
 });
 document.querySelectorAll("[data-goto]").forEach((b) => b.addEventListener("click", () => gotoStep(Number(b.dataset.goto))));
+function setModeUI(m) {
+  MODE = m;
+  $("modeToggle").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.m === m));
+}
 $("modeToggle").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b)
@@ -92,8 +96,7 @@ $("modeToggle").addEventListener("click", (e) => {
   const m = b.dataset.m;
   if (m === MODE)
     return;
-  MODE = m;
-  $("modeToggle").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  setModeUI(m);
   resetFlow();
 });
 function resetFlow() {
@@ -138,31 +141,68 @@ async function loadServers() {
   }
   clearError();
   grid.innerHTML = "";
-  servers.forEach((s, idx) => {
-    const isWrite = s.dynamism === "stateful_write";
-    const sel = idx === 0;
-    if (sel)
-      state.servers.add(s.server_id);
-    const el = document.createElement("div");
-    el.className = "server-card" + (sel ? " sel" : "");
-    const pill = isWrite ? `<span class="pill write">stateful-write · ${s.sandbox ? "sandboxed" : "UNSANDBOXED"}</span>` : `<span class="pill live">${s.dynamism === "static" ? "static" : "live-read"}</span>`;
-    el.innerHTML = `
+  servers.forEach((s, idx) => grid.appendChild(makeServerCard(s, preselectId ? s.server_id === preselectId : idx === 0)));
+  preselectId = null;
+  $("toExplore").disabled = state.servers.size === 0;
+}
+var preselectId = null;
+function makeServerCard(s, selected) {
+  const isWrite = s.dynamism === "stateful_write";
+  if (selected)
+    state.servers.add(s.server_id);
+  const el = document.createElement("div");
+  el.className = "server-card" + (selected ? " sel" : "");
+  const pill = isWrite ? `<span class="pill write">stateful-write · ${s.sandbox ? "sandboxed" : "UNSANDBOXED"}</span>` : `<span class="pill live">${s.dynamism === "static" ? "static" : "live-read"}</span>`;
+  el.innerHTML = `
       <div class="sc-name">${s.server_id}</div>
       <div class="sc-meta">${pill}</div>
       <div class="sc-desc">${s.description}</div>
       <div class="sc-tools">${(s.tools || []).join(" · ")}</div>`;
-    el.addEventListener("click", () => {
-      if (state.servers.has(s.server_id))
-        state.servers.delete(s.server_id);
-      else
-        state.servers.add(s.server_id);
-      el.classList.toggle("sel");
-      $("toExplore").disabled = state.servers.size === 0;
-    });
-    grid.appendChild(el);
+  el.addEventListener("click", () => {
+    if (state.servers.has(s.server_id))
+      state.servers.delete(s.server_id);
+    else
+      state.servers.add(s.server_id);
+    el.classList.toggle("sel");
+    $("toExplore").disabled = state.servers.size === 0;
   });
-  $("toExplore").disabled = state.servers.size === 0;
+  return el;
 }
+async function addByoServer() {
+  const id = $("byoId").value.trim();
+  const raw = $("byoCmd").value.trim();
+  if (!id || !raw) {
+    showError("Enter a server id and a launch command (or URL).");
+    return;
+  }
+  const isUrl = /^https?:\/\//i.test(raw);
+  const payload = isUrl ? { server_id: id, transport: "streamable_http", endpoint: raw } : { server_id: id, transport: "stdio", command: raw.split(/\s+/)[0], args: raw.split(/\s+/).slice(1) };
+  const btn = $("byoAdd");
+  btn.disabled = true;
+  try {
+    const r = await fetch("/api/register-server", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const card = await r.json();
+    if (!r.ok) {
+      showError(`Couldn't register that server: ${card.detail || r.status}`);
+      return;
+    }
+    clearError();
+    $("byoId").value = "";
+    $("byoCmd").value = "";
+    preselectId = card.server_id;
+    setModeUI("live");
+    resetFlow();
+  } catch {
+    showError("Couldn't reach the backend to register the server.");
+  } finally {
+    btn.disabled = false;
+  }
+}
+$("byoAdd").addEventListener("click", () => void addByoServer());
 $("toExplore").addEventListener("click", () => {
   ensureGoal();
   gotoStep(1);

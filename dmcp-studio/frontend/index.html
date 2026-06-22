@@ -41,6 +41,15 @@
       <p>Point the studio at servers you already run, or use the public set. The pipeline collects each server's tool surface and tags it by dynamism. Nothing here is a fixed dataset — these tools are live.</p>
     </div>
     <div class="grid-servers" id="serverGrid"></div>
+    <div class="byo">
+      <div class="byo-title">Bring your own MCP server <span>· registers &amp; explores in LIVE mode</span></div>
+      <div class="byo-row">
+        <input id="byoId" class="byo-input" placeholder="server id (e.g. my-time)" autocomplete="off" />
+        <input id="byoCmd" class="byo-input byo-cmd" placeholder="launch command, e.g. python -m mcp_server_time --local-timezone UTC   (or an https:// URL)" autocomplete="off" />
+        <button class="btn" id="byoAdd">Add server</button>
+      </div>
+      <div class="byo-hint">Read-only servers only. A stdio command is split on spaces (no quoting); an <code>http(s)://</code> value registers a streamable-HTTP server. State-changing servers are refused unless sandboxed.</div>
+    </div>
     <div class="footer-nav">
       <span></span>
       <button class="btn btn-primary" id="toExplore" disabled>Generate a goal &amp; explore →</button>
