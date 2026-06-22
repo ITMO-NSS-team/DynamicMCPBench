@@ -15,16 +15,15 @@ Scope of v0:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import os
 import sys
-from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TextIO
 
-import anyio
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -100,6 +99,109 @@ class StreamableHttpServer:
 ServerConfig = StdioServer | SseServer | StreamableHttpServer
 
 
+@dataclass
+class _Request:
+    method: str  # "list_tools" | "call_tool"
+    args: tuple[Any, ...]
+    future: asyncio.Future
+
+
+class _SessionActor:
+    """Owns one MCP session inside a single dedicated task.
+
+    The transport (`stdio_client` / `sse_client` / `streamablehttp_client`) and
+    `ClientSession` are anyio task-group-based context managers. Driving them
+    through an `AsyncExitStack` that is closed later violates anyio's LIFO
+    cancel-scope requirement under the asyncio backend, which corrupts the
+    *calling* task's cancel scope on teardown — every subsequent ``await`` then
+    raises ``CancelledError`` (a persistent, loop-wide poison). Keeping the whole
+    ``async with`` lifecycle inside one task, opened and closed in LIFO order
+    there, avoids it. The recorder talks to the session over a request queue.
+    """
+
+    def __init__(self, cfg: ServerConfig, stderr_sink: TextIO) -> None:
+        self._cfg = cfg
+        self._stderr = stderr_sink
+        self._queue: asyncio.Queue[_Request | None] = asyncio.Queue()
+        self._task: asyncio.Task[None] | None = None
+        self._ready: asyncio.Future[None] | None = None
+        self.init_result: Any = None
+
+    def _transport_cm(self):
+        cfg = self._cfg
+        if isinstance(cfg, StdioServer):
+            return stdio_client(
+                StdioServerParameters(command=cfg.command, args=cfg.args, env=cfg.env),
+                errlog=self._stderr,
+            )
+        if isinstance(cfg, SseServer):
+            return sse_client(cfg.url, headers=cfg.headers)
+        if isinstance(cfg, StreamableHttpServer):
+            return streamablehttp_client(cfg.url, headers=cfg.headers)
+        raise TypeError(f"unknown ServerConfig: {type(cfg).__name__}")
+
+    async def start(self) -> None:
+        """Spawn the session task and wait until it has initialized (or failed)."""
+        self._ready = asyncio.get_running_loop().create_future()
+        self._task = asyncio.create_task(self._serve())
+        await self._ready  # re-raises a boot failure to the caller
+
+    async def _serve(self) -> None:
+        assert self._ready is not None
+        try:
+            async with self._transport_cm() as streams:
+                read, write = streams[0], streams[1]
+                async with ClientSession(read, write) as session:
+                    self.init_result = await session.initialize()
+                    if not self._ready.done():
+                        self._ready.set_result(None)
+                    while True:
+                        item = await self._queue.get()
+                        if item is None:
+                            break
+                        if item.future.done():
+                            continue
+                        try:
+                            item.future.set_result(await getattr(session, item.method)(*item.args))
+                        except Exception as exc:  # surface per-request, keep the session alive
+                            item.future.set_exception(exc)
+        except BaseException as exc:  # boot/transport failure or cancellation
+            if not self._ready.done():
+                self._ready.set_exception(exc if isinstance(exc, Exception) else RuntimeError(str(exc)))
+            self._drain(exc)
+            if not isinstance(exc, Exception):
+                raise  # propagate CancelledError etc.
+        finally:
+            self._drain(RuntimeError("session closed"))
+
+    def _drain(self, exc: BaseException) -> None:
+        err = exc if isinstance(exc, Exception) else RuntimeError(str(exc))
+        while not self._queue.empty():
+            item = self._queue.get_nowait()
+            if item is not None and not item.future.done():
+                item.future.set_exception(err)
+
+    async def request(self, method: str, *args: Any) -> Any:
+        if self._task is None or self._task.done():
+            raise RuntimeError(f"session for {self._cfg.server_id!r} is not running")
+        fut: asyncio.Future = asyncio.get_running_loop().create_future()
+        await self._queue.put(_Request(method, args, fut))
+        return await fut
+
+    async def stop(self) -> None:
+        task, self._task = self._task, None
+        if task is None:
+            return
+        if not task.done():
+            self._queue.put_nowait(None)  # ask the session loop to exit cleanly (unbounded queue)
+        # Best-effort await. If OUR task is being cancelled, suppress it: the
+        # actor was already signalled and unwinds its own context managers in its
+        # own task, so the calling task is never poisoned. The trace is already
+        # recorded, so any teardown bookkeeping error is benign.
+        with contextlib.suppress(BaseException):
+            await task
+
+
 class TraceRecorder:
     """Opens one or more MCP sessions and records every interaction.
 
@@ -137,9 +239,7 @@ class TraceRecorder:
             goal=goal,
             seed_metadata=seed_metadata or {},
         )
-        self._stack: AsyncExitStack | None = None
-        self._sessions: dict[str, ClientSession] = {}
-        self._init_results: dict[str, Any] = {}
+        self._actors: dict[str, _SessionActor] = {}
         self._server_stderr_spec = server_stderr
         self._server_stderr_file: TextIO | None = None
 
@@ -158,101 +258,45 @@ class TraceRecorder:
         return spec
 
     async def __aenter__(self) -> TraceRecorder:
-        self._stack = AsyncExitStack()
-        await self._stack.__aenter__()
         self._stderr_sink = self._resolve_server_stderr()
         for server_id, cfg in self._configs.items():
-            # Boot each server on its own stack so a single flaky server can
-            # be skipped (and its half-open transport closed) without aborting
-            # the whole exploration. A multi-server goal previously failed
-            # entirely — and leaked the already-open sessions — the moment any
-            # one server failed to boot, systematically wiping out exactly the
-            # cross-server tasks the benchmark cares about most.
-            server_stack = AsyncExitStack()
+            # Each server runs in its own session actor (one task per session),
+            # so a single flaky server can be skipped without aborting the whole
+            # exploration — and so the MCP context managers open/close in LIFO
+            # order within one task (no cancel-scope corruption; see _SessionActor).
+            actor = _SessionActor(cfg, self._stderr_sink)
             try:
-                session, init_result = await self._open_session(cfg, stack=server_stack)
-                fingerprint = await self._fingerprint(server_id, cfg, session)
+                await actor.start()
+                fingerprint = await self._fingerprint(server_id, cfg, actor)
             except (Exception, asyncio.CancelledError) as e:
-                import contextlib
-
-                with anyio.CancelScope(shield=True), contextlib.suppress(BaseException):
-                    await server_stack.aclose()
+                await actor.stop()
                 self.trace.seed_metadata.setdefault("boot_failures", []).append(
                     {"server_id": server_id, "error": f"{type(e).__name__}: {e}"}
                 )
                 continue
-            await self._stack.enter_async_context(server_stack)
-            self._sessions[server_id] = session
-            self._init_results[server_id] = init_result
+            self._actors[server_id] = actor
             self.trace.servers.append(fingerprint)
         self.trace.started_at = _utcnow()
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         self.trace.ended_at = _utcnow()
-        assert self._stack is not None
-        stack, self._stack = self._stack, None
-        # MCP's stdio_client / ClientSession spawn internal anyio task
-        # groups. When those are torn down under cancellation (an explore
-        # timeout) or right after a flaky server boot, anyio can raise
-        # "Attempted to exit cancel scope in a different task than it was
-        # entered in" while closing them. The trace is fully recorded by
-        # now, so a bookkeeping failure during subprocess teardown is
-        # benign. Shield the close from outer cancellation and swallow ONLY
-        # that specific RuntimeError so one flaky server can never abort the
-        # whole generation shard (a single bad goal previously zeroed out an
-        # entire explorer shard).
-        with anyio.CancelScope(shield=True):
-            try:
-                await stack.__aexit__(exc_type, exc, tb)
-            except RuntimeError as e:
-                if "cancel scope" not in str(e):
-                    raise
-            except BaseExceptionGroup as eg:
-                leftover = [
-                    x for x in eg.exceptions if not (isinstance(x, RuntimeError) and "cancel scope" in str(x))
-                ]
-                if leftover:
-                    raise
-        self._sessions.clear()
+        # Each actor unwinds its own MCP context managers inside its own task,
+        # so teardown can't poison the calling task's cancel scope.
+        for actor in self._actors.values():
+            await actor.stop()
+        self._actors.clear()
         if self._server_stderr_file is not None:
-            import contextlib
-
             with contextlib.suppress(Exception):
                 self._server_stderr_file.close()
             self._server_stderr_file = None
 
-    async def _open_session(
-        self, cfg: ServerConfig, stack: AsyncExitStack | None = None
-    ) -> tuple[ClientSession, Any]:
-        stack = stack if stack is not None else self._stack
-        assert stack is not None
-        if isinstance(cfg, StdioServer):
-            transport_cm = stdio_client(
-                StdioServerParameters(command=cfg.command, args=cfg.args, env=cfg.env),
-                errlog=self._stderr_sink,
-            )
-            read, write = await stack.enter_async_context(transport_cm)
-            session = await stack.enter_async_context(ClientSession(read, write))
-        elif isinstance(cfg, SseServer):
-            transport_cm = sse_client(cfg.url, headers=cfg.headers)
-            read, write = await stack.enter_async_context(transport_cm)
-            session = await stack.enter_async_context(ClientSession(read, write))
-        elif isinstance(cfg, StreamableHttpServer):
-            transport_cm = streamablehttp_client(cfg.url, headers=cfg.headers)
-            read, write, _ = await stack.enter_async_context(transport_cm)
-            session = await stack.enter_async_context(ClientSession(read, write))
-        else:
-            raise TypeError(f"unknown ServerConfig: {type(cfg).__name__}")
-        init_result = await session.initialize()
-        return session, init_result
-
     async def _fingerprint(
-        self, server_id: str, cfg: ServerConfig, session: ClientSession
+        self, server_id: str, cfg: ServerConfig, actor: _SessionActor
     ) -> ServerFingerprint:
-        # session.initialize() already happened; pull the cached result via the
-        # SDK if it exposes one, otherwise re-derive from a tools/list call.
-        tools_resp = await session.list_tools()
+        # initialize() already happened inside the actor; read its cached result
+        # and a tools/list call (routed through the actor's session task).
+        tools_resp = await actor.request("list_tools")
         tool_specs = [
             ToolSpec(
                 name=t.name,
@@ -264,7 +308,7 @@ class TraceRecorder:
         ]
         self.trace.tool_specs[server_id] = tool_specs
 
-        init_result = self._init_results.get(server_id)
+        init_result = actor.init_result
         server_name = server_version = protocol_version = None
         capabilities: dict[str, Any] | None = None
         if init_result is not None:
@@ -289,21 +333,21 @@ class TraceRecorder:
             tool_surface_hash=hash_tool_surface([t.name for t in tool_specs]),
         )
 
-    def _require_session(self, server_id: str) -> ClientSession:
+    def _require_actor(self, server_id: str) -> _SessionActor:
         try:
-            return self._sessions[server_id]
+            return self._actors[server_id]
         except KeyError as e:
             raise KeyError(f"no session for server_id={server_id!r}") from e
 
     async def list_tools(self, server_id: str) -> list[ToolSpec]:
-        session = self._require_session(server_id)
+        actor = self._require_actor(server_id)
         started_at = _utcnow()
         status = StepStatus.success
         result_payload: dict[str, Any] | None = None
         error: StepError | None = None
         tools: list[ToolSpec] = []
         try:
-            resp = await session.list_tools()
+            resp = await actor.request("list_tools")
             tools = [
                 ToolSpec(
                     name=t.name,
@@ -340,13 +384,13 @@ class TraceRecorder:
         tool_name: str,
         arguments: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        session = self._require_session(server_id)
+        actor = self._require_actor(server_id)
         started_at = _utcnow()
         status = StepStatus.success
         result_payload: dict[str, Any] | None = None
         error: StepError | None = None
         try:
-            resp = await session.call_tool(tool_name, arguments or {})
+            resp = await actor.request("call_tool", tool_name, arguments or {})
             if hasattr(resp, "model_dump"):
                 result_payload = resp.model_dump(mode="json")
             else:

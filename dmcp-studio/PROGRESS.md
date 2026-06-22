@@ -10,8 +10,8 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A0 | Map the existing pipeline | ✅ done — `backend/INTEGRATION_NOTES.md` |
 | A1 | Adapter + REPLAY-only backend | ✅ done — FastAPI app, 6 routes, SSE |
 | A2 | Port the frontend to the backend | ✅ done — SPA wired via fetch/SSE |
-| A3 | Wire LIVE mode | ✅ plumbing done; live-explore blocked upstream (see below) |
-| A4 | Bring-your-own-server (stretch) | ⬜ |
+| A3 | Wire LIVE mode | ✅ done — live goal/explore/distill working (recorder bug fixed) |
+| A4 | Bring-your-own-server (stretch) | ⬜ next |
 | A5 | Polish & demo-safety | ✅ done — run_demo.sh, pre-warm, errors, a11y |
 | A6 | Package for submission | ✅ done — Docker image, <10-min clean-checkout |
 | E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
@@ -20,6 +20,15 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **Recorder bug FIXED — LIVE mode works.** Rewrote `TraceRecorder`'s session
+  management: each MCP server runs in its own `_SessionActor` task so the
+  transport/`ClientSession` context managers open+close in LIFO order in one
+  task (no `AsyncExitStack`), ending the cancel-scope corruption that poisoned
+  the loop. +5 real-stdio integration tests (regression, real record, two
+  sequential recorders, mid-session cancel, bad-server skip) against the local
+  `time` server. Full suite 451 green; CLI `dmcp record` smoke OK; real live
+  smoke on yfinance ran goal → 2 live tool calls → distill end to end. Resolves
+  the blocker above.
 - **Screencast script drafted.** `paper_demo/screencast_script.md` — a
   beat-by-beat, timed (~2:20, under the 2:30 cap) script for the mandatory
   screencast, grounded in the working REPLAY demo (collect → explore → distill →
@@ -73,12 +82,28 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
   `docs/experiments/studio-e1-agreement.md`; numbers in the paper's
   `tab:agreement`. No network/LLM; reproducible.
 
-## Known blocker — live-explore disabled by a dependency regression
+## RESOLVED — live-explore recorder bug (fixed in `dmcp/recorder.py`)
 
-The live smoke (real run) surfaced a pipeline/dependency bug that blocks live
-goal-gen/explore end-to-end. **REPLAY (the default, graded path) is unaffected;
-LIVE falls back to REPLAY automatically, so the demo is safe.** Two findings,
-both reproduced with NO studio code and NO paid calls:
+**Fixed.** Root cause was `TraceRecorder` driving the MCP `stdio_client` /
+`ClientSession` context managers through an `AsyncExitStack` closed later —
+which violates anyio's LIFO cancel-scope rule under asyncio and corrupted the
+calling task's cancel scope on teardown (every later `await` → `CancelledError`).
+Fix: each server now runs in its own `_SessionActor` task that opens and closes
+its MCP context managers in LIFO order within that one task. Validated:
+`async with TraceRecorder(...): pass` then `await asyncio.sleep(0)` no longer
+raises (regression test in `tests/test_recorder_teardown.py`), the full suite
+(451) is green, the CLI `dmcp record` smoke works, and a **real live smoke**
+(`live_smoke.py --yes-spend yfinance`) ran goal → 2 live tool calls → distill
+(3-checkpoint TaskSpec) end to end. The studio's LIVE mode now works (it still
+falls back to REPLAY on a server outage). Original diagnosis kept below for the
+record.
+
+### Original diagnosis (now fixed)
+
+The live smoke (real run) surfaced a pipeline/dependency bug that blocked live
+goal-gen/explore end-to-end. **REPLAY (the default, graded path) was unaffected;
+LIVE fell back to REPLAY automatically.** Two findings, both reproduced with NO
+studio code and NO paid calls:
 
 1. **`dmcp/goal_gen.py::_fetch_tool_specs`** wraps the recorder in
    `anyio.move_on_after`, which raises `RuntimeError: Attempted to exit a cancel
