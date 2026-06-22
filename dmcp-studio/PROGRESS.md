@@ -91,19 +91,35 @@ both reproduced with NO studio code and NO paid calls:
    await anyio.to_thread.run_sync(time.sleep, 0)   # -> CancelledError, persistently
    ```
 
-**Root cause:** version drift. Installed `openai 2.38.0` (pin is only `>=1.40`),
-`mcp 1.27.1`, `anyio 4.13.0`. openai 2.x is the proximate trigger; the
-mcp/anyio recorder teardown is the underlying poison. Because the poison is
-persistent and loop-local, cheap studio-side workarounds (pre-warm) do NOT
-work — the recorder and the LLM call cannot share a loop once a teardown
-happens.
+**Root cause (deepened — two hypotheses tested and RULED OUT, all free):**
+
+- *Not an openai version issue.* Pinned `openai>=1.40,<2` (got 1.109.1) and
+  re-ran the repro: the poison persists. openai 1.x has the **same**
+  `self._platform = await asyncify(get_platform)()` (`_base_client.py:1494`,
+  gated on `_platform is None`) — so it hits the same `anyio.to_thread`. The
+  openai version is the *victim*, not the cause. Pin reverted (2.x is what the
+  pipeline currently runs on; no unjustified change).
+- *Not just `to_thread`; the whole task is left cancelled.* After one recorder
+  teardown, **every** await on that task raises `CancelledError` — verified for
+  `asyncio.sleep(0.01)`, a plain coroutine, AND a real `httpx` GET, not only
+  `to_thread`. So a platform pre-warm cannot help either: the httpx request that
+  carries the LLM call is itself cancelled.
+
+The true cause is the **`TraceRecorder` MCP-session teardown** (`mcp 1.27.1` /
+`anyio 4.13.0` under `asyncio.run`): closing the `stdio_client`/`ClientSession`
+task groups across task boundaries leaves a corrupted cancel scope on the
+calling task, cancelling everything after it. This is shared pipeline code the
+industry-paper pipeline depends on.
 
 **Decision:** do NOT rush a fix into shared pipeline code under the demo
 deadline. Keep the studio REPLAY-default + LIVE-fallback (shipped in A3). The
-fix is its own deliberate task: try an `openai<2` pin (or an mcp/anyio bump) in
-a throwaway env; if that doesn't clear it, isolate each recorder session in its
-own event loop/thread so the poison can't reach the LLM loop. Revisit
-post-demo-priority.
+real fix is a deliberate, separately-validated task on the recorder's session
+lifecycle: manage each MCP `stdio_client`/`ClientSession` within a single task
+(avoid closing its task group from a different task than entered it) — e.g. a
+per-session dedicated task/thread + its own event loop — and add a regression
+test (`async with TraceRecorder(...): pass` then `await asyncio.sleep(0)` must
+not raise). The cheap pin/pre-warm routes are now disproven, so the next attempt
+should go straight at the recorder.
 
 ## Log
 
