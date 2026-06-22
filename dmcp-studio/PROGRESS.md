@@ -14,9 +14,22 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A4 | Bring-your-own-server (stretch) | ⬜ |
 | A5 | Polish & demo-safety | ⬜ |
 | A6 | Package for submission | ⬜ |
-| E1 | Studio-vs-batch agreement | ⬜ |
+| E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
 | E2 | Latency budget | ⬜ |
-| E3 | Showcase fixtures | ⬜ |
+| E3 | Showcase fixtures | ✅ done — showcase_aapl frozen (A1) |
+
+## Log (newest first)
+
+- **E1 done — studio-vs-batch agreement = 100%.** New harness
+  `experiments/e1_agreement.py` scores 118 deterministic (spec, candidate)
+  pairs (22 pass / 96 fail) two ways: the studio core
+  (`dmcp_adapter.score_pair`, the exact `/api/score` path) vs. the real
+  `dmcp eval --candidate-traces` CLI as a subprocess. Overall verdict 118/118
+  and all 708 per-checkpoint verdicts agree exactly — the studio's JSON
+  round-trip doesn't perturb the deterministic Tier-1 verdict. Refactored the
+  adapter to share `score_pair` between the route and E1. Report:
+  `docs/experiments/studio-e1-agreement.md`; numbers in the paper's
+  `tab:agreement`. No network/LLM; reproducible.
 
 ## Known blocker — live-explore disabled by a dependency regression
 
