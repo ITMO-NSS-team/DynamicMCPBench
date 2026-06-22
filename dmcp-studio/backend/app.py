@@ -144,6 +144,32 @@ async def distill(body: DistillIn, mode: Mode = "replay") -> Any:
     return out
 
 
+class RegisterIn(BaseModel):
+    server_id: str
+    transport: str = "stdio"  # stdio | streamable_http | sse
+    command: str | None = None
+    args: list[str] = []
+    endpoint: str | None = None
+    dynamism: str = "live_read"
+    sandbox: bool = False
+    description: str | None = None
+
+
+@app.post("/api/register-server")
+async def register_server(body: RegisterIn) -> Any:
+    """A4 — bring-your-own-server: register a read-only MCP server at runtime,
+    collect its tool surface, and make it explorable in LIVE mode."""
+    try:
+        card = await live.register_server(body.model_dump())
+        return card.model_dump()
+    except ValueError as e:  # bad input / sandbox-gate rejection
+        return JSONResponse(status_code=400, content={"error": "invalid_server", "detail": str(e)})
+    except adapter.SandboxViolation as e:
+        return JSONResponse(status_code=403, content={"error": "sandbox", "detail": str(e)})
+    except Exception as e:  # didn't boot / unreachable
+        return JSONResponse(status_code=502, content={"error": "register_failed", "detail": str(e)[:200]})
+
+
 @app.get("/api/candidates")
 def candidates() -> Any:
     # Candidates come from the replay fixture; scoring is the graded replay path.
