@@ -1,0 +1,56 @@
+{
+  "experiment": "E2",
+  "mode": "replay (booth path; live-explore blocked \u2014 see A3 blocker)",
+  "iterations_per_stage": 200,
+  "stages": [
+    {
+      "stage": "servers",
+      "median_ms": 0.661,
+      "p95_ms": 0.736,
+      "n": 200
+    },
+    {
+      "stage": "goal",
+      "median_ms": 0.468,
+      "p95_ms": 0.527,
+      "n": 200
+    },
+    {
+      "stage": "explore (SSE)",
+      "median_ms": 0.866,
+      "p95_ms": 0.955,
+      "n": 200
+    },
+    {
+      "stage": "distill",
+      "median_ms": 0.481,
+      "p95_ms": 0.522,
+      "n": 200
+    },
+    {
+      "stage": "score (SSE)",
+      "median_ms": 0.989,
+      "p95_ms": 1.059,
+      "n": 200
+    },
+    {
+      "stage": "leaderboard",
+      "median_ms": 0.693,
+      "p95_ms": 0.748,
+      "n": 200
+    }
+  ],
+  "evaluator_over_battery": {
+    "pairs": 118,
+    "median_ms": 0.021,
+    "p95_ms": 0.025,
+    "max_ms": 0.051
+  },
+  "cold_fixture_load_ms": 0.299,
+  "cold_start_to_first_verdict_ms": 1.288,
+  "interactive_bar_ms": 2000.0,
+  "cold_start_bar_ms": 30000.0,
+  "passes_interactive_bar": true,
+  "passes_cold_start_bar": true,
+  "note": "Reported times are request COMPUTE (SSE inter-event pacing disabled). The booth UI adds a cosmetic ~0.45s/call pacing delay (configurable). LIVE goal/explore are not timed: live-explore is blocked upstream and the booth runs REPLAY for every stage."
+}

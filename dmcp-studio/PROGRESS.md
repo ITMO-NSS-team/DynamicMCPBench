@@ -15,11 +15,19 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A5 | Polish & demo-safety | ⬜ |
 | A6 | Package for submission | ⬜ |
 | E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
-| E2 | Latency budget | ⬜ |
+| E2 | Latency budget | ✅ done — REPLAY booth path sub-ms; booth=REPLAY |
 | E3 | Showcase fixtures | ✅ done — showcase_aapl frozen (A1) |
 
 ## Log (newest first)
 
+- **E2 done — latency budget.** `experiments/e2_latency.py` times the REPLAY
+  booth path through the real routes (SSE pacing disabled → compute, not the
+  cosmetic delay), n=200/stage: every stage is **< 1.4 ms**, the evaluator is
+  0.021 ms/pair over the 118-battery, and cold-start → first verdict is
+  **≈ 1.3 ms** (vs the 30 s A5 bar). Decision rule result: the booth runs
+  REPLAY for every stage — forced by the live blocker and also the right call
+  on the numbers. Report `docs/experiments/studio-e2-latency.md`; paper
+  `tab:latency` + prose filled. Deterministic, no network/LLM.
 - **Paper main figure captured.** `experiments/capture_screenshot.py` drives the
   REPLAY backend in headless Chromium (Playwright) through all four stages to
   the scoring stage and shoots the hero figure: the `hermes3-8b` candidate
