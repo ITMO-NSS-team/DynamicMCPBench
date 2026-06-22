@@ -37,6 +37,22 @@ dmcp-studio/
 
 ## Quickstart
 
+### Docker (no toolchain needed)
+
+From a clean checkout — the only requirement is Docker:
+
+```bash
+docker build -f dmcp-studio/Dockerfile -t dmcp-studio .   # from the repo root
+docker run --rm -p 8000:8000 dmcp-studio
+# → open http://localhost:8000
+```
+
+or with Compose: `docker compose -f dmcp-studio/docker-compose.yml up --build`.
+The image ships the committed frontend bundle and a pre-built REPLAY fixture, so
+it runs offline with no API keys (REPLAY is the default, deterministic path).
+
+### From source
+
 One command (builds the frontend if Bun is present, builds fixtures if missing,
 serves the SPA + API):
 

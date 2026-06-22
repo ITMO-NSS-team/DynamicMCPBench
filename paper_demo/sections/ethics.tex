@@ -2,13 +2,18 @@
 \label{sec:availability}
 
 % CFP HARD REQUIREMENT: a live demo URL or installable-package link MUST
-% appear in the PDF, or the paper is desk-rejected. Replace the placeholder
-% below with the deployed URL before submission.
-A live, hosted instance of DMCP Studio is available at
-\url{https://TODO-demo-url.example/dmcp-studio}, and a one-command local
-deployment ships with the code. A screencast (\textless\,2.5\,min) walks
-through the four stages and the verdict flip.\footnote{Screencast:
-\url{https://TODO-screencast-url}.}
+% appear in the PDF. We satisfy it with an installable package (Docker), which
+% the CFP accepts in lieu of a hosted URL. TODO(camera-ready): drop in the
+% canonical repository URL once author names are added (single-blind).
+DMCP Studio ships as a self-contained, installable package: from a clean
+checkout, \texttt{docker build -f dmcp-studio/Dockerfile -t dmcp-studio .}
+followed by \texttt{docker run -p 8000:8000 dmcp-studio} brings the studio up at
+\texttt{http://localhost:8000} in under ten minutes, with no API keys and no
+network (the public default is the deterministic REPLAY path).\footnote{Code and
+install instructions: \url{https://anonymous.4open.science/r/DynamicMCPBench-4243/}
+(directory \texttt{dmcp-studio/}).} A screencast
+(\textless\,2.5\,min) walks through the four stages and the verdict
+flip.\footnote{Screencast: \url{https://TODO-screencast-url}.}
 % TODO(license): confirm the project license with the team. Stated as
 % Apache-2.0 as a placeholder; the CFP asks the question explicitly.
 The studio and the underlying pipeline are released under the Apache-2.0

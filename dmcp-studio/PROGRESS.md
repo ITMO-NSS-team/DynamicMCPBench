@@ -13,13 +13,23 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 | A3 | Wire LIVE mode | ✅ plumbing done; live-explore blocked upstream (see below) |
 | A4 | Bring-your-own-server (stretch) | ⬜ |
 | A5 | Polish & demo-safety | ✅ done — run_demo.sh, pre-warm, errors, a11y |
-| A6 | Package for submission | ⬜ next |
+| A6 | Package for submission | ✅ done — Docker image, <10-min clean-checkout |
 | E1 | Studio-vs-batch agreement | ✅ done — 100% (118 pairs, 708 checkpoints) |
 | E2 | Latency budget | ✅ done — REPLAY booth path sub-ms; booth=REPLAY |
 | E3 | Showcase fixtures | ✅ done — showcase_aapl frozen (A1) |
 
 ## Log (newest first)
 
+- **A6 done — installable package (Docker).** The CFP's required demo link is
+  satisfied by an installable package (accepted in lieu of a hosted URL).
+  `dmcp-studio/Dockerfile` (+ `docker-compose.yml`, root `.dockerignore`) builds
+  a self-contained image from a clean checkout: `docker build -f
+  dmcp-studio/Dockerfile -t dmcp-studio .` then `docker run -p 8000:8000
+  dmcp-studio` → http://localhost:8000, no API keys, no network (REPLAY). Ships
+  the committed frontend bundle (no Node/Bun in-image) and pre-builds the REPLAY
+  fixture at image-build time (a build-time verdict smoke test). README has the
+  Docker + from-source quickstarts; the paper's Availability section points to
+  the installable package. Image verified to build + serve + score end to end.
 - **A5 done — polish & demo-safety.** (1) `scripts/run_demo.sh`: one command —
   builds the frontend if Bun is present, builds fixtures if missing, serves the
   SPA + API (verified end-to-end). (2) Backend pre-warms the REPLAY fixtures on
