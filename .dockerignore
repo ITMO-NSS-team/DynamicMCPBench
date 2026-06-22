@@ -1,0 +1,25 @@
+# Build context excludes for the DMCP Studio image (build from repo root).
+# Keep the context small: the studio only needs pyproject + dmcp/ + dmcp-studio/.
+.git
+.venv
+**/__pycache__
+**/*.pyc
+
+# Large regenerable artifacts (git-ignored; never needed in the image)
+evals/
+reports/
+traces/
+specs/
+crawled/
+goals/auto*.json
+manifests/crawled*.json
+
+# Papers, docs, and node deps are not part of the runtime
+paper/
+paper_demo/
+docs/
+human_eval/
+.aidex/
+dmcp-studio/frontend/node_modules/
+**/*.pdf
+**/*.log

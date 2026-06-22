@@ -1,0 +1,11 @@
+# One-command DMCP Studio (REPLAY). From the repo root:
+#   docker compose -f dmcp-studio/docker-compose.yml up --build
+# Then open http://localhost:8000
+services:
+  studio:
+    build:
+      context: ..
+      dockerfile: dmcp-studio/Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
