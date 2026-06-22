@@ -20,6 +20,15 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **Paper main figure captured.** `experiments/capture_screenshot.py` drives the
+  REPLAY backend in headless Chromium (Playwright) through all four stages to
+  the scoring stage and shoots the hero figure: the `hermes3-8b` candidate
+  marked **FAILED** (income-statement checkpoint \#5 unmet) while its prose
+  would pass answer-matching — the verdict flip. Committed as
+  `paper_demo/figures/fig_studio.png` and wired into `fig:studio`
+  (`figures/studio_screenshot.tex`, caption updated). Paper compiles; main text
+  still ends on p4 (≤6pp). Playwright is opt-in (documented in the script,
+  not a pinned dep).
 - **E1 done — studio-vs-batch agreement = 100%.** New harness
   `experiments/e1_agreement.py` scores 118 deterministic (spec, candidate)
   pairs (22 pass / 96 fail) two ways: the studio core

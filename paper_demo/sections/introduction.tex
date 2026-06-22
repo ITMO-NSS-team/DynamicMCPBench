@@ -31,14 +31,17 @@ the live data simply moved.
 \begin{figure*}[t]
   \centering
   \input{figures/studio_screenshot}
-  \caption{\textbf{DMCP Studio.} The four-stage stepper (collect
-    $\rightarrow$ explore $\rightarrow$ distill $\rightarrow$ score) runs the
-    full pipeline in the browser. In the scoring stage, the
-    Effect\,$\rightleftharpoons$\,Answer toggle re-grades the \emph{same}
-    recorded run two ways; the verdict bar flips between \textsf{SOLVED} and
-    \textsf{FAILED} without a second backend call. An editable equivalence
-    set (highlighted) lets the visitor enable or disable interchangeable
-    tools and watch the effect verdict re-compute live.}
+  \caption{\textbf{DMCP Studio} (scoring stage, REPLAY mode). The four-stage
+    stepper (collect $\rightarrow$ explore $\rightarrow$ distill $\rightarrow$
+    score) and the LIVE/REPLAY toggle sit in the header. Here the
+    \textsf{hermes3-8b} candidate is marked \textsf{FAILED}: its trajectory
+    (left) reproduces every effect \emph{except} the income-statement
+    checkpoint (\#5, red in the ledger, right), even though its prose summary
+    would pass answer-matching---the incomplete-aggregation case called out in
+    the note below. The Effect\,$\rightleftharpoons$\,Answer toggle re-grades
+    the \emph{same} recorded run two ways without a second backend call, and the
+    \texttt{download}\,/\,\texttt{get\_price\_history} equivalence set on
+    checkpoint~\#3 is an editable chip the visitor can toggle to re-score live.}
   \label{fig:studio}
 \end{figure*}
 
