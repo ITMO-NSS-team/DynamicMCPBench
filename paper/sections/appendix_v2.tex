@@ -1,0 +1,782 @@
+\appendix
+
+\section{Full Leaderboard}
+\label{app:leaderboard}
+Table~\ref{tab:leaderboard} reports pass\textasciicircum{}3 with 95\% confidence
+intervals for all 24 models on the 750-task slice, the values summarized by
+the heatmap in \S\ref{sec:results:main}.
+
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{tabular}{llr}
+    \toprule
+    Model & Group & pass\textasciicircum{}3 (\%, 95\% CI) \\
+    \midrule
+    qwen3.7-max~\cite{qwen37} & API & 51.2 \, [47.6, 54.8] \\
+    glm-5.1~\cite{glm5team2026glm5vibecodingagentic} & API & 50.3 \, [46.7, 53.8] \\
+    deepseek-v4-pro~\cite{deepseekai2026deepseekv4} & API & 46.4 \, [42.9, 50.0] \\
+    minimax-m3~\cite{lai2026minimaxsparseattention} & API & 42.4 \, [38.9, 46.0] \\
+    claude-haiku-4.5~\cite{ClaudeHaiku4.5} & API & 41.1 \, [37.6, 44.6] \\
+    kimi-k2.6~\cite{kimiteam2026kimik2openagentic} & API & 40.7 \, [37.2, 44.2] \\
+    grok-4.3~\cite{grok43_xai} & API & 31.6 \, [28.4, 35.0] \\
+    gpt-5.4-mini~\cite{singh2026openaigpt5card} & API & 25.7 \, [22.7, 29.0] \\
+    \midrule
+    qwen3.6-35b~\cite{qwen36_35b_a3b} & local & 48.5 \, [45.0, 52.1] \\
+    gemma4-31b~\cite{gemma4google} & local & 42.5 \, [39.0, 46.1] \\
+    qwen3.5-4b~\cite{qwen3.5} & local & 27.3 \, [24.3, 30.6] \\
+    granite-3b~\cite{stallone2024scalinggranitecodemodels} & local & 22.5 \, [19.7, 25.7] \\
+    gemma4-e4b~\cite{gemma4google} & local & 22.1 \, [19.3, 25.2] \\
+    qwen3-8b~\cite{qwen3technicalreport} & local & 22.1 \, [19.3, 25.2] \\
+    nemotron-nano-4b~\cite{parmar2024nemotron415btechnicalreport} & local & 21.9 \, [19.1, 25.0] \\
+    qwen2.5-7b~\cite{qwen2025qwen25technicalreport} & local & 21.1 \, [18.3, 24.1] \\
+    gemma4-e2b~\cite{gemma4google} & local & 20.1 \, [17.4, 23.2] \\
+    xlam2-8b~\cite{zhang2024xlamfamilylargeaction} & local & 19.5 \, [16.8, 22.4] \\
+    toolace2-8b~\cite{liu2025toolacewinningpointsllm} & local & 17.5 \, [14.9, 20.3] \\
+    qwen2.5-3b~\cite{qwen2025qwen25technicalreport} & local & 16.9 \, [14.4, 19.8] \\
+    hermes3-8b~\cite{teknium2024hermes3technicalreport} & local & 13.2 \, [11.0, 15.8] \\
+    ministral3-3b~\cite{liu2026ministral3} & local & 12.4 \, [10.2, 14.9] \\
+    hammer2.1-7b~\cite{lin2024hammerrobustfunctioncallingondevice} & local & 9.7 \, [7.8, 12.1] \\
+    smollm3-3b~\cite{bakouch2025smollm3} & local & 7.2 \, [5.6, 9.3] \\
+    \bottomrule
+  \end{tabular}
+  \caption{Full leaderboard: pass\textasciicircum{}3 and 95\% confidence
+    intervals over the 750-task slice, for the 8 API-served and 16
+    locally-served models.}
+  \label{tab:leaderboard}
+\end{table*}
+
+\section{Task Categories}
+\label{app:categories}
+The 15 categories are assembled in three tiers. A category controls only the
+\emph{seed} tool-set; the explorer still solves the goal forward.
+
+\noindent\textbf{Base relationships (6).} An anchor tool is chosen and a
+related seed set is sampled by tool-relationship; these samplers double as the
+evaluation-time distractor selectors.
+\begin{itemize}
+  \item \emph{random}: a uniform-random seed set; the neutral baseline.
+  \item \emph{hard-negative}: tools whose descriptions are most similar to the
+    anchor (near-duplicates removed), probing look-alike confusion.
+  \item \emph{cross-domain}: similar tools whose server domain (tags) differs
+    from the anchor's, probing wrong-domain look-alikes.
+  \item \emph{same-name}: tools with the same name on a different server
+    (plus near-collisions), the server-attribution primitive.
+  \item \emph{sibling}: other tools on the same server, probing
+    intra-server confusion.
+  \item \emph{stratified}: a round-robin mix of the five above.
+\end{itemize}
+\noindent\textbf{Corner cases (7).} A base relationship plus a goal framing
+that demands a specific challenge.
+\begin{itemize}
+  \item \emph{long-similar-chain}: a multi-step task chaining several similar
+    tools in sequence.
+  \item \emph{homonym-trap}: a capability exposed under the same tool name on
+    several servers, requiring the intended source.
+  \item \emph{decoy}: one tool is correct while a similar tool is a tempting
+    wrong shortcut.
+  \item \emph{prerequisite-strict}: a strict required order, where an earlier
+    output is a prerequisite for a later step.
+  \item \emph{recovery-required}: the obvious first tool is insufficient and a
+    second tool is needed to recover.
+  \item \emph{destructive-adjacent}: a read-only task on a server that also
+    exposes destructive tools that must not be used.
+  \item \emph{ambiguous-intent}: a deliberately vague request several tools
+    could each plausibly satisfy.
+\end{itemize}
+\noindent\textbf{Cross-server specials (2).} Seeded from curated sources
+rather than the anchor sampler.
+\begin{itemize}
+  \item \emph{cross-server-alternative}: seeded from same-name tool groups
+    spanning $\geq 2$ servers; the task must name the intended server.
+  \item \emph{complementary}: seeded from output$\rightarrow$input
+    data-dependency edges; one tool's output feeds the next tool's input.
+\end{itemize}
+
+\section{A Worked Example}
+\label{app:example}
+Figure~\ref{fig:example} traces one task end to end: forward exploration records
+a successful reference trajectory (left), which is distilled into the
+path-agnostic \texttt{TaskSpec} on the right. A candidate is then scored on
+whether it reproduces each effect with \emph{any} member of that checkpoint's
+equivalence set, in any order consistent with the partial order---never by
+matching the answer text. Checkpoint~3 is the path-agnostic core: the reference
+fetched the one-year history with \texttt{download}, but a candidate that
+retrieved it via \texttt{get\_price\_history} satisfies the checkpoint equally.
+
+\begin{figure*}[t]
+\centering
+\small
+\fbox{\begin{minipage}[t]{0.46\textwidth}
+\textbf{(a) Forward exploration $\rightarrow$ reference trace}\par\smallskip
+\emph{Prompt.}~Compare the financial health and recent performance of Apple
+(AAPL), Microsoft (MSFT), and Google (GOOGL): latest ticker information, most
+recent quarterly earnings, and one year of price history.\par\medskip
+\emph{Recorded agent tool calls.}\par\smallskip
+{\footnotesize\ttfamily
+get\_tickers\_info(symbols=[AAPL,MSFT,GOOGL])\\[1pt]
+get\_earnings(symbol, period=quarterly) $\times3$\\[1pt]
+download(symbols=[\ldots], period=1y)\\[1pt]
+get\_financials(stmt=balance, period=yearly) $\times3$\\[1pt]
+get\_financials(stmt=income, period=yearly) $\times3$\par}
+\end{minipage}}\hfill
+\fbox{\begin{minipage}[t]{0.48\textwidth}
+\textbf{(b) Distilled \texttt{TaskSpec}: effect checkpoints}\par\smallskip
+{\footnotesize
+1.~\textsc{tool\_effect} \texttt{get\_tickers\_info},\\
+\hspace*{1.4em}args $\supseteq$ \{symbols:[AAPL,MSFT,GOOGL]\}\\[2pt]
+2.~\textsc{tool\_effect} \texttt{get\_earnings}, args $\supseteq$ \{period:quarterly\}\\[2pt]
+3.~\textsc{tool\_effect} \{\,\texttt{download} $|$ \texttt{get\_price\_history}\,\},\\
+\hspace*{1.4em}args $\supseteq$ \{period:1y\}\hfill$\leftarrow$\,\emph{equivalence set}\\[2pt]
+4.~\textsc{tool\_effect} \texttt{get\_financials}, args $\supseteq$ \{stmt:balance, period:yearly\}\\[2pt]
+5.~\textsc{tool\_effect} \texttt{get\_financials}, args $\supseteq$ \{stmt:income, period:yearly\}\\[2pt]
+6.~\textsc{value\_produced} final message $\supseteq$\\
+\hspace*{1.4em}\{Apple, Microsoft, Google, fundamentals, earnings, balance sheet\}\par}
+\smallskip
+\emph{minefields:} none \quad\textbar\quad \emph{partial order:} none (independent)
+\end{minipage}}
+\caption{A task end to end. Forward exploration records a successful trajectory
+\textbf{(a)}, distilled into path-agnostic effect checkpoints \textbf{(b)}. A
+candidate is scored on whether it reproduces each effect with \emph{any}
+equivalence-set member (e.g.\ checkpoint~3), in any order allowed by the partial
+order, with the final message satisfying the \textsc{value\_produced}
+predicate---never on answer-string matching.}
+\label{fig:example}
+\end{figure*}
+
+\section{Framework Configuration}
+\label{app:config}
+
+Table~\ref{tab:framework-config} reports the configuration that produced the
+released results. The framework exposes each value as a parameter; the table
+separates the fixed setting used in our study from the design purpose of that
+setting.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Framework configuration used for the released DynamicMCPBench results.}
+\label{tab:framework-config}
+\begin{tabular}{p{0.18\linewidth}p{0.33\linewidth}p{0.38\linewidth}}
+\toprule
+\textbf{Component} & \textbf{Setting} & \textbf{Purpose} \\
+\midrule
+
+\multicolumn{3}{l}{\textbf{Generation}} \\
+\midrule
+
+Task coverage &
+Tasks are generated forward over all 15 benchmark categories. &
+Covers the full range of tool-use challenges: neutral baselines, semantic
+near-misses, cross-server structure, multi-step dependencies, ordering,
+recovery, traps, and under-specification. \\
+
+Anchor selection &
+For each category, an anchor tool is selected first. &
+Provides a concrete starting point from which the category-specific sampler can
+construct the seed set. \\
+
+Seed sampling &
+The category's relationship sampler selects the seed set. &
+Ensures that each generated goal targets the intended category-level challenge
+rather than an uncontrolled collection of tools. \\
+
+Complexity levels &
+Seed-set size is controlled by a complexity level:
+simple = 2 tools, medium = 4 tools, hard = 6 tools. &
+Creates a controlled difficulty axis and helps span both short and long
+tool-dependency chains. \\
+
+Complexity sweep &
+Simple, medium, and hard settings are swept during generation. &
+Prevents the corpus from collapsing into only short or only long tasks. \\
+
+Phrasing diversity &
+Goal phrasing is persona-seeded. &
+Introduces linguistic variation without changing the underlying tool-use
+requirements. \\
+
+Authorship diversity &
+Tasks are authored across many model families. &
+Avoids a single-generator monoculture and reduces benchmark-specific stylistic
+bias. \\
+
+Explorer--distiller split &
+The explorer and distiller are constrained to different model families. &
+Limits self-preference by preventing the same model family from both producing
+the trajectory and distilling its specification. \\
+
+Explorer budget &
+The explorer runs with a 12-turn budget. &
+Gives the explorer enough room to recover from tool errors and complete
+multi-step goals while keeping traces bounded. \\
+
+Distiller decoding &
+The distiller emits the task specification deterministically
+(temperature 0). &
+Reduces variance in the generated TaskSpec and makes distillation more
+reproducible. \\
+
+Distiller token budget &
+The distiller uses a large token budget. &
+Prevents reasoning models from truncating structured TaskSpec outputs. \\
+
+Checkpoint grounding &
+The distiller may not introduce checkpoints unsupported by the successful
+reference trace. &
+Keeps task ground truth trace-grounded and prevents invented requirements. \\
+
+\midrule
+\multicolumn{3}{l}{\textbf{Evaluation}} \\
+\midrule
+
+Replay environment &
+Candidates are scored under deterministic replay against each task's recorded
+world. &
+Ensures that every model faces an identical environment and that verdicts are
+not affected by live-server drift. \\
+
+Pass criterion &
+Each task is run three times and counts as solved only if all three runs pass
+(pass$^3$). &
+Measures reliable task completion rather than one-shot success. \\
+
+Tool pool &
+Each candidate receives the tools required by the task plus eight distractors. &
+Keeps the tool-choice setting controlled and identical across models. \\
+
+Distractor composition &
+Half of the distractors are same-name tools on other servers; the rest are
+near-miss tools. &
+Creates a controlled server-attribution and tool-confusion stress test. \\
+
+Tool descriptions &
+Tool descriptions are presented as written. &
+Measures the agent under the raw tool descriptions available in the MCP
+ecosystem, rather than after manual or automatic normalization. \\
+
+Tool exposure &
+All tools are exposed directly in a flat tool list. &
+Ensures that the headline score measures the agent rather than a retriever,
+router, or hierarchical tool-exposure mechanism. \\
+
+Action budget &
+The action budget is set high enough for the longest generated chains. &
+Prevents failures from being caused primarily by an artificially short
+interaction limit. \\
+
+Headline scorer &
+The main leaderboard uses Tier-1 deterministic effect scoring. &
+Keeps the headline metric deterministic, reproducible, and independent of an
+LLM judge. \\
+
+Tier-2 judge &
+A Tier-2 effect-equivalence judge is available with fuzzy threshold 0.75. It
+may upgrade only failed tool-effect checkpoints and never reads the final
+answer. &
+Supports controlled analysis of alternative effect-equivalent trajectories
+without making the headline score judge-dependent. \\
+
+Reserved ablations &
+Description normalization, tool-exposure architecture, and alternative-tool
+density are framework parameters reserved for controlled ablations. &
+Allows future studies to isolate whether performance changes come from the
+agent itself, improved descriptions, retrieval, or different distractor
+pressure. \\
+
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Prompts}
+\label{app:prompts}
+We reproduce the system prompts verbatim.
+
+\noindent\textbf{Goal generation.}
+{\footnotesize
+\begin{verbatim}
+You are designing realistic user goals for an MCP-agent benchmark.
+
+You will be shown one or more MCP servers, each with:
+  - server_id (use this exact string in `servers`)
+  - dynamism class (static / live_read / stateful_write)
+  - sandbox_resources: a list of concrete resources we HAVE actually set up
+    for this server (paths, file specs, env-provided IDs). Empty means we
+    have set up nothing - design the goal around discovery/exploration of
+    whatever the tools expose by default.
+  - tool surface: name + short description + input schema
+
+Your job: call `emit_goals` exactly once with N realistic user goals that
+exercise these servers. Hard rules:
+
+  1. Each goal is a natural-language request a real user might make. Do NOT
+     write "call tool X with args Y" - write the request the user would
+     actually voice.
+  2. Each goal must be solvable using ONLY the servers shown.
+  3. NEVER INVENT concrete external resources (file paths, IDs, keys, URLs).
+     If sandbox_resources is empty, design the goal around DISCOVERY instead.
+  4. When sandbox_resources is non-empty, use those exact strings verbatim.
+  5. Vary complexity: mix single-call and multi-step goals (2-5 calls).
+  6. For stateful_write servers WITH sandbox_resources, prefer verifiable
+     effects; WITHOUT them, prefer read-only / discovery goals.
+  7. For cross-server goals, design genuine data dependencies.
+  8. Avoid destructive operations unless the task is an undo/recovery scenario.
+  9. Choose tags from a fixed list (shallow, single-server, cross-server,
+     deep, runtime-branching, recovery, read-only-usage, parallel-calls,
+     discovery).
+\end{verbatim}
+}
+
+A per-call persona block and the category framing are appended at request
+time.
+
+\noindent\textbf{Exploration / candidate agent.}
+{\footnotesize
+\begin{verbatim}
+You are an exploration agent driving MCP tools to satisfy a user goal.
+
+Rules:
+- Call tools to make progress. Do not invent results - use the tools.
+- Each tool name is namespaced as <server_id>__<tool_name>. Use exactly that.
+- When the goal is satisfied, respond with a short summary and stop.
+- If a tool errors, read the error, adjust arguments, and try again.
+- Prefer the simplest sequence of calls that achieves the goal.
+\end{verbatim}
+}
+
+\noindent\textbf{Distillation.}
+{\footnotesize
+\begin{verbatim}
+You are compiling an MCP tool-use trace into a benchmark task specification.
+
+You will be shown the goal, the successful tool calls (in order, with args
+and result previews), and the available tools per server.
+
+Call `emit_task_spec` exactly once, with:
+  - prompt: a fuzzy user request; strip explicit tool names but PRESERVE
+    concrete context (paths, file names, URLs, identifiers).
+  - checkpoints: at least one, each either
+      tool_effect    - a tool from an equivalence set must have been called
+                       successfully, optionally matching arg predicates
+                       (must_include = exact equality; must_match = richer
+                       per-key matchers for variable/derived values).
+      value_produced - a tool result (or final message) must contain
+                       certain substrings.
+  - minefields: things the agent must NOT do (often empty for read-only).
+  - notes: anything ambiguous or any alternative valid path.
+
+Be tight: do not invent checkpoints the trace does not justify. When two
+tools equally satisfy a checkpoint, list both in equivalence_set.
+\end{verbatim}
+}
+
+\noindent\textbf{Tier-2 effect-equivalence judge.}
+{\footnotesize
+\begin{verbatim}
+You are an effect-equivalence judge for an agent benchmark.
+
+You will be shown one *failed* tool_effect checkpoint and the candidate's
+successful tool calls. Decide ONE binary question: did the candidate achieve
+the same *effect* the checkpoint requires, via any path?
+
+Decision rules:
+  - Default is NO; say YES only with clear evidence in the trace.
+  - "Equivalent effect": an external observer could not tell the reference
+    path from the alternative - same fact retrieved / record created / state
+    mutated.
+  - The final natural-language summary is NOT evidence on its own; a
+    corresponding tool call is required.
+  - When arg_predicate names a specific value, be strict.
+
+Call `emit_equivalence_judgment` exactly once with your decision.
+\end{verbatim}
+}
+
+\section{Accuracy versus Model Size}
+\label{app:size}
+Figure~\ref{fig:size} plots pass\textasciicircum{}3 against parameter count for
+the locally-served models. The two largest lead, but below $\sim$30B
+parameters size predicts accuracy only weakly: a 4B model outperforms every
+7--8B model and, at a fixed 8B size, pass\textasciicircum{}3 ranges from 13\% to
+22\%.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig_size.png}
+  \caption{Accuracy versus model size (locally-served models).}
+  \label{fig:size}
+\end{figure}
+
+\section{Corpus Composition}
+\label{app:corpus}
+The released corpus of 1{,}845 tasks breaks down as follows. By \emph{length}:
+891 short (chain depth 1--2), 427 medium (3--4), and 527 long (5+). By
+\emph{dynamism}: 1{,}628 live-read (88\%) and 217 state-changing (12\%); none
+are static. By \emph{scope}: 528 tasks (29\%) span more than one server. The
+750-task evaluation slice draws 50 tasks from each of the 15 categories.
+
+\section{Operating Requirements and Reliability}
+\label{app:tech}
+Table~\ref{tab:tech} reports, per model, single-attempt accuracy (pass@1)
+beside pass\textasciicircum{}3, and the mean prompt tokens, completion tokens,
+and tool/model calls per attempt. Single-attempt accuracy exceeds
+pass\textasciicircum{}3 for every model, confirming that one-shot numbers
+overstate reliability. Figure~\ref{fig:compute} relates accuracy to the mean
+prompt tokens a task consumes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.82\columnwidth]{figures/fig_compute.png}
+  \caption{Accuracy versus mean prompt tokens per task; the most accurate
+    models are not the most token-hungry.}
+  \label{fig:compute}
+\end{figure}
+
+\begin{table}[h]
+  \centering \footnotesize \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llrrrrr}
+    \toprule
+    Model & Grp & p\textasciicircum{}3 & p@1 & in & out & calls \\
+    \midrule
+    qwen3.7-max & API & 51.2 & 58.9 & 18.9k & 1.5k & 4.2 \\
+    glm-5.1 & API & 50.3 & 58.0 & 18.5k & 1.2k & 4.4 \\
+    deepseek-v4-pro & API & 46.4 & 57.8 & 24.2k & 1.9k & 4.8 \\
+    minimax-m3 & API & 42.4 & 53.6 & 17.0k & 1.2k & 3.9 \\
+    claude-haiku-4.5 & API & 41.1 & 46.5 & 20.0k & 1.0k & 3.7 \\
+    kimi-k2.6 & API & 40.7 & 51.4 & 15.0k & 1.5k & 4.2 \\
+    grok-4.3 & API & 31.6 & 38.2 & 10.7k & 0.7k & 3.5 \\
+    gpt-5.4-mini & API & 25.7 & 29.2 & 14.0k & 0.5k & 5.2 \\
+    \midrule
+    qwen3.6-35b & loc & 48.5 & 55.5 & 25.7k & 1.6k & 5.0 \\
+    gemma4-31b & loc & 42.5 & 45.3 & 12.1k & 0.5k & 3.7 \\
+    qwen3.5-4b & loc & 27.3 & 32.3 & 9.8k & 0.9k & 4.0 \\
+    granite-3b & loc & 22.5 & 25.6 & 8.7k & 0.5k & 3.8 \\
+    gemma4-e4b & loc & 22.1 & 25.3 & 5.7k & 0.3k & 3.0 \\
+    qwen3-8b & loc & 22.1 & 27.6 & 6.2k & 2.0k & 2.8 \\
+    nemotron-nano-4b & loc & 21.9 & 28.6 & 8.2k & 0.7k & 3.3 \\
+    qwen2.5-7b & loc & 21.1 & 24.7 & 7.6k & 0.4k & 3.4 \\
+    gemma4-e2b & loc & 20.1 & 22.1 & 5.1k & 0.2k & 2.7 \\
+    xlam2-8b & loc & 19.5 & 21.6 & 9.9k & 0.2k & 4.1 \\
+    toolace2-8b & loc & 17.5 & 20.0 & 6.6k & 0.2k & 2.8 \\
+    qwen2.5-3b & loc & 16.9 & 19.7 & 7.9k & 0.5k & 3.4 \\
+    hermes3-8b & loc & 13.2 & 15.0 & 6.0k & 0.2k & 2.5 \\
+    ministral3-3b & loc & 12.4 & 15.6 & 10.2k & 0.4k & 4.4 \\
+    hammer2.1-7b & loc & 9.7 & 10.1 & 7.8k & 0.2k & 3.4 \\
+    smollm3-3b & loc & 7.2 & 14.5 & 3.4k & 2.1k & 1.6 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Per model: pass\textasciicircum{}3 (p\textasciicircum{}3) and
+    single-attempt accuracy (p@1), both \%, and the mean prompt (in) and
+    completion (out) tokens and tool/model calls per attempt.}
+  \label{tab:tech}
+\end{table}
+
+\section{Path-Agnostic Equivalence Sets}
+\label{app:eqset}
+Across the 4{,}651 tool-effect checkpoints in the corpus, the distribution of
+equivalence-set sizes is 3{,}930 of size~1, 575 of size~2, 93 of size~3, 30 of
+size~4, and 23 of size~5 or more (maximum~12). Thus 15.5\% of effect
+checkpoints admit two or more interchangeable tools, so many tasks accept more
+than one valid trajectory rather than a single gold path.
+
+\section{Generator Self-Preference}
+\label{app:family}
+Table~\ref{tab:family} reports, for each candidate whose family also authored
+part of the corpus, its pass\textasciicircum{}3 on tasks generated by its own
+family versus on the rest. The mean difference is $+0.5$ points (median
+$-0.2$): no systematic self-preference. Two models show a clear positive
+effect (glm-5.1 $+25.5$, gpt-5.4-mini $+28.2$), offset by negatives elsewhere.
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrrr}
+    \toprule
+    Model & own-family & other & $\Delta$ \\
+    \midrule
+    qwen3.7-max & 45.1 & 52.0 & $-7.0$ \\
+    glm-5.1 & 71.9 & 46.4 & $+25.5$ \\
+    deepseek-v4-pro & 46.7 & 46.3 & $+0.4$ \\
+    minimax-m3 & 24.0 & 43.0 & $-19.0$ \\
+    claude-haiku-4.5 & 23.3 & 41.8 & $-18.5$ \\
+    kimi-k2.6 & 48.2 & 39.3 & $+8.9$ \\
+    grok-4.3 & 33.3 & 31.4 & $+1.9$ \\
+    gpt-5.4-mini & 52.2 & 24.0 & $+28.2$ \\
+    qwen3.6-35b & 41.8 & 49.5 & $-7.7$ \\
+    gemma4-31b & 40.0 & 42.7 & $-2.7$ \\
+    qwen3.5-4b & 27.5 & 27.3 & $+0.2$ \\
+    gemma4-e4b & 27.5 & 21.8 & $+5.7$ \\
+    qwen3-8b & 22.0 & 22.2 & $-0.2$ \\
+    qwen2.5-7b & 18.7 & 21.4 & $-2.7$ \\
+    gemma4-e2b & 25.0 & 19.9 & $+5.1$ \\
+    qwen2.5-3b & 14.3 & 17.3 & $-3.0$ \\
+    ministral3-3b & 5.9 & 12.9 & $-7.0$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{pass\textasciicircum{}3 (\%) on same-family-authored tasks versus
+    the rest, for each candidate whose family also generated tasks; $\Delta$
+    in points.}
+  \label{tab:family}
+\end{table}
+
+\section{Failure Analysis}
+\label{app:failure}
+Every scored run carries an auto-classified failure taxonomy over its unmet
+checkpoints (Figure~\ref{fig:failure}, left). Pooled across the 54{,}000
+evaluation runs, failures are dominated by \emph{incomplete aggregation}
+(unmet value/evidence checkpoints, 49\%) and \emph{tool-blindness} (a required
+tool never reached, 32\%), followed by argument hallucination (18\%);
+\emph{server confusion} (SAE) is near-floor at 1.5\%. The behavioural core of
+the benchmark is therefore multi-step composition: agents fail by not finishing
+the aggregation a task requires, not by calling a look-alike tool on the wrong
+server. (Two of the seven taxonomy codes---order violation and missing
+prerequisite---are inactive here because explicit ordering constraints are rare
+in the corpus, and wrong-branch is not auto-classified in this version.)
+
+The incomplete-aggregation rate is also the single strongest predictor of
+accuracy (Figure~\ref{fig:failure}, right): across all 24 models it correlates
+with pass\textasciicircum{}3 at $r=-0.98$, far tighter than any other signal we
+measured. Some of these unmet value checkpoints reflect the scorer's deliberate
+conservatism rather than an aggregation failure (see Limitations), but the
+ranking implication holds: the models that most often stop short of
+aggregating the required evidence are the models that score lowest.
+
+\paragraph{Safety.} Of the 8{,}496 runs in which a destructive-adjacent
+``minefield'' tool was available, agents invoked it in only 75 (0.9\%), and the
+rate stays low even for the weakest models: agents seldom take a forbidden
+destructive action even when an adjacent safe tool would do.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_failure.png}
+  \caption{\textbf{Left:} distribution of auto-classified failure modes over all
+    unmet checkpoints in the 54{,}000-run evaluation---incomplete aggregation
+    dominates and server confusion (SAE) is near-floor. \textbf{Right:}
+    per-model incomplete-aggregation rate versus pass\textasciicircum{}3 (24
+    models; Pearson $r=-0.98$).}
+  \label{fig:failure}
+\end{figure*}
+
+\section{Server-Attribution Errors and Distractor Robustness}
+\label{app:sae}
+At the default evaluation setting, server-attribution errors (SAE)---calling
+the right tool on the wrong server---fire on only 0.2\% of runs (108 of
+54{,}000), so failures are dominated by chain length and composition rather
+than by confusing one server for another (Appendix~\ref{app:failure}). We
+probe this directly along two axes: the quantity of distractors and
+their \emph{strategy}.
+
+\paragraph{Distractor quantity.} We sweep the fraction of the offered tool pool
+that is spurious alternatives, $P_\mathrm{alt}$, from 0 to 1 over five models on
+a 350-task stratified subset ($n{=}350$ per cell). Both accuracy and the SAE
+rate stay \emph{flat} (Figure~\ref{fig:palt}): accuracy remains within its
+confidence interval across the whole range, and SAE never leaves the
+${\sim}1\%$ floor---even when \emph{every} distractor in the pool is a same-name
+look-alike ($P_\mathrm{alt}{=}1$). Filling the pool with alternatives does not
+induce server confusion.
+
+\paragraph{Distractor strategy.} Nor does distractor quality. We
+pre-registered the hypothesis that adversarially-mined hard-negative distractors
+would induce at least 15 points more SAE than random fillers
+($\mathrm{SAE}(\textsf{hard\_neg}) - \mathrm{SAE}(\textsf{random}) \ge 15$\,pp).
+A strategy ablation (Table~\ref{tab:distractor}) rejects it decisively: the
+observed gap is $0.6$\,pp for both models---roughly $25\times$ below the
+threshold, and not significant (Fisher exact $p \approx 0.5$)---and every
+strategy sits at the $0$--$0.6\%$ SAE floor while accuracy is unmoved. Server
+confusion is a near-absent failure mode of current capable agents, inducible
+neither by distractor quantity nor by adversarial distractor construction.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_palt.png}
+  \caption{Distractor-quantity robustness. As the spurious-alternative fraction
+    $P_\mathrm{alt}$ sweeps $0\!\to\!1$, accuracy (left) stays flat and the
+    server-attribution-error rate (right) stays at the ${\sim}1\%$ floor, for
+    all five models (350-task subset, $n{=}350$/cell).}
+  \label{fig:palt}
+\end{figure*}
+
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{2}{c}{glm-5.1} & \multicolumn{2}{c}{deepseek-v4-pro} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    strategy & SAE & acc & SAE & acc \\
+    \midrule
+    \textsf{random}       & 0.0\% & 59\% & 0.0\% & 55\% \\
+    \textsf{hard\_neg}    & 0.6\% & 56\% & 0.6\% & 58\% \\
+    \textsf{cross\_domain}& 0.0\% & 58\% & 0.0\% & 59\% \\
+    \textsf{same\_name}   & 0.6\% & 61\% & 0.3\% & 57\% \\
+    \midrule
+    $\Delta$ (\textsf{hard\_neg}$-$\textsf{random}) & \multicolumn{2}{c}{$+0.6$\,pp} & \multicolumn{2}{c}{$+0.6$\,pp} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Distractor-strategy ablation (SAE rate and pass$^3$ accuracy,
+    $n{=}350$/cell). The pre-registered $\ge 15$\,pp \textsf{hard\_neg} effect
+    does not appear; SAE stays at the floor under every strategy.}
+  \label{tab:distractor}
+\end{table}
+
+\section{Benchmark Decay}
+\label{app:decay}
+The refresh protocol re-executes a recorded reference trajectory against the
+live servers and classifies each call as \emph{identical} (the live result
+matches the recording), \emph{drifted} (the call succeeds but the result
+changed), or \emph{broken} (the call no longer succeeds). It uses no model.
+Running it over 22 reference traces (126 tool-call re-executions) across three
+live-read server families, sampled days after the corpus was recorded, only
+\textbf{36\%} of effects still reproduce identically (Table~\ref{tab:decay}): a
+third have drifted as the underlying data changed and a third no longer succeed.
+The spread is what one would expect---live financial data drifts on almost every
+call, scholarly metadata is a mix, and the encyclopedic content sampled is
+mostly stable. This decay is exactly why scoring runs against cached reference
+traces under deterministic replay rather than live: re-scoring against the live
+world would make a model's pass/fail depend on when it was run. Two caveats: the
+Wikipedia public API rate-limited repeated requests, so 9 of 10 wikipedia traces
+timed out and are excluded (an artifact of our request rate, not server decay);
+and with a single retry, transient failures inflate the broken count, so it is
+an upper bound on persistent breakage.
+
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    server (live-read) & calls & identical & drifted & broken \\
+    \midrule
+    yfinance & 18 & 6\% & 94\% & 0\% \\
+    arxiv & 105 & 40\% & 22\% & 38\% \\
+    wikipedia & 3 & 67\% & 33\% & 0\% \\
+    \midrule
+    all & 126 & \textbf{36\%} & 33\% & 32\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{Benchmark decay: re-executing recorded reference tool calls against
+    the live servers. Only 36\% still reproduce identically; the rest drifted
+    (data changed) or broke. Wikipedia $n$ is small (9 of 10 traces excluded
+    after API rate-limiting); ``broken'' is an upper bound (single retry).}
+  \label{tab:decay}
+\end{table}
+
+
+\section{Detailed Related Work Comparison}
+\label{app:rw}
+
+Table~\ref{tab:rw-detailed} expands the comparison in
+\S\ref{sec:related}. We group prior work by the part of evaluation it
+primarily fixes: the task/server substrate, the scoring target, the generation
+direction, or the execution environment.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.02}
+\caption{Detailed comparison between DynamicMCPBench and prior tool-agent
+evaluation lines.}
+\label{tab:rw-detailed}
+\begin{tabular}{p{0.18\linewidth}p{0.28\linewidth}p{0.25\linewidth}p{0.21\linewidth}}
+\toprule
+\textbf{Line of work} &
+\textbf{Representative focus} &
+\textbf{Typical limitation for live MCP evaluation} &
+\textbf{DynamicMCPBench} \\
+\midrule
+
+MCP breadth and live-task benchmarks &
+Large MCP substrates with thousands of servers/tools
+\citep{fan2025mcptoolbench++, mo2025livemcpbench, lei2025mcpverse} and fuzzy
+multi-step tasks over live servers \citep{wang2025mcp}. &
+Usually ship a fixed task set and score final answers, outcomes, or tool
+choices. &
+A re-runnable framework over automatically collected or user-supplied MCP
+servers; scores effects, not answers. \\
+
+Execution-grounded MCP scoring &
+Execution-based scores, MCP diagnostics, and planted distractors
+\citep{servers25mcp, gao2025mcp, bandi2026mcp}. &
+Grounding improves realism, but the benchmark remains tied to its released
+tasks and scoring target. &
+Builds tasks from successful live traces and distills them into reusable
+effect checkpoints. \\
+
+MCP stress, GUI, and security settings &
+Failure diagnosis \citep{wu2025mcpmark, yin2025livemcp, guo2026mcp},
+graphical/computer-use settings \citep{yan2025mcpworld, jia2025osworld}, and
+tool-name collision attacks \citep{zhang2025mcp}. &
+Broaden the setting or attack surface, but generally do not replace
+answer/tool-choice scoring with path-agnostic effect scoring. &
+Uses controlled distractors, including same-name tools, and evaluates required
+effects under deterministic replay. \\
+
+Large API catalog benchmarks &
+API retrieval and selection over large catalogs
+\citep{patil2024gorilla, qin2024toolllm}. &
+Treat tool lists as ground truth, although they are not uniquely recoverable
+from a prompt and can be flawed. &
+Every required effect is grounded in an actually successful reference
+trajectory. \\
+
+Confusable-tool and call-structure benchmarks &
+Choosing among similar tools \citep{huang2024metatool} and checking
+call-structure correctness \citep{patil2025berkeley}. &
+Focus on selecting or formatting calls rather than completing live multi-step
+tasks over interacting servers. &
+Accepts any trajectory that achieves the required effects, including
+effect-equivalent tools. \\
+
+Outcome-state agent benchmarks &
+Final database-state comparison and pass\textasciicircum{}k reliability
+\citep{yao2024tau}. &
+Strong outcome intuition, but evaluated in narrower controlled domains rather
+than broad live MCP substrates. &
+Generalizes outcome-state scoring to path-agnostic effects across many live
+MCP servers and uses pass\textasciicircum{}3. \\
+
+Graph/backward task generation &
+Tool graphs, back-instructed questions, subgraph sampling, and
+generate-then-verify pipelines
+\citep{shen2024taskbench, guo2026unitoolbench, liu2025mcpeval,
+shi2025taskcraft}. &
+The imposed plan may not be executable, uniquely recoverable from the prompt,
+or the only valid route. &
+Generates forward: a goal is solved live before it becomes a benchmark task. \\
+
+Trajectory corpora for training &
+Large real-server tool-agent trajectories assembled for model training
+\citep{xu2025toucan}. &
+Training corpora are not necessarily evaluation frameworks with deterministic,
+path-agnostic scoring. &
+Turns successful trajectories into benchmark tasks with checkpoints,
+minefields, and partial-order constraints. \\
+
+Stable execution via cached tools &
+Virtual, mirror, or cached API environments
+\citep{guo2024stabletoolbench, guo2025stabletoolbench}; semantic cache
+fallbacks \citep{cheng2025travelbench}. &
+Stabilize answer matching or individual calls, but often preserve call-level
+behavior rather than whole effect paths. &
+Replays each task's recorded world deterministically and checks the required
+effects. \\
+
+State, milestone, and trajectory scoring &
+Milestones and forbidden actions \citep{lu2025toolsandbox}, dual-control
+state \citep{barres2025tau}, whole trajectories \citep{kim2025beyond}, and
+compiled/proxy state rewards \citep{zeng2026logigen, chuang2026toward}. &
+Validate answer-agnostic scoring, but are often tied to specific domains or
+hand-built environments. &
+Automatically distills checkpoints and minefields across a broad live MCP
+substrate. \\
+
+Tool-surface quality and benchmark bias &
+Low-quality MCP descriptions \citep{hasan2026model, wang2026docs}, prompt
+bloat from many tools \citep{gan2025rag}, and generator self-bias
+\citep{yuan2026silencer}. &
+Show that raw tool surfaces and generator identity can confound evaluation. &
+Uses raw descriptions and flat exposure in the headline setting, with
+multi-family authorship and an explorer--distiller family split. \\
+
+\bottomrule
+\end{tabular}
+\end{table*}
+

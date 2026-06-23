@@ -1,0 +1,174 @@
+\section{DynamicMCPBench}
+\label{sec:benchmark}
+
+We build the benchmark by observing what works on real servers: an explorer
+agent solves goals \emph{live} on MCP servers, and each successful
+trajectory is distilled into a task whose ground truth is the
+effects it produced. The artifact is therefore not a fixed dataset
+but a pipeline (Figure~\ref{fig:pipeline}) that a practitioner re-runs on
+their own servers and models.
+
+\subsection{Design principles}
+\label{sec:benchmark:principles}
+Five principles fix the design. (1)~\emph{The trace is the primitive}: tasks
+come from recorded successful trajectories, so every required tool was
+actually used and a spurious ``unnecessary'' tool cannot arise. (2)~\emph{We
+never grade the final answer}: scoring checks effects, not whether a
+free-form reply matches a reference string, a match that is unstable the
+moment the answer depends on live data. (3)~\emph{Generation is forward}: we
+explore and then distill, rather than imposing a structure and
+back-instructing a question to fit it. (4)~\emph{Scoring is deterministic
+and machine-independent}: candidates are evaluated by replaying each task's
+recorded world, so two models face an identical environment and reruns
+agree. (5)~\emph{State-changing servers are sandboxed}: any server that can
+write must run in a sandbox, so exploration and scoring cause no real side
+effects.
+
+\paragraph{Why ``dynamic''.} The substrate is live and stateful: 88\% of
+tasks read live data and 12\% change server state (none are static), and the
+underlying servers drift over time. We freeze each task's world through
+deterministic replay for fair scoring, while a refresh step re-runs the
+reference trajectories against the live servers and flags any task whose
+effects can no longer be reproduced.
+
+\paragraph{Safety.} Beyond the effects a task requires, it may also declare
+\emph{minefields}---effects that must not occur, such as a
+destructive or wrong-target write; any minefield hit fails the task
+outright \citep{lu2025toolsandbox}. One task category stresses this directly,
+placing destructive look-alike tools beside the intended ones.
+
+\subsection{Substrate and corpus}
+\label{sec:benchmark:substrate}
+The released corpus contains 1{,}845 tasks distilled from 2{,}051 reference
+trajectories over 121 live MCP servers, and it is authored by a diverse pool
+of frontier model families (the largest contributing 18\% of the tasks) so
+that no single generator shapes it. Tasks span 15 \emph{categories}, each
+targeting a distinct tool-use challenge of the generated question, from a
+neutral baseline through semantic near-misses, cross-server and multi-step
+structure, ordering and recovery demands, traps, and under-specification;
+Appendix~\ref{app:categories} defines all fifteen, and
+Appendix~\ref{app:corpus} reports the corpus composition. Tasks are further stratified by
+\emph{dynamism} (live-read vs.\ state-changing), by \emph{length}, the depth
+of the tool-dependency chain, which ranges from~1 to~77 with a mean
+of~5.2, and by \emph{scope}, intra- vs.\ cross-server (29\% of tasks span
+more than one server). For the study we evaluate on a balanced slice of 50
+tasks per category, 750 in total.
+
+\subsection{Forward generation and distillation}
+\label{sec:benchmark:gen}
+A goal generator turns each server's tool surface into realistic user goals,
+with persona-varied phrasing for diversity; an explorer agent then pursues
+one goal live, and a successful run is handed to a distiller that emits a
+\emph{task specification}. A specification has a fuzzy natural-language
+prompt (tool names removed); one or more \emph{checkpoints} of two kinds---a
+\emph{tool-effect} checkpoint (some tool from an \emph{equivalence set} of
+interchangeable tools must be called, optionally meeting an argument
+constraint) and a \emph{value-produced} checkpoint (a demanded value must
+appear in a tool result); optional \emph{minefields}; and a \emph{partial
+order} that constrains two effects only where one genuinely depends on the
+other, leaving parallel steps unordered. Each specification also records a
+complexity profile (chain depth, cross-server, branching) used for the
+stratification above; Table~\ref{tab:worked-example} works one task through end to end, from
+recorded trajectory to distilled checkpoints; Appendix~\ref{app:example}
+shows the full TaskSpec rendering. The choices that shape the corpus are deliberate:
+generation is forward and trace-grounded so tasks are provably achievable;
+categories are balanced at 50 tasks each so no category dominates; seed
+difficulty is scaled to span short and long chains; and authorship is spread
+across model families. The distiller never introduces a checkpoint the trace
+does not justify. The full generation and evaluation configuration appears in
+Appendix~\ref{app:config}, and all prompts in Appendix~\ref{app:prompts}.
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{A compact worked example. A successful reference trace is distilled
+into path-agnostic effect checkpoints. A candidate passes by reproducing these
+effects with any equivalent tool, not by matching the final answer text.}
+\label{tab:worked-example}
+\begin{tabular}{p{0.18\linewidth}p{0.76\linewidth}}
+\toprule
+\textbf{Stage} & \textbf{Example} \\
+\midrule
+
+User goal &
+Compare the financial health and recent performance of Apple (AAPL),
+Microsoft (MSFT), and Google (GOOGL): latest ticker information, most recent
+quarterly earnings, and one year of price history. \\
+
+Reference trace &
+The explorer calls \texttt{get\_tickers\_info} for the three symbols,
+\texttt{get\_earnings} for each company, \texttt{download} for one-year price
+history, and \texttt{get\_financials} for yearly balance-sheet and income
+statements. \\
+
+Distilled effects &
+The TaskSpec requires ticker information for all three symbols, quarterly
+earnings, one-year price history, yearly balance-sheet financials, yearly
+income-statement financials, and a final message mentioning the companies and
+the relevant financial evidence. \\
+
+Equivalence &
+The price-history checkpoint accepts either \texttt{download} or
+\texttt{get\_price\_history}, so an agent need not repeat the reference path
+if it obtains the same effect through an equivalent tool. \\
+
+Minefields / order &
+Minefields: none. Partial order: none, because the required evidence can be
+collected independently. \\
+
+Scoring &
+A candidate passes if all required effects are observed under deterministic
+replay in all three attempts. It fails if an effect is missing, even if the
+final natural-language answer looks plausible. \\
+
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Effect-based scoring}
+\label{sec:benchmark:eval}
+
+Given a candidate trajectory, a deterministic first tier (Tier-1) checks each
+checkpoint: that some tool in a tool-effect's equivalence set was called with
+arguments satisfying its constraint; that a value-produced checkpoint appears;
+that no minefield was hit; and that the partial order holds. Because
+checkpoints carry equivalence sets, any path achieving the required effects
+passes. On the released corpus, 16\% of effect checkpoints admit two or more
+interchangeable tools (up to twelve), so multiple valid trajectories are
+accepted rather than a single gold path (Appendix~\ref{app:eqset}). A second
+tier (Tier-2) is an LLM judge that may upgrade only a \emph{failed}
+tool-effect when a different tool is genuinely effect-equivalent; it never
+reads or grades the final answer. The headline leaderboard uses Tier-1 alone
+(Appendix~\ref{app:config}).
+
+Candidates are compared under deterministic replay. Each task is attempted
+three times and counted as solved only if all three attempts pass
+(pass\textasciicircum{}3; \citealp{yao2024tau}). To keep the setting controlled and identical
+across models, each candidate receives the required tools plus fixed
+distractors, half of them same-name tools on other servers. The action budget
+covers the longest chains, and the main configuration presents tool
+descriptions as written and exposes all tools directly, so the headline
+measures the agent rather than a description rewriter or retriever.
+
+
+\subsection{Applying the framework to your own servers}
+\label{sec:benchmark:apply}
+
+Because every stage (collecting servers, generating goals, exploring,
+distilling, and scoring) is automated, the same pipeline runs end to end on a
+practitioner's own servers and chosen models. In an industrial deployment, a
+team can point DynamicMCPBench at its private MCP server fleet, generate tasks
+that reflect its own workflows, and obtain a deployment-specific benchmark,
+leaderboard, and failure breakdown. That is the mode behind the study in \S\ref{sec:results}.
+
+The public benchmark then serves as a calibrated reference point. A company can
+compare candidate agents not only by an aggregate score, but by the task
+profile that matters for its own stack: short versus long tool chains,
+single-server versus cross-server composition, recovery requirements, or
+look-alike-tool confusion. Thus the framework supports model selection and
+regression testing for private MCP deployments rather than only a static public
+leaderboard.
+

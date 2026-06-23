@@ -1,0 +1,56 @@
+\section{Related Work}
+\label{sec:related}
+
+Tool-agent evaluation spans MCP benchmarks, API/tool-use benchmarks, task
+generation, stable execution, and state- or trace-based scoring. We summarize
+the main contrast here and give a detailed comparison in Appendix~\ref{app:rw}.
+Prior work usually fixes at least one part of the setting: it ships a fixed
+dataset, generates tasks from an imposed graph or plan, or scores an answer,
+tool list, outcome state, or cached call trace. DynamicMCPBench targets the
+complementary setting: a re-runnable framework over live or user-supplied MCP
+servers, with tasks generated forward from successful executions and scored by
+path-agnostic effects under deterministic replay.
+
+Recent MCP benchmarks have expanded scale and realism: thousands of servers
+and tools \citep{fan2025mcptoolbench++, mo2025livemcpbench, lei2025mcpverse},
+live multi-step tasks \citep{wang2025mcp}, execution-grounded scoring
+\citep{servers25mcp, gao2025mcp}, planted distractors \citep{bandi2026mcp},
+stress tests \citep{wu2025mcpmark, yin2025livemcp, guo2026mcp}, GUI and
+computer-use settings \citep{yan2025mcpworld, jia2025osworld}, and security
+probes \citep{zhang2025mcp}. These benchmarks are valuable, but they remain
+fixed task sets and usually score an answer, outcome, or tool choice. They do
+not let practitioners re-run the benchmark on their own live servers, nor do
+they score whether the required effects were produced along any valid path.
+
+Older API/tool-use benchmarks study retrieval and selection
+\citep{patil2024gorilla, qin2024toolllm}, confusable tools
+\citep{huang2024metatool}, and call-structure correctness
+\citep{patil2025berkeley}. Closest to us, \citet{yao2024tau} compare final
+database state rather than exact paths and introduce pass$^k$ for reliability.
+We keep this outcome-state intuition, but generalize it to path-agnostic
+effects across many live MCP servers. We also ground every task in a real
+successful trajectory, avoiding tool lists as unrecoverable prompt-level ground
+truth \citep{qin2024toolllm}.
+
+Task-generation work usually imposes structure and works backward: graph
+construction, subgraph sampling, or generate-then-verify pipelines
+\citep{shen2024taskbench, guo2026unitoolbench, liu2025mcpeval,
+shi2025taskcraft}. Large real-server trajectories are also collected for
+training \citep{xu2025toucan}. DynamicMCPBench instead explores first and
+distills afterward: the successful trace becomes checkpoints, minefields, and a
+partial order. To make live execution reproducible, we build on cached or
+simulated tool environments
+\citep{guo2024stabletoolbench, guo2025stabletoolbench, cheng2025travelbench}
+and answer-agnostic state or trajectory scoring
+\citep{lu2025toolsandbox, barres2025tau, kim2025beyond, zeng2026logigen,
+chuang2026toward}.
+
+Finally, tool surfaces and benchmark generation introduce confounds. MCP
+descriptions are often low quality \citep{hasan2026model, wang2026docs}, many
+exposed tools hurt selection \citep{gan2025rag}, and self-generated benchmarks
+can inflate model scores \citep{yuan2026silencer}. These findings motivate our
+headline setting: raw tool descriptions, multi-family authorship, and scoring
+effects rather than final answers or curated tool lists. In short,
+DynamicMCPBench is re-runnable, forward-generated, trace-grounded, and
+effect-scored; \S\ref{sec:benchmark} details the framework, and
+\S\ref{sec:results} reports the study.
