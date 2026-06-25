@@ -133,14 +133,17 @@ or evaluation.
   claims, missing guide references, and unknown guide rule ids; no LLM is called.
 
 ### BA2.2 - Planner adapter
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA1.1 BA1.2 BA1.3
 - source: `planning/TASKS/T03-planner-adapter.md`
 - note: **[Adopted: D1]** the default planner is rule-based and deterministic
-  (booth-safe REPLAY); the LLM planner is the opt-in LIVE-mode path. Both satisfy
-  the done-when below.
+  (booth-safe REPLAY); the LLM planner is the opt-in LIVE-mode path. Implemented
+  in `benchmark_advisor/planner.py` (intent→`AdvisorDesign` + guide-backed evidence
+  ledger; intent-level refusals for final-answer/generation-launch; clarification
+  on missing candidate models). `tests/test_benchmark_advisor_planner.py` includes
+  the full planner+validator end-to-end check reproducing all 14 fixture oracles.
 - done-when: user intent converts into schema-valid advisor proposals using
   LLM/rule adaptation; every criterion and major user-visible parameter cites
   statistical-guide rule ids and includes hover-ready rationale; invalid or
