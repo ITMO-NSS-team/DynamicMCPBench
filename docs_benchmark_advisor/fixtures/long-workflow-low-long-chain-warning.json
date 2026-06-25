@@ -1,0 +1,36 @@
+{
+  "id": "long-workflow-low-long-chain-warning",
+  "description": "Long multi-step workflow claim but the planned long-chain ratio is in the warning band.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Compare two agents on long, multi-step production workflows end to end.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 3,
+    "user_overrides": {
+      "long_chain": 0.2,
+      "short_chain": 0.4,
+      "medium_chain": 0.4
+    }
+  },
+  "expected_status": "warning",
+  "expected_warning_codes": [
+    "insufficient_long_chain_coverage"
+  ],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "pairwise",
+    "task_distribution": {
+      "long_chain": 0.2
+    }
+  }
+}

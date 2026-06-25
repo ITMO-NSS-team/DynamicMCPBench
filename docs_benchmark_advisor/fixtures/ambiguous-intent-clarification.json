@@ -1,0 +1,17 @@
+{
+  "id": "ambiguous-intent-clarification",
+  "description": "Pairwise mode requested but no candidate models and a vague intent; needs clarification.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Make my agents better.",
+    "mode": "pairwise",
+    "task_budget": 120,
+    "attempts_per_task": 3
+  },
+  "expected_status": "needs_clarification",
+  "expected_warning_codes": [],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [
+    "candidate_models"
+  ]
+}

@@ -95,11 +95,15 @@ or evaluation.
   downstream tasks can cite rule ids without inventing statistical knowledge.
 
 ### BA1.3 - Golden advisor fixtures
-- status: todo
-- owner: -
-- claimed_at: -
-- deps: BA1.2
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
+- deps: BA1.2 (satisfied by D3 — guide frozen as v1)
 - source: `planning/TASKS/T08-golden-fixtures.md`
+- note: 14 fixtures in `docs_benchmark_advisor/fixtures/` (+ README) spanning every
+  response state and validator-threshold family; loader + structural tests in
+  `tests/advisor_fixtures.py` and `tests/test_benchmark_advisor_fixtures.py`
+  (requests parse against BA1.1, cited guide ids exist, state-matrix consistent).
 - done-when: valid, warning-heavy, refused, clarification, and smoke fixtures
   exist; at least 10 intent fixtures cover pairwise, leaderboard, regression,
   and diagnostic scenarios; guide references and hover rationale are present;

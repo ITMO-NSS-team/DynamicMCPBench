@@ -1,0 +1,34 @@
+{
+  "id": "recovery-low-coverage-warning",
+  "description": "Robustness/recovery claim but the planned recovery-required ratio is in the warning band.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Compare two agents on how well they recover from failed tool calls and retries.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 3,
+    "user_overrides": {
+      "recovery_required_ratio": 0.06
+    }
+  },
+  "expected_status": "warning",
+  "expected_warning_codes": [
+    "insufficient_recovery_coverage"
+  ],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "pairwise",
+    "task_distribution": {
+      "recovery_required_ratio": 0.06
+    }
+  }
+}

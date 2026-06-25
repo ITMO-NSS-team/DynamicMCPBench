@@ -1,0 +1,30 @@
+{
+  "id": "too-few-repeats-warning",
+  "description": "Reliability claim that needs pass@3 but only 2 attempts per task are planned; warning.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Which agent is more reliable across repeated attempts on this deployment mix?",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 2
+  },
+  "expected_status": "warning",
+  "expected_warning_codes": [
+    "too_few_repeats"
+  ],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "pairwise",
+    "tasks": 120,
+    "attempts_per_task": 2
+  }
+}
