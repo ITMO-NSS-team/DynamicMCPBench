@@ -187,15 +187,20 @@ or evaluation.
   benchmark generation.
 
 ### BA3.2 - Studio UI shell
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-26
 - deps: BA1.1 BA1.2 BA1.3
 - source: `planning/TASKS/T06-studio-ui-shell.md`
-- note: **[Adopted: D6]** ship as **Stage 0 — Design** prepended to the existing
+- note: **[Adopted: D6]** shipped as **Stage 0 — Design** prepended to the
   single-page instrument (Design → Collect → Explore → Distill → Score) on the
-  SIGNAL identity; signature interaction is the task-budget slider flipping the
-  verdict approved ⇄ warning ⇄ refused with guide-cited hover rationale.
+  SIGNAL identity. Intent box + mode + candidate models + three instrument
+  sliders; the task-budget slider flips the verdict approved ⇄ warning ⇄ refused
+  live against `/api/advisor/design`, with guide-cited evidence-ledger hover
+  rationale, advisor cards, and a dry-run JSON export preview. Distinct
+  `.stage-design`/`.step-design` classes keep the existing JS flow untouched;
+  `app.ts` four-stage handlers unchanged (one `gotoStep` guard). Headless capture
+  regenerates `fig_studio.png` and adds `fig_advisor.png`.
 - done-when: the first-stage Advisor screen renders intent input, numeric
   editable fields, design cards, warnings/refusals, JSON preview, approval
   affordance, and hover/popover rationale for criteria and major numeric

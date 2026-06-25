@@ -62,6 +62,8 @@ var stages = [...document.querySelectorAll(".stage")];
 var steps = [...document.querySelectorAll(".step")];
 function gotoStep(i) {
   state.step = i;
+  document.getElementById("stage-design")?.classList.remove("active");
+  document.getElementById("stepDesign")?.classList.remove("active");
   stages.forEach((s, k) => s.classList.toggle("active", k === i));
   steps.forEach((s, k) => {
     s.classList.toggle("active", k === i);
@@ -593,4 +595,142 @@ $("showLb").addEventListener("click", async () => {
     }
   }
 });
+var dStage = document.getElementById("stage-design");
+var dStepChip = document.getElementById("stepDesign");
+var dMode = "pairwise";
+var dReqId = 0;
+var dDebounce;
+var D_VERDICT = {
+  approved: { chip: "APPROVED", cls: "dv-approved", mode: "design is statistically defensible" },
+  warning: { chip: "WARNING", cls: "dv-warning", mode: "usable design, with caveats" },
+  refused: { chip: "REFUSED", cls: "dv-refused", mode: "this design would fool you" },
+  needs_clarification: { chip: "CLARIFY", cls: "dv-clarify", mode: "needs more to plan" }
+};
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+}
+function dModels() {
+  return $("dModels").value.split(",").map((s) => s.trim()).filter(Boolean);
+}
+function dBuildRequest() {
+  const target = Number($("dTarget").value);
+  const req = {
+    schema_version: "benchmark_advisor.v1",
+    intent: $("dIntent").value.trim() || "Compare two agents.",
+    mode: dMode,
+    task_budget: Number($("dBudget").value),
+    attempts_per_task: Number($("dAttempts").value),
+    candidate_models: dModels()
+  };
+  if (target > 0)
+    req.target_detectable_effect_pp = target;
+  return req;
+}
+function dCard(kind, head, body, stat, repairs) {
+  const el = document.createElement("div");
+  el.className = "d-card " + kind;
+  const repair = repairs.length ? `<div class="d-repair">→ ${repairs.map(esc).join(" · ")}</div>` : "";
+  const reason = stat ? `${esc(body)} <span style="color:var(--mute)">(${esc(stat)})</span>` : esc(body);
+  el.innerHTML = `<div class="d-card-h">${esc(head)}</div>${reason}${repair}`;
+  return el;
+}
+function dEvRow(e) {
+  const el = document.createElement("div");
+  el.className = "d-ev";
+  const rules = e.guide_references.map((g) => `<span class="d-rule">${esc(g.rule_id)}</span>`).join("");
+  const val = typeof e.value === "object" ? JSON.stringify(e.value) : String(e.value);
+  el.innerHTML = `<div><div class="d-ev-param">${esc(e.parameter)}</div><div class="d-ev-rules">${rules}</div></div>` + `<div class="d-ev-val">${esc(val)}</div>` + `<div class="d-ev-hover">${esc(e.hover_text)}</div>`;
+  return el;
+}
+function dRender(r) {
+  const v = D_VERDICT[r.status];
+  const bar = $("dVerdictBar");
+  bar.classList.remove("dv-approved", "dv-warning", "dv-refused", "dv-clarify");
+  bar.classList.add(v.cls);
+  $("dVerdictChip").textContent = v.chip;
+  $("dVerdictMode").textContent = v.mode;
+  $("dStatusSub").textContent = r.status.replace("_", " ");
+  $("dSummary").textContent = `${dMode} · ${dModels().length} model${dModels().length === 1 ? "" : "s"}`;
+  let why;
+  if (r.status === "refused" && r.refusal)
+    why = `${r.refusal.reason} ${r.refusal.statistical_reason}`;
+  else if (r.status === "needs_clarification" && r.clarification)
+    why = r.clarification.why_needed;
+  else if (r.status === "warning")
+    why = `${r.warnings.length} warning${r.warnings.length === 1 ? "" : "s"} — usable, but the claim is bounded.`;
+  else
+    why = "The planned design supports the claim within its stated boundary; every parameter cites a guide rule.";
+  $("dVerdictText").textContent = why;
+  const cards = $("dCards");
+  cards.innerHTML = "";
+  if (r.refusal)
+    cards.appendChild(dCard("refuse", "refused · " + r.refusal.code, r.refusal.reason, r.refusal.statistical_reason, r.refusal.repair_options));
+  if (r.clarification)
+    cards.appendChild(dCard("clarify", "needs clarification", r.clarification.why_needed, null, r.clarification.questions));
+  r.warnings.forEach((w) => cards.appendChild(dCard("warn", w.code, w.message, w.statistical_reason, [w.repair_suggestion])));
+  const led = $("dLedger");
+  led.innerHTML = "";
+  if (r.evidence_ledger.length === 0)
+    led.innerHTML = '<div class="empty">Rationale appears once a design is proposed.</div>';
+  r.evidence_ledger.forEach((e) => led.appendChild(dEvRow(e)));
+  $("dExport").textContent = r.export_config ? JSON.stringify(r.export_config, null, 2) : "— no export (design refused or needs clarification)";
+  $("dExportSub").textContent = r.export_config ? "dry-run only · no run launched" : "unavailable";
+  $("dProceed").disabled = !(r.status === "approved" || r.status === "warning");
+}
+async function dRun() {
+  const myId = ++dReqId;
+  let resp;
+  try {
+    resp = await postJSON("/api/advisor/design", dBuildRequest());
+  } catch {
+    $("dVerdictMode").textContent = "advisor unavailable";
+    return;
+  }
+  if (myId !== dReqId)
+    return;
+  dRender(resp);
+}
+function dScheduleRun() {
+  window.clearTimeout(dDebounce);
+  dDebounce = window.setTimeout(() => void dRun(), 180);
+}
+function showDesign() {
+  stages.forEach((s) => s.classList.remove("active"));
+  steps.forEach((s) => s.classList.remove("active"));
+  dStage?.classList.add("active");
+  dStepChip?.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+dStepChip?.addEventListener("click", showDesign);
+$("dMode").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b)
+    return;
+  dMode = b.dataset.m;
+  $("dMode").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  dScheduleRun();
+});
+$("dIntent").addEventListener("input", dScheduleRun);
+$("dModels").addEventListener("input", dScheduleRun);
+var dBudgetEl = $("dBudget");
+dBudgetEl.addEventListener("input", () => {
+  $("dBudgetVal").textContent = dBudgetEl.value;
+  dScheduleRun();
+});
+var dAttemptsEl = $("dAttempts");
+dAttemptsEl.addEventListener("input", () => {
+  $("dAttemptsVal").textContent = dAttemptsEl.value;
+  dScheduleRun();
+});
+var dTargetEl = $("dTarget");
+dTargetEl.addEventListener("input", () => {
+  const t = Number(dTargetEl.value);
+  $("dTargetVal").textContent = t > 0 ? `${t} pp` : "not set";
+  dScheduleRun();
+});
+$("dProceed").addEventListener("click", () => {
+  gotoStep(0);
+  loadServers();
+});
+dRun();
 loadServers();

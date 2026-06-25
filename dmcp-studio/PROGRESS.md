@@ -20,6 +20,20 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **Stage 0 — Design (Benchmark Advisor UI).** Prepended a new first stage to the
+  instrument: intent box, mode segmented control, candidate models, and three
+  instrument sliders (task budget / attempts / target effect). The **task-budget
+  slider is the signature** — dragging it flips the verdict chip
+  approved ⇄ warning ⇄ refused live against `POST /api/advisor/design`, with a
+  guide-cited evidence ledger (hover rationale), advisor cards, and a dry-run
+  JSON export preview; "carry this design into Collect →" hands off to Stage 1.
+  Built on the SIGNAL identity (three semantic channels, reused `.verdict-chip`).
+  Zero risk to the existing flow: Design uses distinct classes (`.stage-design`,
+  `.step-design`) excluded from the JS `stages`/`steps` index arrays; `app.ts`'s
+  four-stage handlers are unchanged except a one-line `gotoStep` guard.
+  `experiments/capture_screenshot.py` now also writes `fig_advisor.png` and
+  advances past Stage 0 so `fig_studio.png` still regenerates.
+
 - **UI redesign — "SIGNAL" instrument identity (Tailwind v4 + daisyUI v5).**
   The frontend now builds its CSS through Tailwind + daisyUI (custom `dmcp`
   theme) instead of hand-written `styles.css`, and carries a deliberate art

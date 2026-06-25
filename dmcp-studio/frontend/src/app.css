@@ -959,6 +959,235 @@
   .error-banner b {
     color: var(--alert);
   }
+
+  /* ============ STAGE 0 — DESIGN (Benchmark Advisor) ============ */
+  /* Distinct classes (not .stage/.step) so the JS stage arrays are untouched. */
+  .stage-design {
+    display: none;
+    animation: fade 0.35s ease;
+  }
+  .stage-design.active {
+    display: block;
+  }
+  /* the Design stepper chip — mirrors .step, lit like an instrument channel */
+  .step-design {
+    @apply flex items-center gap-2 font-mono text-[12px] uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .step-design .step-num {
+    @apply grid h-5 w-5 place-items-center rounded-full text-[11px];
+    border: 1px solid var(--hair-2);
+    color: var(--dim);
+  }
+  .step-design:hover {
+    color: var(--dim);
+  }
+  .step-design.active {
+    color: var(--signal);
+  }
+  .step-design.active .step-num {
+    border-color: var(--signal);
+    color: var(--signal);
+    box-shadow: 0 0 8px var(--signal-glow);
+  }
+
+  /* intent textarea + control rail */
+  .d-intent {
+    @apply mt-1 w-full resize-none bg-transparent font-ui text-[14px];
+    color: var(--text);
+    line-height: 1.5;
+    border: none;
+    outline: none;
+  }
+  .d-controls {
+    @apply mt-4 grid gap-3.5;
+  }
+  .d-field {
+    @apply grid gap-1.5;
+  }
+  .d-lbl {
+    @apply flex items-center justify-between font-mono text-[11px] uppercase;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+  }
+  .d-lbl small {
+    @apply normal-case;
+    letter-spacing: 0;
+    color: var(--mute);
+  }
+  .d-lbl b {
+    @apply font-mono text-[12px];
+    color: var(--signal);
+    letter-spacing: 0.04em;
+  }
+  .d-seg button {
+    @apply px-2.5;
+  }
+  /* the signature control: dragging this flips the verdict */
+  .d-slider input[type="range"] {
+    @apply h-1.5 w-full appearance-none;
+    background:
+      repeating-linear-gradient(90deg, var(--hair-2) 0 1px, transparent 1px 11px),
+      var(--ground);
+    border: 1px solid var(--hair);
+    border-radius: 2px;
+    outline: none;
+  }
+  .d-slider input[type="range"]::-webkit-slider-thumb {
+    @apply h-4 w-2.5 appearance-none;
+    background: var(--signal);
+    border-radius: 1px;
+    box-shadow: 0 0 10px var(--signal-glow);
+    cursor: ew-resize;
+  }
+  .d-slider input[type="range"]::-moz-range-thumb {
+    @apply h-4 w-2.5 border-0;
+    background: var(--signal);
+    border-radius: 1px;
+    box-shadow: 0 0 10px var(--signal-glow);
+    cursor: ew-resize;
+  }
+
+  /* the verdict readout — reuses .verdict-chip/.verdict-scale, three channels */
+  .d-verdict {
+    @apply relative mb-4 flex flex-wrap items-center gap-6 px-5 py-5;
+    border: 1px solid var(--hair-2);
+    border-radius: 7px;
+    background: linear-gradient(180deg, var(--panel-2), var(--ground));
+    transition: 0.3s;
+  }
+  .d-verdict.dv-approved {
+    border-color: var(--signal);
+  }
+  .d-verdict.dv-approved .verdict-chip {
+    border-color: var(--signal);
+    color: var(--signal);
+    text-shadow: 0 0 16px var(--signal-glow);
+    box-shadow:
+      0 0 0 1px var(--signal-dim) inset,
+      0 0 30px -10px var(--signal-glow);
+  }
+  .d-verdict.dv-approved .verdict-scale {
+    background-image: repeating-linear-gradient(90deg, var(--signal) 0 1px, transparent 1px 9px);
+    opacity: 0.85;
+  }
+  .d-verdict.dv-warning {
+    border-color: var(--amber);
+  }
+  .d-verdict.dv-warning .verdict-chip {
+    border-color: var(--amber);
+    color: var(--amber);
+    text-shadow: 0 0 16px var(--amber-dim);
+    box-shadow:
+      0 0 0 1px var(--amber-dim) inset,
+      0 0 30px -10px var(--amber);
+  }
+  .d-verdict.dv-warning .verdict-scale {
+    background-image: repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 9px);
+    opacity: 0.8;
+  }
+  .d-verdict.dv-refused {
+    border-color: var(--alert);
+  }
+  .d-verdict.dv-refused .verdict-chip {
+    border-color: var(--alert);
+    color: var(--alert);
+    text-shadow: 0 0 16px rgba(255, 92, 73, 0.5);
+    box-shadow:
+      0 0 0 1px var(--alert-dim) inset,
+      0 0 30px -10px rgba(255, 92, 73, 0.5);
+  }
+  .d-verdict.dv-refused .verdict-scale {
+    background-image: repeating-linear-gradient(90deg, var(--alert) 0 1px, transparent 1px 9px);
+    opacity: 0.7;
+    -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent 55% 72%, #000 72%);
+    mask-image: linear-gradient(90deg, #000 55%, transparent 55% 72%, #000 72%);
+  }
+  .d-verdict.dv-clarify .verdict-chip {
+    border-color: var(--dim);
+    color: var(--dim);
+  }
+
+  /* advisor cards: warnings (amber), refusal (alert), clarification (dim) */
+  .d-card {
+    @apply mb-2.5 px-3.5 py-3 font-ui text-[13px];
+    border: 1px solid var(--hair-2);
+    border-left: 3px solid var(--hair-2);
+    border-radius: 4px;
+    background: var(--panel);
+    line-height: 1.5;
+  }
+  .d-card.warn {
+    border-left-color: var(--amber);
+    background: var(--amber-dim);
+  }
+  .d-card.refuse {
+    border-left-color: var(--alert);
+    background: var(--alert-dim);
+  }
+  .d-card.clarify {
+    border-left-color: var(--dim);
+  }
+  .d-card .d-card-h {
+    @apply mb-1 font-mono text-[11px] uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+  }
+  .d-card .d-repair {
+    @apply mt-1.5 text-[12px];
+    color: var(--dim);
+  }
+
+  /* evidence ledger row with a hover tooltip carrying the guide rationale */
+  .d-ev {
+    @apply relative flex items-start justify-between gap-3 px-3 py-2.5;
+    border-bottom: 1px solid var(--hair);
+    cursor: help;
+  }
+  .d-ev:last-child {
+    border-bottom: none;
+  }
+  .d-ev .d-ev-param {
+    @apply font-mono text-[12px];
+    color: var(--text);
+  }
+  .d-ev .d-ev-val {
+    @apply font-mono text-[12px];
+    color: var(--signal);
+  }
+  .d-ev .d-ev-rules {
+    @apply mt-0.5 flex flex-wrap gap-1;
+  }
+  .d-ev .d-rule {
+    @apply font-mono text-[10px];
+    color: var(--amber);
+    letter-spacing: 0.04em;
+  }
+  .d-ev .d-ev-hover {
+    @apply pointer-events-none absolute left-3 right-3 z-10 px-3 py-2 font-ui text-[12px];
+    bottom: calc(100% - 2px);
+    color: var(--text);
+    background: var(--panel-3);
+    border: 1px solid var(--hair-2);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px -8px #000;
+    opacity: 0;
+    transition: opacity 0.15s;
+    line-height: 1.45;
+  }
+  .d-ev:hover .d-ev-hover {
+    opacity: 1;
+  }
+
+  .d-export {
+    @apply max-h-[260px] overflow-auto font-mono text-[11.5px];
+    color: var(--dim);
+    line-height: 1.5;
+    white-space: pre;
+  }
 }
 
 /* visible keyboard focus everywhere (a11y) */

@@ -25,6 +25,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[2]
 STUDIO = ROOT / "dmcp-studio"
 OUT = ROOT / "paper_demo" / "figures" / "fig_studio.png"
+OUT_ADVISOR = ROOT / "paper_demo" / "figures" / "fig_advisor.png"
 
 
 def _free_port() -> int:
@@ -63,6 +64,20 @@ def capture(port: int) -> None:
         # the load events in headless-shell; wait on a concrete element instead.
         page.goto(base, wait_until="commit")
 
+        # Stage 0 — Design: the advisor proposes a design from the default intent;
+        # capture the approved verdict + evidence ledger, then carry it into Collect.
+        page.wait_for_function(
+            "document.getElementById('dProceed') && !document.getElementById('dProceed').disabled",
+            timeout=30_000,
+        )
+        page.wait_for_function(
+            "document.getElementById('dVerdictChip').textContent.trim() === 'APPROVED'",
+            timeout=30_000,
+        )
+        page.wait_for_timeout(500)  # let the verdict + ledger settle
+        page.screenshot(path=str(OUT_ADVISOR), full_page=True)
+        page.click("#dProceed")
+
         # Stage 1 → 2: servers auto-load (yfinance pre-selected); generate goal + explore.
         page.wait_for_selector(".server-card", timeout=30_000)
         page.click("#toExplore")
@@ -89,6 +104,7 @@ def capture(port: int) -> None:
         page.screenshot(path=str(OUT), full_page=True)
         browser.close()
     print(f"wrote {OUT}")
+    print(f"wrote {OUT_ADVISOR}")
 
 
 def main() -> int:
