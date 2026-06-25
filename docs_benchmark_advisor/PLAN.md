@@ -140,14 +140,18 @@ or evaluation.
   ambiguous intents become clarification/refusal-ready proposals.
 
 ### BA2.3 - Planning statistics helpers
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA1.1
 - source: `planning/TASKS/T04-planning-statistics.md`
 - note: **[Adopted: D2]** reuse `dmcp/curves.py::proportion_ci` (Wilson) and
   `dmcp/ablation.py::power_n` (two-proportion MDE) rather than reimplementing
-  them; add new code only for contract fields they don't cover.
+  them; add new code only for contract fields they don't cover. Implemented in
+  `benchmark_advisor/stats.py` (+ `tests/test_benchmark_advisor_stats.py`):
+  planned MDE, CI width, budget→MDE curve, coverage diagnostics with the
+  INTERFACES threshold bands (single source of truth for the validator), all
+  labeled `planning_heuristic`.
 - done-when: pre-run CI width, MDE/power heuristics, coverage diagnostics, and
   warning thresholds are deterministic, tested, and labeled as planning
   heuristics rather than final inference.
