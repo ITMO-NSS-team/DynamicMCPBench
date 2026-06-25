@@ -5,11 +5,16 @@
   "type": "module",
   "description": "DMCP Studio SPA — TypeScript, bundled with Bun.",
   "scripts": {
-    "build": "bun build src/app.ts --outfile app.js --target browser",
+    "build:js": "bun build src/app.ts --outfile app.js --target browser",
+    "build:css": "tailwindcss -i src/app.css -o app.css --minify",
+    "build": "bun run build:js && bun run build:css",
     "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun run build"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "4",
+    "daisyui": "5",
+    "tailwindcss": "4",
     "typescript": "^5.6.0"
   }
 }

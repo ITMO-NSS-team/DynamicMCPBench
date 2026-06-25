@@ -1,0 +1,770 @@
+/* ============================================================
+   DMCP Studio — styling source (Tailwind v4 + daisyUI v5).
+   Build:  bun run build:css   (emits ../app.css, committed).
+   The committed app.css is what the FastAPI StaticFiles mount
+   serves, so the demo runs with no build step.
+
+   Design note: the bespoke component classes below are the JS
+   contract — app.ts toggles/queries them (.sel, .on, .met,
+   .ckpt, .verdict-chip, …) and sets inline styles referencing
+   the --signal/--amber/--alert custom properties. They are
+   re-implemented here through Tailwind @apply + the daisyUI
+   token system; daisyUI components (btn, input, badge, table)
+   carry the static shell. Keep the class names stable.
+   ============================================================ */
+@import "tailwindcss";
+@source "../index.html";
+@source "./app.ts";
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* Custom dark theme built from the studio palette (not a stock daisyUI theme,
+   so the demo keeps its own identity). */
+@plugin "daisyui/theme" {
+  name: "dmcp";
+  default: true;
+  color-scheme: dark;
+  --color-base-100: #0e1116; /* page */
+  --color-base-200: #161b22; /* panel */
+  --color-base-300: #1c232d; /* elevated */
+  --color-base-content: #e6edf3;
+  --color-primary: #34d8c4; /* signal */
+  --color-primary-content: #06201c;
+  --color-secondary: #f5c451; /* amber */
+  --color-secondary-content: #2a1c00;
+  --color-accent: #34d8c4;
+  --color-neutral: #222b36;
+  --color-neutral-content: #e6edf3;
+  --color-error: #ff7a6b; /* alert */
+  --color-error-content: #2a0d09;
+  --color-success: #34d8c4;
+  --color-info: #8b98a8;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.6rem;
+  --radius-box: 0.85rem;
+  --border: 1px;
+}
+
+/* Register the brand fonts as Tailwind tokens (font-ui / font-mono). */
+@theme {
+  --font-ui: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* CSS custom properties consumed by app.ts inline styles + the component
+   layer below. Kept 1:1 with the original palette. */
+:root {
+  --ink: #0e1116;
+  --panel: #161b22;
+  --panel-2: #1c232d;
+  --panel-3: #222b36;
+  --line: #2a323d;
+  --line-bright: #3a4654;
+  --signal: #34d8c4;
+  --signal-dim: rgba(52, 216, 196, 0.13);
+  --signal-glow: rgba(52, 216, 196, 0.35);
+  --alert: #ff7a6b;
+  --alert-dim: rgba(255, 122, 107, 0.13);
+  --amber: #f5c451;
+  --amber-dim: rgba(245, 196, 81, 0.13);
+  --text: #e6edf3;
+  --dim: #8b98a8;
+  --mute: #5a6675;
+  --ui: "Space Grotesk", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply min-h-screen font-ui antialiased;
+    background: var(--ink);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.55;
+    /* layered glow refined for a touch more depth than v1 */
+    background-image:
+      radial-gradient(circle at 16% -12%, rgba(52, 216, 196, 0.08), transparent 42%),
+      radial-gradient(circle at 92% -4%, rgba(255, 122, 107, 0.06), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(52, 216, 196, 0.04), transparent 55%);
+    background-attachment: fixed;
+  }
+  .mono {
+    font-family: var(--mono);
+  }
+}
+
+@layer components {
+  /* ---------- top bar ---------- */
+  .topbar {
+    @apply sticky top-0 z-50 flex items-center gap-6 px-7 py-4;
+    border-bottom: 1px solid var(--line);
+    background: rgba(14, 17, 22, 0.82);
+    backdrop-filter: blur(12px) saturate(1.2);
+  }
+  .brand {
+    @apply flex shrink-0 items-center gap-3;
+  }
+  .brand-mark {
+    @apply relative shrink-0;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid var(--signal);
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px rgba(52, 216, 196, 0.18) inset;
+  }
+  .brand-mark::before,
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    height: 1.5px;
+    background: var(--signal);
+    box-shadow: 0 0 6px var(--signal-glow);
+  }
+  .brand-mark::before {
+    top: 10px;
+    opacity: 0.5;
+  }
+  .brand-mark::after {
+    top: 17px;
+  }
+  .brand-name {
+    @apply text-[17px] font-bold;
+    letter-spacing: -0.01em;
+  }
+  .brand-name small {
+    @apply block text-[11px] font-medium;
+    color: var(--mute);
+    letter-spacing: 0.04em;
+    margin-top: -3px;
+  }
+
+  .stepper {
+    @apply flex flex-1 items-center justify-center gap-1;
+  }
+  .step {
+    @apply flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-lg border border-transparent px-3.5 py-1.5;
+    transition: 0.18s;
+  }
+  .step:hover {
+    background: var(--panel);
+  }
+  .step.active {
+    background: var(--panel-2);
+    border-color: var(--line-bright);
+  }
+  .step.done .step-num {
+    background: var(--signal);
+    color: var(--ink);
+    border-color: var(--signal);
+  }
+  .step-num {
+    @apply grid shrink-0 place-items-center rounded-full font-mono text-xs font-semibold;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--line-bright);
+    color: var(--dim);
+    transition: 0.18s;
+  }
+  .step.active .step-num {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+  .step-label {
+    @apply text-[13px] font-medium;
+    color: var(--dim);
+  }
+  .step.active .step-label {
+    color: var(--text);
+  }
+  .step-sep {
+    width: 18px;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ---------- layout ---------- */
+  .wrap {
+    @apply mx-auto;
+    max-width: 1320px;
+    padding: 26px 28px 80px;
+  }
+  .stage {
+    display: none;
+    animation: fade 0.35s ease;
+  }
+  .stage.active {
+    display: block;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .stage-head {
+    @apply mb-5;
+  }
+  .eyebrow {
+    @apply mb-2 font-mono text-[11px] uppercase;
+    letter-spacing: 0.18em;
+    color: var(--signal);
+  }
+  .stage-head h1 {
+    @apply text-[25px] font-semibold;
+    letter-spacing: -0.02em;
+  }
+  .stage-head p {
+    @apply mt-1.5 max-w-[680px] text-sm;
+    color: var(--dim);
+  }
+
+  /* ---------- buttons (daisyUI btn underneath; .dot + ghost kept) ---------- */
+  .btn .dot {
+    @apply rounded-full;
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+  }
+  .btn-ghost {
+    background: transparent;
+  }
+
+  /* ---------- server gallery ---------- */
+  .grid-servers {
+    @apply mb-6 grid gap-3.5;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  }
+  .server-card {
+    @apply relative cursor-pointer overflow-hidden p-[18px];
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    transition: 0.16s;
+  }
+  .server-card:hover {
+    border-color: var(--line-bright);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  }
+  .server-card.sel {
+    border-color: var(--signal);
+    background: linear-gradient(180deg, var(--signal-dim), transparent);
+    box-shadow: 0 0 0 1px var(--signal-dim);
+  }
+  .server-card.sel::after {
+    content: "✓";
+    @apply absolute font-bold;
+    top: 12px;
+    right: 14px;
+    color: var(--signal);
+  }
+  .sc-name {
+    @apply mb-0.5 font-mono text-[15px] font-semibold;
+  }
+  .sc-meta {
+    @apply my-2.5 flex flex-wrap gap-2;
+  }
+  .pill {
+    @apply rounded-[5px] px-2 py-[3px] font-mono text-[10.5px];
+    border: 1px solid var(--line);
+    color: var(--dim);
+  }
+  .pill.live {
+    color: var(--signal);
+    border-color: var(--signal-glow);
+    background: var(--signal-dim);
+  }
+  .pill.write {
+    color: var(--alert);
+    border-color: var(--alert);
+    background: var(--alert-dim);
+  }
+  .sc-desc {
+    @apply text-[13px];
+    color: var(--dim);
+    line-height: 1.45;
+  }
+  .sc-tools {
+    @apply mt-3 font-mono text-[11px];
+    color: var(--mute);
+  }
+
+  /* ---------- console / panels ---------- */
+  .cols {
+    @apply grid gap-[18px];
+    grid-template-columns: 1fr 1fr;
+  }
+  .score-cols {
+    @apply grid gap-[18px];
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 980px) {
+    .cols,
+    .score-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+  .panel {
+    @apply overflow-hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.02) inset;
+  }
+  .panel-head {
+    @apply flex items-center justify-between gap-3 px-4 py-[13px];
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+  .panel-title {
+    @apply flex items-center gap-2.5 font-mono text-[12.5px] font-semibold;
+    letter-spacing: 0.03em;
+  }
+  .panel-title .live-dot {
+    @apply rounded-full;
+    width: 8px;
+    height: 8px;
+    background: var(--signal);
+    box-shadow: 0 0 8px var(--signal-glow);
+  }
+  .panel-title .live-dot.pulsing {
+    animation: pulse 1.1s infinite;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+  .panel-sub {
+    @apply font-mono text-[11px];
+    color: var(--mute);
+  }
+  .panel-body {
+    @apply p-4;
+    min-height: 120px;
+  }
+
+  .goal-box {
+    @apply mb-3.5 rounded-lg px-[15px] py-[13px] font-mono text-[13px];
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--signal);
+  }
+  .goal-box .lbl {
+    @apply mb-1.5 block text-[10.5px] uppercase;
+    color: var(--signal);
+    letter-spacing: 0.14em;
+  }
+
+  /* trace stream */
+  .trace-line {
+    @apply mb-1.5 flex items-start gap-[11px] rounded-lg px-[11px] py-[9px] font-mono text-[12.5px];
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    opacity: 0;
+    transform: translateX(-8px);
+    animation: slidein 0.3s forwards;
+  }
+  @keyframes slidein {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .trace-idx {
+    @apply w-5 shrink-0 text-right;
+    color: var(--mute);
+  }
+  .trace-call {
+    @apply flex-1;
+    word-break: break-word;
+  }
+  .trace-call .tool {
+    @apply font-semibold;
+    color: var(--signal);
+  }
+  .trace-call .args {
+    color: var(--dim);
+  }
+  .trace-status {
+    @apply shrink-0 text-[11px];
+  }
+  .trace-status.ok {
+    color: var(--signal);
+  }
+  .trace-status.run {
+    color: var(--amber);
+  }
+
+  .empty {
+    @apply py-7 text-center font-mono text-[12.5px];
+    color: var(--mute);
+    line-height: 1.7;
+  }
+
+  /* checkpoints */
+  .ckpt {
+    @apply relative mb-[9px] rounded-[10px] px-3.5 py-3;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    transition: 0.22s;
+  }
+  .ckpt.met {
+    border-color: var(--signal);
+    background: linear-gradient(180deg, var(--signal-dim), transparent);
+  }
+  .ckpt.unmet {
+    border-color: var(--alert);
+    background: linear-gradient(180deg, var(--alert-dim), transparent);
+  }
+  .ckpt-top {
+    @apply flex items-center gap-2.5;
+  }
+  .ckpt-num {
+    @apply grid shrink-0 place-items-center rounded-md font-mono text-[11px] font-bold;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--line-bright);
+    color: var(--dim);
+  }
+  .ckpt.met .ckpt-num {
+    background: var(--signal);
+    color: #06201c;
+    border-color: var(--signal);
+  }
+  .ckpt.unmet .ckpt-num {
+    background: var(--alert);
+    color: #2a0d09;
+    border-color: var(--alert);
+  }
+  .ckpt-kind {
+    @apply rounded px-[7px] py-[3px] font-mono text-[9.5px] uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mute);
+    border: 1px solid var(--line);
+  }
+  .ckpt-kind.value {
+    color: var(--amber);
+    border-color: var(--amber-dim);
+  }
+  .ckpt-verdict {
+    @apply ml-auto font-mono text-[11px] font-semibold;
+  }
+  .ckpt.met .ckpt-verdict {
+    color: var(--signal);
+  }
+  .ckpt.unmet .ckpt-verdict {
+    color: var(--alert);
+  }
+  .ckpt-body {
+    @apply mt-2 pl-[34px] font-mono text-xs;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+  .ckpt-body .t {
+    color: var(--text);
+  }
+  .equiv {
+    @apply mt-[7px] inline-flex flex-wrap items-center gap-1.5;
+  }
+  .equiv-tool {
+    @apply cursor-pointer select-none rounded-[5px] px-[9px] py-[3px] font-mono text-[11px];
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    background: var(--amber-dim);
+    transition: 0.14s;
+  }
+  .equiv-tool.off {
+    opacity: 0.32;
+    text-decoration: line-through;
+    border-color: var(--line);
+    color: var(--mute);
+    background: transparent;
+  }
+  .equiv-tool:hover {
+    transform: translateY(-1px);
+  }
+  .equiv-or {
+    @apply font-mono text-[11px];
+    color: var(--mute);
+  }
+  .equiv-hint {
+    @apply mt-[7px] pl-[34px] font-ui text-[11px];
+    color: var(--mute);
+  }
+
+  .spec-meta {
+    @apply mt-1 flex gap-[18px] pt-2 font-mono text-[11.5px];
+    border-top: 1px dashed var(--line);
+    color: var(--dim);
+  }
+  .spec-meta b {
+    @apply font-semibold;
+    color: var(--text);
+  }
+
+  /* ---------- scoring theater ---------- */
+  .score-ctrl {
+    @apply mb-5 flex flex-wrap items-center gap-3.5;
+  }
+  .seg {
+    @apply inline-flex overflow-hidden rounded-[9px];
+    border: 1px solid var(--line-bright);
+  }
+  .seg button {
+    @apply cursor-pointer border-none bg-transparent px-4 py-[9px] font-ui text-[13px] font-semibold;
+    color: var(--dim);
+    transition: 0.15s;
+  }
+  .seg button.on {
+    background: var(--panel-3);
+    color: var(--text);
+  }
+  .seg-label {
+    @apply font-mono text-[11px];
+    color: var(--mute);
+    margin-right: -6px;
+  }
+
+  .candidate-pick {
+    @apply flex flex-wrap gap-2.5;
+  }
+  .cand {
+    @apply flex min-w-[150px] cursor-pointer flex-col gap-0.5 rounded-[9px] px-3.5 py-2.5;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    transition: 0.15s;
+  }
+  .cand:hover {
+    border-color: var(--line-bright);
+  }
+  .cand.sel {
+    border-color: var(--signal);
+    background: var(--signal-dim);
+  }
+  .cand-name {
+    @apply font-mono text-[13px] font-semibold;
+  }
+  .cand-note {
+    @apply text-[11px];
+    color: var(--dim);
+  }
+
+  .verdict-bar {
+    @apply mb-[18px] flex flex-wrap items-center gap-5 rounded-[14px] px-[22px] py-[18px];
+    border: 1px solid var(--line);
+    background: var(--panel);
+    transition: 0.3s;
+  }
+  .verdict-bar.pass {
+    border-color: var(--signal);
+    background: linear-gradient(100deg, var(--signal-dim), transparent);
+  }
+  .verdict-bar.fail {
+    border-color: var(--alert);
+    background: linear-gradient(100deg, var(--alert-dim), transparent);
+  }
+  .verdict-chip {
+    @apply min-w-[140px] rounded-[10px] px-5 py-2.5 text-center font-mono text-[22px] font-bold;
+    letter-spacing: 0.02em;
+    border: 2px solid var(--line-bright);
+    color: var(--dim);
+    transition: 0.3s;
+  }
+  .verdict-bar.pass .verdict-chip {
+    border-color: var(--signal);
+    color: var(--signal);
+    box-shadow: 0 0 24px var(--signal-dim);
+  }
+  .verdict-bar.fail .verdict-chip {
+    border-color: var(--alert);
+    color: var(--alert);
+    box-shadow: 0 0 24px var(--alert-dim);
+  }
+  .verdict-why {
+    @apply min-w-[240px] flex-1;
+  }
+  .verdict-why .vw-mode {
+    @apply font-mono text-[11px] uppercase;
+    color: var(--mute);
+    letter-spacing: 0.08em;
+  }
+  .verdict-why .vw-text {
+    @apply mt-[3px] text-[14.5px];
+    line-height: 1.45;
+  }
+  .verdict-why .vw-text b {
+    color: var(--text);
+  }
+
+  .final-answer {
+    @apply mt-3 rounded-[9px] p-3.5 font-ui text-[13.5px];
+    line-height: 1.6;
+    color: var(--dim);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+  }
+  .final-answer .fa-lbl {
+    @apply mb-[7px] block font-mono text-[10.5px] uppercase;
+    color: var(--mute);
+    letter-spacing: 0.12em;
+  }
+  .final-answer.muted-by-effect {
+    position: relative;
+  }
+  .final-answer.muted-by-effect::after {
+    content: "not read in effect mode";
+    @apply absolute font-mono text-[10px];
+    top: 11px;
+    right: 13px;
+    color: var(--mute);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .footer-nav {
+    @apply mt-[30px] flex justify-between gap-3.5;
+  }
+
+  .note {
+    @apply mt-4 rounded-lg px-3.5 py-[11px] font-mono text-[11.5px];
+    color: var(--mute);
+    border: 1px dashed var(--line);
+    line-height: 1.6;
+  }
+  .note b {
+    @apply font-semibold;
+    color: var(--amber);
+  }
+
+  /* leaderboard peek */
+  .lb {
+    @apply w-full font-mono text-[12.5px];
+    border-collapse: collapse;
+  }
+  .lb th {
+    @apply px-3 py-2 text-left text-[11px] font-medium uppercase;
+    color: var(--mute);
+    border-bottom: 1px solid var(--line);
+    letter-spacing: 0.06em;
+  }
+  .lb td {
+    @apply px-3 py-[9px];
+    border-bottom: 1px solid var(--line);
+    color: var(--dim);
+  }
+  .lb tr:hover td {
+    background: var(--panel-2);
+  }
+  .lb .m {
+    @apply font-semibold;
+    color: var(--text);
+  }
+  .lb .bar {
+    @apply rounded;
+    height: 7px;
+    background: var(--signal);
+    box-shadow: 0 0 8px var(--signal-dim);
+  }
+  .lb .grp {
+    @apply rounded text-[10px];
+    color: var(--mute);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+  }
+
+  /* bring-your-own-server form (A4) */
+  .byo {
+    @apply mb-[22px] rounded-[12px] px-[18px] py-4;
+    border: 1px dashed var(--line-bright);
+    background: var(--panel);
+  }
+  .byo-title {
+    @apply mb-3 font-mono text-[13px] font-semibold;
+    color: var(--text);
+  }
+  .byo-title span {
+    @apply font-normal;
+    color: var(--mute);
+  }
+  .byo-row {
+    @apply flex flex-wrap gap-2.5;
+  }
+  .byo-input {
+    @apply min-w-[160px] flex-1 rounded-lg px-3 py-2.5 font-mono text-[12.5px];
+    color: var(--text);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+  }
+  .byo-input.byo-cmd {
+    @apply flex-[3];
+    min-width: 280px;
+  }
+  .byo-input:focus {
+    outline: none;
+    border-color: var(--signal);
+  }
+  .byo-input::placeholder {
+    color: var(--mute);
+  }
+  .byo-hint {
+    @apply mt-2.5 font-ui text-[11.5px];
+    color: var(--mute);
+    line-height: 1.5;
+  }
+  .byo-hint code {
+    @apply font-mono;
+    color: var(--dim);
+  }
+
+  .error-banner {
+    @apply mb-3.5 rounded-[9px] px-3.5 py-[11px] font-ui text-[13px];
+    color: var(--alert);
+    border: 1px solid var(--alert);
+    background: var(--alert-dim);
+    line-height: 1.5;
+  }
+  .error-banner b {
+    color: var(--alert);
+  }
+}
+
+/* visible keyboard focus everywhere (A5 demo-safety) */
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* elements that rely on an entrance animation/transition to reach their
+     visible state must not be left hidden when motion is disabled */
+  .trace-line,
+  .ckpt {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

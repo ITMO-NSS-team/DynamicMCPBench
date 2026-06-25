@@ -20,6 +20,17 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **UI restyle — Tailwind v4 + daisyUI v5.** The frontend now builds its CSS
+  through Tailwind + daisyUI (custom `dmcp` dark theme from the original
+  palette) instead of hand-written `styles.css`. Source is `frontend/src/app.css`
+  (`bun run build:css` → committed `frontend/app.css`); `bun run build` emits
+  both JS and CSS bundles, so the demo still runs with no build step. The vanilla
+  TS (`app.ts`) is **unchanged** — every JS-coupled class hook (`.ckpt`,
+  `.verdict-chip`, `.equiv-tool`, `.sel`/`.on`/`.met`/`.unmet`, …) is preserved
+  and re-implemented via `@apply` + the daisyUI token system; daisyUI `btn`
+  carries the static buttons. Verified by re-running the headless four-stage
+  capture (`experiments/capture_screenshot.py`) end to end; the paper figure
+  (`paper_demo/figures/fig_studio.png`) was regenerated.
 - **A4 done — bring-your-own-server.** A visitor can register a read-only MCP
   server at runtime (stdio command or http(s) URL) on Stage 1; the backend
   validates it, enforces the sandbox default-deny (`stateful_write` refused
