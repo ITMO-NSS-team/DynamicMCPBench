@@ -10,8 +10,7 @@
       "glm-5.1"
     ],
     "task_budget": 120,
-    "attempts_per_task": 3,
-    "target_detectable_effect_pp": 5.0
+    "attempts_per_task": 3
   },
   "expected_status": "approved",
   "expected_warning_codes": [],

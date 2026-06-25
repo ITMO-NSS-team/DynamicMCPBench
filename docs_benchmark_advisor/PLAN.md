@@ -115,11 +115,18 @@ or evaluation.
 ## BA2 - Advisor reasoning core
 
 ### BA2.1 - Deterministic validator
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA1.1 BA1.2 BA1.3
 - source: `planning/TASKS/T02-deterministic-validator.md`
+- note: `benchmark_advisor/validator.py` (+ `benchmark_advisor/guide.py` runtime
+  rule-id registry, kept in sync with the doc by a test). Deterministic, no LLM,
+  structured-fields-only. Enforces budget bands, target-vs-MDE power, pass@3
+  repeats, category-claimed coverage, distribution sums + stateful-write/sandbox,
+  diagnostic-not-selection, unknown-guide-id refusal, and clarification on missing
+  candidate models, resolved by the state-matrix precedence
+  refused > clarification > warning > approved.
 - done-when: structured `AdvisorDesign` validation emits deterministic
   approvals, warnings, refusals, and repair suggestions for underpowered budget,
   too few repeats, low cross-server coverage, invalid distributions, overbroad
