@@ -60,13 +60,16 @@ or evaluation.
 ## BA1 - Contracts, guide, and fixtures
 
 ### BA1.1 - Core schema layer
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA0.1
 - source: `planning/TASKS/T01-core-schema.md`
 - note: **[Adopted: D5]** schemas live in a top-level `benchmark_advisor/` package
-  (imported by the studio backend; never inside `dmcp/` core).
+  (imported by the studio backend; never inside `dmcp/` core). Implemented in
+  `benchmark_advisor/schema.py` + `tests/test_benchmark_advisor_schema.py`; the
+  `response_state_violations` helper enforces the state matrix; package added to
+  the hatch wheel targets.
 - done-when: Pydantic v2 schemas exactly match `planning/INTERFACES.md`,
   forbid unknown fields, round-trip golden fixture shapes, include
   `StatisticalGuideReference`, and serialize `ExportConfig`.
