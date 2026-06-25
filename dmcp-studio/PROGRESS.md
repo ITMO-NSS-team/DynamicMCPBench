@@ -20,17 +20,26 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
-- **UI restyle — Tailwind v4 + daisyUI v5.** The frontend now builds its CSS
-  through Tailwind + daisyUI (custom `dmcp` dark theme from the original
-  palette) instead of hand-written `styles.css`. Source is `frontend/src/app.css`
+- **UI redesign — "SIGNAL" instrument identity (Tailwind v4 + daisyUI v5).**
+  The frontend now builds its CSS through Tailwind + daisyUI (custom `dmcp`
+  theme) instead of hand-written `styles.css`, and carries a deliberate art
+  direction: the studio as a **measurement instrument**. A trace is a captured
+  signal, checkpoints are calibration channels, the verdict is a reading off a
+  calibrated scale. Three semantic colour channels used with strict discipline
+  (phosphor = fired/verified/met, reject = unmet/failed, amber = equivalence),
+  a faint measurement **graticule** instead of a glow, **Archivo / Archivo
+  Expanded** instrument typography over JetBrains-Mono readouts, checkpoint
+  rows as **signal-strength channels** (segmented meters), and the signature
+  **verdict readout** (Archivo-Expanded `SOLVED`/`FAILED` over a calibrated
+  tick scale with a fail-state dropout). Source is `frontend/src/app.css`
   (`bun run build:css` → committed `frontend/app.css`); `bun run build` emits
-  both JS and CSS bundles, so the demo still runs with no build step. The vanilla
-  TS (`app.ts`) is **unchanged** — every JS-coupled class hook (`.ckpt`,
-  `.verdict-chip`, `.equiv-tool`, `.sel`/`.on`/`.met`/`.unmet`, …) is preserved
-  and re-implemented via `@apply` + the daisyUI token system; daisyUI `btn`
-  carries the static buttons. Verified by re-running the headless four-stage
-  capture (`experiments/capture_screenshot.py`) end to end; the paper figure
-  (`paper_demo/figures/fig_studio.png`) was regenerated.
+  both JS and CSS bundles, so the demo still runs with no build step. The
+  vanilla TS (`app.ts`) is **unchanged** — every JS-coupled class hook
+  (`.ckpt`, `.verdict-chip`, `.equiv-tool`, `.sel`/`.on`/`.met`/`.unmet`, …) is
+  preserved; the signal meters and verdict scale are pure CSS + decorative
+  static markup over those hooks. Verified by re-running the headless
+  four-stage capture (`experiments/capture_screenshot.py`) end to end; the
+  paper figure (`paper_demo/figures/fig_studio.png`) was regenerated.
 - **A4 done — bring-your-own-server.** A visitor can register a read-only MCP
   server at runtime (stdio command or http(s) URL) on Stage 1; the backend
   validates it, enforces the sandbox default-deny (`stateful_write` refused
