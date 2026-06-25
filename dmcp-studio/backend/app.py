@@ -25,6 +25,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
+from benchmark_advisor import AdvisorRequest, AdvisorValidationRequest
+from benchmark_advisor.service import advisor_design, advisor_validate
+
 from . import dmcp_adapter as adapter
 from . import live, replay_store
 from .models import Mode
@@ -203,6 +206,21 @@ async def score(
 @app.get("/api/leaderboard")
 def leaderboard(mode: Mode = "replay") -> Any:
     return adapter.leaderboard(mode).model_dump()
+
+
+# --- Benchmark Advisor (Stage 0 — Design): pre-run planning gate (BA3.1) -------
+# Deterministic planner -> validator -> export preview. Never launches generation
+# or evaluation, never touches candidate scoring.
+
+
+@app.post("/api/advisor/design")
+def advisor_design_route(body: AdvisorRequest) -> Any:
+    return advisor_design(body).model_dump(mode="json")
+
+
+@app.post("/api/advisor/validate")
+def advisor_validate_route(body: AdvisorValidationRequest) -> Any:
+    return advisor_validate(body).model_dump(mode="json")
 
 
 # Friendly error envelope for the demo (no stack traces to the visitor).
