@@ -1,0 +1,19 @@
+{
+  "id": "final-answer-grading-refusal",
+  "description": "User asks to grade by final-answer match; refused \u2014 effect scoring only.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Score the agents by whether their final answer string matches my reference answer.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 3
+  },
+  "expected_status": "refused",
+  "expected_warning_codes": [],
+  "expected_refusal_code": "unsupported_final_answer_claim",
+  "expected_clarification_missing_fields": []
+}

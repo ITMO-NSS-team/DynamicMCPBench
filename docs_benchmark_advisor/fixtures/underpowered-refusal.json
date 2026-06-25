@@ -1,0 +1,20 @@
+{
+  "id": "underpowered-refusal",
+  "description": "Pairwise model-selection claim with a budget below the confirmatory floor; refused.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Compare two agents and tell me which is better.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 40,
+    "attempts_per_task": 3,
+    "target_detectable_effect_pp": 5.0
+  },
+  "expected_status": "refused",
+  "expected_warning_codes": [],
+  "expected_refusal_code": "insufficient_budget",
+  "expected_clarification_missing_fields": []
+}

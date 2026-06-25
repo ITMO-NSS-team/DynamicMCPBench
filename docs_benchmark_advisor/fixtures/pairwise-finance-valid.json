@@ -1,0 +1,68 @@
+{
+  "id": "pairwise-finance-valid",
+  "description": "Pairwise model selection on long finance workflows with an adequate budget; approved.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Compare two local agents on long, multi-step finance workflows and tell me which is better.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 3,
+    "target_detectable_effect_pp": 5.0
+  },
+  "expected_status": "approved",
+  "expected_warning_codes": [],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "pairwise",
+    "tasks": 120,
+    "attempts_per_task": 3,
+    "criteria": [
+      {
+        "criterion_id": "criterion.primary_power",
+        "purpose": "Detect a meaningful difference in effect pass rate between the two agents.",
+        "estimand": "paired difference in trace-effect pass rate",
+        "null_hypothesis": "the two agents have equal effect pass rate on this distribution",
+        "alternative_hypothesis": "the two agents differ in effect pass rate",
+        "primary_metric": "pairwise_delta_pp",
+        "test_family": "paired_bootstrap",
+        "alpha": 0.05,
+        "beta_or_target_power": 0.8,
+        "minimum_detectable_effect_pp": 5.0,
+        "required_data": [
+          "per_task_effect_pass"
+        ],
+        "decision_rule": "reject the null if the paired bootstrap CI for the delta excludes 0",
+        "allowed_claim": "agent A differs from agent B on the planned task distribution",
+        "failure_modes": [
+          "underpowered if task_budget is too small",
+          "biased if task mix is skewed"
+        ],
+        "confirmatory": true,
+        "guide_references": [
+          {
+            "guide_version": "statistical_guide.v1",
+            "rule_id": "G5.criterion.paired_bootstrap",
+            "section": "G5 - Criterion Selection",
+            "role": "criterion_choice"
+          },
+          {
+            "guide_version": "statistical_guide.v1",
+            "rule_id": "G2.metric.pairwise_delta",
+            "section": "G2 - Estimand And Metric Selection",
+            "role": "metric_choice"
+          }
+        ],
+        "selection_rationale": "the primary question compares two agents on the same planned distribution, so paired task-level resampling is the planned comparison family"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "smoke-test-only",
+  "description": "Tiny exploratory budget; the claim scope must downgrade to a smoke test.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Just a quick smoke check that the pipeline runs against my servers \u2014 nothing rigorous.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 12,
+    "attempts_per_task": 1
+  },
+  "expected_status": "warning",
+  "expected_warning_codes": [
+    "smoke_test_only"
+  ],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "pairwise",
+    "tasks": 12
+  }
+}

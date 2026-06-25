@@ -1,0 +1,29 @@
+{
+  "id": "regression-non-inferiority",
+  "description": "Check whether a new agent build regressed against the incumbent under a non-inferiority margin.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Did our new agent build regress versus the current production agent? Use a 5pp margin.",
+    "mode": "regression",
+    "candidate_models": [
+      "agent-prod",
+      "agent-rc2"
+    ],
+    "task_budget": 80,
+    "attempts_per_task": 3,
+    "target_detectable_effect_pp": 5.0
+  },
+  "expected_status": "approved",
+  "expected_warning_codes": [],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "regression",
+    "tasks": 80,
+    "attempts_per_task": 3
+  }
+}

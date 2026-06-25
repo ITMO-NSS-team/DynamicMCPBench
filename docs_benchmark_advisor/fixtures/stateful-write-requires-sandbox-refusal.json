@@ -1,0 +1,23 @@
+{
+  "id": "stateful-write-requires-sandbox-refusal",
+  "description": "Design requests stateful-write tasks without the required sandbox knob; refused.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Include some write/booking tasks against our calendar server in the comparison.",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 3,
+    "user_overrides": {
+      "stateful_write_ratio": 0.2,
+      "sandbox_required": false
+    }
+  },
+  "expected_status": "refused",
+  "expected_warning_codes": [],
+  "expected_refusal_code": "invalid_distribution",
+  "expected_clarification_missing_fields": []
+}

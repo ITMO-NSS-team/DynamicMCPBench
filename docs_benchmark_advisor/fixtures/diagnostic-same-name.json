@@ -1,0 +1,26 @@
+{
+  "id": "diagnostic-same-name",
+  "description": "Diagnostic slice probing same-name / wrong-server tool confusion; descriptive, not model selection.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Why do agents call the wrong server when two servers expose a same-named tool? Diagnose it.",
+    "mode": "diagnostic",
+    "task_budget": 40,
+    "attempts_per_task": 3,
+    "user_overrides": {
+      "same_name_fraction": 0.4
+    }
+  },
+  "expected_status": "approved",
+  "expected_warning_codes": [],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "diagnostic",
+    "tasks": 40
+  }
+}

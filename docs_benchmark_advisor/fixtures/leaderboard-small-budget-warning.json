@@ -1,0 +1,32 @@
+{
+  "id": "leaderboard-small-budget-warning",
+  "description": "Leaderboard ranking of four models with a budget in the warning band; usable but underpowered.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Rank these four agents on a general deployment mix and give me a leaderboard.",
+    "mode": "leaderboard",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1",
+      "hermes3-8b",
+      "mistral-l3"
+    ],
+    "task_budget": 90,
+    "attempts_per_task": 3
+  },
+  "expected_status": "warning",
+  "expected_warning_codes": [
+    "underpowered_design"
+  ],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "generation_knobs": {
+      "handoff_target": "scripts/build_corpus.py",
+      "dry_run_only": true
+    },
+    "mode": "leaderboard",
+    "tasks": 90,
+    "attempts_per_task": 3
+  }
+}
