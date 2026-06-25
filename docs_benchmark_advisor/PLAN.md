@@ -171,11 +171,16 @@ or evaluation.
 ## BA3 - Studio surface and export preview
 
 ### BA3.1 - Studio API routes
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA2.1 BA2.2 BA2.3 BA1.3
 - source: `planning/TASKS/T05-studio-api.md`
+- note: composition in `benchmark_advisor/service.py` (planner→validator→export,
+  state-matrix-correct `AdvisorResponse`); thin routes `POST /api/advisor/design`
+  and `POST /api/advisor/validate` in `dmcp-studio/backend/app.py`. Tests:
+  `tests/test_benchmark_advisor_service.py` + `dmcp-studio/backend/tests/test_studio_advisor.py`.
+  No generation/eval launched; existing studio routes still green.
 - done-when: Studio exposes `POST /api/advisor/design` and
   `POST /api/advisor/validate`; route tests use golden fixtures; responses are
   schema-valid and include warnings/refusals/export preview without launching
@@ -197,11 +202,15 @@ or evaluation.
   parameters using fixture/API shapes only.
 
 ### BA3.3 - Export handoff preview
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-25
 - deps: BA1.1 BA3.1
 - source: `planning/TASKS/T07-export-handoff.md`
+- note: `benchmark_advisor/export.py` builds the JSON `ExportConfig` (dry-run-only
+  guard, mode→goal_strategy, distractors mirror, sandbox rule) for approved/warning
+  designs only; refused/clarification expose no export. `tests/test_benchmark_advisor_export.py`.
+  Bundled with BA3.1 since the service needs the export builder.
 - done-when: approved/warning designs produce generation-ready JSON shape and
   missing required knobs fail validation; no `goal-gen`, `explore`, `distill`,
   or `eval` path is launched.
