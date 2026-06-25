@@ -161,6 +161,9 @@ const stages = [...document.querySelectorAll<HTMLElement>(".stage")];
 const steps = [...document.querySelectorAll<HTMLElement>(".step")];
 function gotoStep(i: number): void {
   state.step = i;
+  // leaving Stage 0 — Design (managed outside the .stage/.step index arrays)
+  document.getElementById("stage-design")?.classList.remove("active");
+  document.getElementById("stepDesign")?.classList.remove("active");
   stages.forEach((s, k) => s.classList.toggle("active", k === i));
   steps.forEach((s, k) => {
     s.classList.toggle("active", k === i);
@@ -758,5 +761,207 @@ $("showLb").addEventListener("click", async () => {
   }
 });
 
+/* ---------------- stage 0: design (Benchmark Advisor) ---------------- */
+type DStatus = "approved" | "warning" | "refused" | "needs_clarification";
+interface DWarning {
+  severity: string;
+  code: string;
+  message: string;
+  statistical_reason: string | null;
+  repair_suggestion: string;
+}
+interface DRefusal {
+  code: string;
+  reason: string;
+  statistical_reason: string;
+  repair_options: string[];
+}
+interface DClar {
+  missing_fields: string[];
+  questions: string[];
+  why_needed: string;
+}
+interface DEvidence {
+  parameter: string;
+  value: unknown;
+  intent_evidence: string | null;
+  statistical_rationale: string;
+  guide_references: { rule_id: string }[];
+  hover_text: string;
+}
+interface DResponse {
+  status: DStatus;
+  warnings: DWarning[];
+  refusal: DRefusal | null;
+  clarification: DClar | null;
+  evidence_ledger: DEvidence[];
+  export_config: unknown | null;
+  design: unknown | null;
+}
+
+const dStage = document.getElementById("stage-design");
+const dStepChip = document.getElementById("stepDesign");
+let dMode = "pairwise";
+let dReqId = 0;
+let dDebounce: number | undefined;
+
+const D_VERDICT: Record<DStatus, { chip: string; cls: string; mode: string }> = {
+  approved: { chip: "APPROVED", cls: "dv-approved", mode: "design is statistically defensible" },
+  warning: { chip: "WARNING", cls: "dv-warning", mode: "usable design, with caveats" },
+  refused: { chip: "REFUSED", cls: "dv-refused", mode: "this design would fool you" },
+  needs_clarification: { chip: "CLARIFY", cls: "dv-clarify", mode: "needs more to plan" },
+};
+
+function esc(s: unknown): string {
+  return String(s).replace(
+    /[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string,
+  );
+}
+
+function dModels(): string[] {
+  return ($("dModels") as HTMLInputElement).value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function dBuildRequest(): Record<string, unknown> {
+  const target = Number(($("dTarget") as HTMLInputElement).value);
+  const req: Record<string, unknown> = {
+    schema_version: "benchmark_advisor.v1",
+    intent: ($("dIntent") as HTMLTextAreaElement).value.trim() || "Compare two agents.",
+    mode: dMode,
+    task_budget: Number(($("dBudget") as HTMLInputElement).value),
+    attempts_per_task: Number(($("dAttempts") as HTMLInputElement).value),
+    candidate_models: dModels(),
+  };
+  if (target > 0) req.target_detectable_effect_pp = target;
+  return req;
+}
+
+function dCard(kind: string, head: string, body: string, stat: string | null, repairs: string[]): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "d-card " + kind;
+  const repair = repairs.length ? `<div class="d-repair">→ ${repairs.map(esc).join(" · ")}</div>` : "";
+  const reason = stat ? `${esc(body)} <span style="color:var(--mute)">(${esc(stat)})</span>` : esc(body);
+  el.innerHTML = `<div class="d-card-h">${esc(head)}</div>${reason}${repair}`;
+  return el;
+}
+
+function dEvRow(e: DEvidence): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "d-ev";
+  const rules = e.guide_references.map((g) => `<span class="d-rule">${esc(g.rule_id)}</span>`).join("");
+  const val = typeof e.value === "object" ? JSON.stringify(e.value) : String(e.value);
+  el.innerHTML =
+    `<div><div class="d-ev-param">${esc(e.parameter)}</div><div class="d-ev-rules">${rules}</div></div>` +
+    `<div class="d-ev-val">${esc(val)}</div>` +
+    `<div class="d-ev-hover">${esc(e.hover_text)}</div>`;
+  return el;
+}
+
+function dRender(r: DResponse): void {
+  const v = D_VERDICT[r.status];
+  const bar = $("dVerdictBar");
+  bar.classList.remove("dv-approved", "dv-warning", "dv-refused", "dv-clarify");
+  bar.classList.add(v.cls);
+  $("dVerdictChip").textContent = v.chip;
+  $("dVerdictMode").textContent = v.mode;
+  $("dStatusSub").textContent = r.status.replace("_", " ");
+  $("dSummary").textContent = `${dMode} · ${dModels().length} model${dModels().length === 1 ? "" : "s"}`;
+
+  let why: string;
+  if (r.status === "refused" && r.refusal) why = `${r.refusal.reason} ${r.refusal.statistical_reason}`;
+  else if (r.status === "needs_clarification" && r.clarification) why = r.clarification.why_needed;
+  else if (r.status === "warning")
+    why = `${r.warnings.length} warning${r.warnings.length === 1 ? "" : "s"} — usable, but the claim is bounded.`;
+  else why = "The planned design supports the claim within its stated boundary; every parameter cites a guide rule.";
+  $("dVerdictText").textContent = why;
+
+  const cards = $("dCards");
+  cards.innerHTML = "";
+  if (r.refusal)
+    cards.appendChild(
+      dCard("refuse", "refused · " + r.refusal.code, r.refusal.reason, r.refusal.statistical_reason, r.refusal.repair_options),
+    );
+  if (r.clarification)
+    cards.appendChild(dCard("clarify", "needs clarification", r.clarification.why_needed, null, r.clarification.questions));
+  r.warnings.forEach((w) => cards.appendChild(dCard("warn", w.code, w.message, w.statistical_reason, [w.repair_suggestion])));
+
+  const led = $("dLedger");
+  led.innerHTML = "";
+  if (r.evidence_ledger.length === 0)
+    led.innerHTML = '<div class="empty">Rationale appears once a design is proposed.</div>';
+  r.evidence_ledger.forEach((e) => led.appendChild(dEvRow(e)));
+
+  $("dExport").textContent = r.export_config
+    ? JSON.stringify(r.export_config, null, 2)
+    : "— no export (design refused or needs clarification)";
+  $("dExportSub").textContent = r.export_config ? "dry-run only · no run launched" : "unavailable";
+
+  ($("dProceed") as HTMLButtonElement).disabled = !(r.status === "approved" || r.status === "warning");
+}
+
+async function dRun(): Promise<void> {
+  const myId = ++dReqId;
+  let resp: DResponse;
+  try {
+    resp = await postJSON<DResponse>("/api/advisor/design", dBuildRequest());
+  } catch {
+    $("dVerdictMode").textContent = "advisor unavailable";
+    return;
+  }
+  if (myId !== dReqId) return; // a newer keystroke/drag superseded this request
+  dRender(resp);
+}
+
+function dScheduleRun(): void {
+  window.clearTimeout(dDebounce);
+  dDebounce = window.setTimeout(() => void dRun(), 180);
+}
+
+function showDesign(): void {
+  stages.forEach((s) => s.classList.remove("active"));
+  steps.forEach((s) => s.classList.remove("active"));
+  dStage?.classList.add("active");
+  dStepChip?.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+dStepChip?.addEventListener("click", showDesign);
+$("dMode").addEventListener("click", (e) => {
+  const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button");
+  if (!b) return;
+  dMode = b.dataset.m as string;
+  $("dMode")
+    .querySelectorAll<HTMLElement>("button")
+    .forEach((x) => x.classList.toggle("on", x === b));
+  dScheduleRun();
+});
+($("dIntent") as HTMLTextAreaElement).addEventListener("input", dScheduleRun);
+($("dModels") as HTMLInputElement).addEventListener("input", dScheduleRun);
+const dBudgetEl = $("dBudget") as HTMLInputElement;
+dBudgetEl.addEventListener("input", () => {
+  $("dBudgetVal").textContent = dBudgetEl.value;
+  dScheduleRun();
+});
+const dAttemptsEl = $("dAttempts") as HTMLInputElement;
+dAttemptsEl.addEventListener("input", () => {
+  $("dAttemptsVal").textContent = dAttemptsEl.value;
+  dScheduleRun();
+});
+const dTargetEl = $("dTarget") as HTMLInputElement;
+dTargetEl.addEventListener("input", () => {
+  const t = Number(dTargetEl.value);
+  $("dTargetVal").textContent = t > 0 ? `${t} pp` : "not set";
+  dScheduleRun();
+});
+$("dProceed").addEventListener("click", () => {
+  gotoStep(0);
+  void loadServers();
+});
+
 /* ---------------- init ---------------- */
+void dRun(); // populate Stage 0 — Design (active on boot)
 void loadServers();
