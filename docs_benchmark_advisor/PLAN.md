@@ -225,25 +225,33 @@ or evaluation.
 ## BA4 - Integration and hardening
 
 ### BA4.1 - End-to-end integration smoke
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-26
 - deps: BA3.1 BA3.2 BA3.3 BA1.3
 - source: `planning/TASKS/T09-integration-smoke.md`
+- note: `tests/test_benchmark_advisor_integration.py` — intent→export across
+  core/planner/validator/service/export, refused & clarification not exportable,
+  a static guard that the advisor never imports generation/eval modules, and a
+  Stage-0-UI-wired-to-the-API check. Browser-level smoke is `capture_screenshot.py`
+  (both figures regenerate). Studio route smoke in `test_studio_advisor.py`.
 - done-when: a demo scenario runs from intent to user-approved export preview
   across core, planner, validator, API, UI, and export adapter; backend route
   smoke, UI build/render check, and export validation pass; no benchmark run is
   launched.
 
 ### BA4.2 - Hardening review
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: jrzkaminski
+- claimed_at: 2026-06-26
 - deps: BA4.1
 - source: `planning/TASKS/T10-hardening-review.md`
-- note: **[Adopted: D4]** trimmed for the paper to a representative adversarial
-  subset (overclaiming, missing/unknown guide refs, refusal, invariant checks)
-  rather than full gold-plating; the rest stays backlog.
+- note: **[Adopted: D4]** trimmed to a representative adversarial subset.
+  `tests/test_benchmark_advisor_hardening.py` (invalid distribution, overbroad
+  diagnostic, unknown guide id, final-answer, stateful/sandbox, budget boundaries,
+  banned-overclaim sweep, state-matrix cleanliness, no-export rule, Stage-2 stays
+  declared-only). `docs_benchmark_advisor/LIMITATIONS.md` lists allowed/disallowed
+  claims and makes the statistical-knowledge sources explicit.
 - done-when: adversarial tests cover overclaiming, missing/unknown guide
   references, invalid designs, refusal behavior, invariant violations, and
   accidental Stage 2 scope creep; docs explain limitations clearly.
