@@ -110,6 +110,18 @@ or evaluation.
   fixtures conform to `planning/INTERFACES.md` and are ready to parse against
   schemas once BA1.1 lands.
 
+### BA1.4 - Statistical guide extension for distractor and domain intent
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA1.2
+- source: user follow-up on advisor intent extraction; `planning/STATISTICAL_GUIDE.md`
+- done-when: `STATISTICAL_GUIDE.md` includes v1 rule ids and source rationale
+  for short/medium/long workflow intent, domain/category extraction such as
+  finance, hard-negative / near-miss / same-name distractor pressure, and the
+  boundary between diagnostic distractor-heavy designs and confirmatory pairwise
+  designs; runtime guide registry and tests know the new `G3.*` ids.
+
 ---
 
 ## BA2 - Advisor reasoning core
@@ -165,6 +177,31 @@ or evaluation.
 - done-when: pre-run CI width, MDE/power heuristics, coverage diagnostics, and
   warning thresholds are deterministic, tested, and labeled as planning
   heuristics rather than final inference.
+
+### BA2.4 - Intent extraction and distribution tuning
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA2.2 BA2.1 BA1.2 BA1.4
+- source: user follow-up on advisor demo query; `planning/TASKS/T03-planner-adapter.md`
+- done-when: deterministic planner extracts domain, chain-length, distractor,
+  and diagnostic-pressure signals from user intent. The query "Compare two local
+  agents on short step finance workflows and tell me which is better. There
+  should be hard negative tools with similar names that would test them" remains
+  pairwise, raises short-chain coverage, includes finance/domain and distractor
+  pressure categories, raises same-name and near-miss distractor fractions above
+  defaults, and records evidence-ledger rationale for those choices.
+
+### BA2.5 - Validator checks for distractor-pressure claims
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA1.4 BA2.1 BA2.4
+- source: user follow-up on advisor demo query; `planning/TASKS/T02-deterministic-validator.md`
+- done-when: if structured categories claim `same_name`, `near_miss`, or
+  `hard_negative` pressure, validator checks corresponding distractor fractions
+  against documented thresholds and emits deterministic warning/refusal rather
+  than silently approving default-low distractor pressure.
 
 ---
 

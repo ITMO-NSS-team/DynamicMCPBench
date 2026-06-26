@@ -24,6 +24,8 @@ M1-B.
   `INTERFACES.md`.
 - Enforce required statistical-guide references for criteria and rationale
   entries.
+- Enforce distractor-pressure thresholds when structured categories claim
+  same-name, near-miss, or hard-negative pressure.
 
 ## Out Of Scope
 
@@ -73,6 +75,8 @@ M1-B.
 - Low cross-server coverage warns/refuses for cross-server intent/design.
 - Long-workflow design with low long-chain coverage warns.
 - Recovery design with low recovery coverage warns/refuses.
+- Same-name / near-miss / hard-negative category claims with default-low
+  distractor fractions warn or refuse.
 - Threshold boundary cases match `INTERFACES.md`.
 - `needs_clarification` returns clarification fields and no export config.
 - Overbroad claim is refused.
@@ -92,6 +96,8 @@ M1-B.
 - Warning responses preserve warnings inside export config.
 - Validator does not judge free-form rationale quality, but it verifies required
   guide-reference presence and consistency.
+- Validator does not silently approve a design whose structured distractor
+  categories are unsupported by its distractor fractions.
 
 ## Integration Notes
 

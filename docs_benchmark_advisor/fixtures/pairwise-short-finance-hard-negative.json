@@ -1,0 +1,42 @@
+{
+  "id": "pairwise-short-finance-hard-negative",
+  "description": "Pairwise model selection on short finance workflows with hard-negative and similar-name distractor pressure.",
+  "request": {
+    "schema_version": "benchmark_advisor.v1",
+    "intent": "Compare two local agents on short step finance workflows and tell me which is better. There should be hard negative tools with similar names that would test them",
+    "mode": "pairwise",
+    "candidate_models": [
+      "qwen3.7-max",
+      "glm-5.1"
+    ],
+    "task_budget": 120,
+    "attempts_per_task": 1
+  },
+  "expected_status": "approved",
+  "expected_warning_codes": [],
+  "expected_refusal_code": null,
+  "expected_clarification_missing_fields": [],
+  "expected_export_subset": {
+    "mode": "pairwise",
+    "tasks": 120,
+    "attempts_per_task": 1,
+    "task_distribution": {
+      "short_chain": 0.65,
+      "medium_chain": 0.25,
+      "long_chain": 0.1,
+      "categories": [
+        "finance",
+        "short_chain",
+        "same_name",
+        "near_miss",
+        "hard_negative"
+      ],
+      "distractors": {
+        "same_name_fraction": 0.4,
+        "near_miss_fraction": 0.35,
+        "cross_domain_fraction": 0.0,
+        "random_fraction": 0.0
+      }
+    }
+  }
+}

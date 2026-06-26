@@ -33,6 +33,10 @@ statistical rules.
   what was read, why it is relevant, and which rule families it supports.
 - Map user intent patterns to modes, estimands, metrics, criteria, task
   distribution implications, budget/power rules, and claim boundaries.
+- Add explicit guide rules for short/medium/long workflow intent,
+  domain/category extraction such as finance, hard-negative / near-miss /
+  same-name distractor pressure, and diagnostic-vs-confirmatory boundaries for
+  distractor-heavy designs.
 - Provide good/bad rationale examples for planner prompts and UI hover text.
 - Define which guide rules are mandatory for each mode and criterion family.
 - Distinguish evidence-backed rules from expert defaults and demo-oriented
@@ -95,6 +99,8 @@ statistical rules.
   docs exists in `STATISTICAL_GUIDE.md`.
 - Manual checklist: every mode has at least one intent rule, metric rule,
   criterion rule, claim-boundary rule, and rationale rule.
+- Manual checklist: workflow-length, domain, and distractor-pressure rules are
+  concrete enough for deterministic planner tests.
 - Manual checklist: guide contains examples of good and bad rationale text.
 
 ## Acceptance Criteria

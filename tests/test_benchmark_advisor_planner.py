@@ -139,3 +139,22 @@ def test_planner_is_deterministic():
     a, b = plan(req), plan(req)
     assert a.design.model_dump() == b.design.model_dump()
     assert [e.model_dump() for e in a.evidence_ledger] == [e.model_dump() for e in b.evidence_ledger]
+
+
+def test_short_finance_hard_negative_intent_tunes_distribution():
+    req = AdvisorRequest.model_validate(fx.load("pairwise-short-finance-hard-negative")["request"])
+    pr = plan(req)
+    assert pr.design.mode == "pairwise"
+
+    td = pr.design.task_distribution
+    assert {"finance", "short_chain", "same_name", "near_miss", "hard_negative"}.issubset(set(td.categories))
+    assert td.short_chain > td.medium_chain
+    assert td.short_chain > td.long_chain
+    assert td.distractors.same_name_fraction > 0.1
+    assert td.distractors.near_miss_fraction > 0.1
+
+    params = {e.parameter for e in pr.evidence_ledger}
+    assert "task_distribution.short_chain" in params
+    assert "task_distribution.categories" in params
+    assert "task_distribution.distractors.same_name_fraction" in params
+    assert "task_distribution.distractors.near_miss_fraction" in params

@@ -21,6 +21,8 @@ M1-B.
 - Add prompt/rule template for intent-to-design.
 - Return structured `AdvisorDesign` candidates.
 - Support pairwise, leaderboard, regression, and diagnostic intents.
+- Extract domain/category, workflow-length, and distractor-pressure signals from
+  user intent when these are explicit.
 - Ground every criterion and major user-visible parameter in
   `STATISTICAL_GUIDE.md` rule ids.
 - Populate rationale fields for future UI hover/popover display.
@@ -75,6 +77,9 @@ M1-B.
 - Planner output cites known guide rule ids for every criterion.
 - Planner output includes hover-ready rationale text for primary metric, task
   budget, attempts, task distribution, and selected criteria.
+- Exact demo query for short finance workflows with hard negative tools and
+  similar names produces raised short-chain and distractor pressure instead of
+  falling back to `general` defaults.
 
 ## Acceptance Criteria
 
@@ -82,6 +87,8 @@ M1-B.
 - Validator remains authoritative and is not bypassed.
 - Planner fills `intent_evidence`; defaults without evidence are marked as such
   in the evidence ledger downstream.
+- Planner maps explicit short workflow, finance/domain, hard-negative, near-miss,
+  and same-name intent to structured categories/distribution fields.
 - Planner does not rely on unstated "LLM statistical intuition"; choices are
   traceable to guide rules.
 - LLM/network behavior, if present, is abstracted so tests can run with mocked

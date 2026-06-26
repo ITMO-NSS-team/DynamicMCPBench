@@ -79,6 +79,8 @@ Fixtures include:
 - final-answer-grading refusal;
 - missing-generation-knobs invalid export.
 - guide-backed rationale / hover explanation.
+- pairwise short finance workflow with hard-negative / similar-name distractor
+  pressure, matching the Studio demo regression query.
 
 ## Integration Notes
 

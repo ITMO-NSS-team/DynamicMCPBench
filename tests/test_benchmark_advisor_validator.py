@@ -224,6 +224,42 @@ def test_low_recovery_coverage_warns_when_claimed():
     assert "insufficient_recovery_coverage" in codes(out)
 
 
+def test_low_distractor_pressure_warns_when_claimed():
+    out = validate_design(
+        design(
+            task_distribution={
+                "categories": ["same_name", "near_miss", "hard_negative"],
+                "distractors": {
+                    "same_name_fraction": 0.1,
+                    "near_miss_fraction": 0.1,
+                    "cross_domain_fraction": 0.0,
+                    "random_fraction": 0.0,
+                },
+            }
+        )
+    )
+    assert out.status == "warning"
+    assert "task_mix_bias" in codes(out)
+
+
+def test_very_low_distractor_pressure_refused_when_claimed():
+    out = validate_design(
+        design(
+            task_distribution={
+                "categories": ["hard_negative"],
+                "distractors": {
+                    "same_name_fraction": 0.0,
+                    "near_miss_fraction": 0.05,
+                    "cross_domain_fraction": 0.0,
+                    "random_fraction": 0.0,
+                },
+            }
+        )
+    )
+    assert out.status == "refused"
+    assert out.refusal.code == "cannot_support_claim"
+
+
 # --- distribution + invariants ------------------------------------------------
 
 
