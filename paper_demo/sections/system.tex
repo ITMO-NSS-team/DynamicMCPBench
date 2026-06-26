@@ -17,6 +17,29 @@ paper reports.
 
 \input{figures/architecture}
 
+\subsection{Stage 0: designing the benchmark}
+\label{sec:advisor}
+
+Before any server is touched, a pre-run \emph{design} stage fronts the pipeline
+(Figure~\ref{fig:advisor}). The Benchmark Advisor turns a natural-language
+evaluation question into a structured, statistically grounded design and---
+crucially---refuses the ones that cannot support the claim. It follows one rule:
+a planner \emph{proposes}, a deterministic validator \emph{decides}, and the UI
+\emph{explains}, with every parameter citing a rule from a versioned statistical
+guide. The signature control mirrors the verdict flip of the scoring stage:
+dragging the \textbf{task-budget} slider re-plans live and flips the verdict
+across three channels---\textsf{approved}, \textsf{warning}, \textsf{refused}.
+The honesty is the point. At demo budgets (40--150 tasks) a two-proportion
+design detects only a 16--31 percentage-point difference, so a request to detect
+a 5-point effect with 120 tasks is \emph{refused}, not quietly accepted. Approved
+or warning designs export a dry-run JSON config for the existing generation
+pipeline; refused or under-specified designs export nothing, and the advisor
+never launches a run---it gates one. Like the rest of the studio the planner is
+deterministic by default (booth-safe REPLAY), so the same question yields the
+same design twice.
+
+\input{figures/advisor_screenshot}
+
 \subsection{Four stages}
 
 \paragraph{1. Collect.} The visitor points the studio at MCP servers---the
