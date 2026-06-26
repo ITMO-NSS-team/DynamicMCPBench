@@ -50,7 +50,9 @@ application that wraps the existing DynamicMCPBench pipeline and walks a
 visitor through it in four live stages---\emph{collect} servers,
 \emph{explore} a generated goal into a reference trace, \emph{distill} that
 trace into a TaskSpec of effect checkpoints, and \emph{score} a candidate
-against them (Figure~\ref{fig:studio}). The studio's centerpiece is a single
+against them (Figure~\ref{fig:studio})---fronted by a pre-run \emph{design}
+gate that refuses statistically indefensible benchmarks before they are
+generated (Stage~0, \S\ref{sec:advisor}). The studio's centerpiece is a single
 control: an \textbf{Effect\,$\rightleftharpoons$\,Answer toggle} that grades
 one candidate run under both regimes and flips the verdict on screen. Three
 curated cases make the disagreement concrete: (1)~a clean pass that reaches
