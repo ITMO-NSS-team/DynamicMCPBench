@@ -54,13 +54,19 @@ budget for confirmatory slices.
 | rule_id | Intent signal | Distribution implication |
 |---|---|---|
 | `G3.coverage.long_workflows` | long, multi-step, production workflows | long-chain ratio should be at least validator approved threshold |
+| `G3.coverage.short_workflows` | short, low-step, quick workflows | short-chain ratio should be raised above the balanced default |
 | `G3.coverage.cross_server` | cross-server composition, orchestration, wrong-server risk | cross-server ratio should be at least validator approved threshold |
 | `G3.coverage.recovery` | recovery, failure handling, robustness | recovery-required ratio should be at least validator approved threshold |
 | `G3.coverage.same_name` | same-name, homonym, wrong-server diagnostic | include same-name diagnostic slice and distractor pressure |
+| `G3.distractor.hard_negative` | hard negatives, similar tools, confusing alternatives | increase near-miss / hard-negative distractor pressure |
+| `G3.distractor.near_miss` | similar names, near-name collisions, near-miss tools | increase near-miss distractor pressure |
+| `G3.domain.finance` | finance workflows, market data, financial analysis | include finance as a planned task category |
 | `G3.coverage.stateful` | stateful-write tasks | require sandbox flag in export knobs |
 
 Planner requirement: when a user intent explicitly names a capability, the
 distribution must allocate coverage to that capability or explain why it cannot.
+Domain and distractor signals are first-class intent signals: they should not
+fall back to `general` when explicitly present.
 
 ### G4 - Budget, Power, And Repeats
 

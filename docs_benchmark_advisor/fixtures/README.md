@@ -28,6 +28,7 @@ enforces this.
 | id | mode | expected | covers |
 |---|---|---|---|
 | `pairwise-finance-valid` | pairwise | approved | happy path; guide-backed criterion in export |
+| `pairwise-short-finance-hard-negative` | pairwise | approved | short finance workflows with hard-negative / similar-name distractor pressure |
 | `leaderboard-small-budget-warning` | leaderboard | warning `underpowered_design` | budget in the leaderboard warning band |
 | `regression-non-inferiority` | regression | approved | non-inferiority margin framing |
 | `diagnostic-same-name` | diagnostic | approved | same-name / wrong-server diagnostic slice |
@@ -42,4 +43,5 @@ enforces this.
 | `final-answer-grading-refusal` | pairwise | refused `unsupported_final_answer_claim` | final-answer grading is forbidden |
 | `stateful-write-requires-sandbox-refusal` | pairwise | refused `invalid_distribution` | stateful-write without the sandbox knob |
 
-14 fixtures spanning every response state and every validator threshold family.
+15 fixtures spanning every response state, every validator threshold family, and
+the short-finance hard-negative demo regression query.

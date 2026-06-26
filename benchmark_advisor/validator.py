@@ -49,6 +49,13 @@ COVERAGE_CLAIMS: dict[str, tuple[str, str]] = {
     "recovery": ("recovery_required_ratio", "insufficient_recovery_coverage"),
 }
 
+DISTRACTOR_CLAIMS: dict[str, tuple[str, float, float]] = {
+    # marker -> (DistractorPolicy attribute, approved_floor, warning_floor)
+    "same_name": ("same_name_fraction", 0.25, 0.10),
+    "near_miss": ("near_miss_fraction", 0.25, 0.10),
+    "hard_negative": ("near_miss_fraction", 0.25, 0.10),
+}
+
 CONFIRMATORY_SCOPES = frozenset({"confirmatory_model_selection", "leaderboard_ranking"})
 _TOL = 0.001
 
@@ -299,6 +306,30 @@ def validate_design(design: AdvisorDesign, *, sandbox_required: bool | None = No
                     )
                 )
 
+    for marker, (attr, approved_floor, warning_floor) in DISTRACTOR_CLAIMS.items():
+        if marker in td.categories:
+            planned = getattr(td.distractors, attr)
+            if planned < warning_floor:
+                refusals.append(
+                    _refuse(
+                        "cannot_support_claim",
+                        f"Planned {marker} distractor pressure {planned:.2f} is too low.",
+                        f"{attr} {planned:.2f} below minimum {warning_floor:.2f}",
+                        crit_id,
+                        [f"Raise {attr} to at least {approved_floor:.2f}, or drop the {marker} claim."],
+                    )
+                )
+            elif planned < approved_floor:
+                warnings.append(
+                    _warn(
+                        "task_mix_bias",
+                        f"Planned {marker} distractor pressure {planned:.2f} is in the warning band.",
+                        f"Raise {attr} to >= {approved_floor:.2f} for an approved "
+                        "distractor-pressure design.",
+                        criterion=crit_id,
+                        stat=f"{warning_floor:.2f} <= {planned:.2f} < {approved_floor:.2f}",
+                    )
+                )
     # 9. Secondary slice limits.
     max_conf = max(1, design.task_budget // 40)
     max_diag = max(1, design.task_budget // 25)

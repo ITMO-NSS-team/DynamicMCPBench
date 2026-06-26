@@ -30,6 +30,22 @@ def test_design_route_returns_schema_valid_approved_response():
     assert body["validation_report_stub"]["implemented"] is False
 
 
+def test_design_route_tunes_short_finance_hard_negative_query():
+    r = client.post("/api/advisor/design", json=_request("pairwise-short-finance-hard-negative"))
+    assert r.status_code == 200
+    body = r.json()
+    td = body["design"]["task_distribution"]
+    assert body["status"] == "approved"
+    assert {"finance", "short_chain", "same_name", "near_miss", "hard_negative"}.issubset(
+        set(td["categories"])
+    )
+    assert td["short_chain"] > td["medium_chain"]
+    assert td["short_chain"] > td["long_chain"]
+    assert td["distractors"]["same_name_fraction"] > 0.1
+    assert td["distractors"]["near_miss_fraction"] > 0.1
+    assert body["export_config"] is not None
+
+
 def test_design_route_warning_includes_cards():
     r = client.post("/api/advisor/design", json=_request("leaderboard-small-budget-warning"))
     assert r.status_code == 200

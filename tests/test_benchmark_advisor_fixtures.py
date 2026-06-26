@@ -24,6 +24,7 @@ IDS = [f["id"] for f in ALL]
 # Scenarios T08 requires the fixture set to cover.
 REQUIRED_IDS = {
     "pairwise-finance-valid",
+    "pairwise-short-finance-hard-negative",
     "leaderboard-small-budget-warning",
     "regression-non-inferiority",
     "diagnostic-same-name",
@@ -49,7 +50,7 @@ REQUIRED_FIELDS = {
 
 
 def test_at_least_ten_fixtures():
-    assert len(ALL) >= 10
+    assert len(ALL) >= 15
 
 
 def test_ids_are_unique_stable_and_match_filename():

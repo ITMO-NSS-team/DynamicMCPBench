@@ -43,8 +43,12 @@ _SMOKE = ("smoke", "quick check", "nothing rigorous", "sanity check", "just test
 _RELIABILITY = ("reliab", "repeated attempt", "across repeats", "pass@3", "pass at 3")
 _CROSS_SERVER = ("cross-server", "cross server", "orchestrat", "across our", "across the")
 _LONG_CHAIN = ("long,", "long ", "multi-step", "end to end", "end-to-end")
+_SHORT_CHAIN = ("short step", "short-step", "short workflow", "short workflows", "short chain")
 _RECOVERY = ("recover", "retry", "retries", "failed tool", "failure handling", "robust")
-_SAME_NAME = ("same-name", "same name", "same-named", "wrong server", "homonym")
+_SAME_NAME = ("same-name", "same name", "same-named", "similar names", "wrong server", "homonym")
+_HARD_NEGATIVE = ("hard negative", "hard-negative", "hard neg", "hard-neg", "confusing alternative")
+_NEAR_MISS = ("near miss", "near-miss", "similar tool", "similar tools", "similar names")
+_FINANCE = ("finance", "financial", "market data", "stocks", "portfolio")
 
 _SECTIONS = {
     "G1": "G1 - Intent To Mode",
@@ -222,8 +226,12 @@ def plan(request) -> PlannerResult:
     wants_reliability = _has(intent, _RELIABILITY)
     claims_cross = _has(intent, _CROSS_SERVER)
     claims_long = _has(intent, _LONG_CHAIN)
+    claims_short = _has(intent, _SHORT_CHAIN)
     claims_recovery = _has(intent, _RECOVERY)
     claims_same_name = _has(intent, _SAME_NAME)
+    claims_hard_negative = _has(intent, _HARD_NEGATIVE)
+    claims_near_miss = _has(intent, _NEAR_MISS) or claims_hard_negative
+    claims_finance = _has(intent, _FINANCE)
 
     profile = dict(_MODE_PROFILE[request.mode])
     scope = "smoke_test_only" if is_smoke else profile["scope"]
@@ -243,11 +251,17 @@ def plan(request) -> PlannerResult:
         crit_refs = [_ref(profile["crit_rule"], "criterion_choice"), _ref("G2.metric.pass3", "metric_choice")]
 
     # --- task distribution -----------------------------------------------------
-    if claims_long:
+    if claims_short and not claims_long:
+        short, medium, long = 0.65, 0.25, 0.10
+    elif claims_long:
         short, medium, long = 0.2, 0.3, 0.5
     else:
         short, medium, long = 0.3, 0.4, 0.3
     categories: list[str] = []
+    if claims_finance:
+        categories.append("finance")
+    if claims_short:
+        categories.append("short_chain")
     if claims_cross:
         categories.append("cross_server")
     if claims_long:
@@ -256,6 +270,10 @@ def plan(request) -> PlannerResult:
         categories.append("recovery")
     if claims_same_name:
         categories.append("same_name")
+    if claims_near_miss:
+        categories.append("near_miss")
+    if claims_hard_negative:
+        categories.append("hard_negative")
     if not categories:
         categories.append("general")
 
@@ -281,7 +299,7 @@ def plan(request) -> PlannerResult:
         "categories": categories,
         "distractors": {
             "same_name_fraction": 0.4 if claims_same_name else 0.1,
-            "near_miss_fraction": 0.1,
+            "near_miss_fraction": 0.35 if claims_hard_negative else (0.3 if claims_near_miss else 0.1),
             "cross_domain_fraction": 0.0,
             "random_fraction": 0.0,
         },
@@ -408,23 +426,37 @@ def _build_ledger(
     )
 
     coverage_rule = {
+        "finance": "G3.domain.finance",
+        "short_chain": "G3.coverage.short_workflows",
         "cross_server": "G3.coverage.cross_server",
         "long_chain": "G3.coverage.long_workflows",
         "recovery": "G3.coverage.recovery",
         "same_name": "G3.coverage.same_name",
+        "near_miss": "G3.distractor.near_miss",
+        "hard_negative": "G3.distractor.hard_negative",
     }
     coverage_attr = {
+        "finance": "categories",
+        "short_chain": "short_chain",
         "cross_server": "cross_server_ratio",
         "long_chain": "long_chain",
         "recovery": "recovery_required_ratio",
+        "same_name": "distractors.same_name_fraction",
+        "near_miss": "distractors.near_miss_fraction",
+        "hard_negative": "distractors.near_miss_fraction",
     }
     claimed = [c for c in categories if c in coverage_rule]
     if claimed:
         for cap in claimed:
+            attr = coverage_attr.get(cap, cap)
+            if attr.startswith("distractors."):
+                value = td["distractors"][attr.split(".", 1)[1]]
+            else:
+                value = td.get(attr)
             ledger.append(
                 _ev(
-                    f"task_distribution.{coverage_attr.get(cap, cap)}",
-                    td.get(coverage_attr.get(cap, cap)),
+                    f"task_distribution.{attr}",
+                    value,
                     intent_raw,
                     f"the request emphasizes {cap}, so the distribution allocates that coverage",
                     f"{cap} coverage raised because the request emphasizes it.",

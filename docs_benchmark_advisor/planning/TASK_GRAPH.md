@@ -20,6 +20,9 @@ graph TD
   T08["T08 golden fixtures"]
   T09["T09 integration smoke"]
   T10["T10 hardening review"]
+  BA14["BA1.4 guide extension"]
+  BA24["BA2.4 intent extraction tuning"]
+  BA25["BA2.5 distractor validator checks"]
 
   T00 --> T01
   T00 --> T03A
@@ -45,6 +48,12 @@ graph TD
   T08 --> T09
   T03A --> T10
   T09 --> T10
+  T03A --> BA14
+  BA14 --> BA24
+  T03 --> BA24
+  T02 --> BA25
+  BA24 --> BA25
+  BA25 --> T09
 ```
 
 ## Parallelizable Tasks
@@ -57,6 +66,8 @@ graph TD
 - After T02/T03/T04/T08: T05 can run.
 - After T05: T07 can run.
 - T09 and T10 are sequential integration/hardening tasks.
+- Follow-up advisor quality work runs as: BA1.4 guide extension -> BA2.4
+  planner intent extraction -> BA2.5 validator distractor checks -> BA4 smoke.
 
 ## Blocking Tasks
 
@@ -66,6 +77,8 @@ graph TD
   guide-reference tests. It is a human research/curation step, with agents only
   assisting on formatting and consistency checks.
 - T05 blocks live API integration and export handoff.
+- BA1.4 blocks planner/validator follow-ups for domain, short-workflow, and
+  distractor-pressure intent.
 - T09 blocks hardening review.
 
 ## Recommended PR Order
@@ -75,8 +88,9 @@ graph TD
 3. T08 golden fixtures.
 4. T02 validator, T03 planner, T04 stats, T06 UI shell.
 5. T05 Studio API and T07 export handoff.
-6. T09 integration smoke.
-7. T10 hardening review.
+6. BA1.4, BA2.4, BA2.5 follow-up quality fixes.
+7. T09 integration smoke.
+8. T10 hardening review.
 
 ## Integration Checkpoints
 

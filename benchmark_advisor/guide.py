@@ -31,9 +31,13 @@ KNOWN_RULE_IDS: frozenset[str] = frozenset(
         "G2.metric.diagnostic_slice",
         # G3 - Task Distribution
         "G3.coverage.long_workflows",
+        "G3.coverage.short_workflows",
         "G3.coverage.cross_server",
         "G3.coverage.recovery",
         "G3.coverage.same_name",
+        "G3.distractor.hard_negative",
+        "G3.distractor.near_miss",
+        "G3.domain.finance",
         "G3.coverage.stateful",
         # G4 - Budget, Power, And Repeats
         "G4.budget.mode_thresholds",
