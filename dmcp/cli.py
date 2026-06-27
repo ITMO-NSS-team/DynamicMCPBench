@@ -132,6 +132,7 @@ from dmcp.spec import TaskSpec
 from dmcp.trace import Trace, TransportKind
 from dmcp.verify import verify_server
 from dmcp.vet import VetStatus, vet_one, vet_result_summary
+from dmcp.world import WorldStore
 
 app = typer.Typer(
     name="dmcp",
@@ -2789,6 +2790,52 @@ def bench(
         )
 
     typer.echo(f"bench complete -> {out_abs}")
+
+
+world_app = typer.Typer(
+    name="world",
+    help="Snapshot / restore the compose stack's persistent state (docker volumes).",
+    no_args_is_help=True,
+)
+app.add_typer(world_app)
+
+
+@world_app.command("capture")
+def world_capture(
+    fixture_id: Annotated[str, typer.Argument(help="Fixture id (folder under --worlds-dir).")],
+    volumes: Annotated[
+        list[str] | None,
+        typer.Option("--volume", "-v", help="Declared volume name(s); default = all compose volumes."),
+    ] = None,
+    compose_file: Annotated[str, typer.Option("--compose-file")] = "docker-compose-mcp.yaml",
+    worlds_dir: Annotated[Path, typer.Option("--worlds-dir")] = Path("worlds"),
+) -> None:
+    """Tar every compose volume into worlds/<fixture_id>/ (run while services idle)."""
+    store = WorldStore(compose_file=compose_file, worlds_dir=worlds_dir)
+    fx = store.capture(fixture_id, volumes=volumes)
+    typer.echo(f"captured {fx.fixture_id}: {len(fx.volumes)} volume(s) -> {worlds_dir}/{fx.fixture_id}")
+
+
+@world_app.command("restore")
+def world_restore(
+    fixture_id: Annotated[str, typer.Argument(help="Fixture id to restore.")],
+    compose_file: Annotated[str, typer.Option("--compose-file")] = "docker-compose-mcp.yaml",
+    worlds_dir: Annotated[Path, typer.Option("--worlds-dir")] = Path("worlds"),
+) -> None:
+    """Wipe and untar each volume back to the captured state (verifies sha256)."""
+    store = WorldStore(compose_file=compose_file, worlds_dir=worlds_dir)
+    store.restore(fixture_id)
+    typer.echo(f"restored {fixture_id}")
+
+
+@world_app.command("list")
+def world_list(
+    worlds_dir: Annotated[Path, typer.Option("--worlds-dir")] = Path("worlds"),
+) -> None:
+    """List captured fixtures under --worlds-dir."""
+    store = WorldStore(worlds_dir=worlds_dir)
+    for fid in store.list():
+        typer.echo(fid)
 
 
 if __name__ == "__main__":
