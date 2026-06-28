@@ -42,13 +42,15 @@ This is the sanctioned dependency direction from `planning/ARCHITECTURE.md`
 New stats code is added only where these two don't cover a contract field
 (e.g. paired-bootstrap planning heuristic), and is labeled `planning_heuristic`.
 
-## D3 — Freeze the current statistical guide as v1; expert refresh is future work
+## D3 — Freeze the refreshed statistical guide as v1
 
 `planning/STATISTICAL_GUIDE.md` (`guide_version: statistical_guide.v1`, families
-G1–G7) is treated as **frozen and sufficient to ship the demo**. The human
-literature-review curation step (BA1.2 / T03a) is **not a blocker**; it is recorded
-as honest future work and noted as a limitation in the paper. Rule ids stay stable
-so downstream tasks and fixtures can cite them now.
+G1–G7) is treated as **frozen and sufficient to ship the demo** after the
+2026-06-27 human-curated research refresh. The refresh preserves the original
+rule ids, expands the v1 rule-id set, and records evidence-status labels, source
+keys, repair suggestions, procedure notes, and a source reference map. Downstream
+tasks and fixtures cite this refreshed v1 guide rather than reinterpret the
+literature.
 
 ## D4 — Paper scope: Stage 1 end-to-end; defer Stage 2 backlog and heavy hardening
 
@@ -100,5 +102,7 @@ needs only one figure to tell the whole pipeline story.
 - The advisor never auto-launches `goal-gen`, `explore`, `distill`, or `eval`.
 - `planning/INTERFACES.md` enum registries, state matrix, and validator thresholds
   are normative and untouched.
-- `planning/STATISTICAL_GUIDE.md` rule ids are untouched.
+- `planning/STATISTICAL_GUIDE.md` keeps `guide_version: statistical_guide.v1`;
+  the original rule ids are preserved and the refreshed v1 set is mirrored in
+  `benchmark_advisor/guide.py`.
 - All `docs_benchmark_advisor/CONCEPT.md` hard invariants remain in force.

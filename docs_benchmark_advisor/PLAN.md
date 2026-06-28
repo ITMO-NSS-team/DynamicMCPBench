@@ -75,15 +75,14 @@ or evaluation.
   `StatisticalGuideReference`, and serialize `ExportConfig`.
 
 ### BA1.2 - Human statistical guide curation and v1 freeze
-- status: deferred (not a blocker) — **[Adopted: D3]** the current
-  `STATISTICAL_GUIDE.md` is frozen as `statistical_guide.v1` and is sufficient to
-  ship the demo; the expert literature-review refresh is future work and a stated
-  paper limitation. Downstream tasks may cite the existing rule ids now.
-- note: an initial guide draft exists; this human-led step reviews current
-  papers/methodology, improves the guide, then freezes it for implementation
-  use.
-- owner: -
-- claimed_at: -
+- status: done — **[Adopted: D3]** the refreshed `STATISTICAL_GUIDE.md` is
+  integrated as `statistical_guide.v1`; the version remains stable, old rule ids
+  are preserved, and runtime validation knows the expanded rule-id set.
+- note: human-curated refresh integrated on 2026-06-27 with source keys,
+  evidence-status labels, validator behavior, repair suggestions, procedure
+  notes, and a source reference map.
+- owner: kmetra1910
+- claimed_at: 2026-06-27
 - deps: BA0.1
 - source: `planning/TASKS/T03a-statistical-guide.md`;
   `planning/STATISTICAL_GUIDE.md`
@@ -98,7 +97,7 @@ or evaluation.
 - status: done
 - owner: jrzkaminski
 - claimed_at: 2026-06-25
-- deps: BA1.2 (satisfied by D3 — guide frozen as v1)
+- deps: BA1.2 (done — guide refreshed and frozen as v1)
 - source: `planning/TASKS/T08-golden-fixtures.md`
 - note: 14 fixtures in `docs_benchmark_advisor/fixtures/` (+ README) spanning every
   response state and validator-threshold family; loader + structural tests in
@@ -111,11 +110,14 @@ or evaluation.
   schemas once BA1.1 lands.
 
 ### BA1.4 - Statistical guide extension for distractor and domain intent
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-06-27
 - deps: BA1.2
 - source: user follow-up on advisor intent extraction; `planning/STATISTICAL_GUIDE.md`
+- note: covered by the refreshed guide plus a dedicated registry test for the
+  required BA1.4 `G3.*` ids; downstream BA2.4/BA2.5 still own planner extraction
+  and validator behavior.
 - done-when: `STATISTICAL_GUIDE.md` includes v1 rule ids and source rationale
   for short/medium/long workflow intent, domain/category extraction such as
   finance, hard-negative / near-miss / same-name distractor pressure, and the
@@ -179,11 +181,16 @@ or evaluation.
   heuristics rather than final inference.
 
 ### BA2.4 - Intent extraction and distribution tuning
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-06-27
 - deps: BA2.2 BA2.1 BA1.2 BA1.4
 - source: user follow-up on advisor demo query; `planning/TASKS/T03-planner-adapter.md`
+- note: implemented in `benchmark_advisor/planner.py` with guide-backed
+  extraction for finance/domain, short-chain, same-name, near-miss, and
+  hard-negative signals. Covered by the
+  `pairwise-short-finance-hard-negative` fixture and
+  `test_short_finance_hard_negative_intent_tunes_distribution`.
 - done-when: deterministic planner extracts domain, chain-length, distractor,
   and diagnostic-pressure signals from user intent. The query "Compare two local
   agents on short step finance workflows and tell me which is better. There

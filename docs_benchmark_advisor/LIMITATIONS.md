@@ -40,9 +40,9 @@ and refused/clarification designs **cannot export**.
 - **Math:** reused from `dmcp` — `dmcp.curves.proportion_ci` (Wilson interval) and
   `dmcp.ablation.power_n` (two-proportion sample size). The advisor adds only the
   closed-form planning MDE on top, labeled a heuristic.
-- The guide is a **static, curated v1** (decision D3). An expert literature-review
-  refresh is future work, not a blocker; the rule ids are frozen so downstream
-  citations stay stable.
+- The guide is a **static, curated v1** (decision D3), refreshed on 2026-06-27
+  with evidence-status labels, source keys, and procedure notes. The guide
+  version remains frozen so downstream citations stay stable.
 
 ## Known limitations (v1)
 
