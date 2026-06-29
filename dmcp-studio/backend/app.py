@@ -230,7 +230,9 @@ def _sandbox_handler(_req, exc: adapter.SandboxViolation) -> JSONResponse:
 
 
 # Serve the SPA same-origin (no CORS). Mounted LAST so it only catches paths the
-# /api/* routes above didn't match.
-_FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
+# /api/* routes above didn't match. Prefer the built Vite bundle (frontend/dist);
+# fall back to frontend/ for a source checkout.
+_FRONTEND_ROOT = Path(__file__).resolve().parent.parent / "frontend"
+_FRONTEND = _FRONTEND_ROOT / "dist" if (_FRONTEND_ROOT / "dist").is_dir() else _FRONTEND_ROOT
 if _FRONTEND.is_dir():
     app.mount("/", StaticFiles(directory=str(_FRONTEND), html=True), name="frontend")

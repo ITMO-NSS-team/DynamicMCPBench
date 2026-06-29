@@ -273,9 +273,13 @@ paper_demo/main.pdf
 paper_demo/main.synctex.gz
 paper_demo/main.toc
 
-# DMCP Studio frontend: Bun deps (the bundled app.js IS committed so the demo
-# runs without a build step; rebuild it with `bun run build` in frontend/).
+# DMCP Studio frontend: React + Vite. Deps and the built SPA bundle are
+# generated — build with `npm run build` in frontend/ (emits frontend/dist,
+# covered by the global dist/ rule above).
 dmcp-studio/frontend/node_modules/
+dmcp-studio/frontend/dist/
+# the Python `lib/` rule above also matches the SPA's source lib dir — keep it tracked
+!dmcp-studio/frontend/src/lib/
 
 # docker-compose git-mcp bind-mount sandbox (root-owned, container-created)
 /repos/

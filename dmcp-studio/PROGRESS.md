@@ -20,6 +20,24 @@ Plan: `docs/dmcp_studio_build_plan.md`. Map: `backend/INTEGRATION_NOTES.md`.
 
 ## Log (newest first)
 
+- **Frontend rewrite — React 18 + Vite on the Geist (Vercel) design kit.** Replaced
+  the vanilla-TS/Tailwind/daisyUI SPA (`src/app.ts`, `app.js`, `app.css`, Bun build)
+  with a React app built by Vite, using the real Geist kit (`@geist-ui/core`) behind
+  thin typed wrappers (`src/ui.tsx`), the Geist fonts **self-hosted** via
+  `@fontsource-variable/geist(-mono)` (offline/booth-safe — no Google Fonts), and a
+  tight, near-monochrome dark theme (colour rationed to verdict/checkpoint status).
+  Architecture: a pure `useReducer` store + `Context` (`src/store/{reducer,context,
+  StudioProvider}`), a runtime-validated API layer with `zod` schemas as the single
+  source of truth (`src/api/{schemas,client}`), pure verdict logic in `src/lib/verdict`
+  (the effect-vs-answer flip) covered by **Vitest** (16 tests: verdict/reducer/format),
+  reusable components (`Verdict`, `Trace`, `Checkpoint`, `Slider`, `ErrorBanner`,
+  `ErrorBoundary`), and one stage component per phase. Adds ESLint (flat) + Prettier;
+  visible error UI + an error boundary; keyboard-accessible nav/cards (`<button>` +
+  aria). The backend now serves the built bundle from `frontend/dist` (falling back to
+  `frontend/`); the Dockerfile gained a Node build stage and `run_demo.sh` builds via
+  `npm run build`. Behaviour parity with the SIGNAL build, including the pass³
+  leaderboard and the live SSE explore/score streams.
+
 - **Stage 0 — Design (Benchmark Advisor UI).** Prepended a new first stage to the
   instrument: intent box, mode segmented control, candidate models, and three
   instrument sliders (task budget / attempts / target effect). The **task-budget

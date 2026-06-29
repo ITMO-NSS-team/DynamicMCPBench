@@ -18,8 +18,9 @@ dmcp-studio/
 ├── backend/                    # FastAPI app wrapping the dmcp pipeline (A1)
 │   ├── INTEGRATION_NOTES.md    # A0: the pipeline map (built)
 │   └── fixtures/               # frozen REPLAY runs (A1/E3)
-├── frontend/                   # SPA: TypeScript (src/app.ts) bundled by Bun
-│   ├── src/app.ts              # source; built to app.js via `bun run build`
+├── frontend/                   # SPA: React + Geist (Vercel) kit, built by Vite
+│   ├── src/                    # React app (main.tsx, App.tsx, stages/, components/)
+│   │                           #   built to frontend/dist via `npm run build`
 ├── experiments/                # studio validation: E1 agreement, E2 latency
 └── scripts/                    # run_demo.sh (A6)
 ```
@@ -48,12 +49,13 @@ docker run --rm -p 8000:8000 dmcp-studio
 ```
 
 or with Compose: `docker compose -f dmcp-studio/docker-compose.yml up --build`.
-The image ships the committed frontend bundle and a pre-built REPLAY fixture, so
-it runs offline with no API keys (REPLAY is the default, deterministic path).
+A Node stage builds the SPA and the image ships only the built bundle plus a
+pre-built REPLAY fixture, so it runs offline with no API keys (REPLAY is the
+default, deterministic path).
 
 ### From source
 
-One command (builds the frontend if Bun is present, builds fixtures if missing,
+One command (builds the frontend if Node is present, builds fixtures if missing,
 serves the SPA + API):
 
 ```bash
@@ -66,15 +68,16 @@ Or run the pieces by hand:
 ```bash
 # (re)build the frozen showcase fixture — asserts the three verdicts
 uv run python dmcp-studio/experiments/e3_curate.py
-# build the TypeScript frontend (Bun) → frontend/app.js
-cd dmcp-studio/frontend && bun install && bun run build && cd -
+# build the React frontend (Vite) → frontend/dist
+cd dmcp-studio/frontend && npm install && npm run build && cd -
 # run the REPLAY backend (serves the SPA same-origin; fixtures pre-warmed on boot)
 cd dmcp-studio && uvicorn backend.app:app --reload
 ```
 
-The frontend is TypeScript (`frontend/src/app.ts`), bundled to `frontend/app.js`
-by Bun. The bundle is committed so the demo runs without a build step; rerun
-`bun run build` (or `bun run check` to typecheck first) after editing the source.
+The frontend is a React + Geist (Vercel) SPA (`frontend/src/`), built to
+`frontend/dist` by Vite; the backend serves that bundle when present. During
+development, `npm run dev` runs Vite with HMR and proxies `/api` to the backend
+on `:8000` (run `uvicorn backend.app:app` alongside it).
 
 Then the API is live (default `mode=replay`):
 
@@ -84,7 +87,7 @@ curl "localhost:8000/api/explore?delay=0"                       # SSE: 7 calls +
 curl "localhost:8000/api/score?candidate=hermes3-8b&delay=0"    # effect-fail / answer-pass
 ```
 
-The frontend (built from the `dmcp studio.html` mockup) wires to these.
+The React frontend wires to these.
 
 ### LIVE mode
 

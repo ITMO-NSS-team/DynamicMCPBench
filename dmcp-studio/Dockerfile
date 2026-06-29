@@ -6,8 +6,19 @@
 #   docker run --rm -p 8000:8000 dmcp-studio
 # Then open http://localhost:8000
 #
-# The frontend ships as the committed Bun bundle (frontend/app.js), so the image
-# needs no Node/Bun toolchain. REPLAY needs no MCP server packages or API keys.
+# The frontend is a React + Geist (Vercel) SPA built with Vite in a Node stage;
+# the Python image ships only the built bundle (frontend/dist), so the runtime
+# needs no Node toolchain. REPLAY needs no MCP server packages or API keys.
+
+# ---- Stage 1: build the SPA ----
+FROM node:20-slim AS web
+WORKDIR /web
+COPY dmcp-studio/frontend/package.json dmcp-studio/frontend/package-lock.json ./
+RUN npm ci
+COPY dmcp-studio/frontend ./
+RUN npm run build
+
+# ---- Stage 2: Python runtime ----
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -21,8 +32,10 @@ COPY pyproject.toml ./
 COPY dmcp ./dmcp
 RUN pip install -e ".[studio]"
 
-# Studio backend + committed frontend bundle.
+# Studio backend.
 COPY dmcp-studio ./dmcp-studio
+# Built SPA bundle from the Node stage (backend serves frontend/dist when present).
+COPY --from=web /web/dist ./dmcp-studio/frontend/dist
 
 # Pre-build the frozen REPLAY fixture so the image ships ready to serve
 # (asserts the three showcase verdicts at build time — a build-time smoke test).

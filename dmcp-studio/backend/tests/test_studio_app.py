@@ -78,10 +78,15 @@ def test_leaderboard_route():
 
 def test_spa_served_without_shadowing_api():
     # the static mount serves the SPA at /, and /api still resolves
+    import re
+
     index = client.get("/")
     assert index.status_code == 200 and "DMCP Studio" in index.text
-    assert client.get("/app.js").status_code == 200
     assert client.get("/api/servers").status_code == 200
+    # when the Vite bundle is built (frontend/dist), its hashed asset must serve
+    m = re.search(r"/(assets/[\w.-]+\.(?:js|css))", index.text)
+    if m:
+        assert client.get("/" + m.group(1)).status_code == 200
 
 
 def test_lifespan_prewarms_fixtures():

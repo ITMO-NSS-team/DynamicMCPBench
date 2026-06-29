@@ -1,0 +1,25 @@
+// Public type surface — inferred from the zod schemas in api/schemas.ts
+// (single source of truth). Import app types from here.
+export type {
+  ServerCard,
+  GoalOut,
+  ExploreCall,
+  ExploreDone,
+  CheckpointVerdict,
+  ScoreDone,
+  ToolRef,
+  Checkpoint,
+  TaskSpecView,
+  DistillOut,
+  CandidateCard,
+  LeaderboardRow,
+  Leaderboard,
+  DStatus,
+  DWarning,
+  DRefusal,
+  DClar,
+  DEvidence,
+  DResponse,
+  Mode,
+  ScoreMode,
+} from "./api/schemas";

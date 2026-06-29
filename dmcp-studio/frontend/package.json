@@ -1,20 +1,44 @@
 {
   "name": "dmcp-studio-frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "DMCP Studio SPA — TypeScript, bundled with Bun.",
+  "description": "DMCP Studio SPA — React + Geist (Vercel) design kit, bundled with Vite.",
   "scripts": {
-    "build:js": "bun build src/app.ts --outfile app.js --target browser",
-    "build:css": "tailwindcss -i src/app.css -o app.css --minify",
-    "build": "bun run build:js && bun run build:css",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "check": "bun run typecheck && bun run build"
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "check": "tsc --noEmit && eslint . && prettier --check . && vitest run && vite build"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@geist-ui/core": "2.3.8",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "4",
-    "daisyui": "5",
-    "tailwindcss": "4",
-    "typescript": "^5.6.0"
+    "@eslint/js": "^9.39.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.9.3",
+    "typescript": "5.6.3",
+    "typescript-eslint": "^8.62.0",
+    "vite": "5.4.11",
+    "vitest": "^2.1.9"
   }
 }
