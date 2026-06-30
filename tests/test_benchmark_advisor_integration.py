@@ -84,10 +84,23 @@ def test_advisor_never_imports_generation_or_eval_modules():
 
 
 def test_stage0_ui_is_wired_to_the_advisor_api():
-    html = (FRONTEND / "index.html").read_text()
-    for hook in ("stage-design", "dIntent", "dBudget", "dVerdictChip", "dProceed", "dMode", "dExport"):
-        assert hook in html, f"index.html missing Stage-0 hook #{hook}"
-    app_js = (FRONTEND / "app.js").read_text()
-    assert "/api/advisor/design" in app_js, "built app.js does not call the advisor design route"
-    app_css = (FRONTEND / "app.css").read_text()
-    assert "stage-design" in app_css, "built app.css missing the Stage-0 styles"
+    # The studio frontend is a React (Vite) SPA; the Stage-0 wiring lives in the
+    # source, not in a hand-written index.html. Assert the advisor route is called
+    # from the API client, the Design stage drives it with its controls, and the
+    # store registers the design view.
+    src = FRONTEND / "src"
+    client = (src / "api" / "client.ts").read_text()
+    assert "/api/advisor/design" in client, "API client does not call the advisor design route"
+
+    design = (src / "stages" / "Design.tsx").read_text()
+    assert "advisorDesign" in design, "Design stage does not call the advisor"
+    for control in (
+        "task budget",
+        "attempts / task",
+        "target detectable effect",
+        "Carry this design into Collect",
+    ):
+        assert control in design, f"Design stage missing control: {control!r}"
+
+    reducer = (src / "store" / "reducer.ts").read_text()
+    assert '"design"' in reducer, "store does not register the Stage-0 design view"
