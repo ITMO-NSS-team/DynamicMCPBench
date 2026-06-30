@@ -313,11 +313,12 @@ make statistics the center of the product. BA5 adds a v2 contract and statistica
 engine while keeping all v1 routes compatible.
 
 ### BA5.0 - Durable gap memo
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-06-30
 - deps: BA4.2
 - source: `planning/ADVISOR_GAPS.md`
+- note: implemented as `planning/ADVISOR_GAPS.md` in the v2 planning update.
 - done-when: current advisor limitations are listed in a durable planning memo,
   including heuristic-only stats, no post-run report, brittle intent parsing,
   no real handoff, missing validate/edit UI, weak frontend schemas,
@@ -325,11 +326,14 @@ engine while keeping all v1 routes compatible.
   statistical RAG layer.
 
 ### BA5.1 - Statistical Advisor v2 contract
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-06-30
 - deps: BA4.2
 - source: `planning/TASKS/T11-v2-statistical-contract.md`
+- note: implemented on `codex/ba5-0-5-1-stat-contract` with
+  `benchmark_advisor/v2_schema.py`, additive v2 route request/response shapes,
+  guarded launch/report contracts, and `tests/test_benchmark_advisor_v2_schema.py`.
 - done-when: additive v2 schemas and route contracts exist for design,
   validation, report, and guarded launch; v1 contracts and tests remain
   compatible.

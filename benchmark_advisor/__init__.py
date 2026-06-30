@@ -7,11 +7,13 @@ the Stage-1 planning loop; Stage 2 is interface-only.
 
 See ``docs_benchmark_advisor/`` for the concept, plan, and frozen contracts.
 
-Scope of this ``__init__``: re-export the v1 schema layer and version constants.
+Scope of this ``__init__``: re-export the v1 schema layer, v2 schema module, and
+version constants.
 """
 
 from __future__ import annotations
 
+from . import v2_schema
 from .schema import (
     GUIDE_VERSION,
     REPORT_SCHEMA_VERSION,
@@ -64,4 +66,5 @@ __all__ = [
     "ValidationReportStub",
     "WarningCard",
     "response_state_violations",
+    "v2_schema",
 ]
