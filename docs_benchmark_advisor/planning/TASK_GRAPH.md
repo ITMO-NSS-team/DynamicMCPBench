@@ -20,6 +20,14 @@ graph TD
   T08["T08 golden fixtures"]
   T09["T09 integration smoke"]
   T10["T10 hardening review"]
+  T11["T11 v2 statistical contract"]
+  T12["T12 local stats knowledge base"]
+  T13["T13 dual-engine planner"]
+  T14["T14 real planning statistics"]
+  T15["T15 post-run report"]
+  T16["T16 statistical advisor UI v2"]
+  T17["T17 guarded corpus handoff"]
+  T18["T18 v2 hardening/fixups"]
   BA14["BA1.4 guide extension"]
   BA24["BA2.4 intent extraction tuning"]
   BA25["BA2.5 distractor validator checks"]
@@ -54,6 +62,22 @@ graph TD
   T02 --> BA25
   BA24 --> BA25
   BA25 --> T09
+  T10 --> T11
+  T11 --> T12
+  T11 --> T13
+  T11 --> T14
+  T11 --> T15
+  T12 --> T13
+  T12 --> T14
+  T13 --> T16
+  T14 --> T15
+  T14 --> T16
+  T15 --> T16
+  T16 --> T17
+  T13 --> T17
+  T17 --> T18
+  T16 --> T18
+  T13 --> T18
 ```
 
 ## Parallelizable Tasks
@@ -68,6 +92,8 @@ graph TD
 - T09 and T10 are sequential integration/hardening tasks.
 - Follow-up advisor quality work runs as: BA1.4 guide extension -> BA2.4
   planner intent extraction -> BA2.5 validator distractor checks -> BA4 smoke.
+- The next advisor wave runs as: T11 v2 contracts -> T12/T13/T14 statistical
+  core -> T15 reports -> T16 UI -> T17 guarded handoff -> T18 hardening.
 
 ## Blocking Tasks
 
@@ -80,6 +106,12 @@ graph TD
 - BA1.4 blocks planner/validator follow-ups for domain, short-workflow, and
   distractor-pressure intent.
 - T09 blocks hardening review.
+- T11 blocks all v2 implementation because it defines additive schemas and
+  route boundaries.
+- T12 blocks RAG/stat-agent explanations, but not deterministic fallback tests.
+- T14 blocks report and UI power-curve surfaces.
+- T16 blocks guarded launch UI.
+- T17 blocks v2 launch hardening.
 
 ## Recommended PR Order
 
@@ -91,6 +123,12 @@ graph TD
 6. BA1.4, BA2.4, BA2.5 follow-up quality fixes.
 7. T09 integration smoke.
 8. T10 hardening review.
+9. T11 v2 statistical contract.
+10. T12 local statistical knowledge base, T13 dual-engine planner, and T14 real
+    planning statistics.
+11. T15 post-run statistical report and T16 statistical UI.
+12. T17 guarded corpus handoff.
+13. T18 v2 hardening and fixups.
 
 ## Integration Checkpoints
 
@@ -104,6 +142,16 @@ graph TD
 - **Checkpoint G**: intent-to-export smoke passes without launching generation.
 - **Checkpoint H**: legacy advisor route, if retained, cannot be the only v1 API
   route under test.
+- **Checkpoint I**: v2 contracts exist and v1 compatibility tests still pass.
+- **Checkpoint J**: local statistical knowledge retrieval is offline,
+  deterministic, and citation-audited.
+- **Checkpoint K**: v2 planner proposals are always deterministic-rule-gated.
+- **Checkpoint L**: post-run report consumes an outcome tensor and states scoped
+  allowed/disallowed claims.
+- **Checkpoint M**: Studio carries advisor state into Collect and validates
+  edits through v2.
+- **Checkpoint N**: guarded launch creates corpus/specs/traces jobs only after
+  explicit confirmation.
 
 ## Shared/Frozen Files
 
@@ -123,6 +171,8 @@ graph TD
 - Golden fixtures if multiple contributors add fixtures in the same file.
 - `docs_benchmark_advisor/planning/INTERFACES.md` after freeze.
 - `docs_benchmark_advisor/planning/STATISTICAL_GUIDE.md` rule ids after freeze.
+- v2 schemas and frontend zod schemas once T11/T16 land.
+- Studio state and launch-job surfaces during T16/T17.
 
 ## Human Approval Required
 
@@ -137,3 +187,6 @@ graph TD
 - Moving advisor logic into core pipeline internals.
 - Removing or bypassing the v1 `/api/advisor/design` and
   `/api/advisor/validate` route contract.
+- Letting RAG/stat-agent output override deterministic validation.
+- Launching anything beyond corpus/specs/traces from the first guarded handoff.
+- Adding runtime network retrieval to the statistical knowledge layer.

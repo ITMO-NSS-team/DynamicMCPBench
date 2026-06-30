@@ -14,6 +14,7 @@ steps into the global ledger or extend the claim scripts after human approval.
 ```text
 read docs_benchmark_advisor/CONCEPT.md
 read docs_benchmark_advisor/PLAN.md
+read docs_benchmark_advisor/planning/ADVISOR_GAPS.md
 read docs_benchmark_advisor/planning/INTERFACES.md
 read your assigned docs_benchmark_advisor/planning/TASKS/*.md
 implement exactly one step in one PR
@@ -36,6 +37,10 @@ Detailed implementation boundaries live in task packets under
 conflict, treat `planning/INTERFACES.md` and the task packet as the
 implementation contract, then update `PLAN.md` in the same PR to remove
 ambiguity.
+
+For BA5-BA7, `planning/ADVISOR_GAPS.md` is the durable gap checklist. A PR may
+close one or more gap rows only when its assigned task packet explicitly covers
+them.
 
 ## Cadence
 
@@ -86,6 +91,9 @@ and manually verify links/paths with `rg` when paths are renamed.
   parallel after their dependencies land.
 - API/export integration waits for core components.
 - Hardening waits for an end-to-end smoke.
+- V2 work starts with T11 contracts, then splits into statistical knowledge,
+  planner, planning statistics, reports, UI, guarded handoff, and hardening. Do
+  not try to implement all of BA5-BA7 in one PR.
 
 ## Safety and scope guardrails
 
@@ -97,6 +105,9 @@ and manually verify links/paths with `rg` when paths are renamed.
 - Do not let the planner make unsupported statistical claims outside
   `planning/STATISTICAL_GUIDE.md`.
 - Do not bypass deterministic validation.
+- Do not let RAG/stat-agent output override deterministic rules.
+- Do not add runtime network retrieval to advisor validation.
+- Do not launch leaderboard/eval from the first guarded handoff.
 
 ## Blocking
 

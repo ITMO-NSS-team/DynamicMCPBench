@@ -58,10 +58,10 @@ Build the full Stage-1 loop end to end — schema → deterministic planner →
 validator → stats → API → UI → export — with enough golden fixtures and tests to
 pass the repo gate and prove the validator's approve/warn/refuse behavior.
 
-**Deferred** (not needed for the paper, kept in the backlog):
+**Deferred for the paper** (later superseded by D7 for v2 planning):
 
-- BA5 Stage-2 backlog (outcome tensors, post-run reports, judge-based rationale
-  scoring) stays interface-only.
+- Stage-2 outcome tensors, post-run reports, and judge-based rationale scoring
+  stay interface-only for the EMNLP demo scope.
 - BA4.2 / T10 adversarial-hardening gold-plating and the full 13-fixture golden set
   are trimmed to a representative subset (pairwise valid, leaderboard warning,
   underpowered refusal, diagnostic, clarification, edited-field revalidation) —
@@ -94,12 +94,36 @@ feature list; Stage 0 closes the obvious "is the generated benchmark statistical
 sound enough to support the claim?" question *before* expensive generation, and it
 needs only one figure to tell the whole pipeline story.
 
+## D7 — V2 direction: dual-engine statistical advisor before guarded handoff
+
+The next wave after the v1 demo is **not** a direct jump to launch buttons. It is:
+
+```text
+statistical credibility -> guarded handoff -> hardening/fixups
+```
+
+The chosen v2 architecture is dual-engine:
+
+- a local RAG/stat-agent layer may propose richer statistical plans, alternatives,
+  assumptions, citations, and explanations;
+- deterministic rules remain the authority for approval, warnings, refusals,
+  exportability, launchability, and report claim boundaries;
+- runtime statistical retrieval must be local/offline and based on
+  human-approved sources;
+- first launch scope is corpus/specs/traces through `scripts/build_corpus.py`,
+  not leaderboard/eval.
+
+This updates the old "Stage 2 backlog" posture: post-run statistical reports are
+now an explicit v2 implementation target, not only an interface stub.
+
 ---
 
 ## What did NOT change
 
 - No final-answer grading is introduced anywhere.
 - The advisor never auto-launches `goal-gen`, `explore`, `distill`, or `eval`.
+- V2 guarded handoff may launch corpus/specs/traces only after explicit user
+  confirmation and rule validation.
 - `planning/INTERFACES.md` enum registries, state matrix, and validator thresholds
   are normative and untouched.
 - `planning/STATISTICAL_GUIDE.md` keeps `guide_version: statistical_guide.v1`;

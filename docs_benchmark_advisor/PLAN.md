@@ -200,11 +200,15 @@ or evaluation.
   defaults, and records evidence-ledger rationale for those choices.
 
 ### BA2.5 - Validator checks for distractor-pressure claims
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-06-30
 - deps: BA1.4 BA2.1 BA2.4
 - source: user follow-up on advisor demo query; `planning/TASKS/T02-deterministic-validator.md`
+- note: implemented in `benchmark_advisor/validator.py` via deterministic
+  `DISTRACTOR_CLAIMS` checks for `same_name`, `near_miss`, and `hard_negative`.
+  Covered by `test_low_distractor_pressure_warns_when_claimed` and
+  `test_very_low_distractor_pressure_refused_when_claimed`.
 - done-when: if structured categories claim `same_name`, `near_miss`, or
   `hard_negative` pressure, validator checks corresponding distractor fractions
   against documented thresholds and emits deterministic warning/refusal rather
@@ -302,15 +306,185 @@ or evaluation.
 
 ---
 
-## BA5 - Stage 2 backlog
+## BA5 - Statistical Advisor v2
 
-**[Adopted: D4]** Out of scope for the EMNLP demo paper — Stage 2 stays
-interface-only. These are intentionally unsequenced until Stage 1 lands.
+The v1 advisor is useful as a deterministic pre-run gate, but the next wave must
+make statistics the center of the product. BA5 adds a v2 contract and statistical
+engine while keeping all v1 routes compatible.
 
-- Implement validation report generation from outcome tensors.
-- Add user-queryable post-run statistical summaries.
-- Add judge-based validation of rationale quality.
-- Consider RAG or external statistical libraries for guide expansion after v1
-  contracts prove useful.
-- Connect export preview to a guarded generation launch flow after explicit
-  human approval.
+### BA5.0 - Durable gap memo
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA4.2
+- source: `planning/ADVISOR_GAPS.md`
+- done-when: current advisor limitations are listed in a durable planning memo,
+  including heuristic-only stats, no post-run report, brittle intent parsing,
+  no real handoff, missing validate/edit UI, weak frontend schemas,
+  first-refusal-only validator output, empty server-scope handoff, and no local
+  statistical RAG layer.
+
+### BA5.1 - Statistical Advisor v2 contract
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA4.2
+- source: `planning/TASKS/T11-v2-statistical-contract.md`
+- done-when: additive v2 schemas and route contracts exist for design,
+  validation, report, and guarded launch; v1 contracts and tests remain
+  compatible.
+
+### BA5.2 - Local statistical knowledge base
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA1.2
+- source: `planning/TASKS/T12-local-statistical-knowledge-base.md`
+- done-when: a reproducible offline retrieval corpus is available from the
+  statistical guide and human-approved sources; retrieved text can explain and
+  cite proposals but cannot override deterministic gates.
+
+### BA5.3 - Dual-engine statistical planner
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA5.2 BA2.1 BA2.2
+- source: `planning/TASKS/T13-dual-engine-planner.md`
+- done-when: the v2 planner returns alternatives, assumptions, citations, and
+  repair suggestions; every proposal is clamped by deterministic validation
+  before the API returns it.
+
+### BA5.4 - Real planning statistics
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA5.2 BA2.3
+- source: `planning/TASKS/T14-real-planning-statistics.md`
+- done-when: pre-run planning exposes power curves, MDE by design type,
+  paired/unpaired assumptions, repeated-attempt caveats, stratification and
+  rank-stability diagnostics, sensitivity analysis, and budget alternatives.
+
+### BA5.5 - Post-run statistical report
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA5.4
+- source: `planning/TASKS/T15-post-run-statistical-report.md`
+- done-when: outcome tensors can be converted into scoped statistical reports
+  for pairwise, leaderboard, regression, and diagnostic modes, including CIs,
+  effect sizes, rank stability, missingness, multiplicity notes, and allowed /
+  disallowed claims.
+
+### BA5.6 - Statistical Advisor UI v2
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA5.3 BA5.4 BA5.5
+- source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`
+- done-when: Studio renders claim cards, power curves, method cards, assumption
+  panels, alternatives, repair actions, citations, and post-run report views
+  using typed v2 frontend schemas.
+
+---
+
+## BA6 - Guarded handoff
+
+BA6 connects an approved advisor design to corpus generation, but only through a
+separate guarded launch layer. Design and validation routes must remain
+side-effect free.
+
+### BA6.1 - Persist advisor state through Studio
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.6
+- source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`;
+  `planning/TASKS/T17-guarded-corpus-handoff.md`
+- done-when: "Carry to Collect" stores the approved/warning v2 design and
+  export in Studio state, including task budget, server scope, strategy,
+  assumptions, validation status, and sandbox requirements.
+
+### BA6.2 - Validate/edit UI
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA6.1 BA5.1
+- source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`
+- done-when: users can edit budget, attempts, models, server scope, effect
+  target, task distribution, and sandbox fields; Studio calls
+  `/api/advisor/v2/validate` and displays all issues after edits.
+
+### BA6.3 - Guarded corpus launch backend
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA6.1 BA5.3
+- source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- done-when: `/api/advisor/v2/launch` accepts only approved/warning exports with
+  explicit confirmation, builds a deterministic `scripts/build_corpus.py`
+  command preview, enforces sandbox guards, and starts a tracked background job
+  only for corpus/specs/traces generation.
+
+### BA6.4 - Job status and artifacts UI
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA6.3
+- source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- done-when: Studio shows queued/running/succeeded/failed job status, command
+  preview, logs, output paths, and generated goals/specs/traces artifacts.
+
+### BA6.5 - Corpus-only first handoff
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA6.3
+- source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- done-when: the first advisor launch path targets corpus/specs/traces through
+  `scripts/build_corpus.py`; leaderboard/eval remains out of scope unless a
+  separate task explicitly approves it.
+
+---
+
+## BA7 - Advisor v2 hardening and fixups
+
+### BA7.1 - Intent robustness
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.3
+- source: `planning/TASKS/T18-advisor-hardening-v2.md`
+- done-when: normalized intent extraction handles "short finance workflows",
+  synonyms, reordered wording, multilingual-ish phrasing, and negative cases
+  without over-triggering categories.
+
+### BA7.2 - Strong frontend schemas
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.6
+- source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`;
+  `planning/TASKS/T18-advisor-hardening-v2.md`
+- done-when: v2 frontend schemas type advisor design, export, issue lists,
+  statistical plan, launch job, and report objects; no v2 advisor core object is
+  accepted as `unknown`.
+
+### BA7.3 - Full issue reporting
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA5.1 BA2.1
+- source: `planning/TASKS/T18-advisor-hardening-v2.md`
+- done-when: v2 validation exposes all blocking warnings/refusals with severity
+  and repair actions, while preserving status precedence
+  refused > clarification > warning > approved.
+
+### BA7.4 - Docs, fixtures, and limitations sync
+- status: todo
+- owner: -
+- claimed_at: -
+- deps: BA7.1 BA7.2 BA7.3 BA6.5
+- source: `planning/TASKS/T18-advisor-hardening-v2.md`
+- done-when: `PLAN.md`, `TASK_GRAPH.md`, task packets, `INTERFACES.md`,
+  `TEST_STRATEGY.md`, fixtures, frontend schemas, backend schemas, and
+  `LIMITATIONS.md` describe the same v2 behavior.

@@ -1,6 +1,6 @@
 # Benchmark Advisor Module Spec
 
-Status: canonical v1 planning spec.
+Status: canonical v1 planning spec plus v2 roadmap anchor.
 Source: root `SPEC.md` draft plus advisor execution-plan decisions.
 Primary surface: DMCP Studio.
 Execution ledger: `docs_benchmark_advisor/PLAN.md`.
@@ -32,6 +32,17 @@ Stage 2 is interface-only in v1:
 
 1. Define the outcome tensor and validation-report contracts.
 2. Do not implement post-run validation reports until Stage 1 is integrated.
+
+V2 upgrades Stage 2 from placeholder to implementation target:
+
+1. Build a full statistical plan with alternatives, assumptions, citations, and
+   all issue reporting.
+2. Use local statistical retrieval and/or a stat-agent only as a proposer and
+   explanation layer.
+3. Keep deterministic validation as the authority for status, export, launch,
+   and report claim boundaries.
+4. Add guarded corpus generation handoff after explicit confirmation.
+5. Implement post-run statistical reports from outcome tensors.
 
 ## Users
 
@@ -77,7 +88,8 @@ coverage for model-selection claims.
   DynamicMCPBench invariants.
 - No claim that statistical planning guarantees external validity.
 - No claim that public logs prove private deployment behavior.
-- No Stage-2 post-run validation implementation in v1.
+- No Stage-2 post-run validation implementation in v1; v2 implements it only
+  through the documented outcome-tensor/report contracts.
 
 ## Constraints
 
@@ -99,6 +111,9 @@ coverage for model-selection claims.
 - Existing prototype routes or schema versions do not satisfy v1 unless wrapped
   by the v1 `/api/advisor/design` and `/api/advisor/validate` contracts.
 - User approval is required before any future generation handoff.
+- V2 RAG/stat-agent output is advisory only; deterministic rules remain the
+  authority.
+- The first v2 launch path is corpus/specs/traces generation only.
 
 ## Definition Of Done
 
@@ -125,3 +140,16 @@ Stage 1 is done when:
 
 Stage 2 is considered planned, not done, when outcome/report interfaces are
 documented in `INTERFACES.md`.
+
+V2 is done when:
+
+- v2 schemas and routes are implemented without breaking v1.
+- local statistical retrieval is offline, audited, and citation-backed.
+- planning statistics expose power curves, design alternatives, assumptions,
+  sensitivity, missingness, and multiplicity policies.
+- post-run reports consume outcome tensors and state scoped allowed/not-allowed
+  claims.
+- Studio persists advisor state into Collect, supports structured edit/validate,
+  and renders statistical workbench cards.
+- guarded launch requires confirmation and produces corpus/specs/traces artifacts
+  only.

@@ -14,6 +14,24 @@ User intent
   -> future generation handoff after explicit approval
 ```
 
+## V2 Target Architecture
+
+```text
+User intent / edited design
+  -> Local statistical knowledge retrieval
+  -> Stat-agent or deterministic proposer
+  -> StatisticalPlan with alternatives, assumptions, citations
+  -> Deterministic rule gate and full issue list
+  -> Studio statistical workbench
+  -> guarded corpus handoff after explicit confirmation
+  -> OutcomeTensor
+  -> StatisticalReport with scoped claims
+```
+
+V2 keeps the same authority split as v1, but makes the statistical layer central:
+RAG/stat-agent output may propose and explain, while deterministic rules decide
+status, exportability, launchability, and report claim boundaries.
+
 The LLM/rule planner produces a structured proposal grounded in the versioned
 statistical guide. The deterministic validator approves, warns, refuses, or
 requests clarification. Studio renders the response and never launches
@@ -36,9 +54,18 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
   from `INTERFACES.md`. No LLM calls.
 - **Planning Statistics**: pre-run CI/MDE/power heuristics and coverage
   diagnostics. Labels approximations as planning heuristics.
+- **Local Statistical Knowledge Base**: offline retrieval corpus built from the
+  statistical guide and approved references. Provides citations and background,
+  never final authority.
+- **V2 Statistical Planner**: dual-engine proposer that returns alternatives,
+  assumption ledgers, citations, and repair options before deterministic gating.
+- **Statistical Report**: post-run outcome-tensor analytics with effect sizes,
+  confidence intervals, rank stability, slice diagnostics, missingness,
+  multiplicity notes, and scoped allowed/not-allowed claims.
 - **Studio API**: HTTP boundary for design and validation.
 - **Studio UI**: first-stage advisor screen with numeric editable fields.
-- **Export Handoff**: validates export JSON shape for future generation.
+- **Guarded Handoff**: validates export JSON shape, shows command preview, and
+  launches corpus/specs/traces jobs only after explicit confirmation.
 - **Fixtures**: golden prompt/design/response examples shared by tasks.
 
 ## Data Flow
@@ -56,6 +83,22 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
 8. Approved/warning response exposes `ExportConfig` for future generation
    handoff; refused/clarification responses expose no export config.
 
+## V2 Data Flow
+
+1. UI sends v2 design request to `POST /api/advisor/v2/design`.
+2. API retrieves local statistical knowledge and builds a proposed
+   `StatisticalPlan`.
+3. Deterministic validator returns all issues and clamps unsupported claims.
+4. UI renders claim card, method card, power curve, assumptions, alternatives,
+   citations, and repair actions.
+5. User edits structured fields and UI calls `POST /api/advisor/v2/validate`.
+6. Approved/warning state can be carried into Collect with server scope and
+   sandbox requirements.
+7. Explicit user confirmation calls `POST /api/advisor/v2/launch`.
+8. Launch creates a tracked corpus/specs/traces job for `scripts/build_corpus.py`.
+9. Completed outcomes can be sent to `POST /api/advisor/v2/report` to produce a
+   scoped statistical report.
+
 ## Dependency Direction
 
 - `dmcp-studio` may depend on advisor module.
@@ -67,6 +110,10 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
   planner.
 - API composes planner, validator, and stats.
 - UI depends only on API/fixture wire shapes.
+- RAG/stat-agent code depends on local knowledge files and schemas; validators
+  must not depend on generated prose.
+- Guarded launch code depends on export schemas and Studio job infrastructure;
+  design and validation routes must not depend on launch execution.
 
 ## Extension Points
 
@@ -78,6 +125,8 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
 - Stage-2 validation report can consume the documented outcome tensor later.
 - Export handoff can connect to `scripts/build_corpus.py` or a future generation
   orchestrator after explicit approval.
+- V2 statistical reports can add methods only when schemas, fixtures, and
+  limitations docs are updated together.
 
 ## Risks And Alternatives
 
@@ -96,5 +145,10 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
   replace them.
 - **Risk: scope creep into Stage 2.** Mitigation: Stage 2 is interface-only until
   Stage 1 integration passes.
+- **Risk: RAG becomes hidden authority.** Mitigation: retrieval is local and
+  citation-only; deterministic rules own verdicts and claim boundaries.
+- **Risk: launch path spends budget accidentally.** Mitigation: v2 launch
+  requires explicit confirmation, command preview, sandbox checks, and corpus-only
+  scope.
 - **Alternative: CLI-first implementation.** Rejected for v1; Studio UI is the
   product surface.

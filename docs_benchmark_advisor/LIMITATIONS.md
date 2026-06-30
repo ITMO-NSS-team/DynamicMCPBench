@@ -61,3 +61,21 @@ and refused/clarification designs **cannot export**.
   (`dry_run_only=true`); the advisor never runs `goal-gen`, `explore`, `distill`,
   or `eval`. A static import test enforces that the package can't reach those
   modules.
+
+## V2 limitations and guardrails
+
+V2 is allowed to close the v1 gaps, but it must keep these boundaries:
+
+- **RAG is not authority.** Local retrieval and stat-agent proposals may explain,
+  cite, and suggest alternatives. Deterministic rules still decide status,
+  exportability, launchability, and report claim boundaries.
+- **Post-run reports are scoped.** A `StatisticalReport` may state evidence for
+  the completed outcome tensor only. It still must not claim universal model
+  superiority or private-deployment external validity.
+- **Guarded launch is corpus-only first.** The first v2 launch path may run
+  corpus/specs/traces generation through `scripts/build_corpus.py` after explicit
+  confirmation. Leaderboard/eval launch requires a separate approval and task.
+- **All issues must be visible.** V2 can preserve the same status precedence as
+  v1, but users should see every blocking warning/refusal and repair option.
+- **No runtime web retrieval.** Statistical references must be local,
+  reproducible, and human-approved before they influence UI explanations.
