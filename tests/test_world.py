@@ -106,3 +106,51 @@ def test_sha256_file(tmp_path):
     p = tmp_path / "a.bin"
     p.write_bytes(b"hello")
     assert sha256_file(p) == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+
+
+_EMPTY_CONFIG_JSON = json.dumps({"name": "fedotmas", "volumes": {}}).encode()
+
+
+class ProfileGatedRunner(FakeRunner):
+    """`docker compose config` renders no volumes (profile-gated stack); the live
+    project still has labelled volumes that `docker volume ls` reports."""
+
+    def __init__(self, live_volumes: list[str] | None = None):
+        super().__init__()
+        self.live_volumes = (
+            live_volumes if live_volumes is not None else ["fedotmas_mongo-data", "fedotmas_postgres-data"]
+        )
+
+    def __call__(self, argv, *, input=None):
+        if "config" in argv:
+            self.calls.append(list(argv))
+            return subprocess.CompletedProcess(argv, 0, stdout=_EMPTY_CONFIG_JSON, stderr=b"")
+        if "volume" in argv and "ls" in argv:
+            self.calls.append(list(argv))
+            out = ("\n".join(self.live_volumes) + "\n").encode()
+            return subprocess.CompletedProcess(argv, 0, stdout=out, stderr=b"")
+        return super().__call__(argv, input=input)
+
+
+def test_project_and_volumes_falls_back_to_live_volumes_when_config_empty():
+    run = ProfileGatedRunner()
+    store = WorldStore(runner=run)
+    project, vols = store.project_and_volumes()
+    assert project == "fedotmas"
+    # prefix stripped so it matches the config-derived declared form
+    assert vols == ["mongo-data", "postgres-data"]
+    # the fallback queried docker by compose-project label
+    assert any("volume" in c and "ls" in c for c in run.calls)
+
+
+def test_capture_uses_live_fallback_and_prefixes_real_names(tmp_path):
+    store = WorldStore(worlds_dir=tmp_path, runner=ProfileGatedRunner())
+    fx = store.capture("seed-pg")
+    assert {v.declared for v in fx.volumes} == {"mongo-data", "postgres-data"}
+    assert {v.volume for v in fx.volumes} == {"fedotmas_mongo-data", "fedotmas_postgres-data"}
+
+
+def test_capture_raises_when_no_volumes_anywhere(tmp_path):
+    store = WorldStore(worlds_dir=tmp_path, runner=ProfileGatedRunner(live_volumes=[]))
+    with pytest.raises(RuntimeError, match="no volumes to capture"):
+        store.capture("seed-empty")

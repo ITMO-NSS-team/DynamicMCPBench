@@ -92,15 +92,55 @@ class WorldStore:
         self.run = runner
 
     def project_and_volumes(self) -> tuple[str, list[str]]:
-        """Resolve the compose project name and its declared volume names."""
+        """Resolve the compose project name and its declared volume names.
+
+        `docker compose config` only renders top-level volumes that an *active*
+        service references. A profile-gated compose file (every service behind
+        `profiles:`) renders zero services — and therefore zero volumes — unless
+        a profile is active. When `config` yields none, fall back to the live
+        project's actual volumes (labelled by compose) so capture reflects what
+        is really deployed instead of an empty profile-filtered render.
+        """
         res = self.run(["docker", "compose", "-f", self.compose_file, "config", "--format", "json"])
         cfg = json.loads(res.stdout.decode())
         project = cfg.get("name") or Path(self.compose_file).parent.name
-        return project, sorted((cfg.get("volumes") or {}).keys())
+        declared = sorted((cfg.get("volumes") or {}).keys())
+        if not declared:
+            declared = self._live_project_volumes(project)
+        return project, declared
+
+    def _live_project_volumes(self, project: str) -> list[str]:
+        """Declared volume names of the running compose project, via docker labels.
+
+        Names are returned with the `<project>_` prefix stripped so they match
+        the `config`-derived form; `capture` re-adds the prefix for the real
+        docker volume name.
+        """
+        res = self.run(
+            [
+                "docker",
+                "volume",
+                "ls",
+                "--filter",
+                f"label=com.docker.compose.project={project}",
+                "--format",
+                "{{.Name}}",
+            ]
+        )
+        prefix = f"{project}_"
+        names = (line for line in res.stdout.decode().splitlines() if line.strip())
+        return sorted(n.removeprefix(prefix) for n in names)
 
     def capture(self, fixture_id: str, volumes: list[str] | None = None) -> WorldFixture:
         project, declared_all = self.project_and_volumes()
         declared = volumes if volumes else declared_all
+        if not declared:
+            raise RuntimeError(
+                f"no volumes to capture for project {project!r}: compose `config` rendered "
+                "none (profile-gated stack with no active profile?) and the live project has "
+                "no labelled volumes. Bring the stack up, activate a profile, or pass volumes "
+                "explicitly. Refusing to write an empty fixture (a silent no-op on restore)."
+            )
         fdir = (self.worlds_dir / fixture_id).resolve()
         fdir.mkdir(parents=True, exist_ok=True)
         snaps: list[VolumeSnapshot] = []
