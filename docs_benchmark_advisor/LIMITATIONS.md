@@ -66,9 +66,11 @@ and refused/clarification designs **cannot export**.
 
 V2 is allowed to close the v1 gaps, but it must keep these boundaries:
 
-- **RAG is not authority.** Local retrieval and stat-agent proposals may explain,
-  cite, and suggest alternatives. Deterministic rules still decide status,
-  exportability, launchability, and report claim boundaries.
+- **RAG is optional and not authority.** The MVP should work from
+  `STATISTICAL_GUIDE.md` plus the Statistical Engine. Any future local retrieval
+  or stat-agent proposal may explain, cite, and suggest alternatives only.
+  Deterministic rules still decide status, exportability, launchability, and
+  report claim boundaries.
 - **Post-run reports are scoped.** A `StatisticalReport` may state evidence for
   the completed outcome tensor only. It still must not claim universal model
   superiority or private-deployment external validity.

@@ -322,8 +322,8 @@ engine while keeping all v1 routes compatible.
 - done-when: current advisor limitations are listed in a durable planning memo,
   including heuristic-only stats, no post-run report, brittle intent parsing,
   no real handoff, missing validate/edit UI, weak frontend schemas,
-  first-refusal-only validator output, empty server-scope handoff, and no local
-  statistical RAG layer.
+  first-refusal-only validator output, empty server-scope handoff, no dedicated
+  Statistical Engine before parameter selection, and no v2 guide citation index.
 
 ### BA5.1 - Statistical Advisor v2 contract
 - status: done
@@ -338,35 +338,56 @@ engine while keeping all v1 routes compatible.
   validation, report, and guarded launch; v1 contracts and tests remain
   compatible.
 
-### BA5.2 - Local statistical knowledge base
-- status: todo
-- owner: -
-- claimed_at: -
+### BA5.2 - Guide citation index and optional source pack
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-03
 - deps: BA5.1 BA1.2
 - source: `planning/TASKS/T12-local-statistical-knowledge-base.md`
-- done-when: a reproducible offline retrieval corpus is available from the
-  statistical guide and human-approved sources; retrieved text can explain and
-  cite proposals but cannot override deterministic gates.
+- note: implemented as `benchmark_advisor/guide_citations.py` with deterministic
+  offline parsing/auditing of `STATISTICAL_GUIDE.md` rule ids, section labels,
+  evidence status, source keys, and snippets. `LocalStatisticalCitation` now
+  carries `source_keys`; tests cover rule/method/mode lookup, missing source-key
+  failures, and validator independence from guide snippet text.
+- done-when: v2 can cite `STATISTICAL_GUIDE.md` rule ids, sections, source keys,
+  and short guide-derived snippets without runtime network or vector retrieval.
+  A larger human-approved retrieval corpus is explicitly optional/future work,
+  not a blocker for the Statistical Engine MVP.
 
-### BA5.3 - Dual-engine statistical planner
-- status: todo
-- owner: -
-- claimed_at: -
-- deps: BA5.1 BA5.2 BA2.1 BA2.2
+### BA5.3 - Guide-first v2 planner composition
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-03
+- deps: BA5.1 BA5.4 BA2.1 BA2.2
 - source: `planning/TASKS/T13-dual-engine-planner.md`
-- done-when: the v2 planner returns alternatives, assumptions, citations, and
-  repair suggestions; every proposal is clamped by deterministic validation
-  before the API returns it.
+- note: implemented as the first deterministic v2 composition layer:
+  `benchmark_advisor/v2_engine.py` searches a finite candidate grid, calls the
+  existing deterministic planner as a structured design factory, validates every
+  candidate, attaches local guide citations, and emits a typed `EngineDecision`
+  inside `StatisticalPlan`; `benchmark_advisor/v2_service.py` exposes
+  guide-first v2 design/validate composition, and Studio routes
+  `/api/advisor/v2/design` + `/api/advisor/v2/validate` are wired. This closes
+  the T13 MVP without claiming the broader BA5.4 full-engine expansion is done.
+- done-when: the v2 planner normalizes intent, selects claim/method constraints
+  from `STATISTICAL_GUIDE.md`, calls the Statistical Engine, and composes the
+  engine output into the v2 response. Final task budget, attempts, target
+  effect, distribution, and confirmatory slice parameters come from engine
+  scoring, and every proposal is clamped by deterministic validation before the
+  API returns it. No RAG/stat-agent is required for the MVP.
 
-### BA5.4 - Real planning statistics
+### BA5.4 - Statistical Engine and real planning statistics
 - status: todo
 - owner: -
 - claimed_at: -
-- deps: BA5.1 BA5.2 BA2.3
+- deps: BA5.1 BA2.3 BA1.2
 - source: `planning/TASKS/T14-real-planning-statistics.md`
-- done-when: pre-run planning exposes power curves, MDE by design type,
-  paired/unpaired assumptions, repeated-attempt caveats, stratification and
-  rank-stability diagnostics, sensitivity analysis, and budget alternatives.
+- done-when: `planning/STATISTICAL_ENGINE_DESIGN.md` is implemented as a
+  deterministic pre-recommendation engine; pre-run planning searches and scores
+  candidate task budgets, attempts, effect targets, distributions,
+  confirmatory/exploratory slices, missingness policies, and multiplicity
+  policies; outputs expose power curves, MDE by design type, paired/unpaired
+  assumptions, repeated-attempt caveats, stratification and rank-stability
+  diagnostics, sensitivity analysis, and budget alternatives.
 
 ### BA5.5 - Post-run statistical report
 - status: todo

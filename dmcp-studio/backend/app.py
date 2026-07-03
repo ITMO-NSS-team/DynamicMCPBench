@@ -27,6 +27,8 @@ from sse_starlette.sse import EventSourceResponse
 
 from benchmark_advisor import AdvisorRequest, AdvisorValidationRequest
 from benchmark_advisor.service import advisor_design, advisor_validate
+from benchmark_advisor.v2_schema import AdvisorV2DesignRequest, AdvisorV2ValidationRequest
+from benchmark_advisor.v2_service import advisor_v2_design, advisor_v2_validate
 
 from . import dmcp_adapter as adapter
 from . import live, replay_store
@@ -221,6 +223,16 @@ def advisor_design_route(body: AdvisorRequest) -> Any:
 @app.post("/api/advisor/validate")
 def advisor_validate_route(body: AdvisorValidationRequest) -> Any:
     return advisor_validate(body).model_dump(mode="json")
+
+
+@app.post("/api/advisor/v2/design")
+def advisor_v2_design_route(body: AdvisorV2DesignRequest) -> Any:
+    return advisor_v2_design(body).model_dump(mode="json")
+
+
+@app.post("/api/advisor/v2/validate")
+def advisor_v2_validate_route(body: AdvisorV2ValidationRequest) -> Any:
+    return advisor_v2_validate(body).model_dump(mode="json")
 
 
 # Friendly error envelope for the demo (no stack traces to the visitor).

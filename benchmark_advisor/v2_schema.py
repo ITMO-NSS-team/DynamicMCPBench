@@ -32,6 +32,7 @@ from .schema import (
     Severity,
     StatisticalGuideReference,
     Status,
+    TaskDistribution,
     UnitOpen,
 )
 
@@ -56,6 +57,7 @@ class LocalStatisticalCitation(_Base):
     title: NonEmptyStr
     section: NonEmptyStr
     evidence_status: NonEmptyStr
+    source_keys: list[NonEmptyStr] = Field(default_factory=list)
     snippet: NonEmptyStr
     guide_references: list[StatisticalGuideReference] = Field(default_factory=list)
 
@@ -122,9 +124,59 @@ class ClaimCard(_Base):
     plain_language_summary: NonEmptyStr
 
 
+class ParameterSearchSpace(_Base):
+    task_budget_grid: Annotated[list[Annotated[int, Field(ge=1)]], Field(min_length=1)]
+    attempts_grid: Annotated[list[Annotated[int, Field(ge=1)]], Field(min_length=1)]
+    effect_target_grid_pp: Annotated[list[PercentPoints], Field(min_length=1)]
+    distribution_candidates: Annotated[list[TaskDistribution], Field(min_length=1)]
+    confirmatory_slice_limit: Annotated[int, Field(ge=1)]
+    method_families: Annotated[list[NonEmptyStr], Field(min_length=1)]
+    server_scope_options: list[list[NonEmptyStr]] = Field(default_factory=list)
+
+
+class ParameterCandidate(_Base):
+    candidate_id: NonEmptyStr
+    design: AdvisorDesign
+    power_analysis: PowerAnalysis
+    assumption_ledger: AssumptionLedger
+    issues: list[StatisticalIssue] = Field(default_factory=list)
+    score: float
+    status: Status
+    rejection_reasons: list[str] = Field(default_factory=list)
+    repair_actions: list[str] = Field(default_factory=list)
+
+
+class EngineComputationTrace(_Base):
+    engine_version: NonEmptyStr
+    guide_version: Literal["statistical_guide.v1"]
+    guide_snapshot_id: str | None
+    random_seed: int | None
+    candidate_count: Annotated[int, Field(ge=1)]
+    formula_versions: Annotated[list[NonEmptyStr], Field(min_length=1)]
+    empirical_prior_sources: list[str] = Field(default_factory=list)
+    validator_rule_ids: list[str] = Field(default_factory=list)
+    selected_reason: NonEmptyStr
+
+
+class EngineDecision(_Base):
+    schema_version: Literal["benchmark_advisor.engine_decision.v2"]
+    recommended_candidate_id: NonEmptyStr
+    recommended_design: AdvisorDesign
+    parameter_search_space: ParameterSearchSpace
+    parameter_candidates: Annotated[list[ParameterCandidate], Field(min_length=1)]
+    design_alternatives: list[DesignAlternative] = Field(default_factory=list)
+    power_analysis: PowerAnalysis
+    assumption_ledger: AssumptionLedger
+    claim_card: ClaimCard
+    issues: list[StatisticalIssue] = Field(default_factory=list)
+    citations: list[LocalStatisticalCitation] = Field(default_factory=list)
+    computation_trace: EngineComputationTrace
+
+
 class StatisticalPlan(_Base):
     schema_version: Literal["benchmark_advisor.statistical_plan.v2"]
     design: AdvisorDesign
+    engine_decision: EngineDecision | None = None
     power_analysis: PowerAnalysis
     design_alternatives: list[DesignAlternative] = Field(default_factory=list)
     assumption_ledger: AssumptionLedger

@@ -268,7 +268,13 @@ class TraceRecorder:
             try:
                 await actor.start()
                 fingerprint = await self._fingerprint(server_id, cfg, actor)
-            except (Exception, asyncio.CancelledError) as e:
+            except asyncio.CancelledError as e:
+                await actor.stop()
+                self.trace.seed_metadata.setdefault("boot_failures", []).append(
+                    {"server_id": server_id, "error": f"{type(e).__name__}: {e}"}
+                )
+                raise
+            except Exception as e:
                 await actor.stop()
                 self.trace.seed_metadata.setdefault("boot_failures", []).append(
                     {"server_id": server_id, "error": f"{type(e).__name__}: {e}"}

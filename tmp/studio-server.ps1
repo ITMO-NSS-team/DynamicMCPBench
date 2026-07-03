@@ -1,0 +1,5 @@
+$env:PYTHONUTF8 = '1'
+$env:UV_CACHE_DIR = 'D:\itmo_tools\DynamicMCPBench\.uv-cache'
+$env:UV_PYTHON_INSTALL_DIR = 'D:\itmo_tools\DynamicMCPBench\.uv-python'
+Set-Location 'D:\itmo_tools\DynamicMCPBench\dmcp-studio'
+& uv.exe run uvicorn backend.app:app --host 127.0.0.1 --port 8000 *> 'D:\itmo_tools\DynamicMCPBench\tmp\studio-uvicorn.combined.log'

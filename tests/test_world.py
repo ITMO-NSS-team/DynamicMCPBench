@@ -32,7 +32,7 @@ class FakeRunner:
         # emulate `docker run ... tar -cf /backup/<name> .` by writing the host file
         if "tar" in argv and "-cf" in argv:
             # the host fixture dir is the `-v <hostdir>:/backup` mount
-            hostdir = next(a.split(":")[0] for a in argv if a.endswith(":/backup"))
+            hostdir = next(a.rsplit(":", 1)[0] for a in argv if a.endswith(":/backup"))
             name = argv[argv.index("-cf") + 1].removeprefix("/backup/")
             (__import__("pathlib").Path(hostdir) / name).write_bytes(b"TARBYTES-" + name.encode())
         return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")

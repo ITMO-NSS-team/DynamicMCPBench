@@ -38,15 +38,24 @@
     `StatisticalReport`, `LaunchRequest`, and `LaunchJob` parse and reject
     unknown fields;
   - v1 schemas remain compatible.
-- Local statistical knowledge tests:
-  - retrieval is offline and deterministic;
-  - returned citations map to known guide rule ids or approved source keys;
-  - changing retrieved prose cannot change deterministic validator decisions.
+- Guide citation/source-pack tests:
+  - guide citation lookup is offline and deterministic;
+  - returned citations map to known guide rule ids and source keys;
+  - changing snippet/prose text cannot change deterministic validator decisions;
+  - optional source-pack retrieval, if implemented, is non-authoritative.
 - V2 statistical tests:
+  - Statistical Engine output is deterministic for fixed request, guide snapshot,
+    config, and random seed;
+  - candidate grid is finite and records rejected candidate reasons;
+  - final task budget, attempts, target effect, distribution, and confirmatory
+    slices are engine-scored before the v2 planner returns a recommendation;
   - power/MDE curves are monotonic;
   - paired and unpaired planning assumptions are explicit;
+  - attempts per task do not multiply iid sample size;
   - rank-stability planning is reproducible;
   - non-inferiority margins are handled explicitly;
+  - regression mode refuses missing margins;
+  - diagnostic-only plans refuse broad selection claims;
   - missingness and multiplicity policies are present.
 
 ## Integration Tests
@@ -60,7 +69,8 @@
 - Warning response contains warning cards and export preview.
 - API route tests confirm no benchmark generation/evaluation function is called.
 - `POST /api/advisor/v2/design` returns a rule-gated statistical plan with
-  alternatives, assumptions, citations, and issues.
+  Statistical Engine-derived parameters, alternatives, assumptions, citations,
+  and issues.
 - `POST /api/advisor/v2/validate` returns all applicable issues after edits.
 - `POST /api/advisor/v2/report` consumes an outcome tensor and returns scoped
   allowed/not-allowed claims.

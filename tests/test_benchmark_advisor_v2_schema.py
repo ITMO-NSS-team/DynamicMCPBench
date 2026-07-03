@@ -21,6 +21,7 @@ def _citation() -> dict:
         "title": "Benchmark Advisor statistical guide",
         "section": "G4 - Budget, Power, And Repeats",
         "evidence_status": "curated",
+        "source_keys": ["Colas2018", "Bragg2021", "ProjectInterfaces2026"],
         "snippet": "Budget and power gates are planning constraints.",
         "guide_references": [_guide_ref("G4.budget.mode_thresholds", "budget_power")],
     }
@@ -178,6 +179,7 @@ def test_statistical_plan_parses_and_forbids_unknown_fields():
     plan = V2.StatisticalPlan.model_validate(_plan())
     assert plan.schema_version == V2.STATISTICAL_PLAN_SCHEMA_VERSION
     assert plan.power_analysis.assumptions.paired_design is True
+    assert plan.citations[0].source_keys == ["Colas2018", "Bragg2021", "ProjectInterfaces2026"]
     assert plan.issues[0].repair_options
 
     bad = _plan()

@@ -32,9 +32,14 @@ heuristic gate. V2 is additive:
 - v2 routes live under `/api/advisor/v2/*`;
 - v2 may add fields and richer issue/report objects, but it must not weaken v1
   refusal, clarification, no-export, and no-auto-launch invariants;
-- a RAG/stat-agent proposer may explain or propose, but deterministic rules
-  decide approval, warning, refusal, exportability, launchability, and report
-  claim boundaries.
+- the MVP is guide-first: `STATISTICAL_GUIDE.md` rule ids, source keys, and
+  snippets are enough for method selection and explanations. A RAG/stat-agent
+  proposer may be added later, but deterministic rules decide approval, warning,
+  refusal, exportability, launchability, and report claim boundaries.
+- the Statistical Engine runs before the final v2 design is returned and owns
+  parameter search/scoring for task budget, attempts, target effect,
+  distribution, confirmatory slices, missingness policy, and multiplicity
+  policy.
 
 ## Shared Type Rules
 
@@ -558,6 +563,11 @@ These contracts are implemented by T11-T18. Field names are normative, but v2
 implementation may add non-breaking optional fields after tests and docs are
 updated.
 
+T11 defines the base v2 schema surface. T14 extends that base with typed
+Statistical Engine objects. Until T14 is implemented, existing T11 fixtures may
+omit `engine_decision`; after T14, `POST /api/advisor/v2/design` must return a
+`StatisticalPlan` whose recommendation is derived from an `EngineDecision`.
+
 ### StatisticalIssue
 
 Required fields:
@@ -602,6 +612,64 @@ Required fields:
   and `claim_status`.
 - `assumptions`: `AssumptionLedger`.
 
+### ParameterSearchSpace
+
+Required fields:
+
+- `task_budget_grid`: list of integer task budgets.
+- `attempts_grid`: list of integer attempt counts.
+- `effect_target_grid_pp`: list of percentage-point effects.
+- `distribution_candidates`: list of task-distribution candidates.
+- `confirmatory_slice_limit`: integer `>= 1`.
+- `method_families`: list of method labels.
+- `server_scope_options`: list of server-scope lists.
+
+### ParameterCandidate
+
+Required fields:
+
+- `candidate_id`: stable id.
+- `design`: `AdvisorDesign` or v2-compatible successor.
+- `power_analysis`: `PowerAnalysis`.
+- `assumption_ledger`: `AssumptionLedger`.
+- `issues`: list of `StatisticalIssue`.
+- `score`: numeric score used only for deterministic candidate ordering.
+- `status`: one advisor `status`.
+- `rejection_reasons`: list of strings.
+- `repair_actions`: list of strings.
+
+### EngineComputationTrace
+
+Required fields:
+
+- `engine_version`: non-empty string.
+- `guide_version`: literal `"statistical_guide.v1"`.
+- `guide_snapshot_id`: nullable string.
+- `random_seed`: nullable integer.
+- `candidate_count`: integer `>= 1`.
+- `formula_versions`: list of method/formula labels.
+- `empirical_prior_sources`: list of local source ids.
+- `validator_rule_ids`: list of guide rule ids or validator rule ids.
+- `selected_reason`: non-empty string.
+
+### EngineDecision
+
+Required fields:
+
+- `schema_version`: literal `"benchmark_advisor.engine_decision.v2"`.
+- `recommended_candidate_id`: stable id.
+- `recommended_design`: `AdvisorDesign` or v2-compatible successor.
+- `parameter_search_space`: `ParameterSearchSpace`.
+- `parameter_candidates`: non-empty list of `ParameterCandidate`.
+- `design_alternatives`: list of `DesignAlternative`.
+- `power_analysis`: `PowerAnalysis`.
+- `assumption_ledger`: `AssumptionLedger`.
+- `claim_card`: object with `allowed_claims`, `not_allowed_claims`, and
+  `plain_language_summary`.
+- `issues`: list of `StatisticalIssue`.
+- `citations`: list of local statistical-knowledge citations.
+- `computation_trace`: `EngineComputationTrace`.
+
 ### DesignAlternative
 
 Required fields:
@@ -621,6 +689,8 @@ Required fields:
 
 - `schema_version`: literal `"benchmark_advisor.statistical_plan.v2"`.
 - `design`: `AdvisorDesign` or v2-compatible successor.
+- `engine_decision`: `EngineDecision` once T14 lands; omitted only by the
+  T11-base contract before Statistical Engine implementation.
 - `power_analysis`: `PowerAnalysis`.
 - `design_alternatives`: list of `DesignAlternative`.
 - `assumption_ledger`: `AssumptionLedger`.
@@ -721,7 +791,9 @@ citations, alternatives, and v1-compatible design/export data where applicable.
 
 Behavior:
 
-- may use local RAG/stat-agent proposal;
+- uses `STATISTICAL_GUIDE.md` rule ids/source keys as the default knowledge
+  source;
+- may use local RAG/stat-agent proposal only as an optional future enhancement;
 - must run deterministic validation before returning;
 - must keep the route side-effect free.
 

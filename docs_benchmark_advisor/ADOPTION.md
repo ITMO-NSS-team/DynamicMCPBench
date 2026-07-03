@@ -94,7 +94,7 @@ feature list; Stage 0 closes the obvious "is the generated benchmark statistical
 sound enough to support the claim?" question *before* expensive generation, and it
 needs only one figure to tell the whole pipeline story.
 
-## D7 — V2 direction: dual-engine statistical advisor before guarded handoff
+## D7 — V2 direction: guide-first statistical advisor before guarded handoff
 
 The next wave after the v1 demo is **not** a direct jump to launch buttons. It is:
 
@@ -102,14 +102,17 @@ The next wave after the v1 demo is **not** a direct jump to launch buttons. It i
 statistical credibility -> guarded handoff -> hardening/fixups
 ```
 
-The chosen v2 architecture is dual-engine:
+The chosen v2 MVP architecture is guide-first:
 
-- a local RAG/stat-agent layer may propose richer statistical plans, alternatives,
-  assumptions, citations, and explanations;
+- `STATISTICAL_GUIDE.md` supplies rule ids, method constraints, source keys, and
+  explanation snippets;
+- the Statistical Engine searches and scores task budgets, attempts, effect
+  targets, distributions, assumptions, and alternatives before the planner
+  returns a recommendation;
 - deterministic rules remain the authority for approval, warnings, refusals,
   exportability, launchability, and report claim boundaries;
-- runtime statistical retrieval must be local/offline and based on
-  human-approved sources;
+- a local RAG/stat-agent layer may be added later for richer explanations, but
+  it is optional and must remain local/offline and non-authoritative;
 - first launch scope is corpus/specs/traces through `scripts/build_corpus.py`,
   not leaderboard/eval.
 

@@ -80,14 +80,15 @@ V2 turns the advisor into a real statistical workbench. It keeps the v1 safety
 rule, but expands the statistical surface:
 
 ```text
-RAG/stat-agent proposes and explains -> deterministic rules decide
+guide-first planner -> Statistical Engine scores parameters -> deterministic rules decide
 ```
 
 The central user value is not just "approved/refused"; it is understanding what
 claim a benchmark can support, what budget is needed, which assumptions matter,
 and how completed outcomes should be interpreted. V2 therefore adds planning
-power curves, design alternatives, assumption ledgers, local statistical
-citations, guarded corpus launch, and post-run reports.
+power curves, design alternatives, assumption ledgers, guide-backed citations,
+guarded corpus launch, and post-run reports. RAG/stat-agent support is optional
+future machinery for richer explanations, not a requirement for the MVP.
 
 ## 5. Statistical knowledge model
 
@@ -107,9 +108,11 @@ The deterministic validator does not grade prose quality in v1. It checks
 required fields, known guide rule ids, claim boundaries, thresholds, refusal
 conditions, and exportability.
 
-V2 adds a local retrieval corpus built from the guide and human-approved
-references. Retrieved text supports explanations and source visibility, but it
-does not override deterministic validator decisions.
+V2 MVP adds a guide citation index over `STATISTICAL_GUIDE.md`: rule ids,
+sections, source keys, evidence status, snippets, and repair text. A larger
+local retrieval corpus built from human-approved references can be added later
+for richer source cards, but it does not override deterministic validator
+decisions and must not block the Statistical Engine.
 
 ## 6. Supported planning modes
 
@@ -146,8 +149,9 @@ does not override deterministic validator decisions.
 | Studio UI | first-stage planning screen | `planning/TASKS/T06-studio-ui-shell.md` |
 | Export Handoff | JSON preview shape, no execution | `planning/TASKS/T07-export-handoff.md` |
 | Golden Fixtures | shared examples for independent agents | `planning/TASKS/T08-golden-fixtures.md` |
-| Local Statistical Knowledge Base | offline RAG citations and background | `planning/TASKS/T12-local-statistical-knowledge-base.md` |
-| Dual-Engine Planner | stat-agent/RAG proposer plus deterministic gate | `planning/TASKS/T13-dual-engine-planner.md` |
+| Guide Citation Index / Optional Source Pack | guide rule citations; optional offline source cards | `planning/TASKS/T12-local-statistical-knowledge-base.md` |
+| Statistical Engine | parameter search, power/MDE, assumptions, alternatives | `planning/TASKS/T14-real-planning-statistics.md` |
+| Guide-First V2 Planner | intent normalization, method constraints, engine composition | `planning/TASKS/T13-dual-engine-planner.md` |
 | Statistical Report | post-run outcome-tensor analytics | `planning/TASKS/T15-post-run-statistical-report.md` |
 | Guarded Handoff | confirmed corpus/specs/traces launch jobs | `planning/TASKS/T17-guarded-corpus-handoff.md` |
 

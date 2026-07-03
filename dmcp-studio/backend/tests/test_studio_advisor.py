@@ -92,3 +92,25 @@ def test_malformed_request_is_rejected():
 def test_existing_routes_still_work():
     assert client.get("/api/health").status_code == 200
     assert client.get("/api/servers").status_code == 200
+
+
+def test_v2_design_route_returns_engine_scored_statistical_plan():
+    r = client.post(
+        "/api/advisor/v2/design",
+        json={
+            "schema_version": "benchmark_advisor.v2",
+            "intent": "Compare two local agents on short step finance workflows.",
+            "mode": "pairwise",
+            "task_budget": 70,
+            "attempts_per_task": 1,
+            "candidate_models": ["agent-a", "agent-b"],
+            "server_scope": ["finance-tools"],
+        },
+    )
+    assert r.status_code == 200
+    body = r.json()
+    plan = body["statistical_plan"]
+    assert body["status"] == "approved"
+    assert plan["engine_decision"]["recommended_candidate_id"]
+    assert plan["design"]["task_budget"] == 100
+    assert body["export_config"]["tasks"] == 100

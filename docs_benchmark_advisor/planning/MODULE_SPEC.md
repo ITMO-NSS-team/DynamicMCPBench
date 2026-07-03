@@ -37,12 +37,14 @@ V2 upgrades Stage 2 from placeholder to implementation target:
 
 1. Build a full statistical plan with alternatives, assumptions, citations, and
    all issue reporting.
-2. Use local statistical retrieval and/or a stat-agent only as a proposer and
-   explanation layer.
-3. Keep deterministic validation as the authority for status, export, launch,
+2. Use `STATISTICAL_GUIDE.md` as the default knowledge source and implement the
+   Statistical Engine as the parameter-search/scoring core.
+3. Treat local statistical retrieval and/or a stat-agent as optional future
+   explanation layers, not MVP dependencies.
+4. Keep deterministic validation as the authority for status, export, launch,
    and report claim boundaries.
-4. Add guarded corpus generation handoff after explicit confirmation.
-5. Implement post-run statistical reports from outcome tensors.
+5. Add guarded corpus generation handoff after explicit confirmation.
+6. Implement post-run statistical reports from outcome tensors.
 
 ## Users
 
@@ -111,8 +113,8 @@ coverage for model-selection claims.
 - Existing prototype routes or schema versions do not satisfy v1 unless wrapped
   by the v1 `/api/advisor/design` and `/api/advisor/validate` contracts.
 - User approval is required before any future generation handoff.
-- V2 RAG/stat-agent output is advisory only; deterministic rules remain the
-  authority.
+- V2 does not require RAG/stat-agent output for the MVP. If added later, it is
+  advisory only and deterministic rules remain the authority.
 - The first v2 launch path is corpus/specs/traces generation only.
 
 ## Definition Of Done
@@ -144,7 +146,8 @@ documented in `INTERFACES.md`.
 V2 is done when:
 
 - v2 schemas and routes are implemented without breaking v1.
-- local statistical retrieval is offline, audited, and citation-backed.
+- guide citation lookup is offline, audited, and citation-backed; optional
+  source-pack retrieval remains non-authoritative.
 - planning statistics expose power curves, design alternatives, assumptions,
   sensitivity, missingness, and multiplicity policies.
 - post-run reports consume outcome tensors and state scoped allowed/not-allowed

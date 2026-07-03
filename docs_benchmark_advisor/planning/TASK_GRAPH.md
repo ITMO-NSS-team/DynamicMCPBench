@@ -21,9 +21,9 @@ graph TD
   T09["T09 integration smoke"]
   T10["T10 hardening review"]
   T11["T11 v2 statistical contract"]
-  T12["T12 local stats knowledge base"]
-  T13["T13 dual-engine planner"]
-  T14["T14 real planning statistics"]
+  T12["T12 guide citation index / optional source pack"]
+  T13["T13 guide-first v2 planner composition"]
+  T14["T14 statistical engine / real planning statistics"]
   T15["T15 post-run report"]
   T16["T16 statistical advisor UI v2"]
   T17["T17 guarded corpus handoff"]
@@ -67,8 +67,10 @@ graph TD
   T11 --> T13
   T11 --> T14
   T11 --> T15
-  T12 --> T13
-  T12 --> T14
+  T03A --> T12
+  T03A --> T14
+  T04 --> T14
+  T14 --> T13
   T13 --> T16
   T14 --> T15
   T14 --> T16
@@ -92,8 +94,11 @@ graph TD
 - T09 and T10 are sequential integration/hardening tasks.
 - Follow-up advisor quality work runs as: BA1.4 guide extension -> BA2.4
   planner intent extraction -> BA2.5 validator distractor checks -> BA4 smoke.
-- The next advisor wave runs as: T11 v2 contracts -> T12/T13/T14 statistical
-  core -> T15 reports -> T16 UI -> T17 guarded handoff -> T18 hardening.
+- The next advisor wave runs as: T11 v2 contracts -> T14 Statistical Engine ->
+  T13 guide-first response composition and deterministic gate -> T16 UI / T17
+  guarded handoff, with T15 post-run reports after T14. T12 is a small guide
+  citation index and optional source-pack task; it can run in parallel and must
+  not block the engine MVP.
 
 ## Blocking Tasks
 
@@ -108,7 +113,10 @@ graph TD
 - T09 blocks hardening review.
 - T11 blocks all v2 implementation because it defines additive schemas and
   route boundaries.
-- T12 blocks RAG/stat-agent explanations, but not deterministic fallback tests.
+- T12 blocks only richer source cards. It does not block T14 or T13 because the
+  MVP can cite `STATISTICAL_GUIDE.md` directly.
+- T14 blocks final v2 planner composition because final parameters must be
+  engine-scored before the API returns a recommendation.
 - T14 blocks report and UI power-curve surfaces.
 - T16 blocks guarded launch UI.
 - T17 blocks v2 launch hardening.
@@ -124,11 +132,13 @@ graph TD
 7. T09 integration smoke.
 8. T10 hardening review.
 9. T11 v2 statistical contract.
-10. T12 local statistical knowledge base, T13 dual-engine planner, and T14 real
-    planning statistics.
-11. T15 post-run statistical report and T16 statistical UI.
-12. T17 guarded corpus handoff.
-13. T18 v2 hardening and fixups.
+10. T14 Statistical Engine.
+11. T13 guide-first v2 planner/API composition after engine scoring.
+12. T12 guide citation index / optional approved source pack, in parallel when
+    useful.
+13. T15 post-run statistical report and T16 statistical UI.
+14. T17 guarded corpus handoff.
+15. T18 v2 hardening and fixups.
 
 ## Integration Checkpoints
 
@@ -143,9 +153,12 @@ graph TD
 - **Checkpoint H**: legacy advisor route, if retained, cannot be the only v1 API
   route under test.
 - **Checkpoint I**: v2 contracts exist and v1 compatibility tests still pass.
-- **Checkpoint J**: local statistical knowledge retrieval is offline,
-  deterministic, and citation-audited.
-- **Checkpoint K**: v2 planner proposals are always deterministic-rule-gated.
+- **Checkpoint J**: guide citations are deterministic and citation-audited;
+  optional retrieval/source-pack work is offline and non-authoritative.
+- **Checkpoint K**: v2 planner proposals are guide-first and always
+  deterministic-rule-gated.
+- **Checkpoint K2**: v2 final design parameters are selected by the Statistical
+  Engine before the API returns a recommendation.
 - **Checkpoint L**: post-run report consumes an outcome tensor and states scoped
   allowed/disallowed claims.
 - **Checkpoint M**: Studio carries advisor state into Collect and validates
@@ -187,6 +200,6 @@ graph TD
 - Moving advisor logic into core pipeline internals.
 - Removing or bypassing the v1 `/api/advisor/design` and
   `/api/advisor/validate` route contract.
-- Letting RAG/stat-agent output override deterministic validation.
+- Letting optional RAG/stat-agent output override deterministic validation.
 - Launching anything beyond corpus/specs/traces from the first guarded handoff.
 - Adding runtime network retrieval to the statistical knowledge layer.
