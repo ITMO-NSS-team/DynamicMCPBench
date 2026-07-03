@@ -11,7 +11,11 @@ from __future__ import annotations
 from .export import build_export_config, is_exportable
 from .planner import plan
 from .schema import AdvisorRequest
-from .v2_engine import _intent_issue, _issues_from_validation, run_statistical_engine
+from .v2_engine import (
+    _intent_issue,
+    refresh_engine_decision_for_design,
+    run_statistical_engine,
+)
 from .v2_schema import (
     AdvisorV2DesignRequest,
     AdvisorV2DesignResponse,
@@ -19,7 +23,8 @@ from .v2_schema import (
     AdvisorV2ValidationResponse,
     StatisticalPlan,
 )
-from .validator import validate_design
+
+_MAX_VALIDATE_REFRESH_DEPTH = 1
 
 
 def advisor_v2_design(request: AdvisorV2DesignRequest) -> AdvisorV2DesignResponse:
@@ -69,23 +74,49 @@ def advisor_v2_design(request: AdvisorV2DesignRequest) -> AdvisorV2DesignRespons
     )
 
 
-def advisor_v2_validate(request: AdvisorV2ValidationRequest) -> AdvisorV2ValidationResponse:
+def advisor_v2_validate(
+    request: AdvisorV2ValidationRequest,
+    *,
+    refresh_depth: int = 0,
+) -> AdvisorV2ValidationResponse:
     """Validate an edited v2 plan without rerunning generation or evaluation."""
 
     sandbox_required = None
     if request.original_request is not None:
         sandbox_required = _sandbox_required(request.original_request, request.statistical_plan.design)
-    outcome = validate_design(request.statistical_plan.design, sandbox_required=sandbox_required)
-    issues = _issues_from_validation(outcome)
-    status = outcome.status
-    plan_obj = request.statistical_plan.model_copy(update={"issues": issues})
+
+    original_request = request.original_request or _request_from_plan(request.statistical_plan)
+    refresh = refresh_engine_decision_for_design(
+        original_request,
+        request.statistical_plan.design,
+        sandbox_required=sandbox_required,
+        refresh_depth=refresh_depth,
+        max_refresh_depth=_MAX_VALIDATE_REFRESH_DEPTH,
+    )
+    decision = refresh.decision
+    outcome = refresh.validation_outcome
+    issues = decision.issues
+    status = _decision_status(decision)
+    plan_obj = request.statistical_plan.model_copy(
+        update={
+            "design": decision.recommended_design,
+            "engine_decision": decision,
+            "power_analysis": decision.power_analysis,
+            "design_alternatives": decision.design_alternatives,
+            "assumption_ledger": decision.assumption_ledger,
+            "issues": issues,
+            "citations": decision.citations,
+            "claim_card": decision.claim_card,
+        },
+        deep=True,
+    )
     export = None
     if is_exportable(status):
         export = build_export_config(
-            request.statistical_plan.design,
+            decision.recommended_design,
             outcome.warnings,
             sandbox_required=sandbox_required,
-            server_scope=(request.original_request.server_scope if request.original_request else []),
+            server_scope=original_request.server_scope,
         )
     return AdvisorV2ValidationResponse(
         schema_version="benchmark_advisor.v2",
@@ -110,6 +141,24 @@ def _to_v1_request(request: AdvisorV2DesignRequest) -> AdvisorRequest:
         beta=request.beta,
         deployment_context=request.deployment_context,
         user_overrides=request.user_overrides,
+    )
+
+
+def _request_from_plan(plan: StatisticalPlan) -> AdvisorV2DesignRequest:
+    design = plan.design
+    return AdvisorV2DesignRequest(
+        schema_version="benchmark_advisor.v2",
+        intent=design.evaluation_question,
+        mode=design.mode,
+        task_budget=design.task_budget,
+        attempts_per_task=design.attempts_per_task,
+        candidate_models=design.candidate_models,
+        target_detectable_effect_pp=design.target_detectable_effect_pp,
+        alpha=design.analysis_plan.alpha,
+        beta=design.analysis_plan.beta,
+        deployment_context=None,
+        server_scope=[],
+        user_overrides={},
     )
 
 

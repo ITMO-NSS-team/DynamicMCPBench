@@ -114,3 +114,34 @@ def test_v2_design_route_returns_engine_scored_statistical_plan():
     assert plan["engine_decision"]["recommended_candidate_id"]
     assert plan["design"]["task_budget"] == 100
     assert body["export_config"]["tasks"] == 100
+
+
+def test_v2_validate_route_refreshes_edited_plan_and_refuses_invalid_candidate_count():
+    request = {
+        "schema_version": "benchmark_advisor.v2",
+        "intent": "Compare two local agents on short step finance workflows.",
+        "mode": "pairwise",
+        "task_budget": 70,
+        "attempts_per_task": 1,
+        "candidate_models": ["agent-a", "agent-b"],
+        "server_scope": ["finance-tools"],
+    }
+    plan = client.post("/api/advisor/v2/design", json=request).json()["statistical_plan"]
+    plan["design"]["candidate_models"].append("agent-c")
+
+    r = client.post(
+        "/api/advisor/v2/validate",
+        json={
+            "schema_version": "benchmark_advisor.v2",
+            "statistical_plan": plan,
+            "original_request": request,
+            "edited_fields": ["design.candidate_models"],
+        },
+    )
+
+    assert r.status_code == 200
+    body = r.json()
+    assert body["status"] == "refused"
+    assert body["export_config"] is None
+    assert body["launchable"] is False
+    assert any(issue["code"] == "unsupported_candidate_model_count" for issue in body["issues"])

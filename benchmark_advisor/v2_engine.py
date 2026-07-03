@@ -9,11 +9,19 @@ network retrieval, generation, or post-run inference happens here.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import dataclass
 
 from .guide import GUIDE_VERSION
 from .guide_citations import GuideCitationIndex, load_guide_citation_index
 from .planner import PlannerResult, plan
-from .schema import AdvisorRequest, Refusal, StatisticalGuideReference, Status, WarningCard
+from .schema import (
+    AdvisorDesign,
+    AdvisorRequest,
+    Refusal,
+    StatisticalGuideReference,
+    Status,
+    WarningCard,
+)
 from .stats import ci_width_pp, planned_mde_pp, required_tasks_for_mde
 from .v2_schema import (
     AdvisorV2DesignRequest,
@@ -37,6 +45,14 @@ ENGINE_DECISION_SCHEMA_VERSION = "benchmark_advisor.engine_decision.v2"
 _PAIRWISE_REPAIR = "Use exactly two candidate models for a pairwise comparison."
 _LEADERBOARD_REPAIR = "Use at least three candidate models for leaderboard rank-stability planning."
 _REGRESSION_REPAIR = "Set target_detectable_effect_pp as the predeclared non-inferiority margin."
+
+
+@dataclass(frozen=True)
+class EngineValidationRefresh:
+    """One bounded Statistical Engine refresh for an edited v2 design."""
+
+    decision: EngineDecision
+    validation_outcome: ValidationOutcome
 
 
 def run_statistical_engine(
@@ -109,6 +125,66 @@ def run_statistical_engine(
             selected_reason=_selected_reason(recommended),
         ),
     )
+
+
+def refresh_engine_decision_for_design(
+    request: AdvisorV2DesignRequest,
+    design: AdvisorDesign,
+    *,
+    sandbox_required: bool | None = None,
+    guide_index: GuideCitationIndex | None = None,
+    refresh_depth: int = 0,
+    max_refresh_depth: int = 1,
+) -> EngineValidationRefresh:
+    """Refresh engine-derived fields for one edited design without recursive routing."""
+
+    if refresh_depth >= max_refresh_depth:
+        raise ValueError("v2 validation refresh depth exceeded")
+
+    index = guide_index or load_guide_citation_index()
+    outcome = validate_design(design, sandbox_required=sandbox_required)
+    issues = _issues_from_validation(outcome)
+    refs = design.criteria[0].guide_references
+    issues.extend(_method_constraint_issues_for_design(design, refs))
+    status = _status_from_issues(outcome.status, issues)
+    assumptions = _assumptions(design.mode, refs)
+    power = _power_analysis(design, status, assumptions)
+    candidate = ParameterCandidate(
+        candidate_id="validation.edited",
+        design=design,
+        power_analysis=power,
+        assumption_ledger=assumptions,
+        issues=issues,
+        score=_score(status, design.task_budget),
+        status=status,
+        rejection_reasons=[issue.message for issue in issues if issue.severity in ("warning", "critical")],
+        repair_actions=[repair for issue in issues for repair in issue.repair_options],
+    )
+    decision = EngineDecision(
+        schema_version=ENGINE_DECISION_SCHEMA_VERSION,
+        recommended_candidate_id=candidate.candidate_id,
+        recommended_design=design,
+        parameter_search_space=_search_space_for_edited_design(request, design),
+        parameter_candidates=[candidate],
+        design_alternatives=_design_alternatives([candidate], candidate),
+        power_analysis=power,
+        assumption_ledger=assumptions,
+        claim_card=_claim_card(status, design.mode),
+        issues=issues,
+        citations=_citations_for_design(index, design.mode, design.criteria[0].test_family),
+        computation_trace=EngineComputationTrace(
+            engine_version=ENGINE_VERSION,
+            guide_version=GUIDE_VERSION,
+            guide_snapshot_id="STATISTICAL_GUIDE.md",
+            random_seed=None,
+            candidate_count=1,
+            formula_versions=["planned_mde_pp", "ci_width_pp", "validator.v1", "v2.validate.refresh"],
+            empirical_prior_sources=[],
+            validator_rule_ids=_validator_rule_ids(candidate),
+            selected_reason="Edited design refreshed once by v2 validate; no recursive route call.",
+        ),
+    )
+    return EngineValidationRefresh(decision=decision, validation_outcome=outcome)
 
 
 def _to_v1_request(
@@ -259,34 +335,63 @@ def _issue_from_refusal(refusal: Refusal) -> StatisticalIssue:
 def _method_constraint_issues(
     request: AdvisorV2DesignRequest, refs: list[StatisticalGuideReference]
 ) -> list[StatisticalIssue]:
+    return _method_constraint_issues_for_fields(
+        mode=request.mode,
+        candidate_models=request.candidate_models,
+        target_detectable_effect_pp=request.target_detectable_effect_pp,
+        refs=refs,
+    )
+
+
+def _method_constraint_issues_for_design(
+    design: AdvisorDesign, refs: list[StatisticalGuideReference]
+) -> list[StatisticalIssue]:
+    return _method_constraint_issues_for_fields(
+        mode=design.mode,
+        candidate_models=design.candidate_models,
+        target_detectable_effect_pp=design.target_detectable_effect_pp,
+        refs=refs,
+    )
+
+
+def _method_constraint_issues_for_fields(
+    *,
+    mode: str,
+    candidate_models: list[str],
+    target_detectable_effect_pp: float | None,
+    refs: list[StatisticalGuideReference],
+) -> list[StatisticalIssue]:
     issues: list[StatisticalIssue] = []
-    if request.mode == "pairwise" and len(request.candidate_models) != 2:
+    if mode == "pairwise" and len(candidate_models) != 2:
         issues.append(
             _constraint_issue(
                 code="unsupported_candidate_model_count",
                 message="Pairwise planning requires exactly two candidate models.",
                 reason="paired task-level comparisons need one A/B candidate pair",
                 repair=_PAIRWISE_REPAIR,
+                failed_field="candidate_models",
                 refs=refs,
             )
         )
-    if request.mode == "leaderboard" and len(request.candidate_models) < 3:
+    if mode == "leaderboard" and len(candidate_models) < 3:
         issues.append(
             _constraint_issue(
                 code="unsupported_candidate_model_count",
                 message="Leaderboard planning requires at least three candidate models.",
                 reason="rank-stability planning needs a leaderboard candidate set",
                 repair=_LEADERBOARD_REPAIR,
+                failed_field="candidate_models",
                 refs=refs,
             )
         )
-    if request.mode == "regression" and request.target_detectable_effect_pp is None:
+    if mode == "regression" and target_detectable_effect_pp is None:
         issues.append(
             _constraint_issue(
                 code="missing_non_inferiority_margin",
                 message="Regression planning needs a predeclared non-inferiority margin.",
                 reason="post-hoc non-inferiority margins are not statistically defensible",
                 repair=_REGRESSION_REPAIR,
+                failed_field="target_detectable_effect_pp",
                 refs=refs,
             )
         )
@@ -299,13 +404,14 @@ def _constraint_issue(
     message: str,
     reason: str,
     repair: str,
+    failed_field: str,
     refs: list[StatisticalGuideReference],
 ) -> StatisticalIssue:
     return StatisticalIssue(
         severity="critical",
         code=code,
         message=message,
-        failed_field="candidate_models",
+        failed_field=failed_field,
         failed_criterion_id="criterion.primary",
         statistical_reason=reason,
         repair_options=[repair],
@@ -428,6 +534,21 @@ def _design_alternatives(
         )
         for alt_id, label, candidate, tradeoff in selected
     ]
+
+
+def _search_space_for_edited_design(
+    request: AdvisorV2DesignRequest, design: AdvisorDesign
+) -> ParameterSearchSpace:
+    target = design.target_detectable_effect_pp or planned_mde_pp(design.task_budget)
+    return ParameterSearchSpace(
+        task_budget_grid=[design.task_budget],
+        attempts_grid=[design.attempts_per_task],
+        effect_target_grid_pp=[round(target, 3)],
+        distribution_candidates=[design.task_distribution],
+        confirmatory_slice_limit=max(1, design.task_budget // 40),
+        method_families=[design.criteria[0].test_family],
+        server_scope_options=[request.server_scope],
+    )
 
 
 def _claim_card(status: Status, mode: str) -> ClaimCard:
