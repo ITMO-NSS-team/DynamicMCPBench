@@ -376,11 +376,19 @@ engine while keeping all v1 routes compatible.
   API returns it. No RAG/stat-agent is required for the MVP.
 
 ### BA5.4 - Statistical Engine and real planning statistics
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-04
 - deps: BA5.1 BA2.3 BA1.2
 - source: `planning/TASKS/T14-real-planning-statistics.md`
+- note: implemented as the BA5.4 deterministic Statistical Engine expansion in
+  `benchmark_advisor/v2_engine.py`, `benchmark_advisor/stats.py`, and
+  `benchmark_advisor/v2_schema.py`: finite stronger-budget search; unique-task
+  MDE/CI planning; mode-specific formula traces; typed planning diagnostics for
+  sensitivity, effective N, leaderboard rank resolution, and diagnostic slices;
+  regression margin checks; missingness/floor-ceiling issues; and refreshed
+  claim cards / alternatives. Covered by targeted stats/schema/v2 engine tests
+  plus the full Benchmark Advisor test suite.
 - done-when: `planning/STATISTICAL_ENGINE_DESIGN.md` is implemented as a
   deterministic pre-recommendation engine; pre-run planning searches and scores
   candidate task budgets, attempts, effect targets, distributions,

@@ -68,6 +68,17 @@ def _power_analysis() -> dict:
             {"task_budget": 80, "detectable_effect_pp": 22.0, "claim_status": "warning"},
             {"task_budget": 160, "detectable_effect_pp": 15.0, "claim_status": "approved"},
         ],
+        "planning_diagnostics": [
+            {
+                "diagnostic_id": "diagnostic.n_eff.unique_tasks",
+                "label": "Effective sample size caveat",
+                "value": 120,
+                "unit": "unique_tasks",
+                "status": "approved",
+                "interpretation": "Planning uses unique tasks as the information unit.",
+                "guide_references": [_guide_ref("G4.repeats.not_independent_tasks", "budget_power")],
+            }
+        ],
         "assumptions": _assumptions(),
     }
 
@@ -179,6 +190,7 @@ def test_statistical_plan_parses_and_forbids_unknown_fields():
     plan = V2.StatisticalPlan.model_validate(_plan())
     assert plan.schema_version == V2.STATISTICAL_PLAN_SCHEMA_VERSION
     assert plan.power_analysis.assumptions.paired_design is True
+    assert plan.power_analysis.planning_diagnostics[0].diagnostic_id == "diagnostic.n_eff.unique_tasks"
     assert plan.citations[0].source_keys == ["Colas2018", "Bragg2021", "ProjectInterfaces2026"]
     assert plan.issues[0].repair_options
 

@@ -3,15 +3,21 @@
 from __future__ import annotations
 
 from benchmark_advisor.stats import (
+    BASELINE_SENSITIVITY_RATES,
     COVERAGE_THRESHOLDS,
+    DEFAULT_BASELINE_RATE,
     HEURISTIC_LABEL,
     budget_mde_curve,
     ci_width_pp,
     coverage_diagnostic,
     coverage_status,
+    diagnostic_slice_ci_width_pp,
+    leaderboard_rank_resolution_pp,
     plan_statistics,
     planned_mde_pp,
+    planned_mde_pp_for_unique_tasks,
     required_tasks_for_mde,
+    slice_task_count,
 )
 
 
@@ -32,6 +38,19 @@ def test_mde_is_capped_and_handles_degenerate_n():
     assert planned_mde_pp(0) == 100.0
     assert planned_mde_pp(-5) == 100.0
     assert 0.0 < planned_mde_pp(1000) < 100.0
+
+
+def test_unique_task_mde_caps_effective_sample_size():
+    assert planned_mde_pp_for_unique_tasks(100) == planned_mde_pp(100)
+    assert planned_mde_pp_for_unique_tasks(100, effective_sample_size=300) == planned_mde_pp(100)
+    assert planned_mde_pp_for_unique_tasks(100, effective_sample_size=50) == planned_mde_pp(50)
+
+
+def test_ba54_sensitivity_and_mode_helpers_use_unique_tasks():
+    assert BASELINE_SENSITIVITY_RATES == (0.2, 0.5, 0.8)
+    assert slice_task_count(100, 0.4) == 40
+    assert diagnostic_slice_ci_width_pp(100, 0.4) == ci_width_pp(40)
+    assert leaderboard_rank_resolution_pp(100, DEFAULT_BASELINE_RATE) == planned_mde_pp_for_unique_tasks(100)
 
 
 def test_required_tasks_roundtrips_monotonically():

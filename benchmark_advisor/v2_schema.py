@@ -96,6 +96,16 @@ class BudgetAlternative(_Base):
     claim_status: Status
 
 
+class PlanningDiagnostic(_Base):
+    diagnostic_id: NonEmptyStr
+    label: NonEmptyStr
+    value: float | int | str
+    unit: str | None = None
+    status: Status | None = None
+    interpretation: NonEmptyStr
+    guide_references: list[StatisticalGuideReference] = Field(default_factory=list)
+
+
 class PowerAnalysis(_Base):
     alpha: UnitOpen
     target_power: UnitOpen
@@ -104,6 +114,7 @@ class PowerAnalysis(_Base):
     method: NonEmptyStr
     power_curve: list[PowerCurvePoint] = Field(default_factory=list)
     budget_alternatives: list[BudgetAlternative] = Field(default_factory=list)
+    planning_diagnostics: list[PlanningDiagnostic] = Field(default_factory=list)
     assumptions: AssumptionLedger
 
 

@@ -1,9 +1,14 @@
 # Benchmark Advisor Statistical Engine Design
 
-Status: design contract for BA5.4 / T14.
+Status: implemented design contract for BA5.4 / T14.
 Audience: implementation agents working on the v2 Benchmark Advisor.
 Authority: `STATISTICAL_GUIDE.md` and deterministic validators remain
 normative. This document defines the engine architecture and execution contract.
+
+Implementation note: the deterministic BA5.4 expansion is implemented in
+`benchmark_advisor/v2_engine.py`, `benchmark_advisor/stats.py`, and
+`benchmark_advisor/v2_schema.py`; see `tests/test_benchmark_advisor_v2_engine.py`
+for the canonical service-level behaviors.
 
 ## Purpose
 
