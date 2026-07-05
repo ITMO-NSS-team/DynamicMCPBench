@@ -16,9 +16,12 @@ from .v2_engine import (
     refresh_engine_decision_for_design,
     run_statistical_engine,
 )
+from .v2_report import build_statistical_report
 from .v2_schema import (
     AdvisorV2DesignRequest,
     AdvisorV2DesignResponse,
+    AdvisorV2ReportRequest,
+    AdvisorV2ReportResponse,
     AdvisorV2ValidationRequest,
     AdvisorV2ValidationResponse,
     StatisticalPlan,
@@ -125,6 +128,15 @@ def advisor_v2_validate(
         issues=issues,
         export_config=export,
         launchable=export is not None,
+    )
+
+
+def advisor_v2_report(request: AdvisorV2ReportRequest) -> AdvisorV2ReportResponse:
+    """Compute a scoped v2 post-run statistical report."""
+
+    return AdvisorV2ReportResponse(
+        schema_version="benchmark_advisor.v2",
+        report=build_statistical_report(request),
     )
 
 

@@ -398,22 +398,38 @@ engine while keeping all v1 routes compatible.
   diagnostics, sensitivity analysis, and budget alternatives.
 
 ### BA5.5 - Post-run statistical report
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-04
 - deps: BA5.1 BA5.4
 - source: `planning/TASKS/T15-post-run-statistical-report.md`
+- note: implemented as deterministic v2 outcome-tensor reporting in
+  `benchmark_advisor/v2_report.py`, exposed through
+  `benchmark_advisor/v2_service.py` and `/api/advisor/v2/report`. Reports cover
+  pairwise paired task deltas + bootstrap CIs, leaderboard pass-rate summaries +
+  task-bootstrap rank stability, regression non-inferiority margins, descriptive
+  diagnostic slices, missingness status downgrades, multiplicity notes, and
+  scoped allowed/not-allowed claims. Covered by
+  `tests/test_benchmark_advisor_v2_report.py` plus Studio route smoke coverage.
 - done-when: outcome tensors can be converted into scoped statistical reports
   for pairwise, leaderboard, regression, and diagnostic modes, including CIs,
   effect sizes, rank stability, missingness, multiplicity notes, and allowed /
   disallowed claims.
 
 ### BA5.6 - Statistical Advisor UI v2
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-04
 - deps: BA5.1 BA5.3 BA5.4 BA5.5
 - source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`
+- note: implemented in the Studio frontend as a typed v2 statistical workbench:
+  `dmcp-studio/frontend/src/api/schemas.ts` now types v2 advisor design,
+  export, issue, statistical-plan, outcome-tensor, and report objects; Stage 0
+  calls `/api/advisor/v2/design`, validates edited plans through
+  `/api/advisor/v2/validate`, renders claim cards, power curves, method cards,
+  assumptions, alternatives, repairs, citations, and a typed post-run report
+  fixture via `/api/advisor/v2/report`; v1 response parsing remains covered
+  during migration.
 - done-when: Studio renders claim cards, power curves, method cards, assumption
   panels, alternatives, repair actions, citations, and post-run report views
   using typed v2 frontend schemas.

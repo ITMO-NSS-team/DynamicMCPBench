@@ -2,14 +2,23 @@
 // validated against the zod schemas; the two streaming stages use EventSource.
 import type { z } from "zod";
 import {
+  AdvisorV2DesignResponseSchema,
+  AdvisorV2ReportResponseSchema,
+  AdvisorV2ValidationResponseSchema,
   CandidateListSchema,
   DistillOutSchema,
   DResponseSchema,
   GoalOutSchema,
+  HealthSchema,
   LeaderboardSchema,
   ServerListSchema,
 } from "./schemas";
-import type { Mode } from "./schemas";
+import type {
+  AdvisorV2DesignRequest,
+  AdvisorV2ReportRequest,
+  AdvisorV2ValidationRequest,
+  Mode,
+} from "./schemas";
 
 async function getValidated<T>(url: string, schema: z.ZodType<T>): Promise<T> {
   const r = await fetch(url);
@@ -28,6 +37,7 @@ async function postValidated<T>(url: string, body: unknown, schema: z.ZodType<T>
 }
 
 export const api = {
+  health: () => getValidated("/api/health", HealthSchema),
   servers: (mode: Mode) => getValidated(`/api/servers?mode=${mode}`, ServerListSchema),
   goal: (mode: Mode, serverIds: string[]) =>
     postValidated(`/api/goal?mode=${mode}`, { server_ids: serverIds }, GoalOutSchema),
@@ -37,6 +47,12 @@ export const api = {
   leaderboard: (mode: Mode) => getValidated(`/api/leaderboard?mode=${mode}`, LeaderboardSchema),
   advisorDesign: (req: Record<string, unknown>) =>
     postValidated("/api/advisor/design", req, DResponseSchema),
+  advisorV2Design: (req: AdvisorV2DesignRequest) =>
+    postValidated("/api/advisor/v2/design", req, AdvisorV2DesignResponseSchema),
+  advisorV2Validate: (req: AdvisorV2ValidationRequest) =>
+    postValidated("/api/advisor/v2/validate", req, AdvisorV2ValidationResponseSchema),
+  advisorV2Report: (req: AdvisorV2ReportRequest) =>
+    postValidated("/api/advisor/v2/report", req, AdvisorV2ReportResponseSchema),
 };
 
 // Minimal typed wrapper over EventSource: dispatches parsed frames by event

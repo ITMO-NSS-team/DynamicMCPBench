@@ -13,7 +13,7 @@ guide-citation module, v2 engine/service modules, and version constants.
 
 from __future__ import annotations
 
-from . import guide_citations, v2_engine, v2_schema, v2_service
+from . import guide_citations, v2_engine, v2_report, v2_schema, v2_service
 from .schema import (
     GUIDE_VERSION,
     REPORT_SCHEMA_VERSION,
@@ -68,6 +68,7 @@ __all__ = [
     "response_state_violations",
     "guide_citations",
     "v2_engine",
+    "v2_report",
     "v2_schema",
     "v2_service",
 ]

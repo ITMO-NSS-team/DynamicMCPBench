@@ -90,7 +90,9 @@ def test_malformed_request_is_rejected():
 
 
 def test_existing_routes_still_work():
-    assert client.get("/api/health").status_code == 200
+    health = client.get("/api/health")
+    assert health.status_code == 200
+    assert health.json()["capabilities"]["advisor_v2"] is True
     assert client.get("/api/servers").status_code == 200
 
 
@@ -145,3 +147,51 @@ def test_v2_validate_route_refreshes_edited_plan_and_refuses_invalid_candidate_c
     assert body["export_config"] is None
     assert body["launchable"] is False
     assert any(issue["code"] == "unsupported_candidate_model_count" for issue in body["issues"])
+
+
+def test_v2_report_route_returns_scoped_statistical_report():
+    tensor = {
+        "schema_version": "benchmark_advisor.outcome_tensor.v2",
+        "shape": "X[task, model, attempt, metric, slice]",
+        "tasks": [
+            {"axis_id": "task.1", "label": "task 1", "metadata": {}},
+            {"axis_id": "task.2", "label": "task 2", "metadata": {}},
+        ],
+        "models": [
+            {"axis_id": "model-a", "label": "model A", "metadata": {}},
+            {"axis_id": "model-b", "label": "model B", "metadata": {}},
+        ],
+        "attempts": [{"axis_id": "attempt.0", "label": "attempt 0", "metadata": {}}],
+        "metrics": [{"axis_id": "trace_effect_pass_rate", "label": "pass", "metadata": {}}],
+        "slices": [{"axis_id": "all", "label": "all tasks", "metadata": {}}],
+        "values": [
+            {
+                "task_id": task,
+                "model_id": model,
+                "attempt_id": "attempt.0",
+                "metric_id": "trace_effect_pass_rate",
+                "slice_id": "all",
+                "value": value,
+                "missing_reason": None,
+            }
+            for task, model, value in [
+                ("task.1", "model-a", True),
+                ("task.2", "model-a", False),
+                ("task.1", "model-b", True),
+                ("task.2", "model-b", True),
+            ]
+        ],
+    }
+
+    r = client.post(
+        "/api/advisor/v2/report",
+        json={"schema_version": "benchmark_advisor.v2", "outcome_tensor": tensor},
+    )
+
+    assert r.status_code == 200
+    body = r.json()
+    report = body["report"]
+    assert report["schema_version"] == "benchmark_advisor.report.v2"
+    assert report["mode"] == "pairwise"
+    assert report["effect_sizes"][0]["estimate_pp"] == 50.0
+    assert "universal best-model claim" in report["not_allowed_claims"]

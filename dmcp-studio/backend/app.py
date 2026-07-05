@@ -27,8 +27,12 @@ from sse_starlette.sse import EventSourceResponse
 
 from benchmark_advisor import AdvisorRequest, AdvisorValidationRequest
 from benchmark_advisor.service import advisor_design, advisor_validate
-from benchmark_advisor.v2_schema import AdvisorV2DesignRequest, AdvisorV2ValidationRequest
-from benchmark_advisor.v2_service import advisor_v2_design, advisor_v2_validate
+from benchmark_advisor.v2_schema import (
+    AdvisorV2DesignRequest,
+    AdvisorV2ReportRequest,
+    AdvisorV2ValidationRequest,
+)
+from benchmark_advisor.v2_service import advisor_v2_design, advisor_v2_report, advisor_v2_validate
 
 from . import dmcp_adapter as adapter
 from . import live, replay_store
@@ -57,8 +61,15 @@ DEFAULT_DELAY = 0.45
 
 
 @app.get("/api/health")
-def health() -> dict[str, str]:
-    return {"status": "ok", "mode_default": "replay"}
+def health() -> dict[str, Any]:
+    return {
+        "status": "ok",
+        "mode_default": "replay",
+        "capabilities": {
+            "advisor_v2": True,
+            "advisor_v2_report": True,
+        },
+    }
 
 
 @app.get("/api/servers")
@@ -233,6 +244,11 @@ def advisor_v2_design_route(body: AdvisorV2DesignRequest) -> Any:
 @app.post("/api/advisor/v2/validate")
 def advisor_v2_validate_route(body: AdvisorV2ValidationRequest) -> Any:
     return advisor_v2_validate(body).model_dump(mode="json")
+
+
+@app.post("/api/advisor/v2/report")
+def advisor_v2_report_route(body: AdvisorV2ReportRequest) -> Any:
+    return advisor_v2_report(body).model_dump(mode="json")
 
 
 # Friendly error envelope for the demo (no stack traces to the visitor).

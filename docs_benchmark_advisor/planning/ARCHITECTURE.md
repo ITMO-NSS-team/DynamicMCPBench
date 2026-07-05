@@ -148,7 +148,8 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
   decision and fixture updates.
 - Additional criteria can be added as new validator rules without changing UI
   if they use existing `WarningCard`/`Criterion` shapes.
-- Stage-2 validation report can consume the documented outcome tensor later.
+- V2 post-run reports consume the documented outcome tensor and stay limited to
+  scoped statistical claims over completed outcomes.
 - Export handoff can connect to `scripts/build_corpus.py` or a future generation
   orchestrator after explicit approval.
 - V2 statistical reports can add methods only when schemas, fixtures, and
@@ -175,8 +176,9 @@ is not the v1 API boundary. The v1 boundary is the pair of routes documented in
 - **Risk: prototype drift.** Mitigation: v1 tests call `/api/advisor/design` and
   `/api/advisor/validate`; `/api/advisor` compatibility is optional and cannot
   replace them.
-- **Risk: scope creep into Stage 2.** Mitigation: Stage 2 is interface-only until
-  Stage 1 integration passes.
+- **Risk: scope creep into Stage 2.** Mitigation: v1 Stage 2 remains
+  interface-only; v2 post-run reports are limited to outcome-tensor analytics
+  and must not launch generation, evaluation, or judge-based rationale scoring.
 - **Risk: optional RAG becomes hidden authority.** Mitigation: the MVP does not
   require RAG; any future retrieval is local and citation-only, while
   deterministic rules own verdicts and claim boundaries.

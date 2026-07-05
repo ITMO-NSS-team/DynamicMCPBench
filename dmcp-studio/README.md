@@ -63,6 +63,11 @@ uv pip install -e ".[studio]"        # once: fastapi + uvicorn + sse-starlette
 dmcp-studio/scripts/run_demo.sh      # → http://127.0.0.1:8000  (PORT=… to override)
 ```
 
+`run_demo.sh` checks any existing Studio server on the selected port before it
+rebuilds `frontend/dist`. If that server is an older backend without the current
+advisor v2 routes, the script stops and asks you to stop the stale process first.
+This avoids serving a fresh frontend bundle from an old API process.
+
 Or run the pieces by hand:
 
 ```bash
@@ -70,7 +75,8 @@ Or run the pieces by hand:
 uv run python dmcp-studio/experiments/e3_curate.py
 # build the React frontend (Vite) → frontend/dist
 cd dmcp-studio/frontend && npm install && npm run build && cd -
-# run the REPLAY backend (serves the SPA same-origin; fixtures pre-warmed on boot)
+# restart the REPLAY backend after backend or frontend changes; it serves the SPA
+# same-origin and fixtures are pre-warmed on boot
 cd dmcp-studio && uvicorn backend.app:app --reload
 ```
 
