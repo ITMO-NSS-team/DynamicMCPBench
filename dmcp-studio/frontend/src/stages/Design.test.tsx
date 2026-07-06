@@ -321,6 +321,7 @@ function studioValue(): Studio {
   return {
     ...initialState(),
     go: vi.fn(),
+    carryAdvisorDesign: vi.fn(),
     setMode: vi.fn(),
     loadServers: vi.fn(),
     toggleServer: vi.fn(),
@@ -337,15 +338,27 @@ function studioValue(): Studio {
 }
 
 function renderDesign() {
+  const studio = studioValue();
+  return {
+    studio,
+    ...render(
+      <StudioContext.Provider value={studio}>
+        <Design />
+      </StudioContext.Provider>,
+    ),
+  };
+}
+
+function renderDesignWithStudio(studio: Studio) {
   return render(
-    <StudioContext.Provider value={studioValue()}>
+    <StudioContext.Provider value={studio}>
       <Design />
     </StudioContext.Provider>,
   );
 }
 
 function installFetchMock(initial: AdvisorV2DesignResponse = approvedResponse()) {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const url = String(input);
     if (url === "/api/health") {
       return jsonResponse({
@@ -446,6 +459,45 @@ describe("Design v2 advisor workbench", () => {
     expect(screen.getByText("Use exactly two candidate models.")).toBeInTheDocument();
   });
 
+  it("validates every BA6.2 editable handoff field through the v2 route", async () => {
+    const fetchMock = installFetchMock();
+    renderDesign();
+    await screen.findByText("Editable statistical plan");
+    fetchMock.mockClear();
+
+    fireEvent.change(screen.getByLabelText("plan models"), { target: { value: "model-a" } });
+    fireEvent.change(screen.getByLabelText("plan server scope"), {
+      target: { value: "finance-tools, calendar-tools" },
+    });
+    fireEvent.click(screen.getByLabelText("plan sandbox required"));
+    fireEvent.change(screen.getByLabelText("edit target effect"), { target: { value: "12" } });
+    fireEvent.change(screen.getByLabelText("edit short chain ratio"), { target: { value: "0.4" } });
+
+    await waitFor(() => {
+      const validateCalls = fetchMock.mock.calls.filter(([url]) => url === "/api/advisor/v2/validate");
+      expect(validateCalls.length).toBeGreaterThanOrEqual(5);
+    });
+
+    const requestBodies = fetchMock.mock.calls
+      .filter(([url]) => url === "/api/advisor/v2/validate")
+      .map(([, init]) => JSON.parse(String((init as RequestInit).body)));
+    const editedFields = requestBodies.flatMap((body) => body.edited_fields);
+    expect(editedFields).toEqual(
+      expect.arrayContaining([
+        "design.candidate_models",
+        "server_scope",
+        "user_overrides.sandbox_required",
+        "design.target_detectable_effect_pp",
+        "design.task_distribution.short_chain",
+      ]),
+    );
+    expect(
+      requestBodies.some((body) =>
+        body.original_request?.server_scope?.includes("calendar-tools"),
+      ),
+    ).toBe(true);
+  });
+
   it("disables carry-forward controls for refused v2 designs", async () => {
     installFetchMock(refusedResponse());
     renderDesign();
@@ -455,6 +507,25 @@ describe("Design v2 advisor workbench", () => {
     expect(
       screen.getAllByText("Pairwise planning requires exactly two candidate models.").length,
     ).toBeGreaterThan(0);
+  });
+
+  it("carries approved v2 design state into Collect", async () => {
+    installFetchMock();
+    const studio = studioValue();
+    renderDesignWithStudio(studio);
+
+    const button = await screen.findByRole("button", { name: "Carry this design into Collect" });
+    await waitFor(() => expect(button).not.toBeDisabled());
+    fireEvent.click(button);
+
+    expect(studio.carryAdvisorDesign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "approved",
+        launchable: true,
+        export_config: expect.objectContaining({ tasks: 120 }),
+      }),
+    );
+    expect(studio.go).not.toHaveBeenCalledWith("collect");
   });
 
   it("renders the typed post-run report fixture", async () => {

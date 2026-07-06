@@ -76,6 +76,9 @@
   allowed/not-allowed claims.
 - `POST /api/advisor/v2/launch` refuses missing confirmation, refused designs,
   unmet sandbox requirements, and any leaderboard/eval launch attempt.
+- v2 launch command previews target only `scripts/build_corpus.py` for
+  corpus/specs/traces; `dmcp bench`, leaderboard, and eval launch remain out of
+  scope for the first handoff.
 
 ## Smoke Tests
 
@@ -114,6 +117,7 @@ Minimum fixture set:
 - v2 leaderboard rank-stability report.
 - v2 guarded launch refusal without confirmation.
 - v2 guarded launch dry-run job fixture.
+- v2 guarded launch corpus-only command fixture.
 
 ## CI Commands
 

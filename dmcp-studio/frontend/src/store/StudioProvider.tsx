@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { api, openSSE } from "../api/client";
-import type { ExploreCall, Mode, ScoreDone, ScoreMode } from "../types";
+import type { AdvisorV2DesignResponse, ExploreCall, Mode, ScoreDone, ScoreMode } from "../types";
 import { equivOverrides, initialState, reducer, type View } from "./reducer";
 import { StudioContext, type Studio } from "./context";
 
@@ -19,6 +19,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     // keep mutating state from another stage
     closeSSE.current?.();
     dispatch({ type: "set_view", view });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const carryAdvisorDesign = useCallback((response: AdvisorV2DesignResponse) => {
+    closeSSE.current?.();
+    dispatch({ type: "carry_advisor_design", response });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
@@ -170,6 +176,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       go,
+      carryAdvisorDesign,
       setMode,
       loadServers,
       toggleServer,
@@ -186,6 +193,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [
       state,
       go,
+      carryAdvisorDesign,
       setMode,
       loadServers,
       toggleServer,

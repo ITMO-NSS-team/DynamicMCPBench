@@ -338,7 +338,9 @@ class AdvisorV2ReportResponse(_Base):
 class LaunchRequest(_Base):
     schema_version: Literal["benchmark_advisor.launch.v2"]
     export_config: ExportConfig
+    advisor_status: Literal["approved", "warning"]
     confirmation: Literal[True]
+    sandbox_confirmed: bool = False
     dry_run: bool
     requested_by_ui: bool
 

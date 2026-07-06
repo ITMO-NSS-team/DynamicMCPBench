@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -18,6 +19,35 @@ _FIXTURES = Path(__file__).resolve().parents[3] / "docs_benchmark_advisor" / "fi
 
 def _request(fixture_id: str) -> dict:
     return json.loads((_FIXTURES / f"{fixture_id}.json").read_text())["request"]
+
+
+def _v2_request(**overrides: object) -> dict:
+    request = {
+        "schema_version": "benchmark_advisor.v2",
+        "intent": "Compare two local agents on short step finance workflows.",
+        "mode": "pairwise",
+        "task_budget": 70,
+        "attempts_per_task": 1,
+        "candidate_models": ["agent-a", "agent-b"],
+        "server_scope": ["finance-tools"],
+    }
+    request.update(overrides)
+    return request
+
+
+def _launch_request(**overrides: object) -> dict:
+    response = client.post("/api/advisor/v2/design", json=_v2_request()).json()
+    request = {
+        "schema_version": "benchmark_advisor.launch.v2",
+        "export_config": response["export_config"],
+        "advisor_status": response["status"],
+        "confirmation": True,
+        "sandbox_confirmed": False,
+        "dry_run": True,
+        "requested_by_ui": True,
+    }
+    request.update(overrides)
+    return request
 
 
 def test_design_route_returns_schema_valid_approved_response():
@@ -195,3 +225,116 @@ def test_v2_report_route_returns_scoped_statistical_report():
     assert report["mode"] == "pairwise"
     assert report["effect_sizes"][0]["estimate_pp"] == 50.0
     assert "universal best-model claim" in report["not_allowed_claims"]
+
+
+def test_v2_launch_refuses_without_explicit_confirmation():
+    request = _launch_request()
+    request["confirmation"] = False
+    r = client.post("/api/advisor/v2/launch", json=request)
+    assert r.status_code == 422
+
+
+def test_v2_launch_refuses_refused_or_clarification_status():
+    request = _launch_request(advisor_status="refused")
+    r = client.post("/api/advisor/v2/launch", json=request)
+    assert r.status_code == 422
+
+
+def test_v2_launch_refuses_when_sandbox_requirements_are_unmet():
+    request = _launch_request()
+    request["export_config"]["generation_knobs"]["sandbox_required"] = True
+    r = client.post("/api/advisor/v2/launch", json=request)
+    assert r.status_code == 400
+    assert "sandbox" in r.json()["detail"]
+
+
+def test_v2_launch_refuses_non_ui_origin_with_actionable_detail():
+    request = _launch_request(requested_by_ui=False)
+    r = client.post("/api/advisor/v2/launch", json=request)
+    assert r.status_code == 400
+    assert r.json()["detail"] == "launch must be requested by Studio UI"
+
+
+def test_v2_launch_dry_run_command_preview_is_deterministic_and_tracked():
+    request = _launch_request()
+    first = client.post("/api/advisor/v2/launch", json=request)
+    second = client.post("/api/advisor/v2/launch", json=request)
+    assert first.status_code == 200
+    assert second.status_code == 200
+
+    first_body = first.json()
+    second_body = second.json()
+    assert first_body["status"] == "succeeded"
+    assert first_body["schema_version"] == "benchmark_advisor.launch_job.v2"
+    assert "scripts/build_corpus.py" in first_body["command_preview"]
+    assert "--strategies" in first_body["command_preview"]
+    assert "hard_neg,complementary" in first_body["command_preview"]
+    distribution = json.loads(
+        first_body["command_preview"][first_body["command_preview"].index("--advisor-distribution-json") + 1]
+    )
+    assert distribution["cross_server_ratio"] >= 0
+    assert "distractors" in distribution
+    assert first_body["command_preview"] == second_body["command_preview"]
+    assert first_body["artifacts"]["specs"].endswith("/specs.jsonl")
+
+    status = client.get(f"/api/advisor/v2/launch/{first_body['job_id']}")
+    assert status.status_code == 200
+    assert status.json()["job_id"] == first_body["job_id"]
+
+
+def test_v2_launch_non_dry_run_starts_tracked_background_job(monkeypatch):
+    from benchmark_advisor import v2_launch
+
+    class ImmediateThread:
+        def __init__(self, *, target, args, daemon):
+            self.target = target
+            self.args = args
+            self.daemon = daemon
+
+        def start(self):
+            self.target(*self.args)
+
+    def fake_run(command, *, cwd, capture_output, text, check):
+        assert command[1] == "scripts/build_corpus.py"
+        assert cwd == v2_launch.ROOT
+        assert capture_output is True
+        assert text is True
+        assert check is False
+        return SimpleNamespace(returncode=0, stdout="generated corpus\n", stderr="")
+
+    monkeypatch.setattr(v2_launch.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(v2_launch.subprocess, "run", fake_run)
+
+    request = _launch_request(dry_run=False)
+    r = client.post("/api/advisor/v2/launch", json=request)
+
+    assert r.status_code == 200
+    body = r.json()
+    assert body["status"] == "queued"
+    assert body["artifacts"]["goals"].endswith("/goals_full.json")
+
+    status = client.get(f"/api/advisor/v2/launch/{body['job_id']}").json()
+    assert status["status"] == "succeeded"
+    assert "started scripts/build_corpus.py" in status["logs"]
+    assert "generated corpus" in status["logs"]
+
+
+def test_v2_launch_first_handoff_is_corpus_only():
+    request = _launch_request()
+    r = client.post("/api/advisor/v2/launch", json=request)
+    assert r.status_code == 200
+    command = r.json()["command_preview"]
+    joined = " ".join(command)
+    assert "scripts/build_corpus.py" in command
+    assert "dmcp bench" not in joined
+    assert "run_leaderboard" not in joined
+    assert "eval" not in joined
+
+
+def test_v2_design_route_remains_side_effect_free_for_launch_jobs():
+    from benchmark_advisor import v2_launch
+
+    before = set(v2_launch._JOBS)
+    r = client.post("/api/advisor/v2/design", json=_v2_request())
+    assert r.status_code == 200
+    assert set(v2_launch._JOBS) == before

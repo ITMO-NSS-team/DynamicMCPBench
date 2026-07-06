@@ -443,52 +443,70 @@ separate guarded launch layer. Design and validation routes must remain
 side-effect free.
 
 ### BA6.1 - Persist advisor state through Studio
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-05
 - deps: BA5.6
 - source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`;
   `planning/TASKS/T17-guarded-corpus-handoff.md`
+- note: implemented in Studio state as `advisorCarry`, populated by "Carry this
+  design into Collect" only for launchable v2 responses with statistical plan
+  and export config. Collect displays task budget, attempts, server scope,
+  strategy, validation status, assumptions, and sandbox requirements.
 - done-when: "Carry to Collect" stores the approved/warning v2 design and
   export in Studio state, including task budget, server scope, strategy,
   assumptions, validation status, and sandbox requirements.
 
 ### BA6.2 - Validate/edit UI
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-05
 - deps: BA6.1 BA5.1
 - source: `planning/TASKS/T16-statistical-advisor-ui-v2.md`
+- note: BA5.6 edit controls were verified and extended with frontend regression
+  coverage for budget, attempts, models, server scope, effect target, task
+  distribution, and sandbox validation through `/api/advisor/v2/validate`.
 - done-when: users can edit budget, attempts, models, server scope, effect
   target, task distribution, and sandbox fields; Studio calls
   `/api/advisor/v2/validate` and displays all issues after edits.
 
 ### BA6.3 - Guarded corpus launch backend
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-05
 - deps: BA6.1 BA5.3
 - source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- note: implemented as `/api/advisor/v2/launch` plus
+  `/api/advisor/v2/launch/{job_id}` over `benchmark_advisor/v2_launch.py`.
+  Launch requires `advisor_status` approved/warning, literal confirmation,
+  Studio-origin marker, and sandbox confirmation when required; dry-run tests
+  prove deterministic command preview and side-effect-free design routes.
 - done-when: `/api/advisor/v2/launch` accepts only approved/warning exports with
   explicit confirmation, builds a deterministic `scripts/build_corpus.py`
   command preview, enforces sandbox guards, and starts a tracked background job
   only for corpus/specs/traces generation.
 
 ### BA6.4 - Job status and artifacts UI
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-05
 - deps: BA6.3
 - source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- note: Collect renders guarded launch confirmation controls, queued/running
+  polling, final job status, command preview, logs, and goals/specs/traces/
+  coverage artifact paths.
 - done-when: Studio shows queued/running/succeeded/failed job status, command
   preview, logs, output paths, and generated goals/specs/traces artifacts.
 
 ### BA6.5 - Corpus-only first handoff
-- status: todo
-- owner: -
-- claimed_at: -
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-05
 - deps: BA6.3
 - source: `planning/TASKS/T17-guarded-corpus-handoff.md`
+- note: command preview is restricted to `scripts/build_corpus.py` and maps
+  advisor goal strategies to existing corpus generation strategies; backend
+  tests assert no `dmcp bench`, leaderboard, or eval launch is present.
 - done-when: the first advisor launch path targets corpus/specs/traces through
   `scripts/build_corpus.py`; leaderboard/eval remains out of scope unless a
   separate task explicitly approves it.

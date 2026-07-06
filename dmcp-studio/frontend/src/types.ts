@@ -61,6 +61,9 @@ export type {
   StatisticalReport,
   AdvisorV2ReportRequest,
   AdvisorV2ReportResponse,
+  LaunchRequest,
+  LaunchArtifacts,
+  LaunchJob,
   Mode,
   ScoreMode,
 } from "./api/schemas";

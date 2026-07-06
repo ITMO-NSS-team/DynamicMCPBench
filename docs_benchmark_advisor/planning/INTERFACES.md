@@ -735,7 +735,9 @@ Required `LaunchRequest` fields:
 
 - `schema_version`: literal `"benchmark_advisor.launch.v2"`.
 - `export_config`: approved or warning advisor export.
+- `advisor_status`: literal `"approved"` or `"warning"`.
 - `confirmation`: literal `true`.
+- `sandbox_confirmed`: boolean.
 - `dry_run`: boolean.
 - `requested_by_ui`: boolean.
 
@@ -834,6 +836,19 @@ Behavior:
 - validates sandbox and stateful-write guards;
 - launches only the corpus/specs/traces path through `scripts/build_corpus.py`;
 - never runs leaderboard/eval in the first handoff.
+
+### GET /api/advisor/v2/launch/{job_id}
+
+Input: launch job id.
+
+Output: `LaunchJob`.
+
+Behavior:
+
+- returns queued/running/succeeded/failed/cancelled state for a tracked launch
+  job;
+- returns the deterministic command preview, recent logs, and goals/specs/
+  traces/coverage artifact paths.
 
 ## File And Fixture Formats
 

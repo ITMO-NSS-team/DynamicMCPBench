@@ -736,7 +736,9 @@ export function Design() {
             type="secondary"
             scale={0.85}
             disabled={!canProceed}
-            onClick={() => s.go("collect")}
+            onClick={() => {
+              if (resp) s.carryAdvisorDesign(resp);
+            }}
           >
             Carry this design into Collect
           </Button>

@@ -21,6 +21,81 @@ import build_corpus  # noqa: E402  (script imported as module for testing)
 # ---------------------------------------------------------------------------
 
 
+def test_dmcp_dispatch_uses_existing_console_script_on_this_platform():
+    assert Path(build_corpus.DMCP).exists()
+    assert Path(build_corpus.DMCP).name in {"dmcp", "dmcp.exe"}
+
+
+def test_allocate_counts_uses_largest_remainder_and_preserves_total():
+    counts = build_corpus.allocate_counts(10, {"a": 0.5, "b": 0.3, "c": 0.2})
+    assert counts == {"a": 5, "b": 3, "c": 2}
+    assert sum(counts.values()) == 10
+
+
+def test_advisor_distribution_plan_splits_cross_server_and_regular_budget():
+    plan = build_corpus.advisor_distribution_plan(
+        total_tasks=100,
+        task_distribution={
+            "short_chain": 0,
+            "medium_chain": 0,
+            "long_chain": 1,
+            "cross_server_ratio": 0.5,
+            "recovery_required_ratio": 0,
+            "prerequisite_strict_ratio": 0,
+            "stateful_write_ratio": 0,
+            "distractors": {
+                "same_name_fraction": 0,
+                "near_miss_fraction": 0,
+                "cross_domain_fraction": 0,
+                "random_fraction": 0,
+            },
+        },
+        default_strategies=["random"],
+    )
+    assert plan == [
+        {"complexity": "hard", "strategy": "cross_server_alt", "count": 50},
+        {"complexity": "hard", "strategy": "random", "count": 50},
+    ]
+
+
+def test_advisor_distribution_plan_maps_task_distribution_to_tagged_subbenches():
+    plan = build_corpus.advisor_distribution_plan(
+        total_tasks=20,
+        task_distribution={
+            "short_chain": 0.2,
+            "medium_chain": 0.3,
+            "long_chain": 0.5,
+            "cross_server_ratio": 0.1,
+            "recovery_required_ratio": 0.05,
+            "prerequisite_strict_ratio": 0.2,
+            "stateful_write_ratio": 0,
+            "distractors": {
+                "same_name_fraction": 0.1,
+                "near_miss_fraction": 0.1,
+                "cross_domain_fraction": 0,
+                "random_fraction": 0,
+            },
+        },
+        default_strategies=["complementary"],
+    )
+    assert sum(int(item["count"]) for item in plan) == 20
+    by_strategy = {}
+    for item in plan:
+        by_strategy[item["strategy"]] = by_strategy.get(item["strategy"], 0) + int(item["count"])
+    assert by_strategy == {
+        "complementary": 9,
+        "cross_server_alt": 1,
+        "hard_neg": 2,
+        "prerequisite_strict": 4,
+        "recovery_required": 1,
+        "same_name": 3,
+    }
+    by_complexity = {}
+    for item in plan:
+        by_complexity[item["complexity"]] = by_complexity.get(item["complexity"], 0) + int(item["count"])
+    assert by_complexity == {"hard": 10, "medium": 6, "simple": 4}
+
+
 def test_shard_goals_round_robin_balances_strategies_across_shards():
     """Round-robin (not contiguous) so strategy/complexity skew can't pile up
     in shard 0. With 6 entries × 3 shards each shard gets exactly 2 entries."""

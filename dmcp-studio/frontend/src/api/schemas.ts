@@ -94,6 +94,7 @@ export const HealthSchema = z.object({
     .object({
       advisor_v2: z.boolean().optional(),
       advisor_v2_report: z.boolean().optional(),
+      advisor_v2_launch: z.boolean().optional(),
     })
     .optional(),
 });
@@ -606,6 +607,32 @@ export const AdvisorV2ReportResponseSchema = z.object({
   report: StatisticalReportSchema,
 });
 
+export const LaunchRequestSchema = z.object({
+  schema_version: z.literal("benchmark_advisor.launch.v2"),
+  export_config: ExportConfigSchema,
+  advisor_status: z.enum(["approved", "warning"]),
+  confirmation: z.literal(true),
+  sandbox_confirmed: z.boolean(),
+  dry_run: z.boolean(),
+  requested_by_ui: z.boolean(),
+});
+
+export const LaunchArtifactsSchema = z.object({
+  goals: z.string().nullable(),
+  specs: z.string().nullable(),
+  traces: z.string().nullable(),
+  coverage: z.string().nullable(),
+});
+
+export const LaunchJobSchema = z.object({
+  schema_version: z.literal("benchmark_advisor.launch_job.v2"),
+  job_id: z.string().min(1),
+  status: z.enum(["queued", "running", "succeeded", "failed", "cancelled"]),
+  command_preview: z.array(z.string().min(1)).min(1),
+  logs: z.array(z.string()),
+  artifacts: LaunchArtifactsSchema,
+});
+
 export const ServerListSchema = z.array(ServerCardSchema);
 export const CandidateListSchema = z.array(CandidateCardSchema);
 
@@ -669,6 +696,9 @@ export type MultiplicitySummary = z.infer<typeof MultiplicitySummarySchema>;
 export type StatisticalReport = z.infer<typeof StatisticalReportSchema>;
 export type AdvisorV2ReportRequest = z.infer<typeof AdvisorV2ReportRequestSchema>;
 export type AdvisorV2ReportResponse = z.infer<typeof AdvisorV2ReportResponseSchema>;
+export type LaunchRequest = z.infer<typeof LaunchRequestSchema>;
+export type LaunchArtifacts = z.infer<typeof LaunchArtifactsSchema>;
+export type LaunchJob = z.infer<typeof LaunchJobSchema>;
 
 // Local (non-wire) unions.
 export type Mode = "replay" | "live";

@@ -1,9 +1,10 @@
 import { createContext, useContext } from "react";
-import type { Mode, ScoreMode } from "../types";
+import type { AdvisorV2DesignResponse, Mode, ScoreMode } from "../types";
 import type { StudioState, View } from "./reducer";
 
 export interface StudioActions {
   go: (view: View) => void;
+  carryAdvisorDesign: (response: AdvisorV2DesignResponse) => void;
   setMode: (mode: Mode) => void;
   loadServers: () => Promise<void>;
   toggleServer: (id: string) => void;

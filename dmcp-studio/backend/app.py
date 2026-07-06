@@ -9,15 +9,22 @@ not the graded path). The two slow stages stream call-by-call over SSE.
 Run:  cd dmcp-studio && uvicorn backend.app:app --reload
 """
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import asyncio
 import contextlib
 import json
 import logging
+import sys
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
@@ -27,10 +34,12 @@ from sse_starlette.sse import EventSourceResponse
 
 from benchmark_advisor import AdvisorRequest, AdvisorValidationRequest
 from benchmark_advisor.service import advisor_design, advisor_validate
+from benchmark_advisor.v2_launch import get_launch_job, launch_advisor_corpus
 from benchmark_advisor.v2_schema import (
     AdvisorV2DesignRequest,
     AdvisorV2ReportRequest,
     AdvisorV2ValidationRequest,
+    LaunchRequest,
 )
 from benchmark_advisor.v2_service import advisor_v2_design, advisor_v2_report, advisor_v2_validate
 
@@ -68,6 +77,7 @@ def health() -> dict[str, Any]:
         "capabilities": {
             "advisor_v2": True,
             "advisor_v2_report": True,
+            "advisor_v2_launch": True,
         },
     }
 
@@ -249,6 +259,16 @@ def advisor_v2_validate_route(body: AdvisorV2ValidationRequest) -> Any:
 @app.post("/api/advisor/v2/report")
 def advisor_v2_report_route(body: AdvisorV2ReportRequest) -> Any:
     return advisor_v2_report(body).model_dump(mode="json")
+
+
+@app.post("/api/advisor/v2/launch")
+def advisor_v2_launch_route(body: LaunchRequest) -> Any:
+    return launch_advisor_corpus(body).model_dump(mode="json")
+
+
+@app.get("/api/advisor/v2/launch/{job_id}")
+def advisor_v2_launch_status_route(job_id: str) -> Any:
+    return get_launch_job(job_id).model_dump(mode="json")
 
 
 # Friendly error envelope for the demo (no stack traces to the visitor).

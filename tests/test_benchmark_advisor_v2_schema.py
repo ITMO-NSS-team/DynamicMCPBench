@@ -313,7 +313,9 @@ def test_launch_request_requires_explicit_confirmation_literal_true():
         {
             "schema_version": "benchmark_advisor.launch.v2",
             "export_config": _export_config(),
+            "advisor_status": "warning",
             "confirmation": True,
+            "sandbox_confirmed": False,
             "dry_run": True,
             "requested_by_ui": True,
         }
@@ -323,7 +325,9 @@ def test_launch_request_requires_explicit_confirmation_literal_true():
     bad = {
         "schema_version": "benchmark_advisor.launch.v2",
         "export_config": _export_config(),
+        "advisor_status": "warning",
         "confirmation": False,
+        "sandbox_confirmed": False,
         "dry_run": True,
         "requested_by_ui": True,
     }
