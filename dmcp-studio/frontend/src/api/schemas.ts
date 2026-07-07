@@ -630,8 +630,10 @@ export const ReplayDemoFigureSchema = z.object({
 export const ReplayDemoFocusSliceSchema = z.object({
   slice_id: z.string().min(1),
   label: z.string().min(1),
-  qwen_passed: z.number().int().min(0),
-  glm_passed: z.number().int().min(0),
+  model_a_passed: z.number().int().min(0).optional(),
+  model_b_passed: z.number().int().min(0).optional(),
+  qwen_passed: z.number().int().min(0).optional(),
+  glm_passed: z.number().int().min(0).optional(),
   n: z.number().int().min(1),
   delta_pp: z.number(),
 });

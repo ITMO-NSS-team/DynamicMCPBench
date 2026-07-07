@@ -227,25 +227,26 @@ def test_v2_report_route_returns_scoped_statistical_report():
     assert "universal best-model claim" in report["not_allowed_claims"]
 
 
-def test_v2_replay_demo_report_uses_corrected_leaderboard_provenance():
+def test_v2_replay_demo_report_uses_ba7_combined100_provenance():
     r = client.get("/api/advisor/v2/replay-demo-report")
     assert r.status_code == 200
     body = r.json()
     assert body["schema_version"] == "benchmark_advisor.replay_demo_report.v1"
-    assert body["experiment_id"] == "E8.10d.qwen-vs-glm.workflow-stress"
-    assert body["sample_size"] == 200
+    assert body["experiment_id"] == "BA7.hydra.finance.deepseek-vs-minimax.combined100"
+    assert body["sample_size"] == 100
     assert body["model_count"] == 2
     assert body["report"]["mode"] == "pairwise"
     assert body["report"]["status"] == "warning"
-    assert body["provenance"]["generated_by_current_handoff"] is False
-    assert body["provenance"]["server_filter_available"] is False
-    assert "docs/experiments/e8.10d-corrected-leaderboard.md" in body["provenance"]["source_docs"]
-    assert "docs/experiments/e8.8b-leaderboard-cleaned-750.md" in body["provenance"]["discarded_sources"]
-    assert body["leaderboard"][0]["model"] == "qwen3.7-max"
-    assert body["leaderboard"][1]["model"] == "glm-5.1"
-    assert body["focus_slices"][0]["slice_id"] == "long_similar_chain"
-    assert any("current corpus handoff" in claim for claim in body["report"]["not_allowed_claims"])
-    assert any(issue["code"] == "server_axis_unavailable_in_source_artifacts" for issue in body["report"]["issues"])
+    assert body["provenance"]["generated_by_current_handoff"] is True
+    assert body["provenance"]["server_filter_available"] is True
+    assert any("summary_pairwise_deepseek_minimax_combined100.json" in p for p in body["provenance"]["source_docs"])
+    assert body["leaderboard"][0]["model"] == "deepseek-v4-flash"
+    assert body["leaderboard"][1]["model"] == "minimax-m3"
+    assert body["leaderboard"][0]["passed"] == 39
+    assert body["leaderboard"][1]["passed"] == 37
+    assert body["focus_slices"][0]["slice_id"] == "long_chain"
+    assert any("pass^3 reliability" in claim for claim in body["report"]["not_allowed_claims"])
+    assert any(issue["code"] == "paired_delta_ci_crosses_zero" for issue in body["report"]["issues"])
 
 
 def test_v2_replay_demo_report_serves_only_allowlisted_figures():

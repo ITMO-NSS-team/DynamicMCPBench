@@ -93,48 +93,67 @@ function launchJob(): LaunchJob {
 function replayDemoReport(): ReplayDemoReport {
   return {
     schema_version: "benchmark_advisor.replay_demo_report.v1",
-    experiment_id: "E8.10d.qwen-vs-glm.workflow-stress",
+    experiment_id: "BA7.hydra.finance.deepseek-vs-minimax.combined100",
     title: "Pairwise replay report for the default Advisor intent",
-    headline: "qwen3.7-max and glm-5.1 remain statistically tied on workflow-stress tasks.",
-    condition: "replay,target,p_alt=0.5,pool=8,budget=12,pass^3",
-    sample_size: 200,
+    headline:
+      "deepseek-v4-flash and minimax-m3 remain statistically tied on generated finance tasks.",
+    condition: "live-generated corpus, yfinance finance-tools scope, 100 tasks, pass^1",
+    sample_size: 100,
     model_count: 2,
-    metric: "pass^3",
+    metric: "pass^1",
     mode: "replay",
     report: {
       schema_version: "benchmark_advisor.report.v2",
       mode: "pairwise",
       status: "warning",
-      effect_sizes: [],
-      confidence_intervals: [],
+      effect_sizes: [
+        {
+          label: "deepseek-v4-flash - minimax-m3 on generated finance corpus",
+          estimate_pp: 2.0,
+          method: "paired_bootstrap_tasks",
+        },
+        {
+          label: "planned MDE for 100 unique paired tasks",
+          estimate_pp: 19.81,
+          method: "planning_heuristic_mde",
+        },
+      ],
+      confidence_intervals: [
+        {
+          label: "deepseek-v4-flash - minimax-m3 paired delta",
+          low_pp: -8.0,
+          high_pp: 12.0,
+          method: "paired_bootstrap_tasks",
+        },
+      ],
       rank_stability: null,
       slice_diagnostics: [],
       missingness: {
         missing_count: 0,
-        total_count: 400,
-        policy: "aggregate fixture",
+        total_count: 200,
+        policy: "combined full pairwise eval",
         reasons: {},
       },
       multiplicity: {
-        policy: "descriptive leaderboard with uncertainty",
+        policy: "one primary paired comparison with exploratory slices",
         confirmatory_tests: 1,
-        exploratory_tests: 15,
-        note: "One primary corrected leaderboard.",
+        exploratory_tests: 5,
+        note: "One primary generated-corpus pairwise comparison.",
       },
-      allowed_claims: ["Scoped corrected replay leaderboard."],
+      allowed_claims: ["Scoped generated finance-corpus pairwise comparison."],
       not_allowed_claims: [
-        "claim that the current corpus handoff itself already ran evaluation",
-        "server-filtered claim over yfinance or finance-tools",
+        "claim about pass^3 reliability; these evals used attempts_per_task=1",
+        "universal best-model claim outside this finance/yfinance generated corpus",
       ],
       issues: [
         {
           severity: "warning",
-          code: "server_axis_unavailable_in_source_artifacts",
-          message: "Server axis unavailable.",
-          failed_field: "provenance.source_docs",
-          failed_criterion_id: null,
-          statistical_reason: "server metadata is absent",
-          repair_options: ["Use raw eval/spec rows when available."],
+          code: "paired_delta_ci_crosses_zero",
+          message: "The paired delta CI crosses zero.",
+          failed_field: "report.confidence_intervals",
+          failed_criterion_id: "criterion.primary",
+          statistical_reason: "observed delta is below planned MDE",
+          repair_options: ["Report this as an inconclusive scoped demo comparison."],
           guide_references: [],
         },
       ],
@@ -142,48 +161,49 @@ function replayDemoReport(): ReplayDemoReport {
     leaderboard: [
       {
         rank: 1,
-        model: "qwen3.7-max",
-        passed: 99,
-        n: 200,
-        acc: 0.495,
-        lo: 0.426,
-        hi: 0.564,
-        old_acc: 30.1,
-        delta: 3.0,
+        model: "deepseek-v4-flash",
+        passed: 39,
+        n: 100,
+        acc: 0.39,
+        lo: 0.300,
+        hi: 0.488,
+        old_acc: 0,
+        delta: 2.0,
       },
       {
         rank: 2,
-        model: "glm-5.1",
-        passed: 93,
-        n: 200,
-        acc: 0.465,
-        lo: 0.397,
-        hi: 0.534,
-        old_acc: 47.9,
-        delta: -3.0,
+        model: "minimax-m3",
+        passed: 37,
+        n: 100,
+        acc: 0.37,
+        lo: 0.282,
+        hi: 0.468,
+        old_acc: 0,
+        delta: -2.0,
       },
     ],
     focus_slices: [
       {
-        slice_id: "long_similar_chain",
-        label: "Long similar chain",
-        qwen_passed: 28,
-        glm_passed: 26,
-        n: 50,
-        delta_pp: 4.0,
+        slice_id: "long_chain",
+        label: "Long chain",
+        model_a_passed: 17,
+        model_b_passed: 13,
+        n: 55,
+        delta_pp: 7.273,
       },
     ],
     provenance: {
-      source_docs: ["docs/experiments/e8.10d-corrected-leaderboard.md"],
-      discarded_sources: ["docs/experiments/e8.8b-leaderboard-cleaned-750.md"],
-      corpus: "TokenWasteGroup/DynamicMCPBench cleaned 750-task leaderboard slice",
-      execution: "provider-pinned replay correction",
-      generated_by_current_handoff: false,
-      server_filter_available: false,
-      server_filter_note:
-        "The checked E8.10d JSON artifacts do not contain server/category metadata.",
+      source_docs: [
+        "data/advisor_runs/ba7_default_design_corpus_20260707_123630_combined100/eval_combined100/summary_pairwise_deepseek_minimax_combined100.json",
+      ],
+      discarded_sources: [],
+      corpus: "BA7 combined100 generated finance corpus",
+      execution: "Hydra OpenAI-compatible routing",
+      generated_by_current_handoff: true,
+      server_filter_available: true,
+      server_filter_note: "All 100 combined tasks use yfinance under finance-tools scope.",
     },
-    data_quality: ["A finance/server-specific filter is not available."],
+    data_quality: ["Eval metric is pass^1 because attempts_per_task=1 was used."],
     figures: [],
   };
 }
@@ -232,13 +252,13 @@ describe("Collect advisor handoff", () => {
       screen.getByText(/loading frozen Benchmark Advisor post-run report fixture/),
     ).toBeInTheDocument();
     expect(await screen.findByText("Replay statistical report")).toBeInTheDocument();
-    expect(screen.getByText("E8.10d.qwen-vs-glm.workflow-stress")).toBeInTheDocument();
-    expect(screen.getByText("qwen3.7-max")).toBeInTheDocument();
-    expect(screen.getByText("Long similar chain")).toBeInTheDocument();
-    expect(screen.getByText(/server\/category metadata/)).toBeInTheDocument();
     expect(
-      screen.getByText(/current corpus handoff itself already ran evaluation/),
+      screen.getByText("BA7.hydra.finance.deepseek-vs-minimax.combined100"),
     ).toBeInTheDocument();
+    expect(screen.getAllByText("deepseek-v4-flash").length).toBeGreaterThan(0);
+    expect(screen.getByText("Long chain")).toBeInTheDocument();
+    expect(screen.getByText(/19.8 pp/)).toBeInTheDocument();
+    expect(screen.getByText(/pass\^3 reliability/)).toBeInTheDocument();
   });
 
   it("shows the backend launch refusal detail", async () => {

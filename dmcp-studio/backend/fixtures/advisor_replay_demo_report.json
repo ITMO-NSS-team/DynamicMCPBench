@@ -1,12 +1,12 @@
 {
   "schema_version": "benchmark_advisor.replay_demo_report.v1",
-  "experiment_id": "E8.10d.qwen-vs-glm.workflow-stress",
-  "title": "Pairwise replay report for the default Advisor intent",
-  "headline": "For the Advisor's default pairwise question, qwen3.7-max and glm-5.1 remain statistically tied. On the workflow-stress proxy slice, qwen is +3.0 pp over glm, but the uncertainty interval crosses zero.",
-  "condition": "replay,target,p_alt=0.5,pool=8,budget=12,pass^3; filtered to qwen3.7-max vs glm-5.1 and workflow-stress strategy slices",
-  "sample_size": 200,
+  "experiment_id": "BA7.hydra.finance.deepseek-vs-minimax.combined100",
+  "title": "Pairwise replay report for the default Advisor finance intent",
+  "headline": "On the generated 100-task finance corpus, deepseek-v4-flash is +2.0 pp over minimax-m3 on pass^1 (39/100 vs 37/100), but the paired bootstrap 95% CI crosses zero [-8.0, +12.0] pp.",
+  "condition": "live-generated corpus, yfinance finance-tools scope, 100 tasks, attempts_per_task=1, metric=pass^1; corpus generated with kimi-k2p7 and evaluated on deepseek-v4-flash vs minimax-m3 through Hydra",
+  "sample_size": 100,
   "model_count": 2,
-  "metric": "pass^3",
+  "metric": "pass^1",
   "mode": "replay",
   "report": {
     "schema_version": "benchmark_advisor.report.v2",
@@ -14,96 +14,128 @@
     "status": "warning",
     "effect_sizes": [
       {
-        "label": "qwen3.7-max - glm-5.1 on workflow-stress proxy",
-        "estimate_pp": 3.0,
-        "method": "aggregate_slice_delta_proxy"
+        "label": "deepseek-v4-flash - minimax-m3 on generated finance corpus",
+        "estimate_pp": 2.0,
+        "method": "paired_bootstrap_tasks"
       },
       {
-        "label": "qwen3.7-max - glm-5.1 overall corrected leaderboard",
-        "estimate_pp": 0.933,
-        "method": "aggregate_overall_delta_proxy"
+        "label": "planned MDE for 100 unique paired tasks",
+        "estimate_pp": 19.81,
+        "method": "planning_heuristic_mde"
+      },
+      {
+        "label": "baseline Wilson CI width at p=0.5 for 100 tasks",
+        "estimate_pp": 19.234,
+        "method": "wilson_score_planning_width"
       }
     ],
     "confidence_intervals": [
       {
-        "label": "qwen3.7-max - glm-5.1 on workflow-stress proxy",
-        "low_pp": -6.788,
-        "high_pp": 12.788,
-        "method": "aggregate_two_proportion_normal_approximation"
+        "label": "deepseek-v4-flash - minimax-m3 paired delta",
+        "low_pp": -8.0,
+        "high_pp": 12.0,
+        "method": "paired_bootstrap_tasks"
       },
       {
-        "label": "qwen3.7-max - glm-5.1 overall corrected leaderboard",
-        "low_pp": -4.127,
-        "high_pp": 5.993,
-        "method": "aggregate_two_proportion_normal_approximation"
+        "label": "deepseek-v4-flash pass^1 Wilson interval",
+        "low_pp": 30.017,
+        "high_pp": 48.797,
+        "method": "wilson_score"
+      },
+      {
+        "label": "minimax-m3 pass^1 Wilson interval",
+        "low_pp": 28.182,
+        "high_pp": 46.78,
+        "method": "wilson_score"
       }
     ],
     "rank_stability": null,
     "slice_diagnostics": [
       {
-        "slice_id": "long_similar_chain",
-        "label": "Long similar chain",
-        "metric": "pass^3_delta_pp",
-        "estimate": 4.0,
-        "interpretation": "qwen3.7-max passed 28/50 and glm-5.1 passed 26/50."
+        "slice_id": "long_chain",
+        "label": "Long chain",
+        "metric": "pass^1_delta_pp",
+        "estimate": 7.273,
+        "interpretation": "deepseek-v4-flash passed 17/55 and minimax-m3 passed 13/55."
       },
       {
-        "slice_id": "prerequisite_strict",
-        "label": "Prerequisite strict",
-        "metric": "pass^3_delta_pp",
-        "estimate": 6.0,
-        "interpretation": "qwen3.7-max passed 29/50 and glm-5.1 passed 26/50."
+        "slice_id": "medium_chain",
+        "label": "Medium chain",
+        "metric": "pass^1_delta_pp",
+        "estimate": -4.167,
+        "interpretation": "deepseek-v4-flash passed 10/24 and minimax-m3 passed 11/24."
       },
       {
-        "slice_id": "recovery_required",
-        "label": "Recovery required",
-        "metric": "pass^3_delta_pp",
-        "estimate": 0.0,
-        "interpretation": "both models passed 27/50."
+        "slice_id": "short_chain",
+        "label": "Short chain",
+        "metric": "pass^1_delta_pp",
+        "estimate": -4.762,
+        "interpretation": "deepseek-v4-flash passed 12/21 and minimax-m3 passed 13/21."
       },
       {
-        "slice_id": "cross_server_alt",
-        "label": "Cross-server alternate",
-        "metric": "pass^3_delta_pp",
-        "estimate": 2.0,
-        "interpretation": "qwen3.7-max passed 15/50 and glm-5.1 passed 14/50."
+        "slice_id": "hard_neg",
+        "label": "Hard negative",
+        "metric": "pass^1_delta_pp",
+        "estimate": 12.121,
+        "interpretation": "deepseek-v4-flash passed 11/33 and minimax-m3 passed 7/33."
+      },
+      {
+        "slice_id": "same_name",
+        "label": "Same name distractor",
+        "metric": "pass^1_delta_pp",
+        "estimate": -7.692,
+        "interpretation": "deepseek-v4-flash passed 9/13 and minimax-m3 passed 10/13."
       }
     ],
     "missingness": {
       "missing_count": 0,
-      "total_count": 400,
-      "policy": "aggregate fixture from corrected paper experiment; raw per-task eval rows and server/category axes are not embedded in this Studio demo fixture",
+      "total_count": 200,
+      "policy": "combined full pairwise eval: 100 common task ids x 2 candidate models; duplicate stop/resume rows were deduplicated before combining",
       "reasons": {}
     },
     "multiplicity": {
-      "policy": "single pairwise demo claim with exploratory strategy-slice diagnostics",
+      "policy": "one primary paired comparison with exploratory slice diagnostics",
       "confirmatory_tests": 1,
-      "exploratory_tests": 4,
-      "note": "The pairwise delta is aggregate-backed. Strategy slices are shown to align the demo with the default workflow intent, not as independently powered confirmatory tests."
+      "exploratory_tests": 5,
+      "note": "The primary paired delta uses task-level bootstrap over the 100 common generated tasks. Slice rows are descriptive and not separately powered confirmatory tests."
     },
     "allowed_claims": [
-      "Scoped pairwise comparison for qwen3.7-max vs glm-5.1 on the corrected E8.10d replay data.",
-      "On the workflow-stress proxy slice, qwen3.7-max is observed at 99/200 pass^3 and glm-5.1 at 93/200 pass^3.",
-      "The observed qwen-minus-glm delta is small and statistically inconclusive under the aggregate approximation."
+      "Scoped pairwise comparison for deepseek-v4-flash vs minimax-m3 on the generated 100-task finance/yfinance corpus.",
+      "deepseek-v4-flash is observed at 39/100 pass^1 and minimax-m3 at 37/100 pass^1.",
+      "The observed +2.0 pp deepseek-minus-minimax delta is statistically inconclusive under the paired bootstrap interval.",
+      "The planned no-prior MDE for 100 unique paired tasks is about 19.8 pp, so this run is not powered to resolve a small 2 pp gap."
     ],
     "not_allowed_claims": [
-      "claim that qwen3.7-max is definitively better than glm-5.1",
-      "finance-server-specific claim",
-      "server-filtered claim over yfinance or finance-tools",
-      "private-deployment guarantee",
-      "claim that the current corpus handoff itself already ran evaluation"
+      "claim that deepseek-v4-flash is definitively better than minimax-m3",
+      "claim that minimax-m3 is definitively better than deepseek-v4-flash",
+      "universal best-model claim outside this finance/yfinance generated corpus",
+      "claim about pass^3 reliability; these evals used attempts_per_task=1",
+      "private-deployment guarantee"
     ],
     "issues": [
       {
         "severity": "warning",
-        "code": "server_axis_unavailable_in_source_artifacts",
-        "message": "The available E8.10d JSON artifacts expose model and strategy axes, but not server/category axes.",
-        "failed_field": "provenance.source_docs",
-        "failed_criterion_id": null,
-        "statistical_reason": "A finance-server-specific post-run claim requires per-task metadata or raw eval/spec rows with server/category labels.",
+        "code": "paired_delta_ci_crosses_zero",
+        "message": "The observed paired delta is small and the 95% bootstrap interval crosses zero.",
+        "failed_field": "report.confidence_intervals",
+        "failed_criterion_id": "criterion.primary",
+        "statistical_reason": "Observed delta +2.0 pp is far below the 19.8 pp planning MDE for 100 unique tasks.",
         "repair_options": [
-          "Convert raw eval/spec rows into an OutcomeTensor with server/category metadata when those rows are available.",
-          "Keep this replay card scoped to model and workflow-strategy slices."
+          "Increase the task budget for a smaller detectable effect.",
+          "Report this as an inconclusive scoped demo comparison."
+        ],
+        "guide_references": []
+      },
+      {
+        "severity": "warning",
+        "code": "single_attempt_metric",
+        "message": "The completed eval rows support pass^1, not pass^3 reliability.",
+        "failed_field": "metric",
+        "failed_criterion_id": null,
+        "statistical_reason": "Repeated attempts were not run for the combined full evals.",
+        "repair_options": [
+          "Run three attempts per task for pass^3.",
+          "Keep the demo card labelled as pass^1."
         ],
         "guide_references": []
       }
@@ -112,82 +144,90 @@
   "leaderboard": [
     {
       "rank": 1,
-      "model": "qwen3.7-max",
-      "passed": 99,
-      "n": 200,
-      "acc": 0.495,
-      "lo": 0.426,
-      "hi": 0.564,
-      "old_acc": 30.1,
-      "delta": 3.0
+      "model": "deepseek-v4-flash",
+      "passed": 39,
+      "n": 100,
+      "acc": 0.39,
+      "lo": 0.3001672193,
+      "hi": 0.4879716383,
+      "old_acc": 0.0,
+      "delta": 2.0
     },
     {
       "rank": 2,
-      "model": "glm-5.1",
-      "passed": 93,
-      "n": 200,
-      "acc": 0.465,
-      "lo": 0.397,
-      "hi": 0.534,
-      "old_acc": 47.9,
-      "delta": -3.0
+      "model": "minimax-m3",
+      "passed": 37,
+      "n": 100,
+      "acc": 0.37,
+      "lo": 0.2818221257,
+      "hi": 0.4677965242,
+      "old_acc": 0.0,
+      "delta": -2.0
     }
   ],
   "focus_slices": [
     {
-      "slice_id": "long_similar_chain",
-      "label": "Long similar chain",
-      "qwen_passed": 28,
-      "glm_passed": 26,
-      "n": 50,
-      "delta_pp": 4.0
+      "slice_id": "long_chain",
+      "label": "Long chain",
+      "model_a_passed": 17,
+      "model_b_passed": 13,
+      "n": 55,
+      "delta_pp": 7.273
     },
     {
-      "slice_id": "prerequisite_strict",
-      "label": "Prerequisite strict",
-      "qwen_passed": 29,
-      "glm_passed": 26,
-      "n": 50,
-      "delta_pp": 6.0
+      "slice_id": "medium_chain",
+      "label": "Medium chain",
+      "model_a_passed": 10,
+      "model_b_passed": 11,
+      "n": 24,
+      "delta_pp": -4.167
     },
     {
-      "slice_id": "recovery_required",
-      "label": "Recovery required",
-      "qwen_passed": 27,
-      "glm_passed": 27,
-      "n": 50,
-      "delta_pp": 0.0
+      "slice_id": "short_chain",
+      "label": "Short chain",
+      "model_a_passed": 12,
+      "model_b_passed": 13,
+      "n": 21,
+      "delta_pp": -4.762
     },
     {
-      "slice_id": "cross_server_alt",
-      "label": "Cross-server alternate",
-      "qwen_passed": 15,
-      "glm_passed": 14,
-      "n": 50,
-      "delta_pp": 2.0
+      "slice_id": "hard_neg",
+      "label": "Hard negative",
+      "model_a_passed": 11,
+      "model_b_passed": 7,
+      "n": 33,
+      "delta_pp": 12.121
+    },
+    {
+      "slice_id": "same_name",
+      "label": "Same name distractor",
+      "model_a_passed": 9,
+      "model_b_passed": 10,
+      "n": 13,
+      "delta_pp": -7.692
     }
   ],
   "provenance": {
     "source_docs": [
-      "docs/experiments/e8.10d-corrected-leaderboard.md",
-      "docs/experiments/e8.10d_numbers.json",
-      "docs/experiments/figures/e8.10d/matrix.json"
+      "data/advisor_runs/ba7_default_design_corpus_20260707_123630/build_corpus_command.json",
+      "data/advisor_runs/ba7_default_design_corpus_20260707_123630_combined100/coverage.md",
+      "data/advisor_runs/ba7_default_design_corpus_20260707_123630_combined100/eval_combined100/summary_pairwise_deepseek_minimax_combined100.json"
     ],
     "discarded_sources": [
-      "docs/experiments/e8.8b-leaderboard-cleaned-750.md"
+      "data/advisor_runs/ba7_default_design_corpus_20260707_123630/eval_hydra_pairwise_20260707_160107/eval_kimi-k2p6.jsonl"
     ],
-    "corpus": "TokenWasteGroup/DynamicMCPBench cleaned 750-task leaderboard slice; filtered to qwen3.7-max vs glm-5.1 and workflow-stress strategy aggregates",
-    "execution": "provider-pinned replay correction after E8.10c diagnosed OpenRouter routing artifact",
-    "generated_by_current_handoff": false,
-    "server_filter_available": false,
-    "server_filter_note": "The checked E8.10d JSON artifacts do not contain server/category metadata, so this demo cannot honestly claim a finance-tools/yfinance filter."
+    "corpus": "data/advisor_runs/ba7_default_design_corpus_20260707_123630_combined100: 85 base tasks plus 15 selected top-up tasks; final depth mix short=21, medium=24, long=55; server yfinance/finance-tools.",
+    "execution": "Hydra OpenAI-compatible routing; corpus generation models kimi-k2p7 for goal/explore/distill; eval models deepseek-v4-flash and minimax-m3; duplicate stop/resume rows deduplicated before final combine.",
+    "generated_by_current_handoff": true,
+    "server_filter_available": true,
+    "server_filter_note": "All 100 combined tasks use the yfinance server under the finance-tools Advisor scope."
   },
   "data_quality": [
-    "E8.10d is the authoritative corrected source for qwen3.7-max and glm-5.1.",
-    "The report is aligned to the Advisor default pairwise intent by filtering the model axis to qwen3.7-max vs glm-5.1.",
-    "The workflow-stress slice is a strategy-axis proxy: long_similar_chain, prerequisite_strict, recovery_required, and cross_server_alt.",
-    "A finance/server-specific filter is not available in the checked E8.10d JSON artifacts.",
-    "E8.8b is contaminated and retained only as discarded provenance."
+    "Combined corpus contains 100 TaskSpecs and 100 reference traces: 85 from the base run plus 15 selected top-up tasks.",
+    "Final selected depth mix is short=21, medium=24, long=55; this is close to the requested 20/30/50 mix but medium remains under target because the top-up pool did not contain enough medium tasks.",
+    "Eval metric is pass^1 because attempts_per_task=1 was used for these completed full runs.",
+    "DeepSeek top-up and MiniMax base evals had stop/resume artifacts; final combined files use deduplicated first rows per task_id.",
+    "No SAE was recorded in either combined eval: 0/100 for both models."
   ],
   "figures": []
 }

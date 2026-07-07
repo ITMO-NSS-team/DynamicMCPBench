@@ -37,6 +37,15 @@ const DISTRIBUTION_KEYS = [
   ["prerequisite_strict_ratio", "prerequisite"],
   ["stateful_write_ratio", "stateful write"],
 ] as const;
+const DEFAULT_ADVISOR_INTENT =
+  "Compare two local agents on long, multi-step finance workflows and tell me which is better.";
+const DEFAULT_ADVISOR_MODE: AdvisorMode = "pairwise";
+const DEFAULT_ADVISOR_MODELS = "deepseek-v4-flash, minimax-m3";
+const DEFAULT_ADVISOR_SERVER_SCOPE = "finance-tools";
+const DEFAULT_ADVISOR_TASK_BUDGET = 100;
+const DEFAULT_ADVISOR_ATTEMPTS = 1;
+const DEFAULT_ADVISOR_TARGET_PP = 0;
+const DEFAULT_ADVISOR_SANDBOX_REQUIRED = false;
 
 type DistributionKey = (typeof DISTRIBUTION_KEYS)[number][0];
 type DistributionEdit = Pick<TaskDistribution, DistributionKey>;
@@ -299,23 +308,21 @@ const DISTRIBUTION_HELP: Record<DistributionKey, FieldHelp> = {
 
 export function Design() {
   const s = useStudio();
-  const [intent, setIntent] = useState(
-    "Compare two local agents on long, multi-step finance workflows and tell me which is better.",
-  );
-  const [requestMode, setRequestMode] = useState<AdvisorMode>("pairwise");
-  const [requestModels, setRequestModels] = useState("qwen3.7-max, glm-5.1");
-  const [requestServerScope, setRequestServerScope] = useState("finance-tools");
-  const [requestBudget, setRequestBudget] = useState(120);
-  const [requestAttempts, setRequestAttempts] = useState(3);
-  const [requestTarget, setRequestTarget] = useState(0);
-  const [requestSandbox, setRequestSandbox] = useState(false);
+  const [intent, setIntent] = useState(DEFAULT_ADVISOR_INTENT);
+  const [requestMode, setRequestMode] = useState<AdvisorMode>(DEFAULT_ADVISOR_MODE);
+  const [requestModels, setRequestModels] = useState(DEFAULT_ADVISOR_MODELS);
+  const [requestServerScope, setRequestServerScope] = useState(DEFAULT_ADVISOR_SERVER_SCOPE);
+  const [requestBudget, setRequestBudget] = useState(DEFAULT_ADVISOR_TASK_BUDGET);
+  const [requestAttempts, setRequestAttempts] = useState(DEFAULT_ADVISOR_ATTEMPTS);
+  const [requestTarget, setRequestTarget] = useState(DEFAULT_ADVISOR_TARGET_PP);
+  const [requestSandbox, setRequestSandbox] = useState(DEFAULT_ADVISOR_SANDBOX_REQUIRED);
 
-  const [planBudget, setPlanBudget] = useState(120);
-  const [planAttempts, setPlanAttempts] = useState(3);
-  const [planTarget, setPlanTarget] = useState(0);
-  const [planModels, setPlanModels] = useState("qwen3.7-max, glm-5.1");
-  const [planServerScope, setPlanServerScope] = useState("finance-tools");
-  const [planSandbox, setPlanSandbox] = useState(false);
+  const [planBudget, setPlanBudget] = useState(DEFAULT_ADVISOR_TASK_BUDGET);
+  const [planAttempts, setPlanAttempts] = useState(DEFAULT_ADVISOR_ATTEMPTS);
+  const [planTarget, setPlanTarget] = useState(DEFAULT_ADVISOR_TARGET_PP);
+  const [planModels, setPlanModels] = useState(DEFAULT_ADVISOR_MODELS);
+  const [planServerScope, setPlanServerScope] = useState(DEFAULT_ADVISOR_SERVER_SCOPE);
+  const [planSandbox, setPlanSandbox] = useState(DEFAULT_ADVISOR_SANDBOX_REQUIRED);
   const [planDistribution, setPlanDistribution] = useState<DistributionEdit | null>(null);
 
   const [resp, setResp] = useState<AdvisorV2DesignResponse | null>(null);

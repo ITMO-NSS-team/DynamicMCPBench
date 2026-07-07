@@ -7,8 +7,8 @@ client constructor can pick the right endpoint without callers passing
 `base_url` and `api_key` per site.
 
 OpenRouter is the default: anything not registered here lands there. A second
-provider (`FREE`) serves a private endpoint where six models live free of
-charge (per user 2026-06-04). Both expose the OpenAI Chat Completions
+provider (`FREE`) serves a private endpoint where bare-name models live free of
+charge. Both expose the OpenAI Chat Completions
 surface, so the openai client transport works against either with only the
 base URL flipped.
 
@@ -54,7 +54,7 @@ FREE = Provider(
 )
 
 
-# Bare model ids (no slash) served by the free endpoint. User 2026-06-04.
+# Bare model ids (no slash) served by the free endpoint.
 #
 # 2026-06-10: the free endpoint died. These IDs still route to FREE here so
 # any historical config that references them surfaces an honest 5xx instead
@@ -62,12 +62,21 @@ FREE = Provider(
 # either). New experiments use the OR-prefixed equivalents directly
 # (see dmcp/paper_pricing.py::FREE_TO_OR_ALIAS).
 # kimi-k2p5 retired (k2p6 supersedes it).
+#
+# 2026-07-07: HydraGPT restored the free/private generation route at
+# https://hydragpt.ru/v1. Keep the historical ids and add the current Hydra
+# bare ids so `dmcp generate` / `scripts/build_corpus.py` can route them through
+# FREE_MODELS_BASE_URL + FREE_MODELS_API_KEY without call-site changes.
 FREE_MODELS: tuple[str, ...] = (
     "deepseek-v4-pro",
+    "deepseek-v4-flash",
     "kimi-k2p6",
+    "kimi-k2p7",
     "glm-5p1",
     "gpt-oss-120b",
     "minimax-m2p7",
+    "minimax-m3",
+    "nemotron-3-ultra",
 )
 
 

@@ -317,6 +317,18 @@ function ReplayDemoReportPanel({
   busy: boolean;
   error: string | null;
 }) {
+  const firstModel = report?.leaderboard[0]?.model ?? "model A";
+  const secondModel = report?.leaderboard[1]?.model ?? "model B";
+  const pairedEffect = report?.report.effect_sizes.find(
+    (effect) => effect.method === "paired_bootstrap_tasks",
+  );
+  const pairedCi = report?.report.confidence_intervals.find(
+    (ci) => ci.method === "paired_bootstrap_tasks",
+  );
+  const plannedMde = report?.report.effect_sizes.find(
+    (effect) => effect.method === "planning_heuristic_mde",
+  );
+
   return (
     <div className="panel replay-report" style={{ marginTop: 8 }}>
       <div className="panel-head">
@@ -356,10 +368,18 @@ function ReplayDemoReportPanel({
                 <span>status</span>
                 <b>{report.report.status}</b>
               </div>
+              {plannedMde && (
+                <div className="metric">
+                  <span>MDE</span>
+                  <b>{plannedMde.estimate_pp.toFixed(1)} pp</b>
+                </div>
+              )}
             </div>
             <div className="note-row">
-              This card uses completed replay evidence from {report.experiment_id}; it is not an
-              eval result produced by the current corpus handoff.
+              This card uses completed replay evidence from {report.experiment_id}
+              {report.provenance.generated_by_current_handoff
+                ? " generated from the current Advisor handoff."
+                : "; it is not an eval result produced by the current corpus handoff."}
             </div>
             <div className="section-label">Pairwise workflow-stress result</div>
             <div className="replay-table" role="table" aria-label="Pairwise workflow-stress result">
@@ -387,28 +407,38 @@ function ReplayDemoReportPanel({
                 </div>
               ))}
             </div>
+            {pairedEffect && pairedCi && (
+              <div className="info-row">
+                <span>paired delta</span>
+                <b>
+                  {pairedEffect.estimate_pp >= 0 ? "+" : ""}
+                  {pairedEffect.estimate_pp.toFixed(1)} pp, 95% CI{" "}
+                  {pairedCi.low_pp.toFixed(1)} to {pairedCi.high_pp.toFixed(1)} pp
+                </b>
+              </div>
+            )}
             {report.focus_slices && report.focus_slices.length > 0 && (
               <>
-                <div className="section-label">Workflow-stress proxy slices</div>
+                <div className="section-label">Generated corpus slices</div>
                 <div
                   className="replay-table replay-slice-table"
                   role="table"
-                  aria-label="Workflow-stress proxy slices"
+                  aria-label="Generated corpus slices"
                 >
                   <div className="replay-table-row replay-table-head" role="row">
                     <span>slice</span>
-                    <span>qwen</span>
-                    <span>glm</span>
+                    <span>{firstModel}</span>
+                    <span>{secondModel}</span>
                     <span>delta</span>
                   </div>
                   {report.focus_slices.map((slice) => (
                     <div key={slice.slice_id} className="replay-table-row" role="row">
                       <b>{slice.label}</b>
                       <span className="mono">
-                        {slice.qwen_passed}/{slice.n}
+                        {slice.model_a_passed ?? slice.qwen_passed ?? 0}/{slice.n}
                       </span>
                       <span className="mono">
-                        {slice.glm_passed}/{slice.n}
+                        {slice.model_b_passed ?? slice.glm_passed ?? 0}/{slice.n}
                       </span>
                       <span className="mono">
                         {slice.delta_pp >= 0 ? "+" : ""}
@@ -447,7 +477,13 @@ function ReplayDemoReportPanel({
             </div>
             <div className="info-row">
               <span>provenance</span>
-              <b>{report.provenance.source_docs.join(", ")}</b>
+              <b className="provenance-list">
+                {report.provenance.source_docs.map((source) => (
+                  <span key={source} className="provenance-path">
+                    {source}
+                  </span>
+                ))}
+              </b>
             </div>
             {report.provenance.server_filter_note && (
               <div className="info-row">
