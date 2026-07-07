@@ -27,7 +27,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from fastapi import FastAPI, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
@@ -56,6 +56,7 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     try:
         replay_store.load_showcase()
         replay_store.load_leaderboard()
+        replay_store.load_advisor_replay_demo_report()
         log.info("REPLAY fixtures pre-warmed")
     except Exception as e:  # a missing fixture shouldn't crash boot; routes surface it
         log.warning("fixture pre-warm skipped: %s", e)
@@ -78,6 +79,7 @@ def health() -> dict[str, Any]:
             "advisor_v2": True,
             "advisor_v2_report": True,
             "advisor_v2_launch": True,
+            "advisor_v2_replay_demo_report": True,
         },
     }
 
@@ -269,6 +271,29 @@ def advisor_v2_launch_route(body: LaunchRequest) -> Any:
 @app.get("/api/advisor/v2/launch/{job_id}")
 def advisor_v2_launch_status_route(job_id: str) -> Any:
     return get_launch_job(job_id).model_dump(mode="json")
+
+
+@app.get("/api/advisor/v2/replay-demo-report")
+def advisor_v2_replay_demo_report_route() -> Any:
+    return replay_store.load_advisor_replay_demo_report()
+
+
+_REPLAY_DEMO_FIGURES = {
+    "before_after.png",
+    "heatmap_model_strategy.png",
+    "task_solvability.png",
+}
+_REPLAY_DEMO_FIGURES_DIR = _REPO_ROOT / "docs" / "experiments" / "figures" / "e8.10d"
+
+
+@app.get("/api/advisor/v2/replay-demo-report/figures/{figure_name}")
+def advisor_v2_replay_demo_report_figure_route(figure_name: str) -> FileResponse:
+    if figure_name not in _REPLAY_DEMO_FIGURES:
+        return JSONResponse(status_code=404, content={"detail": "unknown replay demo figure"})
+    path = _REPLAY_DEMO_FIGURES_DIR / figure_name
+    if not path.exists():
+        return JSONResponse(status_code=404, content={"detail": "missing replay demo figure"})
+    return FileResponse(path)
 
 
 # Friendly error envelope for the demo (no stack traces to the visitor).

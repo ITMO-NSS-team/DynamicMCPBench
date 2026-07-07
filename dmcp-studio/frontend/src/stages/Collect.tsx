@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui";
 import { api } from "../api/client";
 import { useStudio } from "../store/context";
-import type { DStatus, LaunchJob, ServerCard } from "../types";
+import type { DStatus, LaunchJob, ReplayDemoReport, ServerCard } from "../types";
 
 function isLaunchStatus(status: DStatus): status is "approved" | "warning" {
   return status === "approved" || status === "warning";
@@ -14,14 +14,43 @@ function serverTag(srv: ServerCard): string {
   return srv.dynamism === "static" ? "static" : "live-read";
 }
 
+function replayOnlyLaunchJob(): LaunchJob {
+  return {
+    schema_version: "benchmark_advisor.launch_job.v2",
+    job_id: "replay-demo-report-local",
+    status: "succeeded",
+    command_preview: [
+      "replay-only",
+      "no-corpus-handoff",
+      "load",
+      "/api/advisor/v2/replay-demo-report",
+    ],
+    logs: [
+      "replay mode: no real corpus handoff was launched",
+      "replay mode: loading frozen Benchmark Advisor post-run report fixture",
+      "source: /api/advisor/v2/replay-demo-report",
+    ],
+    artifacts: {
+      goals: null,
+      specs: null,
+      traces: null,
+      coverage: null,
+    },
+  };
+}
+
 export function Collect() {
   const s = useStudio();
   const carried = s.advisorCarry;
+  const replayMode = s.mode === "replay";
   const [launchConfirmed, setLaunchConfirmed] = useState(false);
   const [sandboxConfirmed, setSandboxConfirmed] = useState(false);
   const [launchJob, setLaunchJob] = useState<LaunchJob | null>(null);
   const [launchBusy, setLaunchBusy] = useState(false);
   const [launchError, setLaunchError] = useState<string | null>(null);
+  const [demoReport, setDemoReport] = useState<ReplayDemoReport | null>(null);
+  const [demoReportBusy, setDemoReportBusy] = useState(false);
+  const [demoReportError, setDemoReportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!launchJob || !["queued", "running"].includes(launchJob.status)) return;
@@ -34,14 +63,62 @@ export function Collect() {
     return () => window.clearInterval(handle);
   }, [launchJob]);
 
+  useEffect(() => {
+    if (s.mode !== "replay" || launchJob?.status !== "succeeded") {
+      setDemoReport(null);
+      setDemoReportError(null);
+      setDemoReportBusy(false);
+      return;
+    }
+    let cancelled = false;
+    setDemoReportBusy(true);
+    setDemoReportError(null);
+    void api
+      .health()
+      .then((health) => {
+        if (health.capabilities?.advisor_v2_replay_demo_report !== true) {
+          throw new Error(
+            "Studio backend is stale. Restart Studio so the replay demo report route is loaded.",
+          );
+        }
+        return api.advisorV2ReplayDemoReport();
+      })
+      .then((report) => {
+        if (!cancelled) setDemoReport(report);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          const detail = err instanceof Error ? err.message : "";
+          setDemoReportError(
+            detail
+              ? `Could not load the replay demo statistical report: ${detail}`
+              : "Could not load the replay demo statistical report.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setDemoReportBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [launchJob?.status, s.mode]);
+
   const startLaunch = async () => {
     if (!carried || !launchConfirmed) return;
     if (!carried.launchable || !isLaunchStatus(carried.responseStatus)) {
-      setLaunchError("This advisor handoff is not launchable. Return to Stage 0 and repair the design.");
+      setLaunchError(
+        "This advisor handoff is not launchable. Return to Stage 0 and repair the design.",
+      );
       return;
     }
     setLaunchBusy(true);
     setLaunchError(null);
+    if (replayMode) {
+      setLaunchJob(replayOnlyLaunchJob());
+      setLaunchBusy(false);
+      return;
+    }
     try {
       setLaunchJob(
         await api.advisorV2Launch({
@@ -72,7 +149,7 @@ export function Collect() {
     launchBusy ||
     !carried.launchable ||
     !isLaunchStatus(carried.responseStatus) ||
-    (carried.sandboxRequired && !sandboxConfirmed) ||
+    (!replayMode && carried.sandboxRequired && !sandboxConfirmed) ||
     ["queued", "running"].includes(launchJob?.status ?? "");
 
   return (
@@ -115,7 +192,13 @@ export function Collect() {
             </div>
             <div className="info-row">
               <span>validation</span>
-              <b>{carried.launchable ? "launchable after guarded confirmation" : "not launchable"}</b>
+              <b>
+                {carried.launchable
+                  ? replayMode
+                    ? "replay report available after confirmation"
+                    : "launchable after guarded confirmation"
+                  : "not launchable"}
+              </b>
             </div>
             <div className="note-row">
               {carried.statisticalPlan.assumption_ledger.independence_assumption}
@@ -129,9 +212,13 @@ export function Collect() {
                 checked={launchConfirmed}
                 onChange={(event) => setLaunchConfirmed(event.target.checked)}
               />
-              <span>Confirm guarded corpus/specs/traces launch</span>
+              <span>
+                {replayMode
+                  ? "Confirm replay demo report load"
+                  : "Confirm guarded corpus/specs/traces launch"}
+              </span>
             </label>
-            {carried.sandboxRequired && (
+            {!replayMode && carried.sandboxRequired && (
               <label className="check-row">
                 <input
                   type="checkbox"
@@ -144,20 +231,35 @@ export function Collect() {
             {launchError && (
               <div className="error-banner" role="alert">
                 <b>{launchError}</b>
-                <button type="button" className="error-dismiss" onClick={() => setLaunchError(null)}>
+                <button
+                  type="button"
+                  className="error-dismiss"
+                  onClick={() => setLaunchError(null)}
+                >
                   x
                 </button>
               </div>
             )}
             <div className="footer-nav" style={{ padding: 0 }}>
               <span className="panel-sub">
-                {launchJob ? `job ${launchJob.status}` : "no launch job yet"}
+                {launchJob
+                  ? `job ${launchJob.status}`
+                  : replayMode
+                    ? "replay mode: no corpus launch"
+                    : "no launch job yet"}
               </span>
               <Button type="secondary" scale={0.85} disabled={launchDisabled} onClick={startLaunch}>
-                Start corpus handoff
+                {replayMode ? "Start replay demo" : "Start corpus handoff"}
               </Button>
             </div>
             {launchJob && <LaunchJobPanel job={launchJob} />}
+            {s.mode === "replay" && launchJob?.status === "succeeded" && (
+              <ReplayDemoReportPanel
+                report={demoReport}
+                busy={demoReportBusy}
+                error={demoReportError}
+              />
+            )}
           </div>
         </div>
       )}
@@ -203,6 +305,173 @@ export function Collect() {
         </Button>
       </div>
     </section>
+  );
+}
+
+function ReplayDemoReportPanel({
+  report,
+  busy,
+  error,
+}: {
+  report: ReplayDemoReport | null;
+  busy: boolean;
+  error: string | null;
+}) {
+  return (
+    <div className="panel replay-report" style={{ marginTop: 8 }}>
+      <div className="panel-head">
+        <span className="panel-title">Replay statistical report</span>
+        <span className="panel-sub">
+          {busy ? "loading..." : report ? report.experiment_id : "not loaded"}
+        </span>
+      </div>
+      <div className="panel-body stack-gap">
+        {error ? (
+          <div className="error-banner" role="alert">
+            <b>{error}</b>
+          </div>
+        ) : !report ? (
+          <div className="empty">Loading replay demonstration report...</div>
+        ) : (
+          <>
+            <p className="compact-copy">{report.headline}</p>
+            <div className="metric-strip">
+              <div className="metric">
+                <span>tasks</span>
+                <b>{report.sample_size}</b>
+              </div>
+              <div className="metric">
+                <span>models</span>
+                <b>{report.model_count}</b>
+              </div>
+              <div className="metric">
+                <span>metric</span>
+                <b>{report.metric}</b>
+              </div>
+              <div className="metric">
+                <span>missing</span>
+                <b>{report.report.missingness.missing_count}</b>
+              </div>
+              <div className="metric">
+                <span>status</span>
+                <b>{report.report.status}</b>
+              </div>
+            </div>
+            <div className="note-row">
+              This card uses completed replay evidence from {report.experiment_id}; it is not an
+              eval result produced by the current corpus handoff.
+            </div>
+            <div className="section-label">Pairwise workflow-stress result</div>
+            <div className="replay-table" role="table" aria-label="Pairwise workflow-stress result">
+              <div className="replay-table-row replay-table-head" role="row">
+                <span>rank</span>
+                <span>model</span>
+                <span>pass^3</span>
+                <span>95% CI</span>
+                <span>delta</span>
+              </div>
+              {report.leaderboard.map((row) => (
+                <div key={row.model} className="replay-table-row" role="row">
+                  <span className="mono">#{row.rank}</span>
+                  <b>{row.model}</b>
+                  <span className="mono">
+                    {(row.acc * 100).toFixed(1)}% ({row.passed}/{row.n})
+                  </span>
+                  <span className="mono">
+                    {(row.lo * 100).toFixed(1)}-{(row.hi * 100).toFixed(1)}%
+                  </span>
+                  <span className="mono">
+                    {row.delta >= 0 ? "+" : ""}
+                    {row.delta.toFixed(1)} pp
+                  </span>
+                </div>
+              ))}
+            </div>
+            {report.focus_slices && report.focus_slices.length > 0 && (
+              <>
+                <div className="section-label">Workflow-stress proxy slices</div>
+                <div
+                  className="replay-table replay-slice-table"
+                  role="table"
+                  aria-label="Workflow-stress proxy slices"
+                >
+                  <div className="replay-table-row replay-table-head" role="row">
+                    <span>slice</span>
+                    <span>qwen</span>
+                    <span>glm</span>
+                    <span>delta</span>
+                  </div>
+                  {report.focus_slices.map((slice) => (
+                    <div key={slice.slice_id} className="replay-table-row" role="row">
+                      <b>{slice.label}</b>
+                      <span className="mono">
+                        {slice.qwen_passed}/{slice.n}
+                      </span>
+                      <span className="mono">
+                        {slice.glm_passed}/{slice.n}
+                      </span>
+                      <span className="mono">
+                        {slice.delta_pp >= 0 ? "+" : ""}
+                        {slice.delta_pp.toFixed(1)} pp
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {report.report.rank_stability && (
+              <div className="info-row">
+                <span>rank stability</span>
+                <b>{report.report.rank_stability.summary}</b>
+              </div>
+            )}
+            <div className="replay-figures">
+              {report.figures.map((figure) => (
+                <figure key={figure.figure_id}>
+                  <img src={figure.url} alt={figure.alt} />
+                  <figcaption>{figure.title}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <ClaimList title="Supported report claims" items={report.report.allowed_claims} />
+            <ClaimList title="Report boundaries" items={report.report.not_allowed_claims} />
+            <div className="section-label">Data quality</div>
+            {report.data_quality.map((note) => (
+              <div key={note} className="record-row">
+                {note}
+              </div>
+            ))}
+            <div className="info-row">
+              <span>condition</span>
+              <b>{report.condition}</b>
+            </div>
+            <div className="info-row">
+              <span>provenance</span>
+              <b>{report.provenance.source_docs.join(", ")}</b>
+            </div>
+            {report.provenance.server_filter_note && (
+              <div className="info-row">
+                <span>server filter</span>
+                <b>{report.provenance.server_filter_note}</b>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ClaimList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <div className="section-label">{title}</div>
+      <ul className="claim-list">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

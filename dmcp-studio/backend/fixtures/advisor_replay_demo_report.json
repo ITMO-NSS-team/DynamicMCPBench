@@ -1,0 +1,193 @@
+{
+  "schema_version": "benchmark_advisor.replay_demo_report.v1",
+  "experiment_id": "E8.10d.qwen-vs-glm.workflow-stress",
+  "title": "Pairwise replay report for the default Advisor intent",
+  "headline": "For the Advisor's default pairwise question, qwen3.7-max and glm-5.1 remain statistically tied. On the workflow-stress proxy slice, qwen is +3.0 pp over glm, but the uncertainty interval crosses zero.",
+  "condition": "replay,target,p_alt=0.5,pool=8,budget=12,pass^3; filtered to qwen3.7-max vs glm-5.1 and workflow-stress strategy slices",
+  "sample_size": 200,
+  "model_count": 2,
+  "metric": "pass^3",
+  "mode": "replay",
+  "report": {
+    "schema_version": "benchmark_advisor.report.v2",
+    "mode": "pairwise",
+    "status": "warning",
+    "effect_sizes": [
+      {
+        "label": "qwen3.7-max - glm-5.1 on workflow-stress proxy",
+        "estimate_pp": 3.0,
+        "method": "aggregate_slice_delta_proxy"
+      },
+      {
+        "label": "qwen3.7-max - glm-5.1 overall corrected leaderboard",
+        "estimate_pp": 0.933,
+        "method": "aggregate_overall_delta_proxy"
+      }
+    ],
+    "confidence_intervals": [
+      {
+        "label": "qwen3.7-max - glm-5.1 on workflow-stress proxy",
+        "low_pp": -6.788,
+        "high_pp": 12.788,
+        "method": "aggregate_two_proportion_normal_approximation"
+      },
+      {
+        "label": "qwen3.7-max - glm-5.1 overall corrected leaderboard",
+        "low_pp": -4.127,
+        "high_pp": 5.993,
+        "method": "aggregate_two_proportion_normal_approximation"
+      }
+    ],
+    "rank_stability": null,
+    "slice_diagnostics": [
+      {
+        "slice_id": "long_similar_chain",
+        "label": "Long similar chain",
+        "metric": "pass^3_delta_pp",
+        "estimate": 4.0,
+        "interpretation": "qwen3.7-max passed 28/50 and glm-5.1 passed 26/50."
+      },
+      {
+        "slice_id": "prerequisite_strict",
+        "label": "Prerequisite strict",
+        "metric": "pass^3_delta_pp",
+        "estimate": 6.0,
+        "interpretation": "qwen3.7-max passed 29/50 and glm-5.1 passed 26/50."
+      },
+      {
+        "slice_id": "recovery_required",
+        "label": "Recovery required",
+        "metric": "pass^3_delta_pp",
+        "estimate": 0.0,
+        "interpretation": "both models passed 27/50."
+      },
+      {
+        "slice_id": "cross_server_alt",
+        "label": "Cross-server alternate",
+        "metric": "pass^3_delta_pp",
+        "estimate": 2.0,
+        "interpretation": "qwen3.7-max passed 15/50 and glm-5.1 passed 14/50."
+      }
+    ],
+    "missingness": {
+      "missing_count": 0,
+      "total_count": 400,
+      "policy": "aggregate fixture from corrected paper experiment; raw per-task eval rows and server/category axes are not embedded in this Studio demo fixture",
+      "reasons": {}
+    },
+    "multiplicity": {
+      "policy": "single pairwise demo claim with exploratory strategy-slice diagnostics",
+      "confirmatory_tests": 1,
+      "exploratory_tests": 4,
+      "note": "The pairwise delta is aggregate-backed. Strategy slices are shown to align the demo with the default workflow intent, not as independently powered confirmatory tests."
+    },
+    "allowed_claims": [
+      "Scoped pairwise comparison for qwen3.7-max vs glm-5.1 on the corrected E8.10d replay data.",
+      "On the workflow-stress proxy slice, qwen3.7-max is observed at 99/200 pass^3 and glm-5.1 at 93/200 pass^3.",
+      "The observed qwen-minus-glm delta is small and statistically inconclusive under the aggregate approximation."
+    ],
+    "not_allowed_claims": [
+      "claim that qwen3.7-max is definitively better than glm-5.1",
+      "finance-server-specific claim",
+      "server-filtered claim over yfinance or finance-tools",
+      "private-deployment guarantee",
+      "claim that the current corpus handoff itself already ran evaluation"
+    ],
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "server_axis_unavailable_in_source_artifacts",
+        "message": "The available E8.10d JSON artifacts expose model and strategy axes, but not server/category axes.",
+        "failed_field": "provenance.source_docs",
+        "failed_criterion_id": null,
+        "statistical_reason": "A finance-server-specific post-run claim requires per-task metadata or raw eval/spec rows with server/category labels.",
+        "repair_options": [
+          "Convert raw eval/spec rows into an OutcomeTensor with server/category metadata when those rows are available.",
+          "Keep this replay card scoped to model and workflow-strategy slices."
+        ],
+        "guide_references": []
+      }
+    ]
+  },
+  "leaderboard": [
+    {
+      "rank": 1,
+      "model": "qwen3.7-max",
+      "passed": 99,
+      "n": 200,
+      "acc": 0.495,
+      "lo": 0.426,
+      "hi": 0.564,
+      "old_acc": 30.1,
+      "delta": 3.0
+    },
+    {
+      "rank": 2,
+      "model": "glm-5.1",
+      "passed": 93,
+      "n": 200,
+      "acc": 0.465,
+      "lo": 0.397,
+      "hi": 0.534,
+      "old_acc": 47.9,
+      "delta": -3.0
+    }
+  ],
+  "focus_slices": [
+    {
+      "slice_id": "long_similar_chain",
+      "label": "Long similar chain",
+      "qwen_passed": 28,
+      "glm_passed": 26,
+      "n": 50,
+      "delta_pp": 4.0
+    },
+    {
+      "slice_id": "prerequisite_strict",
+      "label": "Prerequisite strict",
+      "qwen_passed": 29,
+      "glm_passed": 26,
+      "n": 50,
+      "delta_pp": 6.0
+    },
+    {
+      "slice_id": "recovery_required",
+      "label": "Recovery required",
+      "qwen_passed": 27,
+      "glm_passed": 27,
+      "n": 50,
+      "delta_pp": 0.0
+    },
+    {
+      "slice_id": "cross_server_alt",
+      "label": "Cross-server alternate",
+      "qwen_passed": 15,
+      "glm_passed": 14,
+      "n": 50,
+      "delta_pp": 2.0
+    }
+  ],
+  "provenance": {
+    "source_docs": [
+      "docs/experiments/e8.10d-corrected-leaderboard.md",
+      "docs/experiments/e8.10d_numbers.json",
+      "docs/experiments/figures/e8.10d/matrix.json"
+    ],
+    "discarded_sources": [
+      "docs/experiments/e8.8b-leaderboard-cleaned-750.md"
+    ],
+    "corpus": "TokenWasteGroup/DynamicMCPBench cleaned 750-task leaderboard slice; filtered to qwen3.7-max vs glm-5.1 and workflow-stress strategy aggregates",
+    "execution": "provider-pinned replay correction after E8.10c diagnosed OpenRouter routing artifact",
+    "generated_by_current_handoff": false,
+    "server_filter_available": false,
+    "server_filter_note": "The checked E8.10d JSON artifacts do not contain server/category metadata, so this demo cannot honestly claim a finance-tools/yfinance filter."
+  },
+  "data_quality": [
+    "E8.10d is the authoritative corrected source for qwen3.7-max and glm-5.1.",
+    "The report is aligned to the Advisor default pairwise intent by filtering the model axis to qwen3.7-max vs glm-5.1.",
+    "The workflow-stress slice is a strategy-axis proxy: long_similar_chain, prerequisite_strict, recovery_required, and cross_server_alt.",
+    "A finance/server-specific filter is not available in the checked E8.10d JSON artifacts.",
+    "E8.8b is contaminated and retained only as discarded provenance."
+  ],
+  "figures": []
+}

@@ -95,6 +95,7 @@ export const HealthSchema = z.object({
       advisor_v2: z.boolean().optional(),
       advisor_v2_report: z.boolean().optional(),
       advisor_v2_launch: z.boolean().optional(),
+      advisor_v2_replay_demo_report: z.boolean().optional(),
     })
     .optional(),
 });
@@ -607,6 +608,62 @@ export const AdvisorV2ReportResponseSchema = z.object({
   report: StatisticalReportSchema,
 });
 
+export const ReplayDemoLeaderboardRowSchema = z.object({
+  rank: z.number().int().min(1),
+  model: z.string().min(1),
+  passed: z.number().int().min(0),
+  n: z.number().int().min(1),
+  acc: z.number(),
+  lo: z.number(),
+  hi: z.number(),
+  old_acc: z.number(),
+  delta: z.number(),
+});
+
+export const ReplayDemoFigureSchema = z.object({
+  figure_id: z.string().min(1),
+  title: z.string().min(1),
+  url: z.string().min(1),
+  alt: z.string().min(1),
+});
+
+export const ReplayDemoFocusSliceSchema = z.object({
+  slice_id: z.string().min(1),
+  label: z.string().min(1),
+  qwen_passed: z.number().int().min(0),
+  glm_passed: z.number().int().min(0),
+  n: z.number().int().min(1),
+  delta_pp: z.number(),
+});
+
+export const ReplayDemoProvenanceSchema = z.object({
+  source_docs: z.array(z.string().min(1)),
+  discarded_sources: z.array(z.string().min(1)),
+  corpus: z.string().min(1),
+  execution: z.string().min(1),
+  generated_by_current_handoff: z.boolean(),
+  server_filter_available: z.boolean().optional(),
+  server_filter_note: z.string().min(1).optional(),
+});
+
+export const ReplayDemoReportSchema = z.object({
+  schema_version: z.literal("benchmark_advisor.replay_demo_report.v1"),
+  experiment_id: z.string().min(1),
+  title: z.string().min(1),
+  headline: z.string().min(1),
+  condition: z.string().min(1),
+  sample_size: z.number().int().min(1),
+  model_count: z.number().int().min(1),
+  metric: z.string().min(1),
+  mode: z.literal("replay"),
+  report: StatisticalReportSchema,
+  leaderboard: z.array(ReplayDemoLeaderboardRowSchema).min(1),
+  focus_slices: z.array(ReplayDemoFocusSliceSchema).optional(),
+  provenance: ReplayDemoProvenanceSchema,
+  data_quality: z.array(z.string().min(1)),
+  figures: z.array(ReplayDemoFigureSchema),
+});
+
 export const LaunchRequestSchema = z.object({
   schema_version: z.literal("benchmark_advisor.launch.v2"),
   export_config: ExportConfigSchema,
@@ -696,6 +753,7 @@ export type MultiplicitySummary = z.infer<typeof MultiplicitySummarySchema>;
 export type StatisticalReport = z.infer<typeof StatisticalReportSchema>;
 export type AdvisorV2ReportRequest = z.infer<typeof AdvisorV2ReportRequestSchema>;
 export type AdvisorV2ReportResponse = z.infer<typeof AdvisorV2ReportResponseSchema>;
+export type ReplayDemoReport = z.infer<typeof ReplayDemoReportSchema>;
 export type LaunchRequest = z.infer<typeof LaunchRequestSchema>;
 export type LaunchArtifacts = z.infer<typeof LaunchArtifactsSchema>;
 export type LaunchJob = z.infer<typeof LaunchJobSchema>;

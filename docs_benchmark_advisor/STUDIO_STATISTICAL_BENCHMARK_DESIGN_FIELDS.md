@@ -919,9 +919,74 @@ Diagnostic slices are useful for understanding failure modes. They should not be
 treated as broad model-selection evidence unless they were predeclared, powered,
 and handled with multiplicity control.
 
+## Replay demo post-run report
+
+The Collect stage can show a replay-only post-run report card from the handoff
+control. In Replay mode that control does not start the real guarded corpus
+handoff. It creates a local replay-only succeeded job, logs that no real corpus
+handoff was launched, and then loads the frozen report fixture.
+
+### What it is
+
+The card is a demonstration of completed Benchmark Advisor reporting on an
+existing experiment artifact. It is aligned to the default Advisor pairwise
+intent by filtering the available E8.10d artifacts to:
+
+- models: `qwen3.7-max` vs `glm-5.1`
+- workflow-stress strategy proxy: `long_similar_chain`,
+  `prerequisite_strict`, `recovery_required`, and `cross_server_alt`
+
+It uses the corrected E8.10d replay artifacts from:
+
+- `docs/experiments/e8.10d-corrected-leaderboard.md`
+- `docs/experiments/e8.10d_numbers.json`
+- `docs/experiments/figures/e8.10d/matrix.json`
+
+The report is shown in Replay mode only. The replay job command preview is a
+local marker for loading `/api/advisor/v2/replay-demo-report`, not a
+`scripts/build_corpus.py` invocation. It is meant to answer:
+
+```text
+"What would a completed statistical post-run report look like on real paper
+experiment data?"
+```
+
+### What it is not
+
+The card is not produced by the Collect button starting a real corpus handoff.
+In Live mode BA6 can launch only the corpus/specs/traces path through
+`scripts/build_corpus.py`; it does not run `dmcp bench`, leaderboard evaluation,
+or paid model eval. In Replay mode even that corpus path is skipped.
+
+So read the Collect card as:
+
+```text
+"Here is a realistic completed report example using frozen replay evidence."
+```
+
+Do not read it as:
+
+```text
+"This launch job has already evaluated candidate models and produced these
+leaderboard numbers."
+```
+
+### Provenance and caveats
+
+The demo uses E8.10d as the authoritative corrected source because E8.8b is
+marked as contaminated by provider routing and superseded. E8.8b can appear only
+as discarded/as-run provenance, not as headline evidence.
+
+The current fixture is aggregate-backed: it embeds corrected pairwise model
+numbers and strategy-slice aggregates. It does not embed raw per-task eval JSONL
+rows. The checked E8.10d JSON files expose model and strategy axes, but not a
+server/category axis, so the card cannot honestly claim a finance-tools or
+yfinance-specific filter. If future work needs full per-task/server-specific
+outcome tensors, the raw eval rows and specs should be converted into the
+`OutcomeTensor` contract before reporting.
+
 ### Post-run report view is currently a preview
 
 The panel shows the report contract and behavior using a generated fixture from
 the current plan. It is not a real benchmark result until Studio wires it to
 completed run artifacts/outcomes.
-

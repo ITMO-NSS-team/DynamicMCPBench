@@ -513,9 +513,114 @@ side-effect free.
 
 ---
 
-## BA7 - Advisor v2 hardening and fixups
+## BA7 - Replay demo post-run report
 
-### BA7.1 - Intent robustness
+BA7 adds a replay-mode demonstration of the Benchmark Advisor post-run report
+from the Collect handoff control. In Replay mode this control must not start the
+real guarded corpus handoff; it creates a local replay-only succeeded job and
+loads the frozen report fixture. The demo must be honest about provenance: it
+shows existing completed benchmark evidence from the paper experiments, not
+evidence produced by the current Studio action.
+
+### BA7.1 - Statistical post-run demo report template
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-06
+- deps: BA5.5 BA6.5
+- source: BA7 replay demo planning; `docs/experiments/e8.10d-corrected-leaderboard.md`
+- note: implemented as the frozen replay demo report fixture
+  `dmcp-studio/backend/fixtures/advisor_replay_demo_report.json`, carrying a
+  `benchmark_advisor.report.v2` pairwise report plus provenance, headline,
+  qwen-vs-glm workflow-stress aggregates, data-quality notes, and explicit
+  source-axis limitations.
+- done-when: a typed demo report wrapper exists for replay-mode Studio, carrying
+  a `benchmark_advisor.report.v2`-compatible statistical report plus provenance
+  fields for experiment id, source docs, condition, sample size, replay mode,
+  corrected/provider-pinned status, data-quality caveats, and allowed /
+  not-allowed claims. The template explicitly distinguishes completed-demo
+  evidence from the synthetic Design-page post-run preview.
+
+### BA7.2 - Collect existing experiment artifacts
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-06
+- deps: BA7.1
+- source: `docs/experiments/e8.10d_numbers.json`;
+  `docs/experiments/figures/e8.10d/`; `docs/experiments/e8.8b-leaderboard-cleaned-750.md`
+- note: fixture uses E8.10d corrected leaderboard and matrix JSON to filter the
+  model axis to `qwen3.7-max` vs `glm-5.1` and the strategy axis to
+  `long_similar_chain`, `prerequisite_strict`, `recovery_required`, and
+  `cross_server_alt`. E8.8b is recorded only as discarded contaminated
+  provenance. The checked JSON artifacts do not expose a server/category axis,
+  so no finance-tools/yfinance claim is made.
+- done-when: the implementation uses E8.10d as the authoritative corrected
+  leaderboard source, parses the corrected leaderboard numbers, matrix, task
+  solvability, and available figures, and treats E8.8b only as a discarded /
+  contaminated provenance note. If raw eval rows are absent locally, the demo
+  records that missingness honestly and uses aggregate-backed report data rather
+  than inventing per-task outcomes.
+
+### BA7.3 - Replay fixture API for demo report
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-06
+- deps: BA7.1 BA7.2
+- source: `dmcp-studio/backend/replay_store.py`; Studio advisor v2 report
+  contracts
+- note: implemented as `GET /api/advisor/v2/replay-demo-report` plus an
+  allowlisted figure route under
+  `/api/advisor/v2/replay-demo-report/figures/{figure_name}` for future/static
+  assets. The current user-intent-aligned card is table-first and does not rely
+  on generic leaderboard images. The fixture is pre-warmed with other replay
+  fixtures.
+- done-when: Studio backend exposes a read-only replay demo report endpoint
+  backed by frozen local fixtures; the endpoint requires no network access, does
+  not launch generation or evaluation, and returns schema-validated report,
+  provenance, headline summary, figure references, and data-quality notes.
+
+### BA7.4 - Collect UI report card after replay handoff
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-06
+- deps: BA7.3 BA6.4
+- source: `dmcp-studio/frontend/src/stages/Collect.tsx`;
+  `dmcp-studio/frontend/src/api/schemas.ts`
+- note: implemented in Collect as a replay-only report card shown after a
+  local replay-only succeeded job. The replay path does not call
+  `/api/advisor/v2/launch`, does not run `scripts/build_corpus.py`, and logs
+  that no real corpus handoff was launched. Frontend schemas/client now type
+  the demo report, and the card renders headline metrics, pairwise qwen-vs-glm rows,
+  workflow-stress slice rows, claims, boundaries, data-quality notes, and
+  provenance.
+- done-when: in Replay mode, the handoff control creates a replay-only local
+  succeeded job, logs that no real corpus handoff was launched, and Collect
+  renders a polished statistical report card aligned to the
+  default Advisor pairwise intent: qwen3.7-max vs glm-5.1, workflow-stress
+  proxy slices, aggregate uncertainty, provenance, and claim boundaries. The
+  card is hidden in Live mode and is not shown for queued, running, failed, or
+  refused launch jobs.
+
+### BA7.5 - Tests and documentation for demo semantics
+- status: done
+- owner: kmetra1910
+- claimed_at: 2026-07-06
+- deps: BA7.4
+- source: Studio frontend/backend tests; `docs_benchmark_advisor/`
+- note: backend tests cover fixture provenance and figure allowlisting;
+  frontend tests cover replay-only rendering without a backend launch call and
+  non-rendering in Live mode. Studio field docs explain demo semantics and
+  provenance.
+- done-when: backend tests verify the fixture endpoint, provenance, and E8.10d
+  source selection; frontend tests verify replay-only rendering without
+  launching the real handoff and non-rendering in Live/unfinished states; docs
+  explain that this is a demo of existing post-run evidence and not an automatic
+  eval result of the corpus-only handoff.
+
+---
+
+## BA8 - Advisor v2 hardening and fixups
+
+### BA8.1 - Intent robustness
 - status: todo
 - owner: -
 - claimed_at: -
@@ -525,7 +630,7 @@ side-effect free.
   synonyms, reordered wording, multilingual-ish phrasing, and negative cases
   without over-triggering categories.
 
-### BA7.2 - Strong frontend schemas
+### BA8.2 - Strong frontend schemas
 - status: todo
 - owner: -
 - claimed_at: -
@@ -536,7 +641,7 @@ side-effect free.
   statistical plan, launch job, and report objects; no v2 advisor core object is
   accepted as `unknown`.
 
-### BA7.3 - Full issue reporting
+### BA8.3 - Full issue reporting
 - status: todo
 - owner: -
 - claimed_at: -
@@ -546,11 +651,11 @@ side-effect free.
   and repair actions, while preserving status precedence
   refused > clarification > warning > approved.
 
-### BA7.4 - Docs, fixtures, and limitations sync
+### BA8.4 - Docs, fixtures, and limitations sync
 - status: todo
 - owner: -
 - claimed_at: -
-- deps: BA7.1 BA7.2 BA7.3 BA6.5
+- deps: BA8.1 BA8.2 BA8.3 BA7.5
 - source: `planning/TASKS/T18-advisor-hardening-v2.md`
 - done-when: `PLAN.md`, `TASK_GRAPH.md`, task packets, `INTERFACES.md`,
   `TEST_STRATEGY.md`, fixtures, frontend schemas, backend schemas, and

@@ -12,6 +12,7 @@ import {
   HealthSchema,
   LaunchJobSchema,
   LeaderboardSchema,
+  ReplayDemoReportSchema,
   ServerListSchema,
 } from "./schemas";
 import type {
@@ -87,6 +88,8 @@ export const api = {
     postValidated("/api/advisor/v2/launch", req, LaunchJobSchema),
   advisorV2LaunchJob: (jobId: string) =>
     getValidated(`/api/advisor/v2/launch/${encodeURIComponent(jobId)}`, LaunchJobSchema),
+  advisorV2ReplayDemoReport: () =>
+    getValidated("/api/advisor/v2/replay-demo-report", ReplayDemoReportSchema),
 };
 
 // Minimal typed wrapper over EventSource: dispatches parsed frames by event

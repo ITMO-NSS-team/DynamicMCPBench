@@ -54,3 +54,9 @@ def load_showcase() -> Fixture:
 def load_leaderboard() -> dict:
     path = FIXTURES_DIR / "leaderboard.json"
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_advisor_replay_demo_report() -> dict:
+    path = FIXTURES_DIR / "advisor_replay_demo_report.json"
+    return json.loads(path.read_text(encoding="utf-8"))

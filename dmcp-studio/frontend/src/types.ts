@@ -61,6 +61,7 @@ export type {
   StatisticalReport,
   AdvisorV2ReportRequest,
   AdvisorV2ReportResponse,
+  ReplayDemoReport,
   LaunchRequest,
   LaunchArtifacts,
   LaunchJob,
