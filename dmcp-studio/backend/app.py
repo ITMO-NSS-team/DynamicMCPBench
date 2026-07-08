@@ -34,7 +34,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from benchmark_advisor import AdvisorRequest, AdvisorValidationRequest
 from benchmark_advisor.service import advisor_design, advisor_validate
-from benchmark_advisor.v2_launch import get_launch_job, launch_advisor_corpus
+from benchmark_advisor.v2_launch import get_launch_job, get_launch_report, launch_advisor_corpus
 from benchmark_advisor.v2_schema import (
     AdvisorV2DesignRequest,
     AdvisorV2ReportRequest,
@@ -271,6 +271,11 @@ def advisor_v2_launch_route(body: LaunchRequest) -> Any:
 @app.get("/api/advisor/v2/launch/{job_id}")
 def advisor_v2_launch_status_route(job_id: str) -> Any:
     return get_launch_job(job_id).model_dump(mode="json")
+
+
+@app.get("/api/advisor/v2/launch/{job_id}/report")
+def advisor_v2_launch_report_route(job_id: str) -> Any:
+    return get_launch_report(job_id)
 
 
 @app.get("/api/advisor/v2/replay-demo-report")

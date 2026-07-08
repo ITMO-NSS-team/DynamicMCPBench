@@ -44,6 +44,17 @@ LAUNCH_SCHEMA_VERSION = "benchmark_advisor.launch.v2"
 LAUNCH_JOB_SCHEMA_VERSION = "benchmark_advisor.launch_job.v2"
 
 LaunchStatus = Literal["queued", "running", "succeeded", "failed", "cancelled"]
+LaunchPhase = Literal[
+    "queued",
+    "corpus",
+    "top_up",
+    "select_corpus",
+    "eval",
+    "report",
+    "succeeded",
+    "failed",
+    "cancelled",
+]
 
 
 class _Base(BaseModel):
@@ -343,6 +354,8 @@ class LaunchRequest(_Base):
     sandbox_confirmed: bool = False
     dry_run: bool
     requested_by_ui: bool
+    execution_server_ids: list[NonEmptyStr] = Field(default_factory=list)
+    run_benchmark: bool = False
 
 
 class LaunchArtifacts(_Base):
@@ -350,12 +363,21 @@ class LaunchArtifacts(_Base):
     specs: str | None = None
     traces: str | None = None
     coverage: str | None = None
+    combined_specs: str | None = None
+    combined_traces: str | None = None
+    evals: dict[str, str] = Field(default_factory=dict)
+    candidate_traces: dict[str, str] = Field(default_factory=dict)
+    statistical_summary: str | None = None
+    replay_demo_report: str | None = None
 
 
 class LaunchJob(_Base):
     schema_version: Literal["benchmark_advisor.launch_job.v2"]
     job_id: NonEmptyStr
     status: LaunchStatus
+    phase: LaunchPhase = "queued"
+    progress: dict[str, int | float | str] = Field(default_factory=dict)
     command_preview: Annotated[list[NonEmptyStr], Field(min_length=1)]
     logs: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
     artifacts: LaunchArtifacts

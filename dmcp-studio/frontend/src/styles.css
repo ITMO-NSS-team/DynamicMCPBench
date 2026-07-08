@@ -857,10 +857,22 @@ pre.export {
   text-transform: uppercase;
 }
 .info-row b {
+  min-width: 0;
+  max-width: 100%;
   color: var(--dim);
   font-size: 13px;
   font-weight: 400;
   line-height: 1.45;
+}
+.provenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.provenance-path {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .note-row,
 .record-row {

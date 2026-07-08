@@ -321,6 +321,8 @@ def test_launch_request_requires_explicit_confirmation_literal_true():
         }
     )
     assert req.confirmation is True
+    assert req.execution_server_ids == []
+    assert req.run_benchmark is False
 
     bad = {
         "schema_version": "benchmark_advisor.launch.v2",
@@ -338,7 +340,11 @@ def test_launch_request_requires_explicit_confirmation_literal_true():
 def test_launch_job_contract_parses_and_requires_command_preview():
     job = V2.LaunchJob.model_validate(_launch_job())
     assert job.status == "queued"
+    assert job.phase == "queued"
+    assert job.progress == {}
+    assert job.warnings == []
     assert job.artifacts.specs is None
+    assert job.artifacts.evals == {}
 
     bad = _launch_job()
     bad["command_preview"] = []

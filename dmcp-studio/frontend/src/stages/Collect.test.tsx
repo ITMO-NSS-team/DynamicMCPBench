@@ -42,14 +42,14 @@ function studioValue(
     advisorCarry,
     servers: [
       {
-        server_id: "finance-tools",
+        server_id: "yfinance",
         dynamism: "live_read",
         sandbox: false,
         description: "Finance data tools",
         tools: ["quote"],
       },
     ],
-    selected: ["finance-tools"],
+    selected: ["yfinance"],
     go: vi.fn(),
     carryAdvisorDesign: vi.fn(),
     setMode: vi.fn(),
@@ -72,20 +72,29 @@ function launchJob(): LaunchJob {
     schema_version: "benchmark_advisor.launch_job.v2",
     job_id: "advisor-job-1",
     status: "succeeded",
+    phase: "succeeded",
+    progress: { selected_specs: 100, report_tasks: 100 },
     command_preview: [
-      "python",
+      "benchmark-pipeline",
       "scripts/build_corpus.py",
       "--out",
       "data/advisor_runs/demo",
-      "--strategies",
-      "hard_neg,complementary",
+      "dmcp",
+      "eval",
     ],
-    logs: ["queued guarded corpus handoff", "scripts/build_corpus.py exited with 0"],
+    logs: ["queued guarded benchmark handoff", "wrote benchmark report"],
+    warnings: [],
     artifacts: {
       goals: "data/advisor_runs/demo/goals_full.json",
       specs: "data/advisor_runs/demo/specs.jsonl",
       traces: "data/advisor_runs/demo/traces.jsonl",
       coverage: "data/advisor_runs/demo/coverage.json",
+      combined_specs: "data/advisor_runs/demo/combined_specs.jsonl",
+      combined_traces: "data/advisor_runs/demo/combined_traces.jsonl",
+      evals: { "deepseek-v4-flash": "data/advisor_runs/demo/eval.jsonl" },
+      candidate_traces: {},
+      statistical_summary: "data/advisor_runs/demo/summary.json",
+      replay_demo_report: "data/advisor_runs/demo/advisor_replay_demo_report.json",
     },
   };
 }
@@ -242,7 +251,7 @@ describe("Collect advisor handoff", () => {
 
     expect(await screen.findByText("Launch job")).toBeInTheDocument();
     expect(launchSpy).not.toHaveBeenCalled();
-    expect(screen.getByText("succeeded")).toBeInTheDocument();
+    expect(screen.getByText("succeeded · succeeded")).toBeInTheDocument();
     expect(screen.getByText(/replay-only no-corpus-handoff load/)).toBeInTheDocument();
     expect(screen.getByText("specs: -")).toBeInTheDocument();
     expect(
@@ -272,24 +281,17 @@ describe("Collect advisor handoff", () => {
       </StudioContext.Provider>,
     );
 
-    fireEvent.click(screen.getByLabelText("Confirm guarded corpus/specs/traces launch"));
-    fireEvent.click(await screen.findByRole("button", { name: "Start corpus handoff" }));
+    fireEvent.click(screen.getByLabelText("Confirm guarded corpus/specs/traces/eval/report launch"));
+    fireEvent.click(await screen.findByRole("button", { name: "Start benchmark run" }));
 
     expect(
       await screen.findByText(/sandbox requirements must be explicitly confirmed/),
     ).toBeInTheDocument();
   });
 
-  it("does not show the replay demo report in live mode", async () => {
+  it("launches the full benchmark in live mode and renders the job report", async () => {
     const launchSpy = vi.spyOn(api, "advisorV2Launch").mockResolvedValue(launchJob());
-    vi.spyOn(api, "health").mockResolvedValue({
-      status: "ok",
-      mode_default: "replay",
-      capabilities: { advisor_v2_replay_demo_report: true },
-    });
-    const reportSpy = vi
-      .spyOn(api, "advisorV2ReplayDemoReport")
-      .mockResolvedValue(replayDemoReport());
+    const reportSpy = vi.spyOn(api, "advisorV2LaunchReport").mockResolvedValue(replayDemoReport());
 
     render(
       <StudioContext.Provider value={studioValue(carriedState(), "live")}>
@@ -297,12 +299,19 @@ describe("Collect advisor handoff", () => {
       </StudioContext.Provider>,
     );
 
-    fireEvent.click(screen.getByLabelText("Confirm guarded corpus/specs/traces launch"));
-    fireEvent.click(await screen.findByRole("button", { name: "Start corpus handoff" }));
+    fireEvent.click(screen.getByLabelText("Confirm guarded corpus/specs/traces/eval/report launch"));
+    fireEvent.click(await screen.findByRole("button", { name: "Start benchmark run" }));
 
     await waitFor(() => expect(screen.getByText("Launch job")).toBeInTheDocument());
     expect(launchSpy).toHaveBeenCalledOnce();
-    expect(screen.queryByText("Replay statistical report")).not.toBeInTheDocument();
-    expect(reportSpy).not.toHaveBeenCalled();
+    expect(launchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        execution_server_ids: ["yfinance"],
+        run_benchmark: true,
+      }),
+    );
+    expect(await screen.findByText("Replay statistical report")).toBeInTheDocument();
+    expect(reportSpy).toHaveBeenCalledWith("advisor-job-1");
+    expect(screen.getByText("combined specs: data/advisor_runs/demo/combined_specs.jsonl")).toBeInTheDocument();
   });
 });

@@ -19,6 +19,8 @@ function replayOnlyLaunchJob(): LaunchJob {
     schema_version: "benchmark_advisor.launch_job.v2",
     job_id: "replay-demo-report-local",
     status: "succeeded",
+    phase: "succeeded",
+    progress: {},
     command_preview: [
       "replay-only",
       "no-corpus-handoff",
@@ -35,7 +37,10 @@ function replayOnlyLaunchJob(): LaunchJob {
       specs: null,
       traces: null,
       coverage: null,
+      evals: {},
+      candidate_traces: {},
     },
+    warnings: [],
   };
 }
 
@@ -64,7 +69,7 @@ export function Collect() {
   }, [launchJob]);
 
   useEffect(() => {
-    if (s.mode !== "replay" || launchJob?.status !== "succeeded") {
+    if (!launchJob || launchJob.status !== "succeeded") {
       setDemoReport(null);
       setDemoReportError(null);
       setDemoReportBusy(false);
@@ -73,16 +78,18 @@ export function Collect() {
     let cancelled = false;
     setDemoReportBusy(true);
     setDemoReportError(null);
-    void api
-      .health()
-      .then((health) => {
-        if (health.capabilities?.advisor_v2_replay_demo_report !== true) {
-          throw new Error(
-            "Studio backend is stale. Restart Studio so the replay demo report route is loaded.",
-          );
-        }
-        return api.advisorV2ReplayDemoReport();
-      })
+    const reportRequest =
+      s.mode === "replay"
+        ? api.health().then((health) => {
+            if (health.capabilities?.advisor_v2_replay_demo_report !== true) {
+              throw new Error(
+                "Studio backend is stale. Restart Studio so the replay demo report route is loaded.",
+              );
+            }
+            return api.advisorV2ReplayDemoReport();
+          })
+        : api.advisorV2LaunchReport(launchJob.job_id);
+    void reportRequest
       .then((report) => {
         if (!cancelled) setDemoReport(report);
       })
@@ -102,7 +109,7 @@ export function Collect() {
     return () => {
       cancelled = true;
     };
-  }, [launchJob?.status, s.mode]);
+  }, [launchJob, launchJob?.status, s.mode]);
 
   const startLaunch = async () => {
     if (!carried || !launchConfirmed) return;
@@ -129,6 +136,8 @@ export function Collect() {
           sandbox_confirmed: sandboxConfirmed,
           dry_run: false,
           requested_by_ui: true,
+          execution_server_ids: s.selected,
+          run_benchmark: true,
         }),
       );
     } catch (err) {
@@ -196,7 +205,7 @@ export function Collect() {
                 {carried.launchable
                   ? replayMode
                     ? "replay report available after confirmation"
-                    : "launchable after guarded confirmation"
+                    : "full benchmark launchable after guarded confirmation"
                   : "not launchable"}
               </b>
             </div>
@@ -215,7 +224,7 @@ export function Collect() {
               <span>
                 {replayMode
                   ? "Confirm replay demo report load"
-                  : "Confirm guarded corpus/specs/traces launch"}
+                  : "Confirm guarded corpus/specs/traces/eval/report launch"}
               </span>
             </label>
             {!replayMode && carried.sandboxRequired && (
@@ -246,14 +255,14 @@ export function Collect() {
                   ? `job ${launchJob.status}`
                   : replayMode
                     ? "replay mode: no corpus launch"
-                    : "no launch job yet"}
+                    : "no benchmark job yet"}
               </span>
               <Button type="secondary" scale={0.85} disabled={launchDisabled} onClick={startLaunch}>
-                {replayMode ? "Start replay demo" : "Start corpus handoff"}
+                {replayMode ? "Start replay demo" : "Start benchmark run"}
               </Button>
             </div>
             {launchJob && <LaunchJobPanel job={launchJob} />}
-            {s.mode === "replay" && launchJob?.status === "succeeded" && (
+            {launchJob?.status === "succeeded" && (
               <ReplayDemoReportPanel
                 report={demoReport}
                 busy={demoReportBusy}
@@ -386,7 +395,7 @@ function ReplayDemoReportPanel({
               <div className="replay-table-row replay-table-head" role="row">
                 <span>rank</span>
                 <span>model</span>
-                <span>pass^3</span>
+                <span>{report.metric}</span>
                 <span>95% CI</span>
                 <span>delta</span>
               </div>
@@ -516,9 +525,24 @@ function LaunchJobPanel({ job }: { job: LaunchJob }) {
     <div className="panel" style={{ marginTop: 8 }}>
       <div className="panel-head">
         <span className="panel-title">Launch job</span>
-        <span className="panel-sub">{job.status}</span>
+        <span className="panel-sub">
+          {job.status} · {job.phase}
+        </span>
       </div>
       <div className="panel-body stack-gap">
+        {Object.keys(job.progress).length > 0 && (
+          <>
+            <div className="section-label">progress</div>
+            <div className="metric-strip">
+              {Object.entries(job.progress).map(([key, value]) => (
+                <div key={key} className="metric">
+                  <span>{key.replace(/_/g, " ")}</span>
+                  <b>{value}</b>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
         <div className="section-label">command preview</div>
         <pre className="export">{job.command_preview.join(" ")}</pre>
         <div className="section-label">artifacts</div>
@@ -526,6 +550,30 @@ function LaunchJobPanel({ job }: { job: LaunchJob }) {
         <div className="record-row">specs: {job.artifacts.specs ?? "-"}</div>
         <div className="record-row">traces: {job.artifacts.traces ?? "-"}</div>
         <div className="record-row">coverage: {job.artifacts.coverage ?? "-"}</div>
+        <div className="record-row">combined specs: {job.artifacts.combined_specs ?? "-"}</div>
+        <div className="record-row">combined traces: {job.artifacts.combined_traces ?? "-"}</div>
+        <div className="record-row">summary: {job.artifacts.statistical_summary ?? "-"}</div>
+        <div className="record-row">report: {job.artifacts.replay_demo_report ?? "-"}</div>
+        {Object.keys(job.artifacts.evals).length > 0 && (
+          <>
+            <div className="section-label">evals</div>
+            {Object.entries(job.artifacts.evals).map(([model, path]) => (
+              <div key={model} className="record-row">
+                {model}: {path}
+              </div>
+            ))}
+          </>
+        )}
+        {job.warnings.length > 0 && (
+          <>
+            <div className="section-label">warnings</div>
+            {job.warnings.map((warning) => (
+              <div key={warning} className="record-row">
+                {warning}
+              </div>
+            ))}
+          </>
+        )}
         <div className="section-label">logs</div>
         {job.logs.length ? (
           <pre className="export">{job.logs.join("\n")}</pre>

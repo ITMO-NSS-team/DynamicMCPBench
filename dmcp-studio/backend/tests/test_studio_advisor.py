@@ -239,7 +239,10 @@ def test_v2_replay_demo_report_uses_ba7_combined100_provenance():
     assert body["report"]["status"] == "warning"
     assert body["provenance"]["generated_by_current_handoff"] is True
     assert body["provenance"]["server_filter_available"] is True
-    assert any("summary_pairwise_deepseek_minimax_combined100.json" in p for p in body["provenance"]["source_docs"])
+    assert any(
+        "summary_pairwise_deepseek_minimax_combined100.json" in p
+        for p in body["provenance"]["source_docs"]
+    )
     assert body["leaderboard"][0]["model"] == "deepseek-v4-flash"
     assert body["leaderboard"][1]["model"] == "minimax-m3"
     assert body["leaderboard"][0]["passed"] == 39
@@ -360,6 +363,88 @@ def test_v2_launch_first_handoff_is_corpus_only():
     assert "dmcp bench" not in joined
     assert "run_leaderboard" not in joined
     assert "eval" not in joined
+
+
+def test_v2_launch_full_benchmark_uses_selected_servers_and_writes_report(monkeypatch):
+    from benchmark_advisor import v2_launch
+
+    class ImmediateThread:
+        def __init__(self, *, target, args, daemon):
+            self.target = target
+            self.args = args
+            self.daemon = daemon
+
+        def start(self):
+            self.target(*self.args)
+
+    def write_jsonl(path: Path, rows: list[dict]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+
+    def fake_run(command, *, cwd, capture_output, text, check):
+        assert cwd == v2_launch.ROOT
+        assert capture_output is True
+        assert text is True
+        assert check is False
+        if command[1] == "scripts/build_corpus.py":
+            assert "--server" in command
+            assert command[command.index("--server") + 1] == "yfinance"
+            out = v2_launch.ROOT / command[command.index("--out") + 1]
+            specs = [
+                {"task_id": "t1", "prompt": "p1", "complexity": {"trace_depth": 2}},
+                {"task_id": "t2", "prompt": "p2", "complexity": {"trace_depth": 4}},
+                {"task_id": "t3", "prompt": "p3", "complexity": {"trace_depth": 6}},
+            ]
+            traces = [
+                {"trace_id": f"r{i}", "goal": f"p{i}", "seed_metadata": {"task_id": f"t{i}"}}
+                for i in range(1, 4)
+            ]
+            write_jsonl(out / "specs.jsonl", specs)
+            write_jsonl(out / "traces.jsonl", traces)
+            return SimpleNamespace(returncode=0, stdout="generated 3 specs\n", stderr="")
+        assert "eval" in command
+        model = command[command.index("--model") + 1]
+        out = v2_launch.ROOT / command[command.index("-o") + 1]
+        passed = {
+            "agent-a": {"t1", "t2"},
+            "agent-b": {"t2"},
+        }[model]
+        rows = [
+            {
+                "task_id": task_id,
+                "candidate_model": model,
+                "repeat_index": 0,
+                "passed": task_id in passed,
+                "had_sae": False,
+            }
+            for task_id in ["t1", "t2", "t3"]
+        ]
+        write_jsonl(out, rows)
+        return SimpleNamespace(returncode=0, stdout=f"eval {model}\n", stderr="")
+
+    monkeypatch.setattr(v2_launch.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(v2_launch.subprocess, "run", fake_run)
+
+    request = _launch_request(dry_run=False, run_benchmark=True, execution_server_ids=["yfinance"])
+    request["export_config"]["tasks"] = 3
+    r = client.post("/api/advisor/v2/launch", json=request)
+
+    assert r.status_code == 200
+    body = r.json()
+    status = client.get(f"/api/advisor/v2/launch/{body['job_id']}").json()
+    assert status["status"] == "succeeded"
+    assert status["phase"] == "succeeded"
+    assert status["progress"]["selected_specs"] == 3
+    assert set(status["artifacts"]["evals"]) == {"agent-a", "agent-b"}
+    assert status["artifacts"]["replay_demo_report"].endswith("advisor_replay_demo_report.json")
+
+    report = client.get(f"/api/advisor/v2/launch/{body['job_id']}/report")
+    assert report.status_code == 200
+    report_body = report.json()
+    assert report_body["sample_size"] == 3
+    assert report_body["metric"] == "pass^1"
+    assert report_body["leaderboard"][0]["model"] == "agent-a"
+    assert "yfinance" in report_body["provenance"]["server_filter_note"]
 
 
 def test_v2_design_route_remains_side_effect_free_for_launch_jobs():

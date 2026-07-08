@@ -674,6 +674,8 @@ export const LaunchRequestSchema = z.object({
   sandbox_confirmed: z.boolean(),
   dry_run: z.boolean(),
   requested_by_ui: z.boolean(),
+  execution_server_ids: z.array(z.string().min(1)).default([]),
+  run_benchmark: z.boolean().default(false),
 });
 
 export const LaunchArtifactsSchema = z.object({
@@ -681,14 +683,35 @@ export const LaunchArtifactsSchema = z.object({
   specs: z.string().nullable(),
   traces: z.string().nullable(),
   coverage: z.string().nullable(),
+  combined_specs: z.string().nullable().optional(),
+  combined_traces: z.string().nullable().optional(),
+  evals: z.record(z.string()).default({}),
+  candidate_traces: z.record(z.string()).default({}),
+  statistical_summary: z.string().nullable().optional(),
+  replay_demo_report: z.string().nullable().optional(),
 });
 
 export const LaunchJobSchema = z.object({
   schema_version: z.literal("benchmark_advisor.launch_job.v2"),
   job_id: z.string().min(1),
   status: z.enum(["queued", "running", "succeeded", "failed", "cancelled"]),
+  phase: z
+    .enum([
+      "queued",
+      "corpus",
+      "top_up",
+      "select_corpus",
+      "eval",
+      "report",
+      "succeeded",
+      "failed",
+      "cancelled",
+    ])
+    .default("queued"),
+  progress: z.record(z.union([z.number(), z.string()])).default({}),
   command_preview: z.array(z.string().min(1)).min(1),
   logs: z.array(z.string()),
+  warnings: z.array(z.string()).default([]),
   artifacts: LaunchArtifactsSchema,
 });
 

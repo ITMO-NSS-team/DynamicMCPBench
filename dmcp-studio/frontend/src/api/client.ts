@@ -88,6 +88,8 @@ export const api = {
     postValidated("/api/advisor/v2/launch", req, LaunchJobSchema),
   advisorV2LaunchJob: (jobId: string) =>
     getValidated(`/api/advisor/v2/launch/${encodeURIComponent(jobId)}`, LaunchJobSchema),
+  advisorV2LaunchReport: (jobId: string) =>
+    getValidated(`/api/advisor/v2/launch/${encodeURIComponent(jobId)}/report`, ReplayDemoReportSchema),
   advisorV2ReplayDemoReport: () =>
     getValidated("/api/advisor/v2/replay-demo-report", ReplayDemoReportSchema),
 };
