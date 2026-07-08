@@ -68,6 +68,12 @@ rebuilds `frontend/dist`. If that server is an older backend without the current
 advisor v2 routes, the script stops and asks you to stop the stale process first.
 This avoids serving a fresh frontend bundle from an old API process.
 
+For Windows, use `dmcp-studio\scripts\run_demo.cmd`, or call the portable
+launcher directly with `python dmcp-studio/scripts/run_demo.py --port 9000`.
+The shell wrappers delegate to `run_demo.py`, which runs `uvicorn` through the
+same Python interpreter that launched it. That avoids PowerShell stderr handling
+and PATH issues with long-lived server processes.
+
 Or run the pieces by hand:
 
 ```bash
