@@ -1,20 +1,33 @@
 // Pure state machine for the studio walkthrough. No React, no I/O — every
 // transition is a pure function of (state, action), so it is unit-testable.
 import type {
+  AdvisorV2DesignResponse,
+  ExportConfig,
   CandidateCard,
   ExploreCall,
   Mode,
   ScoreDone,
   ScoreMode,
+  StatisticalPlan,
   ServerCard,
   TaskSpecView,
 } from "../types";
 
 export type View = "design" | "collect" | "explore" | "distill" | "score";
 
+export interface AdvisorCarryState {
+  responseStatus: AdvisorV2DesignResponse["status"];
+  statisticalPlan: StatisticalPlan;
+  exportConfig: ExportConfig;
+  launchable: boolean;
+  sandboxRequired: boolean;
+  serverScope: string[];
+}
+
 export interface StudioState {
   mode: Mode;
   view: View;
+  advisorCarry: AdvisorCarryState | null;
   servers: ServerCard[];
   selected: string[];
   goal: string;
@@ -39,6 +52,7 @@ export interface StudioState {
 
 export type Action =
   | { type: "set_view"; view: View }
+  | { type: "carry_advisor_design"; response: AdvisorV2DesignResponse }
   | { type: "reset_for_mode"; mode: Mode }
   | { type: "servers_loaded"; servers: ServerCard[] }
   | { type: "toggle_server"; id: string }
@@ -64,6 +78,7 @@ export function initialState(mode: Mode = "replay", view: View = "design"): Stud
   return {
     mode,
     view,
+    advisorCarry: null,
     servers: [],
     selected: [],
     goal: "",
@@ -91,6 +106,27 @@ export function reducer(state: StudioState, action: Action): StudioState {
   switch (action.type) {
     case "set_view":
       return { ...state, view: action.view };
+
+    case "carry_advisor_design": {
+      const plan = action.response.statistical_plan;
+      const exportConfig = action.response.export_config;
+      if (!plan || !exportConfig || !action.response.launchable) return state;
+      return {
+        ...state,
+        advisorCarry: {
+          responseStatus: action.response.status,
+          statisticalPlan: plan,
+          exportConfig,
+          launchable: action.response.launchable,
+          sandboxRequired: exportConfig.generation_knobs.sandbox_required,
+          serverScope: exportConfig.generation_knobs.server_scope,
+        },
+        selected: exportConfig.generation_knobs.server_scope.length
+          ? exportConfig.generation_knobs.server_scope
+          : state.selected,
+        view: "collect",
+      };
+    }
 
     case "reset_for_mode":
       // restart the whole walkthrough in the new data mode

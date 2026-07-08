@@ -74,6 +74,22 @@ Stage 2 is post-run validation reporting. In v1 it is interface-only:
 
 No Stage 2 analytics implementation is required for v1.
 
+## 4.1. The v2 thesis
+
+V2 turns the advisor into a real statistical workbench. It keeps the v1 safety
+rule, but expands the statistical surface:
+
+```text
+guide-first planner -> Statistical Engine scores parameters -> deterministic rules decide
+```
+
+The central user value is not just "approved/refused"; it is understanding what
+claim a benchmark can support, what budget is needed, which assumptions matter,
+and how completed outcomes should be interpreted. V2 therefore adds planning
+power curves, design alternatives, assumption ledgers, guide-backed citations,
+guarded corpus launch, and post-run reports. RAG/stat-agent support is optional
+future machinery for richer explanations, not a requirement for the MVP.
+
 ## 5. Statistical knowledge model
 
 V1 uses a static curated guide, not RAG:
@@ -91,6 +107,12 @@ V1 uses a static curated guide, not RAG:
 The deterministic validator does not grade prose quality in v1. It checks
 required fields, known guide rule ids, claim boundaries, thresholds, refusal
 conditions, and exportability.
+
+V2 MVP adds a guide citation index over `STATISTICAL_GUIDE.md`: rule ids,
+sections, source keys, evidence status, snippets, and repair text. A larger
+local retrieval corpus built from human-approved references can be added later
+for richer source cards, but it does not override deterministic validator
+decisions and must not block the Statistical Engine.
 
 ## 6. Supported planning modes
 
@@ -127,6 +149,11 @@ conditions, and exportability.
 | Studio UI | first-stage planning screen | `planning/TASKS/T06-studio-ui-shell.md` |
 | Export Handoff | JSON preview shape, no execution | `planning/TASKS/T07-export-handoff.md` |
 | Golden Fixtures | shared examples for independent agents | `planning/TASKS/T08-golden-fixtures.md` |
+| Guide Citation Index / Optional Source Pack | guide rule citations; optional offline source cards | `planning/TASKS/T12-local-statistical-knowledge-base.md` |
+| Statistical Engine | parameter search, power/MDE, assumptions, alternatives | `planning/TASKS/T14-real-planning-statistics.md` |
+| Guide-First V2 Planner | intent normalization, method constraints, engine composition | `planning/TASKS/T13-dual-engine-planner.md` |
+| Statistical Report | post-run outcome-tensor analytics | `planning/TASKS/T15-post-run-statistical-report.md` |
+| Guarded Handoff | confirmed corpus/specs/traces launch jobs | `planning/TASKS/T17-guarded-corpus-handoff.md` |
 
 ## 9. Source documents
 
@@ -136,4 +163,5 @@ conditions, and exportability.
 - `planning/STATISTICAL_GUIDE.md` - v1 statistical knowledge pack.
 - `planning/TASK_GRAPH.md` - dependency graph and integration checkpoints.
 - `planning/TEST_STRATEGY.md` - unit, integration, smoke, and manual checks.
+- `planning/ADVISOR_GAPS.md` - durable memo of v1 gaps targeted by BA5-BA7.
 - `planning/TASKS/*.md` - PR-sized task packets.

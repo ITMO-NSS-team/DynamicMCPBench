@@ -29,10 +29,14 @@ from dmcp.openrouter_prices import LivePrice, get_effective_price
 # absent — historical evals that mention it will paper-cost as None.
 FREE_TO_OR_ALIAS: dict[str, str] = {
     "deepseek-v4-pro": "deepseek/deepseek-v4-pro",
+    "deepseek-v4-flash": "deepseek/deepseek-v4-flash",
     "kimi-k2p6": "moonshotai/kimi-k2.6",
+    "kimi-k2p7": "moonshotai/kimi-k2.7",
     "glm-5p1": "z-ai/glm-5.1",
     "gpt-oss-120b": "openai/gpt-oss-120b",
     "minimax-m2p7": "minimax/minimax-m3",
+    "minimax-m3": "minimax/minimax-m3",
+    "nemotron-3-ultra": "nvidia/nemotron-3-ultra",
 }
 
 

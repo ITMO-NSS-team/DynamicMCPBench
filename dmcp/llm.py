@@ -181,8 +181,9 @@ class OpenRouterClient:
             base_url = os.environ["LOCAL_LLM_BASE_URL"]
             api_key = api_key or os.environ.get("LOCAL_LLM_API_KEY") or "local"
         # Auto-resolve the provider for `model` when caller didn't pin both.
-        # Free-pool ids (deepseek-v4-pro, kimi-k2p*, glm-5p1, gpt-oss-120b,
-        # minimax-m2p7) route to FREE_MODELS_BASE_URL + FREE_MODELS_API_KEY;
+        # Free-pool ids (deepseek-v4-*, kimi-k2p*, glm-5p1, gpt-oss-120b,
+        # minimax-* and nemotron-*) route to FREE_MODELS_BASE_URL +
+        # FREE_MODELS_API_KEY;
         # everything else stays on OpenRouter. See dmcp/providers.py.
         if api_key is None or base_url is None:
             from dmcp.providers import endpoint_for, resolve

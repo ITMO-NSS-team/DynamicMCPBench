@@ -32,6 +32,31 @@
   - MDE decreases as task count increases;
   - CI width decreases as task count increases;
   - coverage diagnostics are deterministic.
+- V2 schema tests:
+  - `StatisticalPlan`, `PowerAnalysis`, `DesignAlternative`,
+    `AssumptionLedger`, `StatisticalIssue`, `OutcomeTensor`,
+    `StatisticalReport`, `LaunchRequest`, and `LaunchJob` parse and reject
+    unknown fields;
+  - v1 schemas remain compatible.
+- Guide citation/source-pack tests:
+  - guide citation lookup is offline and deterministic;
+  - returned citations map to known guide rule ids and source keys;
+  - changing snippet/prose text cannot change deterministic validator decisions;
+  - optional source-pack retrieval, if implemented, is non-authoritative.
+- V2 statistical tests:
+  - Statistical Engine output is deterministic for fixed request, guide snapshot,
+    config, and random seed;
+  - candidate grid is finite and records rejected candidate reasons;
+  - final task budget, attempts, target effect, distribution, and confirmatory
+    slices are engine-scored before the v2 planner returns a recommendation;
+  - power/MDE curves are monotonic;
+  - paired and unpaired planning assumptions are explicit;
+  - attempts per task do not multiply iid sample size;
+  - rank-stability planning is reproducible;
+  - non-inferiority margins are handled explicitly;
+  - regression mode refuses missing margins;
+  - diagnostic-only plans refuse broad selection claims;
+  - missingness and multiplicity policies are present.
 
 ## Integration Tests
 
@@ -43,6 +68,17 @@
 - Clarification response contains no export config.
 - Warning response contains warning cards and export preview.
 - API route tests confirm no benchmark generation/evaluation function is called.
+- `POST /api/advisor/v2/design` returns a rule-gated statistical plan with
+  Statistical Engine-derived parameters, alternatives, assumptions, citations,
+  and issues.
+- `POST /api/advisor/v2/validate` returns all applicable issues after edits.
+- `POST /api/advisor/v2/report` consumes an outcome tensor and returns scoped
+  allowed/not-allowed claims.
+- `POST /api/advisor/v2/launch` refuses missing confirmation, refused designs,
+  unmet sandbox requirements, and any leaderboard/eval launch attempt.
+- v2 launch command previews target only `scripts/build_corpus.py` for
+  corpus/specs/traces; `dmcp bench`, leaderboard, and eval launch remain out of
+  scope for the first handoff.
 
 ## Smoke Tests
 
@@ -52,6 +88,11 @@
 - End-to-end local smoke: request -> planner -> validator -> response -> export
   preview.
 - Static frontend build/typecheck if toolchain is available.
+- V2 Studio smoke:
+  - advisor state persists from Design into Collect;
+  - structured edits call v2 validate;
+  - power/method/assumption/citation cards render;
+  - launch job status and artifact paths render from fixtures.
 
 ## Golden Fixtures
 
@@ -70,6 +111,13 @@ Minimum fixture set:
 - refused final-answer-grading request;
 - invalid export with missing generation knobs.
 - guide-backed rationale / hover explanation.
+- v2 approved statistical plan with alternatives.
+- v2 edited-design downgrade with all issue reporting.
+- v2 post-run pairwise report.
+- v2 leaderboard rank-stability report.
+- v2 guarded launch refusal without confirmation.
+- v2 guarded launch dry-run job fixture.
+- v2 guarded launch corpus-only command fixture.
 
 ## CI Commands
 
@@ -103,3 +151,9 @@ Python import/serialization smoke tests with the available interpreter.
 6. Lower task budget enough to trigger underpowered warning/refusal.
 7. Confirm refused design cannot be exported.
 8. Confirm no generation/evaluation starts during Advisor interaction.
+9. In v2, confirm "Carry to Collect" persists advisor state rather than only
+   navigating.
+10. Edit budget/distribution fields and confirm all validation issues appear.
+11. Confirm launch requires explicit confirmation and shows a command preview.
+12. Confirm a completed outcome-tensor fixture renders a statistical report with
+   allowed and not-allowed claims.

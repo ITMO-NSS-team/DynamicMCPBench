@@ -1,7 +1,8 @@
 # Benchmark Advisor Interfaces
 
-Status: frozen v1 contracts for task implementation. Changes after T00 require
-an integration decision and updates to affected task packets.
+Status: frozen v1 contracts plus additive v2 planning contracts. Changes to v1
+after T00 require an integration decision and updates to affected task packets.
+V2 contracts are the next implementation target and must not break v1 routes.
 
 These contracts are normative. Examples are illustrative only; implementation
 agents must build the Pydantic models from the field lists, enum registries,
@@ -20,6 +21,25 @@ The existing prototype surface, if present, is legacy: `POST /api/advisor`,
 adapter, but v1 completion requires `POST /api/advisor/design`,
 `POST /api/advisor/validate`, `schema_version: "benchmark_advisor.v1"`, and the
 `AdvisorResponse` shape below. Tests must assert the v1 routes directly.
+
+## V2 Additive Contract Note
+
+V2 makes the advisor a full statistical advisor rather than only a pre-run
+heuristic gate. V2 is additive:
+
+- v1 route names, schema versions, enum values, and response-state behavior stay
+  compatible;
+- v2 routes live under `/api/advisor/v2/*`;
+- v2 may add fields and richer issue/report objects, but it must not weaken v1
+  refusal, clarification, no-export, and no-auto-launch invariants;
+- the MVP is guide-first: `STATISTICAL_GUIDE.md` rule ids, source keys, and
+  snippets are enough for method selection and explanations. A RAG/stat-agent
+  proposer may be added later, but deterministic rules decide approval, warning,
+  refusal, exportability, launchability, and report claim boundaries.
+- the Statistical Engine runs before the final v2 design is returned and owns
+  parameter search/scoring for task budget, attempts, target effect,
+  distribution, confirmatory slices, missingness policy, and multiplicity
+  policy.
 
 ## Shared Type Rules
 
@@ -169,6 +189,12 @@ Minimum v1 thresholds:
 | cross-server coverage when claimed | `>= 0.25` | `0.10..0.249` | `< 0.10` |
 | long-chain coverage when claimed | `>= 0.30` | `0.15..0.299` | `< 0.15` |
 | recovery coverage when claimed | `>= 0.10` | `0.05..0.099` | `< 0.05` |
+| same-name / near-miss / hard-negative distractor pressure when claimed | `>= 0.25` | `0.10..0.249` | `< 0.10` |
+
+For `same_name`, the distractor-pressure check uses `same_name_fraction`.
+For `near_miss` and `hard_negative`, it uses `near_miss_fraction`, because
+hard-negative tool pressure is represented by near-miss/confusing alternative
+tools in the v1 export knobs.
 
 Secondary slice limit:
 
@@ -531,6 +557,203 @@ Example:
 }
 ```
 
+## V2 Statistical Advisor Types
+
+These contracts are implemented by T11-T18. Field names are normative, but v2
+implementation may add non-breaking optional fields after tests and docs are
+updated.
+
+T11 defines the base v2 schema surface. T14 extends that base with typed
+Statistical Engine objects. Until T14 is implemented, existing T11 fixtures may
+omit `engine_decision`; after T14, `POST /api/advisor/v2/design` must return a
+`StatisticalPlan` whose recommendation is derived from an `EngineDecision`.
+
+### StatisticalIssue
+
+Required fields:
+
+- `severity`: one of `info`, `warning`, `critical`.
+- `code`: stable snake-case issue code.
+- `message`: non-empty user-visible message.
+- `failed_field`: nullable field path.
+- `failed_criterion_id`: nullable criterion id.
+- `statistical_reason`: non-empty explanation.
+- `repair_options`: list of non-empty user actions.
+- `guide_references`: list of `StatisticalGuideReference`.
+
+V2 validation returns all applicable issues. Status precedence remains
+`refused > needs_clarification > warning > approved`.
+
+### AssumptionLedger
+
+Required fields:
+
+- `baseline_rate`: nullable float in `[0, 1]`.
+- `paired_design`: boolean.
+- `independence_assumption`: non-empty string.
+- `repeated_attempts_policy`: non-empty string.
+- `missingness_policy`: non-empty string.
+- `multiplicity_policy`: non-empty string.
+- `sensitivity_notes`: list of strings.
+- `guide_references`: list of `StatisticalGuideReference`.
+
+### PowerAnalysis
+
+Required fields:
+
+- `alpha`: float in `(0, 1)`.
+- `target_power`: float in `(0, 1)`.
+- `planned_mde_pp`: percentage-point float.
+- `ci_width_pp`: percentage-point float.
+- `method`: one `mde_method` or non-empty method label.
+- `power_curve`: list of objects with `task_budget`, `mde_pp`, and
+  `ci_width_pp`.
+- `budget_alternatives`: list of objects with `task_budget`, `detectable_effect_pp`,
+  and `claim_status`.
+- `assumptions`: `AssumptionLedger`.
+
+### ParameterSearchSpace
+
+Required fields:
+
+- `task_budget_grid`: list of integer task budgets.
+- `attempts_grid`: list of integer attempt counts.
+- `effect_target_grid_pp`: list of percentage-point effects.
+- `distribution_candidates`: list of task-distribution candidates.
+- `confirmatory_slice_limit`: integer `>= 1`.
+- `method_families`: list of method labels.
+- `server_scope_options`: list of server-scope lists.
+
+### ParameterCandidate
+
+Required fields:
+
+- `candidate_id`: stable id.
+- `design`: `AdvisorDesign` or v2-compatible successor.
+- `power_analysis`: `PowerAnalysis`.
+- `assumption_ledger`: `AssumptionLedger`.
+- `issues`: list of `StatisticalIssue`.
+- `score`: numeric score used only for deterministic candidate ordering.
+- `status`: one advisor `status`.
+- `rejection_reasons`: list of strings.
+- `repair_actions`: list of strings.
+
+### EngineComputationTrace
+
+Required fields:
+
+- `engine_version`: non-empty string.
+- `guide_version`: literal `"statistical_guide.v1"`.
+- `guide_snapshot_id`: nullable string.
+- `random_seed`: nullable integer.
+- `candidate_count`: integer `>= 1`.
+- `formula_versions`: list of method/formula labels.
+- `empirical_prior_sources`: list of local source ids.
+- `validator_rule_ids`: list of guide rule ids or validator rule ids.
+- `selected_reason`: non-empty string.
+
+### EngineDecision
+
+Required fields:
+
+- `schema_version`: literal `"benchmark_advisor.engine_decision.v2"`.
+- `recommended_candidate_id`: stable id.
+- `recommended_design`: `AdvisorDesign` or v2-compatible successor.
+- `parameter_search_space`: `ParameterSearchSpace`.
+- `parameter_candidates`: non-empty list of `ParameterCandidate`.
+- `design_alternatives`: list of `DesignAlternative`.
+- `power_analysis`: `PowerAnalysis`.
+- `assumption_ledger`: `AssumptionLedger`.
+- `claim_card`: object with `allowed_claims`, `not_allowed_claims`, and
+  `plain_language_summary`.
+- `issues`: list of `StatisticalIssue`.
+- `citations`: list of local statistical-knowledge citations.
+- `computation_trace`: `EngineComputationTrace`.
+
+### DesignAlternative
+
+Required fields:
+
+- `alternative_id`: stable id.
+- `label`: non-empty user-facing label.
+- `task_budget`: integer `>= 1`.
+- `attempts_per_task`: integer `>= 1`.
+- `target_detectable_effect_pp`: nullable percentage-point float.
+- `status`: one advisor `status`.
+- `tradeoff`: non-empty explanation.
+- `repair_actions`: list of strings.
+
+### StatisticalPlan
+
+Required fields:
+
+- `schema_version`: literal `"benchmark_advisor.statistical_plan.v2"`.
+- `design`: `AdvisorDesign` or v2-compatible successor.
+- `engine_decision`: `EngineDecision` once T14 lands; omitted only by the
+  T11-base contract before Statistical Engine implementation.
+- `power_analysis`: `PowerAnalysis`.
+- `design_alternatives`: list of `DesignAlternative`.
+- `assumption_ledger`: `AssumptionLedger`.
+- `issues`: list of `StatisticalIssue`.
+- `citations`: list of local statistical-knowledge citations.
+- `claim_card`: object with `allowed_claims`, `not_allowed_claims`, and
+  `plain_language_summary`.
+
+### OutcomeTensor
+
+Required fields:
+
+- `schema_version`: literal `"benchmark_advisor.outcome_tensor.v2"`.
+- `shape`: literal `"X[task, model, attempt, metric, slice]"`.
+- `tasks`: task-axis metadata.
+- `models`: model-axis metadata.
+- `attempts`: attempt-axis metadata.
+- `metrics`: metric-axis metadata.
+- `slices`: slice-axis metadata.
+- `values`: outcome values with explicit missingness reason when absent.
+
+### StatisticalReport
+
+Required fields:
+
+- `schema_version`: literal `"benchmark_advisor.report.v2"`.
+- `mode`: one `mode`.
+- `status`: one advisor `status`.
+- `effect_sizes`: list of effect-size records.
+- `confidence_intervals`: list of CI records.
+- `rank_stability`: nullable rank-stability result.
+- `slice_diagnostics`: list of diagnostic slice results.
+- `missingness`: missingness summary.
+- `multiplicity`: multiplicity summary.
+- `allowed_claims`: list of strings.
+- `not_allowed_claims`: list of strings.
+- `issues`: list of `StatisticalIssue`.
+
+### LaunchRequest and LaunchJob
+
+Required `LaunchRequest` fields:
+
+- `schema_version`: literal `"benchmark_advisor.launch.v2"`.
+- `export_config`: approved or warning advisor export.
+- `advisor_status`: literal `"approved"` or `"warning"`.
+- `confirmation`: literal `true`.
+- `sandbox_confirmed`: boolean.
+- `dry_run`: boolean.
+- `requested_by_ui`: boolean.
+
+Required `LaunchJob` fields:
+
+- `schema_version`: literal `"benchmark_advisor.launch_job.v2"`.
+- `job_id`: stable id.
+- `status`: one of `queued`, `running`, `succeeded`, `failed`, `cancelled`.
+- `command_preview`: list of command argv strings.
+- `logs`: list of log lines.
+- `artifacts`: object with nullable `goals`, `specs`, `traces`, and `coverage`
+  paths.
+
+The first v2 launch target is corpus/specs/traces through
+`scripts/build_corpus.py`. Leaderboard and eval launch are out of scope.
+
 ## Public API
 
 ### POST /api/advisor/design
@@ -560,6 +783,72 @@ Behavior:
 - does not call planner unless explicitly supplied by API caller in a future
   version;
 - does not launch generation or evaluation.
+
+### POST /api/advisor/v2/design
+
+Input: v2-compatible advisor request.
+
+Output: v2 statistical design response containing `StatisticalPlan`, issue list,
+citations, alternatives, and v1-compatible design/export data where applicable.
+
+Behavior:
+
+- uses `STATISTICAL_GUIDE.md` rule ids/source keys as the default knowledge
+  source;
+- may use local RAG/stat-agent proposal only as an optional future enhancement;
+- must run deterministic validation before returning;
+- must keep the route side-effect free.
+
+### POST /api/advisor/v2/validate
+
+Input: edited v2 design or statistical plan.
+
+Output: v2 validation response with all `StatisticalIssue` objects.
+
+Behavior:
+
+- validates structured edits;
+- preserves status precedence;
+- returns no export or launch action for refused or clarification states.
+
+### POST /api/advisor/v2/report
+
+Input: `OutcomeTensor`.
+
+Output: `StatisticalReport`.
+
+Behavior:
+
+- computes post-run statistical summaries;
+- states allowed and not-allowed claims;
+- does not run generation or evaluation.
+
+### POST /api/advisor/v2/launch
+
+Input: `LaunchRequest`.
+
+Output: `LaunchJob`.
+
+Behavior:
+
+- requires explicit confirmation;
+- accepts only approved or warning export configs;
+- validates sandbox and stateful-write guards;
+- launches only the corpus/specs/traces path through `scripts/build_corpus.py`;
+- never runs leaderboard/eval in the first handoff.
+
+### GET /api/advisor/v2/launch/{job_id}
+
+Input: launch job id.
+
+Output: `LaunchJob`.
+
+Behavior:
+
+- returns queued/running/succeeded/failed/cancelled state for a tracked launch
+  job;
+- returns the deterministic command preview, recent logs, and goals/specs/
+  traces/coverage artifact paths.
 
 ## File And Fixture Formats
 

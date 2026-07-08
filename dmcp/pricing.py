@@ -46,10 +46,14 @@ PRICES: dict[str, ModelPrice] = {
     # ids; recomputing their cost as $0 is honest (it WAS free at the time).
     # New experiments use the OR-prefixed equivalents (see paper_pricing.py).
     "deepseek-v4-pro": _FREE,
+    "deepseek-v4-flash": _FREE,
     "kimi-k2p6": _FREE,
+    "kimi-k2p7": _FREE,
     "glm-5p1": _FREE,
     "gpt-oss-120b": _FREE,
     "minimax-m2p7": _FREE,
+    "minimax-m3": _FREE,
+    "nemotron-3-ultra": _FREE,
 }
 
 

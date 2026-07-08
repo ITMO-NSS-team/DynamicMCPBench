@@ -55,6 +55,7 @@ _FAMILY_BARE_PREFIXES: tuple[tuple[str, str], ...] = (
     ("gemini-", "google"),
     ("llama-", "meta"),
     ("grok-", "x-ai"),
+    ("nemotron-", "nvidia"),
 )
 
 

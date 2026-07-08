@@ -24,6 +24,24 @@ independently tested.
 9. API validates edited design.
 10. UI exposes JSON export only for approved/warning states.
 
+## V2 Integration Flow
+
+1. UI sends a v2 request to `/api/advisor/v2/design`.
+2. API retrieves local statistical knowledge and constructs a proposed
+   `StatisticalPlan`.
+3. API runs deterministic validation and returns all issues.
+4. UI renders statistical workbench cards: claim, method, power, assumptions,
+   alternatives, citations, and repairs.
+5. User edits structured design fields.
+6. UI sends the edited plan to `/api/advisor/v2/validate`.
+7. Approved/warning plans can be carried into Collect with server scope,
+   sandbox requirements, export state, and validation state.
+8. UI shows a command preview and requests explicit confirmation before launch.
+9. `/api/advisor/v2/launch` creates a tracked corpus/specs/traces job for
+   `scripts/build_corpus.py`.
+10. Completed outcome tensors can be submitted to `/api/advisor/v2/report`.
+11. UI renders the statistical report with allowed and not-allowed claims.
+
 ## What Integration Must Not Do
 
 - Do not launch `goal-gen`, `explore`, `distill`, `eval`, or paid LLM evals.
@@ -33,6 +51,11 @@ independently tested.
 - Do not treat warning-heavy designs as claim-valid without showing warnings.
 - Do not treat the legacy `/api/advisor` prototype route as sufficient for v1.
 - Do not export configs for `refused` or `needs_clarification` responses.
+- Do not let RAG/stat-agent prose override deterministic validation.
+- Do not use runtime network retrieval in the statistical knowledge layer.
+- Do not launch leaderboard/eval from the first guarded handoff.
+- Do not make `/api/advisor/v2/design` or `/api/advisor/v2/validate`
+  side-effectful.
 
 ## Cross-Component Contracts
 
@@ -48,6 +71,12 @@ independently tested.
   implicit context.
 - The state matrix in `INTERFACES.md` defines when `design`, `refusal`,
   `clarification`, and `export_config` are null or non-null.
+- V2 issue lists carry all applicable warnings/refusals, but status precedence
+  remains refused > clarification > warning > approved.
+- V2 frontend schemas must type core advisor objects; `unknown` is allowed only
+  for explicitly opaque non-advisor payloads.
+- Launch jobs consume validated export configs and must expose command preview,
+  status, logs, and artifact paths.
 
 ## Integration Checkpoints
 
@@ -60,9 +89,19 @@ independently tested.
 - Hover rationale renders for at least criteria, task budget, attempts, task
   distribution, and primary metric.
 - Smoke test confirms no benchmark run is launched.
+- V2 statistical plan validates with local citations.
+- V2 edited design revalidates with all issues.
+- V2 report fixture renders scoped claims.
+- Advisor state persists Design -> Collect -> Launch.
+- Guarded launch refuses missing confirmation and refused designs.
+- Guarded launch creates corpus/specs/traces jobs only.
 
 ## Rollback Strategy
 
 If integration fails late, keep the UI shell fixture-backed and disable live API
 calls behind a visible "Advisor API unavailable" state. Do not remove validator
 or schema tests to make UI pass.
+
+For v2 launch failures, keep the design/report UI usable and disable only the
+launch button. Do not weaken confirmation, sandbox, or corpus-only guards to make
+launch tests pass.

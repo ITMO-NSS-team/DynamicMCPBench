@@ -2,18 +2,30 @@
 // validated against the zod schemas; the two streaming stages use EventSource.
 import type { z } from "zod";
 import {
+  AdvisorV2DesignResponseSchema,
+  AdvisorV2ReportResponseSchema,
+  AdvisorV2ValidationResponseSchema,
   CandidateListSchema,
   DistillOutSchema,
   DResponseSchema,
   GoalOutSchema,
+  HealthSchema,
+  LaunchJobSchema,
   LeaderboardSchema,
+  ReplayDemoReportSchema,
   ServerListSchema,
 } from "./schemas";
-import type { Mode } from "./schemas";
+import type {
+  AdvisorV2DesignRequest,
+  AdvisorV2ReportRequest,
+  AdvisorV2ValidationRequest,
+  LaunchRequest,
+  Mode,
+} from "./schemas";
 
 async function getValidated<T>(url: string, schema: z.ZodType<T>): Promise<T> {
   const r = await fetch(url);
-  if (!r.ok) throw new Error(`${url} → ${r.status}`);
+  if (!r.ok) throw new Error(await apiErrorMessage(url, r));
   return schema.parse(await r.json());
 }
 
@@ -23,11 +35,40 @@ async function postValidated<T>(url: string, body: unknown, schema: z.ZodType<T>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!r.ok) throw new Error(`${url} → ${r.status}`);
+  if (!r.ok) throw new Error(await apiErrorMessage(url, r));
   return schema.parse(await r.json());
 }
 
+async function apiErrorMessage(url: string, response: Response): Promise<string> {
+  let detail = "";
+  try {
+    const body = (await response.json()) as { detail?: unknown; error?: unknown };
+    detail = formatDetail(body.detail ?? body.error);
+  } catch {
+    detail = "";
+  }
+  return detail ? `${url} -> ${response.status}: ${detail}` : `${url} -> ${response.status}`;
+}
+
+function formatDetail(detail: unknown): string {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (!item || typeof item !== "object") return String(item);
+        const record = item as { loc?: unknown; msg?: unknown };
+        const loc = Array.isArray(record.loc) ? record.loc.join(".") : "";
+        const msg = typeof record.msg === "string" ? record.msg : JSON.stringify(item);
+        return loc ? `${loc}: ${msg}` : msg;
+      })
+      .join("; ");
+  }
+  if (detail == null) return "";
+  return JSON.stringify(detail);
+}
+
 export const api = {
+  health: () => getValidated("/api/health", HealthSchema),
   servers: (mode: Mode) => getValidated(`/api/servers?mode=${mode}`, ServerListSchema),
   goal: (mode: Mode, serverIds: string[]) =>
     postValidated(`/api/goal?mode=${mode}`, { server_ids: serverIds }, GoalOutSchema),
@@ -37,6 +78,20 @@ export const api = {
   leaderboard: (mode: Mode) => getValidated(`/api/leaderboard?mode=${mode}`, LeaderboardSchema),
   advisorDesign: (req: Record<string, unknown>) =>
     postValidated("/api/advisor/design", req, DResponseSchema),
+  advisorV2Design: (req: AdvisorV2DesignRequest) =>
+    postValidated("/api/advisor/v2/design", req, AdvisorV2DesignResponseSchema),
+  advisorV2Validate: (req: AdvisorV2ValidationRequest) =>
+    postValidated("/api/advisor/v2/validate", req, AdvisorV2ValidationResponseSchema),
+  advisorV2Report: (req: AdvisorV2ReportRequest) =>
+    postValidated("/api/advisor/v2/report", req, AdvisorV2ReportResponseSchema),
+  advisorV2Launch: (req: LaunchRequest) =>
+    postValidated("/api/advisor/v2/launch", req, LaunchJobSchema),
+  advisorV2LaunchJob: (jobId: string) =>
+    getValidated(`/api/advisor/v2/launch/${encodeURIComponent(jobId)}`, LaunchJobSchema),
+  advisorV2LaunchReport: (jobId: string) =>
+    getValidated(`/api/advisor/v2/launch/${encodeURIComponent(jobId)}/report`, ReplayDemoReportSchema),
+  advisorV2ReplayDemoReport: () =>
+    getValidated("/api/advisor/v2/replay-demo-report", ReplayDemoReportSchema),
 };
 
 // Minimal typed wrapper over EventSource: dispatches parsed frames by event

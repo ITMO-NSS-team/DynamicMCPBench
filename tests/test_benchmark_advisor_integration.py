@@ -90,14 +90,14 @@ def test_stage0_ui_is_wired_to_the_advisor_api():
     # store registers the design view.
     src = FRONTEND / "src"
     client = (src / "api" / "client.ts").read_text()
-    assert "/api/advisor/design" in client, "API client does not call the advisor design route"
+    assert "/api/advisor/v2/design" in client, "API client does not call the advisor v2 design route"
 
     design = (src / "stages" / "Design.tsx").read_text()
-    assert "advisorDesign" in design, "Design stage does not call the advisor"
+    assert "advisorV2Design" in design, "Design stage does not call the advisor v2 API"
     for control in (
         "task budget",
         "attempts / task",
-        "target detectable effect",
+        "requested target effect",
         "Carry this design into Collect",
     ):
         assert control in design, f"Design stage missing control: {control!r}"

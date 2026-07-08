@@ -22,3 +22,18 @@ def test_guide_version_constant():
 def test_is_known_rule():
     assert is_known_rule("G5.criterion.paired_bootstrap")
     assert not is_known_rule("G9.bogus.rule")
+
+
+def test_ba1_4_required_g3_rules_are_registered():
+    required = {
+        "G3.coverage.short_workflows",
+        "G3.coverage.medium_workflows",
+        "G3.coverage.long_workflows",
+        "G3.domain.finance",
+        "G3.domain.user_named",
+        "G3.coverage.same_name",
+        "G3.distractor.hard_negative",
+        "G3.distractor.near_miss",
+        "G3.distractor.claim_requires_pressure",
+    }
+    assert required <= KNOWN_RULE_IDS

@@ -25,6 +25,27 @@ from dmcp.ablation import _Z_ALPHA_05, _Z_POWER_80, power_n
 from dmcp.curves import proportion_ci
 
 HEURISTIC_LABEL = "planning_heuristic"
+DEFAULT_BASELINE_RATE = 0.5
+BASELINE_SENSITIVITY_RATES = (0.2, 0.5, 0.8)
+FLOOR_CEILING_WARNING_BAND = (0.10, 0.90)
+HARD_BUDGET_SEARCH_CAP = 5000
+
+STRONGER_BUDGETS: dict[str, tuple[int, ...]] = {
+    "pairwise": (200, 500),
+    "leaderboard": (300, 500, 800),
+    "regression": (120, 240, 500),
+    "diagnostic": (100, 200),
+}
+
+SOFT_SPLIT_WARNING_CAP: dict[str, int] = {
+    "pairwise": 2000,
+    "leaderboard": 2000,
+    "regression": 2000,
+    "diagnostic": 500,
+}
+
+MIN_TASKS_PER_CONFIRMATORY_SLICE = 40
+MIN_TASKS_PER_EXPLORATORY_DIAGNOSTIC_SLICE = 25
 
 # Coverage thresholds (approved_floor, warning_floor) from INTERFACES.md
 # "Validator Thresholds". planned < warning_floor => refused. The validator (T02)
@@ -59,6 +80,45 @@ def planned_mde_pp(n_per_group: int, baseline: float = 0.5) -> float:
         return 100.0
     delta = (_Z_ALPHA_05 + _Z_POWER_80) * math.sqrt(2 * baseline * (1 - baseline) / n_per_group)
     return min(100.0, delta * 100.0)
+
+
+def planned_mde_pp_for_unique_tasks(
+    unique_tasks: int,
+    baseline: float = DEFAULT_BASELINE_RATE,
+    *,
+    effective_sample_size: int | None = None,
+) -> float:
+    """No-prior MDE over unique benchmark tasks, optionally using calibrated ``n_eff``.
+
+    BA5.4 uses unique tasks as the default information unit for same-task paired
+    planning. Repeated attempts do not increase ``n_eff``.
+    """
+
+    n_eff = unique_tasks if effective_sample_size is None else min(unique_tasks, effective_sample_size)
+    return planned_mde_pp(n_eff, baseline)
+
+
+def leaderboard_rank_resolution_pp(task_budget: int, baseline: float = DEFAULT_BASELINE_RATE) -> float:
+    """Pre-run rank-resolution proxy for leaderboard planning."""
+
+    return planned_mde_pp_for_unique_tasks(task_budget, baseline)
+
+
+def slice_task_count(task_budget: int, slice_ratio: float) -> int:
+    """Planned unique tasks allocated to a diagnostic slice."""
+
+    return max(1, int(task_budget * slice_ratio))
+
+
+def diagnostic_slice_ci_width_pp(
+    task_budget: int,
+    slice_ratio: float,
+    p: float = DEFAULT_BASELINE_RATE,
+    z: float = 1.96,
+) -> float:
+    """Wilson CI width for one planned diagnostic slice."""
+
+    return ci_width_pp(slice_task_count(task_budget, slice_ratio), p, z)
 
 
 def required_tasks_for_mde(mde_pp: float, baseline: float = 0.5) -> int:

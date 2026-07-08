@@ -42,13 +42,15 @@ This is the sanctioned dependency direction from `planning/ARCHITECTURE.md`
 New stats code is added only where these two don't cover a contract field
 (e.g. paired-bootstrap planning heuristic), and is labeled `planning_heuristic`.
 
-## D3 — Freeze the current statistical guide as v1; expert refresh is future work
+## D3 — Freeze the refreshed statistical guide as v1
 
 `planning/STATISTICAL_GUIDE.md` (`guide_version: statistical_guide.v1`, families
-G1–G7) is treated as **frozen and sufficient to ship the demo**. The human
-literature-review curation step (BA1.2 / T03a) is **not a blocker**; it is recorded
-as honest future work and noted as a limitation in the paper. Rule ids stay stable
-so downstream tasks and fixtures can cite them now.
+G1–G7) is treated as **frozen and sufficient to ship the demo** after the
+2026-06-27 human-curated research refresh. The refresh preserves the original
+rule ids, expands the v1 rule-id set, and records evidence-status labels, source
+keys, repair suggestions, procedure notes, and a source reference map. Downstream
+tasks and fixtures cite this refreshed v1 guide rather than reinterpret the
+literature.
 
 ## D4 — Paper scope: Stage 1 end-to-end; defer Stage 2 backlog and heavy hardening
 
@@ -56,10 +58,10 @@ Build the full Stage-1 loop end to end — schema → deterministic planner →
 validator → stats → API → UI → export — with enough golden fixtures and tests to
 pass the repo gate and prove the validator's approve/warn/refuse behavior.
 
-**Deferred** (not needed for the paper, kept in the backlog):
+**Deferred for the paper** (later superseded by D7 for v2 planning):
 
-- BA5 Stage-2 backlog (outcome tensors, post-run reports, judge-based rationale
-  scoring) stays interface-only.
+- Stage-2 outcome tensors, post-run reports, and judge-based rationale scoring
+  stay interface-only for the EMNLP demo scope.
 - BA4.2 / T10 adversarial-hardening gold-plating and the full 13-fixture golden set
   are trimmed to a representative subset (pairwise valid, leaderboard warning,
   underpowered refusal, diagnostic, clarification, edited-field revalidation) —
@@ -92,13 +94,42 @@ feature list; Stage 0 closes the obvious "is the generated benchmark statistical
 sound enough to support the claim?" question *before* expensive generation, and it
 needs only one figure to tell the whole pipeline story.
 
+## D7 — V2 direction: guide-first statistical advisor before guarded handoff
+
+The next wave after the v1 demo is **not** a direct jump to launch buttons. It is:
+
+```text
+statistical credibility -> guarded handoff -> hardening/fixups
+```
+
+The chosen v2 MVP architecture is guide-first:
+
+- `STATISTICAL_GUIDE.md` supplies rule ids, method constraints, source keys, and
+  explanation snippets;
+- the Statistical Engine searches and scores task budgets, attempts, effect
+  targets, distributions, assumptions, and alternatives before the planner
+  returns a recommendation;
+- deterministic rules remain the authority for approval, warnings, refusals,
+  exportability, launchability, and report claim boundaries;
+- a local RAG/stat-agent layer may be added later for richer explanations, but
+  it is optional and must remain local/offline and non-authoritative;
+- first launch scope is corpus/specs/traces through `scripts/build_corpus.py`,
+  not leaderboard/eval.
+
+This updates the old "Stage 2 backlog" posture: post-run statistical reports are
+now an explicit v2 implementation target, not only an interface stub.
+
 ---
 
 ## What did NOT change
 
 - No final-answer grading is introduced anywhere.
 - The advisor never auto-launches `goal-gen`, `explore`, `distill`, or `eval`.
+- V2 guarded handoff may launch corpus/specs/traces only after explicit user
+  confirmation and rule validation.
 - `planning/INTERFACES.md` enum registries, state matrix, and validator thresholds
   are normative and untouched.
-- `planning/STATISTICAL_GUIDE.md` rule ids are untouched.
+- `planning/STATISTICAL_GUIDE.md` keeps `guide_version: statistical_guide.v1`;
+  the original rule ids are preserved and the refreshed v1 set is mirrored in
+  `benchmark_advisor/guide.py`.
 - All `docs_benchmark_advisor/CONCEPT.md` hard invariants remain in force.

@@ -21,9 +21,11 @@ sys.path.insert(0, str(ROOT))
 from dmcp.families import assign_shards, family_of  # noqa: E402
 from dmcp.goal_gen import GEN_STRATEGIES  # noqa: E402
 
-DMCP = str(ROOT / ".venv" / "bin" / "dmcp")
-if not Path(DMCP).exists():
-    DMCP = "dmcp"
+_DMCP_CANDIDATES = (
+    ROOT / ".venv" / "Scripts" / "dmcp.exe",
+    ROOT / ".venv" / "bin" / "dmcp",
+)
+DMCP = str(next((path for path in _DMCP_CANDIDATES if path.exists()), "dmcp"))
 
 
 def shard_goals(entries: list[dict], n_shards: int) -> list[list[dict]]:
@@ -39,6 +41,75 @@ def shard_goals(entries: list[dict], n_shards: int) -> list[list[dict]]:
     for i, e in enumerate(entries):
         out[i % n_shards].append(e)
     return out
+
+
+def allocate_counts(total: int, weights: dict[str, float]) -> dict[str, int]:
+    """Allocate ``total`` integer slots proportionally using largest remainders."""
+
+    if total <= 0:
+        return {key: 0 for key in weights}
+    positive = {key: max(0.0, float(value)) for key, value in weights.items() if value > 0}
+    if not positive:
+        return {}
+    weight_sum = sum(positive.values())
+    raw = {key: total * value / weight_sum for key, value in positive.items()}
+    counts = {key: int(value) for key, value in raw.items()}
+    remaining = total - sum(counts.values())
+    for key, _ in sorted(
+        raw.items(),
+        key=lambda item: (item[1] - int(item[1]), item[0]),
+        reverse=True,
+    )[:remaining]:
+        counts[key] += 1
+    return {key: value for key, value in counts.items() if value > 0}
+
+
+def advisor_distribution_plan(
+    *,
+    total_tasks: int,
+    task_distribution: dict,
+    default_strategies: list[str],
+) -> list[dict[str, int | str]]:
+    """Turn advisor task-distribution fractions into tagged corpus subbench slices."""
+
+    complexity_counts = allocate_counts(
+        total_tasks,
+        {
+            "simple": float(task_distribution.get("short_chain") or 0),
+            "medium": float(task_distribution.get("medium_chain") or 0),
+            "hard": float(task_distribution.get("long_chain") or 0),
+        },
+    )
+    if not complexity_counts:
+        complexity_counts = allocate_counts(total_tasks, {"simple": 1, "medium": 1, "hard": 1})
+
+    distractors = task_distribution.get("distractors") or {}
+    strategy_weights: dict[str, float] = {
+        "cross_server_alt": float(task_distribution.get("cross_server_ratio") or 0),
+        "recovery_required": float(task_distribution.get("recovery_required_ratio") or 0),
+        "prerequisite_strict": float(task_distribution.get("prerequisite_strict_ratio") or 0),
+        "destructive_adjacent": float(task_distribution.get("stateful_write_ratio") or 0),
+        "same_name": float(distractors.get("same_name_fraction") or 0),
+        "hard_neg": float(distractors.get("near_miss_fraction") or 0),
+        "cross_domain": float(distractors.get("cross_domain_fraction") or 0),
+        "random": float(distractors.get("random_fraction") or 0),
+    }
+    explicit_total = sum(max(0.0, value) for value in strategy_weights.values())
+    remainder = max(0.0, 1.0 - explicit_total)
+    defaults = [strategy for strategy in default_strategies if strategy]
+    if remainder > 0 and defaults:
+        default_weight = remainder / len(defaults)
+        for strategy in defaults:
+            strategy_weights[strategy] = strategy_weights.get(strategy, 0.0) + default_weight
+    if not any(value > 0 for value in strategy_weights.values()) and defaults:
+        for strategy in defaults:
+            strategy_weights[strategy] = strategy_weights.get(strategy, 0.0) + 1.0 / len(defaults)
+
+    plan: list[dict[str, int | str]] = []
+    for complexity, complexity_count in complexity_counts.items():
+        for strategy, count in allocate_counts(complexity_count, strategy_weights).items():
+            plan.append({"complexity": complexity, "strategy": strategy, "count": count})
+    return plan
 
 
 def stamp_provenance_in_jsonl(specs_path: Path, overrides: dict) -> int:
@@ -105,6 +176,14 @@ def main() -> None:
     )
     ap.add_argument("--complexities", default="simple,medium,hard")
     ap.add_argument("--per-strategy", type=int, default=4)
+    ap.add_argument(
+        "--advisor-distribution-json",
+        default=None,
+        help=(
+            "Benchmark Advisor task_distribution JSON. When provided, Phase 1 "
+            "splits --budget into tagged subbench goal-gen calls by these fractions."
+        ),
+    )
     ap.add_argument("--surfaces", default=None, help="Pre-captured surfaces JSON for goal-gen")
     ap.add_argument(
         "--goalgen-models",
@@ -150,6 +229,15 @@ def main() -> None:
     )
     ap.add_argument("--budget", type=int, default=12)
     ap.add_argument(
+        "--explore-budget",
+        type=int,
+        default=None,
+        help=(
+            "Per-goal LLM turn budget for dmcp generate. Defaults to --budget in legacy mode "
+            "and to 12 when --advisor-distribution-json makes --budget mean corpus size."
+        ),
+    )
+    ap.add_argument(
         "--explore-timeout",
         type=float,
         default=600.0,
@@ -189,6 +277,10 @@ def main() -> None:
     out = ROOT / a.out
     out.mkdir(parents=True, exist_ok=True)
     strategies = [s for s in a.strategies.split(",") if s]
+    advisor_distribution = json.loads(a.advisor_distribution_json) if a.advisor_distribution_json else None
+    generation_budget = (
+        int(a.explore_budget) if a.explore_budget is not None else (12 if advisor_distribution else a.budget)
+    )
     server_args: list[str] = []
     for s in a.servers or []:
         server_args += ["--server", s]
@@ -208,14 +300,33 @@ def main() -> None:
             x.strip() for x in (a.goalgen_models or a.goalgen_model or "").split(",") if x.strip()
         ] or [None]
         gg_surfaces_args = ["--surfaces", str(ROOT / a.surfaces)] if a.surfaces else []
-        strat_args = []
-        for s in strategies:
-            strat_args += ["--strategy", s]
-        for c in [x for x in a.complexities.split(",") if x]:
-            for gm in goalgen_panel:
+        if advisor_distribution:
+            goalgen_plan = advisor_distribution_plan(
+                total_tasks=max(1, int(a.budget)),
+                task_distribution=advisor_distribution,
+                default_strategies=strategies,
+            )
+        else:
+            goalgen_plan = [
+                {"complexity": c, "strategy": s, "count": a.per_strategy}
+                for c in [x for x in a.complexities.split(",") if x]
+                for s in strategies
+            ]
+        for item in goalgen_plan:
+            c = str(item["complexity"])
+            strategy = str(item["strategy"])
+            requested_count = int(item["count"])
+            panel_counts = allocate_counts(
+                requested_count,
+                {str(index): 1 for index in range(len(goalgen_panel))},
+            )
+            for index, gm in enumerate(goalgen_panel):
+                per_strat = panel_counts.get(str(index), 0)
+                if per_strat <= 0:
+                    continue
                 gslug = (gm or "default").replace("/", "_").replace(".", "-")
-                gpath = out / f"goals_{c}_{gslug}.json"
-                per_strat = max(1, a.per_strategy // len(goalgen_panel))
+                sslug = strategy.replace("/", "_").replace(".", "-")
+                gpath = out / f"goals_{c}_{sslug}_{gslug}.json"
                 gg_model_args = ["--model", gm] if gm else []
                 rc = _run(
                     [
@@ -224,7 +335,8 @@ def main() -> None:
                         "-m",
                         str(ROOT / a.manifest),
                         *server_args,
-                        *strat_args,
+                        "--strategy",
+                        strategy,
                         *gg_model_args,
                         *gg_surfaces_args,
                         "--per-strategy",
@@ -315,7 +427,7 @@ def main() -> None:
                     "--distill-model",
                     assignment.distiller_model,
                     "--budget",
-                    str(a.budget),
+                    str(generation_budget),
                     "--explore-timeout",
                     str(a.explore_timeout),
                     "--traces-out",
@@ -398,7 +510,7 @@ def main() -> None:
                     "--distill-model",
                     a.distill_model,
                     "--budget",
-                    str(a.budget),
+                    str(generation_budget),
                     "--explore-timeout",
                     str(a.explore_timeout),
                     "--traces-out",
@@ -428,7 +540,7 @@ def main() -> None:
     # ---- Phase 3: coverage report ----
     _run(
         [
-            DMCP.replace("bin/dmcp", "bin/python") if DMCP.endswith("bin/dmcp") else "python",
+            sys.executable,
             str(ROOT / "scripts" / "corpus_coverage.py"),
             "--traces",
             str(traces),
