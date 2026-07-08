@@ -98,9 +98,7 @@ def planned_mde_pp_for_unique_tasks(
     return planned_mde_pp(n_eff, baseline)
 
 
-def leaderboard_rank_resolution_pp(
-    task_budget: int, baseline: float = DEFAULT_BASELINE_RATE
-) -> float:
+def leaderboard_rank_resolution_pp(task_budget: int, baseline: float = DEFAULT_BASELINE_RATE) -> float:
     """Pre-run rank-resolution proxy for leaderboard planning."""
 
     return planned_mde_pp_for_unique_tasks(task_budget, baseline)

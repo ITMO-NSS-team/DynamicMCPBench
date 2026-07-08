@@ -63,9 +63,7 @@ def launch_advisor_corpus(request: LaunchRequest) -> LaunchJob:
         progress={"target_tasks": request.export_config.tasks},
         command_preview=command,
         logs=[
-            "queued guarded benchmark handoff"
-            if request.run_benchmark
-            else "queued guarded corpus handoff"
+            "queued guarded benchmark handoff" if request.run_benchmark else "queued guarded corpus handoff"
         ],
         artifacts=artifacts,
     )
@@ -415,11 +413,7 @@ def _select_combined_corpus(base_dir: Path, topup_dirs: list[Path], target: int)
 
     selected_specs = _select_by_depth(unique_specs, target)
     selected_ids = {str(row["task_id"]) for row in selected_specs}
-    selected_traces = [
-        trace_rows[key]
-        for key in selected_ids
-        if key in trace_rows
-    ]
+    selected_traces = [trace_rows[key] for key in selected_ids if key in trace_rows]
     if len(selected_traces) < len(selected_specs):
         by_prompt = {
             str(row.get("prompt") or ""): trace_rows.get(str(row.get("prompt") or ""))
@@ -497,14 +491,10 @@ def _build_report(
     report_path: Path,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     rows_by_model = {model: _read_jsonl_objects(path) for model, path in eval_paths.items()}
-    by_task = {
-        model: {str(row.get("task_id")): row for row in rows}
-        for model, rows in rows_by_model.items()
-    }
+    by_task = {model: {str(row.get("task_id")): row for row in rows} for model, rows in rows_by_model.items()}
     common_tasks = sorted(set.intersection(*(set(rows) for rows in by_task.values()))) if by_task else []
     model_summaries = [
-        _model_summary(model, [by_task[model][tid] for tid in common_tasks])
-        for model in by_task
+        _model_summary(model, [by_task[model][tid] for tid in common_tasks]) for model in by_task
     ]
     pairwise = _paired_summary(by_task, common_tasks)
     summary = {
@@ -831,12 +821,7 @@ def _depth_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
 
 
 def _slug(model: str) -> str:
-    return (
-        model.replace("/", "_")
-        .replace("\\", "_")
-        .replace(":", "_")
-        .replace(" ", "_")
-    )
+    return model.replace("/", "_").replace("\\", "_").replace(":", "_").replace(" ", "_")
 
 
 def _update(

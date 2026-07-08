@@ -140,8 +140,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if status == "occupied":
         print(
-            f"Port {args.port} is already used by a non-current service. "
-            "Stop it or choose another port.",
+            f"Port {args.port} is already used by a non-current service. Stop it or choose another port.",
             file=sys.stderr,
         )
         return 1

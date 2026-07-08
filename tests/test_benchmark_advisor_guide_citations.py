@@ -41,8 +41,7 @@ def test_lookup_by_method_family_and_advisor_mode():
     index = load_guide_citation_index()
 
     method_rules = [
-        c.guide_references[0].rule_id
-        for c in index.citations_for_method_family("paired_bootstrap")
+        c.guide_references[0].rule_id for c in index.citations_for_method_family("paired_bootstrap")
     ]
     mode_rules = [c.guide_references[0].rule_id for c in index.citations_for_advisor_mode("pairwise")]
 
@@ -67,8 +66,7 @@ def test_lookup_accepts_contract_test_family_names():
         assert citations, test_family
 
     assert [
-        c.guide_references[0].rule_id
-        for c in index.citations_for_method_family("non_inferiority_margin")
+        c.guide_references[0].rule_id for c in index.citations_for_method_family("non_inferiority_margin")
     ] == [
         "G1.regression.non_inferiority",
         "G2.metric.non_inferiority",
@@ -102,9 +100,7 @@ def test_every_citation_maps_to_known_rule_ids_and_source_keys():
 
 def test_missing_source_keys_fail_index_audit(tmp_path):
     original = DEFAULT_GUIDE_PATH.read_text(encoding="utf-8")
-    edited = "\n".join(
-        line for line in original.splitlines() if not line.startswith("| `Dror2017` |")
-    )
+    edited = "\n".join(line for line in original.splitlines() if not line.startswith("| `Dror2017` |"))
     guide_path = tmp_path / "STATISTICAL_GUIDE.md"
     guide_path.write_text(edited, encoding="utf-8")
 
@@ -122,9 +118,7 @@ def test_validator_behavior_is_unchanged_by_citation_snippet_text(tmp_path):
     guide_path.write_text(edited, encoding="utf-8")
 
     original_citation = load_guide_citation_index().citation_for_rule("G5.criterion.paired_bootstrap")
-    edited_citation = load_guide_citation_index(guide_path).citation_for_rule(
-        "G5.criterion.paired_bootstrap"
-    )
+    edited_citation = load_guide_citation_index(guide_path).citation_for_rule("G5.criterion.paired_bootstrap")
     assert edited_citation.snippet != original_citation.snippet
 
     base_design = design(task_budget=70)

@@ -18,10 +18,7 @@ from .schema import TEST_FAMILIES, RationaleRole, StatisticalGuideReference
 from .v2_schema import LocalStatisticalCitation
 
 DEFAULT_GUIDE_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "docs_benchmark_advisor"
-    / "planning"
-    / "STATISTICAL_GUIDE.md"
+    Path(__file__).resolve().parents[1] / "docs_benchmark_advisor" / "planning" / "STATISTICAL_GUIDE.md"
 )
 
 _RULE_ID_RE = re.compile(r"`(G\d+\.[A-Za-z0-9_.]+)`")
@@ -78,10 +75,7 @@ _METHOD_FAMILY_ALIASES: dict[str, str] = {
 
 METHOD_FAMILY_RULE_IDS: dict[str, tuple[str, ...]] = {
     **_METHOD_FAMILY_RULE_IDS,
-    **{
-        alias: _METHOD_FAMILY_RULE_IDS[canonical]
-        for alias, canonical in _METHOD_FAMILY_ALIASES.items()
-    },
+    **{alias: _METHOD_FAMILY_RULE_IDS[canonical] for alias, canonical in _METHOD_FAMILY_ALIASES.items()},
 }
 
 ADVISOR_MODE_RULE_IDS: dict[str, tuple[str, ...]] = {

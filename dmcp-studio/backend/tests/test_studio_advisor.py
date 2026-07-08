@@ -240,8 +240,7 @@ def test_v2_replay_demo_report_uses_ba7_combined100_provenance():
     assert body["provenance"]["generated_by_current_handoff"] is True
     assert body["provenance"]["server_filter_available"] is True
     assert any(
-        "summary_pairwise_deepseek_minimax_combined100.json" in p
-        for p in body["provenance"]["source_docs"]
+        "summary_pairwise_deepseek_minimax_combined100.json" in p for p in body["provenance"]["source_docs"]
     )
     assert body["leaderboard"][0]["model"] == "deepseek-v4-flash"
     assert body["leaderboard"][1]["model"] == "minimax-m3"

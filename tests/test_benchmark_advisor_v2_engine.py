@@ -84,8 +84,7 @@ def test_ba54_pairwise_attempts_do_not_multiply_iid_mde():
     assert "diagnostic.baseline_sensitivity.0.5" in diagnostics
     assert "diagnostic.baseline_sensitivity.0.8" in diagnostics
     assert any(
-        "Repeated attempts can support reliability metrics but do not multiply unique-task power"
-        in note
+        "Repeated attempts can support reliability metrics but do not multiply unique-task power" in note
         for note in three_plan.assumption_ledger.sensitivity_notes
     )
     trace = three_plan.engine_decision.computation_trace

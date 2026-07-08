@@ -591,8 +591,7 @@ def _diagnostic_slice_issues(design: AdvisorDesign) -> list[StatisticalIssue]:
                     ),
                     failed_field="task_distribution.diagnostic_slices",
                     reason=(
-                        "confirmatory diagnostic slices need enough unique tasks "
-                        "for interpretable precision"
+                        "confirmatory diagnostic slices need enough unique tasks for interpretable precision"
                     ),
                     repair="Increase task_budget or mark the slice exploratory.",
                     refs=[
@@ -657,13 +656,10 @@ def _diagnostic_pressure_issues(design: AdvisorDesign) -> list[StatisticalIssue]
             _engine_issue(
                 severity=severity,
                 code="missing_diagnostic_pressure",
-                message=(
-                    f"{marker} is claimed but {field} is {value:.2f}; BA5.4 expects at least 0.25."
-                ),
+                message=(f"{marker} is claimed but {field} is {value:.2f}; BA5.4 expects at least 0.25."),
                 failed_field=f"task_distribution.distractors.{field}",
                 reason=(
-                    "diagnostic claims need generator pressure that actually "
-                    "creates the stated failure mode"
+                    "diagnostic claims need generator pressure that actually creates the stated failure mode"
                 ),
                 repair=f"Set {field} >= 0.25 or remove the {marker} claim.",
                 refs=[
@@ -675,9 +671,7 @@ def _diagnostic_pressure_issues(design: AdvisorDesign) -> list[StatisticalIssue]
     return issues
 
 
-def _missingness_issues(
-    request: AdvisorV2DesignRequest, design: AdvisorDesign
-) -> list[StatisticalIssue]:
+def _missingness_issues(request: AdvisorV2DesignRequest, design: AdvisorDesign) -> list[StatisticalIssue]:
     raw = request.user_overrides.get("expected_missingness_rate")
     if raw is None:
         return []
@@ -985,9 +979,7 @@ def _formula_versions(design: AdvisorDesign) -> list[str]:
     return by_mode[design.mode]
 
 
-def _planning_diagnostics(
-    design: AdvisorDesign, baseline: float, status: Status
-) -> list[PlanningDiagnostic]:
+def _planning_diagnostics(design: AdvisorDesign, baseline: float, status: Status) -> list[PlanningDiagnostic]:
     diagnostics = [
         PlanningDiagnostic(
             diagnostic_id="diagnostic.n_eff.unique_tasks",
