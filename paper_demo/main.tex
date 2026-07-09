@@ -11,10 +11,10 @@
 
 \documentclass[11pt]{article}
 
-% Review (anonymous) mode while drafting. The demo track is SINGLE-BLIND:
-% the camera-ready must switch to "final" and carry real author names and
-% affiliations (no anonymization). See sections/ for the author TODO.
-\usepackage[review]{acl}
+% Single-blind demo track: authors are named. `preprint` shows the byline and
+% page numbers (useful to reviewers); the ACL class cannot combine named authors
+% with line numbers, so those are off. Switch to `final` for camera-ready.
+\usepackage[preprint]{acl}
 
 \usepackage{times}
 \usepackage{latexsym}
@@ -48,9 +48,11 @@
 \title{DMCP Studio: An Interactive, Trace-Grounded Studio for\\
   Effect-Scored Evaluation of LLM Agents over Live MCP Servers}
 
-% Anonymous while in review mode. Single-blind camera-ready: replace with real
-% author names + affiliations (the demo track does NOT anonymize).
-\author{Anonymous EMNLP 2026 System Demonstrations submission}
+\author{%
+  Jerzy Kami\'nski\thanks{\,Corresponding author: \texttt{jkaminski@niuitmo.ru}} \quad
+  Artem Kuznetsov \quad Ilya Galyukshev\textsuperscript{\,\dag} \quad Sergey Chuprin \\[3pt]
+  Kirill Redko \quad Aidar Shumbalov \quad Anna Kalyuzhnaya \\[6pt]
+  ITMO University \qquad \textsuperscript{\dag}\,Central University}
 
 \begin{document}
 \maketitle

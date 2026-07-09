@@ -1,17 +1,16 @@
 \section*{Availability and License}
 \label{sec:availability}
 
-% CFP HARD REQUIREMENT: a live demo URL or installable-package link MUST
-% appear in the PDF. We satisfy it with an installable package (Docker), which
-% the CFP accepts in lieu of a hosted URL. TODO(camera-ready): drop in the
-% canonical repository URL once author names are added (single-blind).
-DMCP Studio ships as a self-contained, installable package: from a clean
-checkout, \texttt{docker build -f dmcp-studio/Dockerfile -t dmcp-studio .}
-followed by \texttt{docker run -p 8000:8000 dmcp-studio} brings the studio up at
+% CFP HARD REQUIREMENT satisfied by a live hosted demo URL plus a one-command
+% Docker install. TODO(camera-ready): confirm the canonical repository URL.
+A live, no-login demo runs in deterministic REPLAY at
+\url{https://huggingface.co/spaces/jrzkaminski/dmcp-studio}. DMCP Studio also
+ships as a self-contained, installable package: from a clean checkout,
+\texttt{docker build -f dmcp-studio/Dockerfile -t dmcp-studio .} followed by
+\texttt{docker run -p 8000:8000 dmcp-studio} brings the studio up at
 \texttt{http://localhost:8000} in under ten minutes, with no API keys and no
-network (the public default is the deterministic REPLAY path).\footnote{Code and
-install instructions: \url{https://anonymous.4open.science/r/DynamicMCPBench-4243/}
-(directory \texttt{dmcp-studio/}).} A screencast
+network (the public default is the deterministic REPLAY path).\footnote{Source
+and install instructions accompany the hosted Space (its \texttt{Files} tab).} A screencast
 (\textless\,2.5\,min) walks through the four stages and the verdict
 flip.\footnote{Screencast: \url{https://TODO-screencast-url}.}
 % TODO(license): confirm the project license with the team. Stated as
