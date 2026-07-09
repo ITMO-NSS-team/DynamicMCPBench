@@ -18,8 +18,11 @@ the three fixtures of \S\ref{sec:eval} are drawn from this example.
 \section{API Contract}
 \label{sec:appendix-api}
 
-The back-end exposes six routes; \texttt{mode}\,$\in$\,\{\texttt{live},
-\texttt{replay}\} defaults to \texttt{replay}.
+The back-end exposes six pipeline routes; \texttt{mode}\,$\in$\,\{\texttt{live},
+\texttt{replay}\} defaults to \texttt{replay}. The Stage-0 Benchmark Advisor
+adds a parallel \texttt{POST /api/advisor/design}\,/\,\texttt{validate} pair---
+and a \texttt{/v2/} statistical-workbench family---that plan and re-validate a
+design without touching the pipeline routes below.
 
 \begin{itemize}\itemsep1pt
   \item \texttt{GET /api/servers} --- collected servers with dynamism tags.

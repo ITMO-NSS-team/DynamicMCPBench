@@ -47,12 +47,13 @@ replay throughout.
 
 \subsection{E3: Showcase fixtures}
 
-From real runs we curate and freeze the three verdict-flip fixtures of
-\S\ref{sec:system}, plus the worked-example default (the AAPL/MSFT/GOOGL
-financial-comparison task), so the demo deterministically reproduces each
-disagreement. Each fixture carries a one-line rationale and is served by the
-REPLAY back-end; LIVE re-derives the same TaskSpec against the read-only
-servers.
+We curate and freeze the three verdict-flip fixtures of \S\ref{sec:system},
+plus the worked-example default (the AAPL/MSFT/GOOGL financial-comparison task):
+each is a candidate trajectory scored by the \emph{real} Tier-1 evaluator (E1),
+so the demo deterministically reproduces each disagreement with the pipeline's
+own verdicts rather than a re-implementation. Each fixture carries a one-line
+rationale and is served by the REPLAY back-end; LIVE re-derives the same TaskSpec
+against the read-only servers.
 
 \subsection{E5: Informal usability}
 
