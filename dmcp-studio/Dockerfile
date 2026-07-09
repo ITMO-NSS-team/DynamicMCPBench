@@ -28,8 +28,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install the dmcp package + studio extra first (better layer caching).
+# Both `dmcp` and `benchmark_advisor` are wheel packages (see pyproject
+# [tool.hatch.build.targets.wheel]) and backend/app.py imports benchmark_advisor
+# at load time, so both source trees must be present before the editable install.
 COPY pyproject.toml ./
 COPY dmcp ./dmcp
+COPY benchmark_advisor ./benchmark_advisor
 RUN pip install -e ".[studio]"
 
 # Studio backend.
