@@ -15,7 +15,9 @@ export function Verdict({
 }) {
   return (
     <div className={"verdict" + (tone ? " " + tone : "")}>
-      <div className="verdict-chip">{chip}</div>
+      <div className="verdict-chip" data-testid="verdict-chip">
+        {chip}
+      </div>
       <div className="verdict-why">
         <div className="verdict-mode">{mode}</div>
         <div className="verdict-text">{children}</div>

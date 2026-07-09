@@ -14,7 +14,7 @@ export function Score() {
   const verdict = done ? scoreVerdict(done, s.scoreMode) : null;
 
   return (
-    <section className="stage">
+    <section className="stage" data-testid="score-stage" data-scored={done ? "1" : "0"}>
       <div className="eyebrow">Stage 4 — effect-scored evaluation</div>
       <h1>Grade the effects, not the answer</h1>
       <p className="lede">
