@@ -2,13 +2,17 @@
 
 An interactive, trace-grounded studio for **effect-scored** evaluation of LLM
 agents over live MCP servers — the demonstration companion to DynamicMCPBench.
-It walks through the pipeline in four live stages (**Collect → Explore →
-Distill → Score**) and flips a candidate's verdict with an
-**Effect ⇄ Answer** toggle.
+A pre-run **Design** stage (the Benchmark Advisor) scopes a statistically
+defensible benchmark before generation; the studio then walks through the
+pipeline in four live stages (**Collect → Explore → Distill → Score**) and
+flips a candidate's verdict with an **Effect ⇄ Answer** toggle.
 
-> Status: **scaffolding (A0 complete).** The backend/frontend are being built
-> per `docs/dmcp_studio_build_plan.md`. See `PROGRESS.md` for live status and
-> `backend/INTEGRATION_NOTES.md` for how the studio wraps the `dmcp` pipeline.
+> Status: **shipped.** The FastAPI backend and the React + Vite frontend are
+> built and tested; Stage 0 (Benchmark Advisor, v1 + v2) and the four execution
+> stages run in deterministic **REPLAY** by default (no API keys, no network).
+> Run it with Docker or Compose (below) or `scripts/run_demo.sh`. See
+> `PROGRESS.md` for the build log and `backend/INTEGRATION_NOTES.md` for how the
+> studio wraps the `dmcp` pipeline.
 
 ## Layout
 
