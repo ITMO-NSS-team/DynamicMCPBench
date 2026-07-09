@@ -38,6 +38,10 @@ RUN pip install -e ".[studio]"
 
 # Studio backend.
 COPY dmcp-studio ./dmcp-studio
+# The one runtime file the advisor reads from outside the wheel packages: the
+# versioned statistical guide (benchmark_advisor/guide_citations.py loads it at
+# design time). Without it the /api/advisor/v2/design route 500s.
+COPY docs_benchmark_advisor/planning/STATISTICAL_GUIDE.md ./docs_benchmark_advisor/planning/STATISTICAL_GUIDE.md
 # Built SPA bundle from the Node stage (backend serves frontend/dist when present).
 COPY --from=web /web/dist ./dmcp-studio/frontend/dist
 
