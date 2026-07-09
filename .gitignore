@@ -274,6 +274,9 @@ paper_demo/main.pdf
 paper_demo/main.synctex.gz
 paper_demo/main.toc
 
+# Local portable LaTeX toolchain/cache used by scripts/build_paper_demo.py.
+.latex-tools/
+
 # DMCP Studio frontend: React + Vite. Deps and the built SPA bundle are
 # generated — build with `npm run build` in frontend/ (emits frontend/dist,
 # covered by the global dist/ rule above).

@@ -15,6 +15,38 @@ compiles into six checkpoints---five tool effects (one carrying a
 value-produced effect over the final message. Table~\ref{tab:agreement} and
 the three fixtures of \S\ref{sec:eval} are drawn from this example.
 
+\section{Studio Screenshots}
+\label{sec:appendix-screenshots}
+
+\begin{figure*}[tbp]
+  \centering
+  \input{figures/studio_screenshot}
+  \caption{\textbf{DMCP Studio} (scoring stage, REPLAY mode). The four-stage
+    stepper (collect $\rightarrow$ explore $\rightarrow$ distill $\rightarrow$
+    score) and the LIVE/REPLAY toggle sit in the header. Here the
+    \textsf{hermes3-8b} candidate is marked \textsf{FAILED}: its trajectory
+    (left) reproduces every effect \emph{except} the income-statement
+    checkpoint (\#5, red in the ledger, right), even though its prose summary
+    would pass answer-matching---the incomplete-aggregation case called out in
+    the note below. The Effect\,$\rightleftharpoons$\,Answer toggle re-grades
+    the \emph{same} recorded run two ways without a second backend call, and the
+    \texttt{download}\,/\,\texttt{get\_price\_history} equivalence set on
+    checkpoint~\#3 is an editable chip the visitor can toggle to re-score live.}
+  \label{fig:studio}
+\end{figure*}
+
+\begin{figure*}[tbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_advisor.png}
+  \caption{\textbf{Stage 0 --- Design.} Benchmark Advisor turns an evaluation
+    question into a statistically scoped benchmark plan before generation. The
+    workbench shows the supported claim, MDE and power diagnostics, assumptions,
+    repair actions, alternatives, and guide citations. Approved or warning-level
+    plans can be carried forward only through an explicit guarded handoff to
+    corpus/specs/traces generation.}
+  \label{fig:advisor}
+\end{figure*}
+
 \section{API Contract}
 \label{sec:appendix-api}
 

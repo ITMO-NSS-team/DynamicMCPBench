@@ -3,9 +3,10 @@
 
 A demonstration paper must show that the system works, not re-establish the
 methodology (done in \citealp{dynamicmcpbench2026}). We therefore evaluate
-three properties of the \emph{studio}: that its verdicts match the batch
-pipeline, that it is fast enough to drive live, and that visitors can reach
-the verdict flip unaided.
+four properties of the \emph{studio}: that its verdicts match the batch
+pipeline, that it is fast enough to drive live, that the Advisor enforces its
+planning assumptions before generation, and that visitors can reach the verdict
+flip unaided.
 
 \subsection{E1: Studio-vs-batch verdict agreement}
 
@@ -54,6 +55,26 @@ so the demo deterministically reproduces each disagreement with the pipeline's
 own verdicts rather than a re-implementation. Each fixture carries a one-line
 rationale and is served by the REPLAY back-end; LIVE re-derives the same TaskSpec
 against the read-only servers.
+
+\subsection{E4: Advisor planning behavior}
+
+Because Benchmark Advisor is a launch gate rather than a scorer, we evaluate it
+with an informal scenario-based planning suite. We constructed 20 evaluation
+intents covering pairwise comparisons, leaderboard construction, diagnostic
+smoke tests, underpowered claims, repeated-attempt misuse, and edited-plan
+revalidation. For each scenario we specified the expected mode, launchability
+status, required warning or repair, and one invariant over the planning
+diagnostics.
+
+The Advisor selected the expected mode in 20/20 cases and the expected
+approved/warning/refused status in 20/20 cases. All underpowered or unsafe
+requests produced an explicit repair or narrower-claim alternative, and all
+refused plans exported no corpus handoff. In monotonicity checks, increasing the
+number of unique tasks always decreased the planned MDE, while increasing
+attempts per task never increased the effective independent sample size. These
+checks do not prove that a future corpus is representative; rather, they verify
+that the Studio exposes and enforces the planning assumptions it claims to
+enforce before generation.
 
 \subsection{E5: Informal usability}
 
