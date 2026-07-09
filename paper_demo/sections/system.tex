@@ -29,6 +29,19 @@ task budget, attempts, requested detectable effect, server scope, and task mix)
 it returns a \texttt{StatisticalPlan}: a scoped claim, method choice, assumption
 ledger, power curve, issues and repairs, alternatives, and guide citations.
 
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig_advisor.png}
+  \caption{\textbf{Stage 0 --- Design.} Benchmark Advisor turns an evaluation
+    question into a statistically scoped benchmark plan before generation. The
+    workbench shows the supported claim, MDE and power diagnostics, assumptions,
+    repair actions, alternatives, and guide citations. Approved or warning-level
+    plans can be carried forward only through an explicit guarded handoff to
+    corpus/specs/traces generation. A full-width version appears in
+    Figure~\ref{fig:advisor-full}.}
+  \label{fig:advisor}
+\end{figure}
+
 The design loop is guide-first and deterministic. A curated
 \texttt{STATISTICAL\_GUIDE.md} maps intent signals to mode, metric, budget and
 repeat policy, criterion, and claim boundary; the engine then searches a finite

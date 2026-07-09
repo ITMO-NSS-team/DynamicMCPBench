@@ -28,6 +28,24 @@ do not see is the moment a confident, fluent answer is marked
 evidence, or the moment a ``wrong'' answer is marked \textsf{SOLVED} because
 the live data simply moved.
 
+\begin{figure}[tbp]
+  \centering
+  \input{figures/studio_screenshot}
+  \caption{\textbf{DMCP Studio} (scoring stage, REPLAY mode). The four-stage
+    stepper (collect $\rightarrow$ explore $\rightarrow$ distill $\rightarrow$
+    score) and the LIVE/REPLAY toggle sit in the header. Here the
+    \textsf{hermes3-8b} candidate is marked \textsf{FAILED}: its trajectory
+    (left) reproduces every effect \emph{except} the income-statement
+    checkpoint (\#5, red in the ledger, right), even though its prose summary
+    would pass answer-matching---the incomplete-aggregation case called out in
+    the note below. The Effect\,$\rightleftharpoons$\,Answer toggle re-grades
+    the \emph{same} recorded run two ways without a second backend call, and the
+    \texttt{download}\,/\,\texttt{get\_price\_history} equivalence set on
+    checkpoint~\#3 is an editable chip the visitor can toggle to re-score live.
+    A full-width version appears in Figure~\ref{fig:studio-full}.}
+  \label{fig:studio}
+\end{figure}
+
 \textbf{DMCP Studio} makes benchmark design and execution interactive. It wraps
 the existing DynamicMCPBench pipeline, helps the user decide what benchmark is
 statistically worth generating, and then walks that benchmark through four live
