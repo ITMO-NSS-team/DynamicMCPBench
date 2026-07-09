@@ -1,90 +1,135 @@
-# DMCP Studio — screencast script (≤ 2.5 min)
+# DMCP Studio - screencast script (<= 2.5 min)
 
-**Hard cap: 2:30 (desk-reject if over).** This script is timed to **~2:20**, a
-10 s buffer. Audio narration over a screen recording; minimal editing
-(production quality is explicitly not judged). Record against **REPLAY** (the
-deterministic default) for reliability — every beat below is reproducible from
-the committed fixture.
+**Hard cap: 2:30 (desk-reject if over).** This version is timed to **~2:25**,
+with the first half centered on the current Benchmark Advisor / Studio state and
+the second half showing how DynamicMCPBench works internally. Record against
+**REPLAY** for reliability; the flow is deterministic and backed by committed
+fixtures, while LIVE remains available for a short proof segment if the network
+is stable.
 
 **Before recording**
-- Launch: `dmcp-studio/scripts/run_demo.sh` → open `http://127.0.0.1:8000`.
-- Window at projector resolution (~1440×900); browser zoom so the four-stage
-  stepper and the verdict bar are both legible.
-- Start on **Stage 1** (Collect), mode toggle on **REPLAY**.
+- Launch: `dmcp-studio/scripts/run_demo.sh` -> open `http://127.0.0.1:8000`.
+- Window at projector resolution (~1440x900); keep browser zoom low enough that
+  the top stepper, Advisor verdict, metric strip, and report cards are legible.
+- Start on **Stage 0 - Design**, mode toggle on **Replay**.
+- Let the default design finish computing before recording, so the Advisor
+  verdict already shows **APPROVED** and the metric strip is populated.
 - Optional: upload to an unlisted YouTube link and put it in the paper, or
   attach the MP4 as supplementary.
 
-> **Live note.** Record the main flow against **REPLAY** for booth reliability
-> (deterministic, instant). LIVE mode now works end to end (collect → explore →
-> distill over real servers), so you *may* add one brief genuine LIVE explore as
-> proof — flip the toggle, pick a server, run one exploration — then return to
-> REPLAY for the verdict beats. Keep any live segment short (it spends a few
-> seconds and a few cents of LLM budget) and only show it if the network is
-> reliable on the day; the verdict flip itself is always REPLAY.
+> **Live note.** Keep the main recording in **Replay**. LIVE mode can drive
+> collect -> explore -> distill -> score over real servers, but the screencast
+> should not depend on network latency, third-party server availability, or paid
+> model calls. If you add a live proof, make it a 5-8 second insert only.
 
 ---
 
 ## Beats (cumulative time)
 
-**0:00–0:15 · The problem.**
-> "Benchmarks for LLM agents over MCP servers grade the final answer, or a fixed
-> list of tools. Both break the moment the servers are live and stateful. DMCP
-> Studio makes a better idea tangible: grade *effects*, not the answer."
+**0:00-0:18 - The problem.**
+> "More agent builders now rely on MCP servers: finance tools, file stores,
+> databases, and private company APIs. The hard question is no longer just
+> whether an agent can call a tool. It is which agent-server setup is worth
+> trusting on *your* live servers."
+>
+> "Answer matching is brittle on live data, and fixed tool lists punish valid
+> alternative paths. DMCP Studio makes the alternative tangible: first design a
+> defensible benchmark, then grade effects rather than final prose."
 
-Screen: the title/Stage 1 header.
+Screen: Stage 0 header and top navigation. Keep the cursor near the five-stage
+pipeline: Design -> Collect servers -> Explore live -> Distill -> Score.
 
-**0:15–0:35 · Collect → goal.**
-> "We point the studio at live MCP servers — here, a finance server. It collects
-> each server's tool surface and tags it by dynamism."
+**0:18-0:38 - Benchmark Advisor as Stage 0.**
+> "That is why Studio now starts with Benchmark Advisor. The user describes the
+> comparison, the candidate models, the server scope, the task budget, attempts
+> per task, and any safety constraints. The Advisor turns that intent into a
+> statistical benchmark design before we generate a single task."
+>
+> "Here the default question is a pairwise finance comparison. The verdict is
+> approved, which means the design is launchable, but only within the claim
+> boundary shown on screen."
 
-Action: show the server cards; click **"Generate a goal & explore →"**. Land on
-Stage 2; read the generated goal aloud (one line).
+Action: point at **Planning request**, **advisor mode**, **candidate models**,
+**server scope**, then the **Advisor verdict** card.
 
-**0:35–0:55 · Explore (forward generation).**
-> "A goal generator writes a realistic request; an explorer agent pursues it and
-> records every successful tool call into a reference trace. We generate
-> *forward*, then distill — no tool graph is imposed."
+**0:38-1:03 - Statistical report: what the approval means.**
+> "The key numbers are here. Tasks are unique benchmark tasks; attempts are
+> repeated runs per task. Attempts can support reliability views, but they do
+> not multiply the independent sample size."
+>
+> "The planned MDE is the minimum effect size this budget can roughly resolve.
+> With fewer unique tasks, small model gaps are not defensible; with more tasks,
+> the MDE shrinks. The power curve makes that tradeoff visible before spending
+> generation or evaluation budget."
 
-Action: click **"Run exploration"**; the calls stream in. Let ~4–5 land.
+Action: point at **tasks**, **attempts**, **planned MDE**, **CI width**, and the
+**Power curve**. If time allows, drag the task-budget slider slightly and let
+the MDE update.
 
-**0:55–1:15 · Distill to a path-agnostic TaskSpec.**
-> "The trace is distilled into effect checkpoints. Each demands an effect — that
-> some tool from an *equivalence set* ran, or that a value appeared — never one
-> specific path."
+**1:03-1:25 - Advisor panels, quickly.**
+> "The rest of the workbench explains the decision. The claim card says what we
+> may and may not claim. The method card records the statistical family. The
+> assumptions panel keeps independence, missingness, multiplicity, and repeated
+> attempts explicit. Alternatives show cheaper, stronger, or narrowed-claim
+> designs; issues and repairs tell the user how to fix an underpowered or unsafe
+> plan."
+>
+> "The post-run report shape is also visible here, so the user sees not just how
+> to launch a benchmark, but how completed evidence will be interpreted."
 
-Action: click **"Distill this trace →"**. Point the cursor at checkpoint #3's
-**amber equivalence chips** (`download` / `get_price_history`).
+Action: scroll through **Claim card**, **Method card**, **Assumptions**,
+**Alternatives**, **Issues and repairs**, **Citations**, and **Post-run report
+view** without lingering.
 
-**1:15–1:45 · The verdict flip (the core).**
-> "Now score a candidate. This agent wrote a confident summary — but it skipped
-> the income-statement step."
+**1:25-1:48 - Demo results page.**
+> "Now we carry the approved design into Collect. In Replay, the guarded launch
+> does not start a real corpus job; it loads a frozen report from the same kind
+> of evidence the live handoff produces."
+>
+> "This report is intentionally modest: on a generated 100-task finance corpus,
+> DeepSeek is observed two percentage points above MiniMax, but the confidence
+> interval crosses zero. The report therefore allows a scoped, inconclusive
+> comparison and forbids a best-model claim. That is the point of the Advisor:
+> it helps users choose and interpret agents without overclaiming."
 
-Action: Stage 4; select **`hermes3-8b`**; click **"Run candidate"**. The verdict
-shows **FAILED**; point at the red, unmet checkpoint #5.
-> "Effect-scoring fails it: a required effect never fired. Watch what
-> answer-matching does with the same run."
+Action: click **Carry this design into Collect**, check **Confirm replay demo
+report load**, click **Start replay demo**, then point at **Replay statistical
+report**, sample size, MDE/status, paired delta, supported claims, and report
+boundaries.
 
-Action: toggle **Effect → Answer**. Verdict flips to **SOLVED**.
-> "The prose looks complete, so a string-matcher accepts it. That disagreement —
-> incomplete aggregation — is the dominant failure mode in our study."
+**1:48-2:04 - Collect -> goal: what DMCP runs on.**
+> "Below the Advisor handoff are the actual MCP servers. Studio reads each live
+> server's tool surface and tags it by dynamism: static, live-read, or
+> stateful-write. This is where the user's own servers enter the benchmark."
+>
+> "From that substrate we generate a realistic goal and move into the internal
+> DynamicMCPBench pipeline."
 
-**1:45–2:05 · The other direction + live re-score.**
-> "It cuts both ways."
+Action: select the finance server cards if needed; click **Generate a goal and
+explore ->**. Land on Explore and let the generated goal appear.
 
-Action: select **`grok-4.3 (stale)`**, run it; in Effect mode it **passes**,
-in Answer mode it **fails**.
-> "A correct run, failed by answer-matching only because the live price moved.
-> Effect-scoring passes it."
+**2:04-2:19 - Explore and distill.**
+> "DMCP generates forward. An explorer agent pursues the goal and records a
+> successful reference trace. Then the distiller converts that trace into
+> path-agnostic effect checkpoints: required effects, equivalence sets, values
+> produced, and ordering constraints."
 
-Action (if time): on the clean candidate, click an **equivalence chip** off and
-watch the verdict re-score live.
+Action: run or show the replayed exploration calls, then advance to **Distill**.
+Point at the checkpoint ledger and an equivalence chip such as
+`download` / `get_price_history`.
 
-**2:05–2:20 · Close.**
-> "Everything you saw scores under deterministic replay, so it's reproducible —
-> and you can run the whole pipeline on your *own* MCP servers. DMCP Studio:
-> grade effects, not the answer."
+**2:19-2:25 - Score and close.**
+> "Finally, we score a candidate by replaying its trajectory against those
+> checkpoints. Flip Effect to Answer and the verdict can change on the same
+> run: fluent prose may hide missing work, while correct live effects may
+> disagree with a stale reference answer."
+>
+> "DMCP Studio is a benchmark-design and evaluation workbench for agents over
+> MCP servers: choose the claim first, generate from your servers, and grade
+> effects, not the answer."
 
-Action: brief glance at the leaderboard peek; end on the verdict bar.
+Action: go to **Score**, run a candidate if already cached, toggle
+**Effect -> Answer**, and end on the verdict bar.
 
 ---
 
@@ -92,11 +137,23 @@ Action: brief glance at the leaderboard peek; end on the verdict bar.
 
 | time | screen | narration cue |
 |---|---|---|
-| 0:00 | Stage 1 header | problem statement |
-| 0:15 | server cards → goal | collect + goal |
-| 0:35 | explore stream | forward generation |
-| 0:55 | checkpoint ledger + equiv chips | distillation |
-| 1:15 | hermes3-8b → FAILED | effect-fail |
-| 1:30 | Effect→Answer toggle → SOLVED | the flip |
-| 1:45 | grok stale → pass/fail | stale-answer case |
-| 2:05 | equivalence re-score / leaderboard | reproducibility + close |
+| 0:00 | Stage 0 header + stepper | MCP-agent selection problem |
+| 0:18 | Planning request + Advisor verdict | Benchmark Advisor designs before generation |
+| 0:38 | metric strip + power curve | MDE, unique tasks, attempts caveat |
+| 1:03 | claim/method/assumptions/alternatives/report panels | why the approval is bounded |
+| 1:25 | Collect Advisor handoff + replay statistical report | observed result and claim boundary |
+| 1:48 | server cards | user's MCP servers enter the benchmark |
+| 2:04 | Explore -> Distill | reference trace becomes effect checkpoints |
+| 2:19 | Score verdict + Effect/Answer toggle | grade effects, not prose |
+
+---
+
+## Fallback cuts if the recording runs long
+
+- Skip dragging the task-budget slider; just point at planned MDE and power
+  curve.
+- Do not open the export preview.
+- Show only the first two Advisor explanation panels: Claim card and
+  Assumptions.
+- In the final scoring beat, use an already-run candidate rather than waiting
+  for a fresh replay.
