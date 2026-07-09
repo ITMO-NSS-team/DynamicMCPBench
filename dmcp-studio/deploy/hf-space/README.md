@@ -7,7 +7,7 @@ sdk: docker
 app_port: 8000
 pinned: false
 license: apache-2.0
-short_description: Trace-grounded, effect-scored evaluation of LLM agents over MCP (REPLAY demo)
+short_description: Effect-scored evaluation of LLM agents over MCP
 ---
 
 # DMCP Studio — interactive demo (REPLAY)
