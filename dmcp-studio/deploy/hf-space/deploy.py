@@ -9,14 +9,16 @@ Uploads only the demo subset — the studio plus the ``dmcp`` and
 image (npm build -> editable install -> the ``e3_curate`` build-time smoke test)
 and serves it on port 8000 in REPLAY mode (no API keys, no network).
 
-The HF token is read from ``HF_TOKEN`` in the repo's git-ignored ``.env`` (via
-python-dotenv) or ``--token``; it is never printed.
+The HF token is read from the git-ignored ``.env`` via python-dotenv — by default
+``HF_TOKEN`` then ``HF_PERSONAL_TOKEN``, or a var named by ``--token-env``. It is
+never printed. NB: hosting a Docker Space requires a paid HF plan (personal PRO
+or an org Team/Enterprise plan); static Spaces are the only free option.
 
 Prereqs:  pip install huggingface_hub python-dotenv   (both already deps here)
 Usage:
-  python dmcp-studio/deploy/hf-space/deploy.py --repo-id TokenWasteGroup/dmcp-studio
-  python dmcp-studio/deploy/hf-space/deploy.py --repo-id TokenWasteGroup/dmcp-studio --dry-run
-  python dmcp-studio/deploy/hf-space/deploy.py --repo-id TokenWasteGroup/dmcp-studio --wait
+  python dmcp-studio/deploy/hf-space/deploy.py --repo-id jrzkaminski/dmcp-studio --dry-run
+  python dmcp-studio/deploy/hf-space/deploy.py --repo-id jrzkaminski/dmcp-studio \
+      --token-env HF_PERSONAL_TOKEN --wait
 """
 
 from __future__ import annotations
@@ -65,7 +67,7 @@ def _tree_summary(root: Path) -> tuple[int, int]:
     return len(files), sum(p.stat().st_size for p in files)
 
 
-def _load_token(explicit: str | None) -> str | None:
+def _load_token(explicit: str | None, token_env: str | None) -> str | None:
     if explicit:
         return explicit
     try:
@@ -74,7 +76,11 @@ def _load_token(explicit: str | None) -> str | None:
         load_dotenv(ROOT / ".env")
     except Exception:
         pass
-    return os.environ.get("HF_TOKEN")
+    names = [token_env] if token_env else ["HF_TOKEN", "HF_PERSONAL_TOKEN"]
+    for name in names:
+        if name and os.environ.get(name):
+            return os.environ[name]
+    return None
 
 
 def main() -> int:
@@ -83,7 +89,12 @@ def main() -> int:
     ap.add_argument("--private", action="store_true", help="create a private Space (default: public)")
     ap.add_argument("--dry-run", action="store_true", help="stage + list files; do not touch HF")
     ap.add_argument("--wait", action="store_true", help="poll the Space runtime until it is RUNNING")
-    ap.add_argument("--token", default=None, help="HF write token (else HF_TOKEN from .env)")
+    ap.add_argument("--token", default=None, help="HF write token literal (avoid; prefer --token-env)")
+    ap.add_argument(
+        "--token-env",
+        default=None,
+        help="env var holding the token (default: try HF_TOKEN then HF_PERSONAL_TOKEN from .env)",
+    )
     args = ap.parse_args()
 
     with tempfile.TemporaryDirectory(prefix="dmcp-space-") as tmp:
@@ -98,9 +109,11 @@ def main() -> int:
             print("dry-run: nothing uploaded")
             return 0
 
-        token = _load_token(args.token)
+        token = _load_token(args.token, args.token_env)
         if not token:
-            print("error: no HF token (set HF_TOKEN in .env or pass --token)", file=sys.stderr)
+            print(
+                "error: no HF token (set HF_TOKEN/HF_PERSONAL_TOKEN in .env or --token-env)", file=sys.stderr
+            )
             return 2
 
         from huggingface_hub import HfApi
