@@ -556,7 +556,12 @@ export function Design() {
 
   return (
     <FieldHelpProvider>
-      <section className="stage advisor-v2">
+      <section
+        className="stage advisor-v2"
+        data-testid="advisor-stage"
+        data-ready={currentPlan ? "1" : "0"}
+        data-status={status ?? "pending"}
+      >
         <div className="eyebrow">Stage 0 - Statistical Advisor v2</div>
         <h1>Statistical benchmark design</h1>
         <p className="lede">
@@ -966,7 +971,7 @@ function PlanEditor({
         </div>
         <Field
           label="plan target effect"
-          value={target > 0 ? `${target} pp` : "not set"}
+          value={target > 0 ? `${target.toFixed(1)} pp` : "not set"}
           help={HELP.planTarget}
         >
           <Slider
