@@ -324,3 +324,67 @@ and the E8.0a/b calibration — those reports are the source of truth. Ledger st
 live under epic **E8** in `docs/PLAN.md`. Known build issues from the E8.1–E8.6 review
 (architecture-harness SAE confound, cost auto-picker $0-cluster, build_corpus cross-provider key
 routing) are tracked separately, not yet fixed.*
+
+---
+
+## 9. Camera-ready additions (post-acceptance, EMNLP 2026 Industry)
+
+The suite above defines the **submitted** experiments. The camera-ready adds one
+new experimental group and two re-runs of existing machinery. Ledger:
+`docs/CAMERA_READY.md`; steps: **E9.6–E9.9** in `docs/PLAN.md`. Design principles
+from §0 apply unchanged — in particular, every cell is scored in deterministic
+replay against the released reference traces, and pre-registration precedes the
+run.
+
+### G8 — Tool exposure over the open universe *(the answer to "you only tested a curated pool")*
+
+Extends G6's architecture comparison from a curated pool to the **full 1,168-tool
+catalog**. `e8.11` established the single point (`qwen3.7-max`, embedding top-8,
+150 tasks, one attempt: 57.3% → 36.7%); G8 turns it into a surface.
+
+- **Slice:** `manifests/subsets/cr150.ids.txt` — 150 tasks from the released
+  750-task leaderboard slice, balanced 50/50/50 over reference-chain depth,
+  `random.seed(0)`, rebuilt deterministically by `scripts/cr_subset.py`.
+- **Axes:** `rag-k` ∈ {4, 8, 16, 32}; architectures `rag`, `hier`, `flat`;
+  models `minimax-m3`, `kimi-k2.6`, `claude-haiku-4.5`, `qwen3.7-max`;
+  attempts 1 for the sweep, 3 (pass^3) at `rag:8`.
+- **Baseline:** matched task-for-task against the released curated verdicts
+  (`leaderboard_e8.10d/verdicts/`), so no baseline compute is spent.
+- **Known incompleteness (reported, not hidden):** the catalog serialises to
+  ~292k tokens of tool schema, so the literal `flat` full-catalog condition
+  exceeds the context window of `kimi-k2.6` (262,144), `glm-5.1` (204,800) and
+  `claude-haiku-4.5` (200,000). Only the 1M-context models can be offered the
+  whole catalog; the rest are reported as **not runnable**, with the reason.
+- **Pre-registration + decision rules:** `docs/experiments/e9.1-tool-exposure-matrix.md`.
+
+```bash
+uv run python scripts/cr_subset.py --corpus hfdl --out manifests/subsets/cr150.jsonl \
+    --ids-out manifests/subsets/cr150.ids.txt
+uv run python scripts/run_cr_matrix.py \
+    --models minimax/minimax-m3,moonshotai/kimi-k2.6,anthropic/claude-haiku-4.5,qwen/qwen3.7-max \
+    --conditions rag:4,rag:8,rag:16,rag:32,hier --repeat 1 --lanes 1,2,3 --shards 9
+uv run python scripts/cr_compare.py --evals 'evals/cr/*.jsonl' --corpus hfdl
+```
+
+`scripts/run_cr_matrix.py` shards each cell across the `OPENROUTER_API_KEY*`
+lanes in `.env` and is resume-safe; runs are staged in waves with the per-task
+cost remeasured after each wave. Wave boundaries are spend checkpoints, not
+scientific ones — the analysis is over whatever cells complete.
+
+### G9 — Tier-2 override rates per category *(E9.7)*
+
+Re-runs the judge over the saved leaderboard Tier-1 failures across **several
+judge families** at temperature 0, joined against the specs so every record
+carries its category, and reports override rates overall and per each of the 15
+categories. The existing judge-enabled records (`annotations/rq4/scorer/`) carry
+no category field, which is why this is a re-run rather than a re-analysis.
+`dmcp/baselines/rq4_agreement.py::_tier1_verdict` drops `tier==2` rows and
+mis-derives Tier-1 — fix or bypass it before reusing, and state which.
+
+### G10 — Widened refresh *(E9.8)*
+
+Re-executes reference traces across substantially more of the 121 servers rather
+than 22 traces over three families, and recomputes per-domain decay on the wider
+sample. Depends on the refresh preflight (E9.11) and the finer classifier (E9.12)
+landing first, so that infrastructure failures are quarantined instead of being
+counted as decay.

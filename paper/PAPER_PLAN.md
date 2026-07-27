@@ -177,3 +177,46 @@ All choices follow the same four principles: **fairness/comparability, reproduci
 
 ## 9. NEVER appears in the paper
 Empty/missing final-message behavior; any false-negative figure; "partial" API traces; **latency / timing**; cost/$ of any kind; counts of annotators / raters / contributors; contributor or cluster names; "proprietary"/"open-weight"; internal experiment ids; the "2 false-positives" line (fixed); the 147→121 funnel; **any single-model "winner" narrative / model-by-model horse-race** (heatmap shows models as data only).
+
+---
+
+## 10. Camera-ready revision (EMNLP 2026 Industry Track, post-acceptance)
+
+This plan describes the **submitted** paper. What changes for the camera-ready is
+tracked item-by-item in `docs/CAMERA_READY.md` (each item names the reviewer it
+was promised to and the wording it answers) and sequenced as steps **E9.1–E9.13**
+in `docs/PLAN.md`. Two rules apply to everything below:
+
+- **No number moves without its report.** A camera-ready table is filled from a
+  committed `docs/experiments/*_numbers.json`, never retyped from a rebuttal.
+- **Claims narrow, they do not widen.** Every §1 ledger entry that survives the
+  revision keeps its stated denominator and caveat.
+
+**Text (no new compute) — E9.1.** Principle 1 becomes a *measured invariant*
+("every required `tool_effect` checkpoint is grounded in a successful call in its
+reference trace") rather than a by-construction guarantee, in §1, §3.1, §3.3 and
+the Conclusion. The "Tier-2" name is disambiguated: the deterministic argument
+matcher in `replay.py` (threshold 0.75, no model) and the optional LLM judge in
+`judge.py` are different mechanisms, and no reported number involves an LLM
+judgment — a statement about *scoring*, not about *construction*, where the
+distiller and validator are LLMs. The replay path-freedom trade-off, the
+tool-exposure scope boundary, the GLM-5.1 same-family caveat, the decay reframing
+and three missing limitations all land here.
+
+**Structure moves — E9.2, E9.3.** Into the main body: the leave-own-family-out
+leaderboard (§1.12's companion) and decay per domain with per-row call counts.
+Into the appendix: the generation funnel, the human confusion matrix, and the
+open-universe retrieval table.
+
+**New evidence — E9.6, E9.7, E9.8, E9.9.** The one genuinely new experimental
+slot is the **tool-exposure matrix** (`docs/experiments/e9.1-tool-exposure-matrix.md`),
+which turns the single open-universe point from `e8.11` into a surface over
+retrieval budget, architecture and model. It is pre-registered before the run;
+its decision rule explicitly admits a *negative* outcome, in which case §2's
+tool-exposure paragraph states the narrower claim instead. §1.11's scorer-validity
+entry gains a second annotated model if E9.9's annotation capacity materialises;
+if it does not, the one-model limitation stays and is stated.
+
+**Slots that stay empty unless earned.** §1's ledger gains no row from the
+distiller-fidelity audit (E9.4) until its protocol is documented — an unblinded
+self-audit reporting three 100% rows is not evidence we are willing to print.

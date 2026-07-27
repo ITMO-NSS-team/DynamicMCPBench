@@ -591,3 +591,116 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - deps: E8.8 E8.9 E8.10 E8.11 E8.12
 - source: docs/EXPERIMENTS_SUITE.md G7 / E7.2 / E5.3
 - done-when: all `docs/experiments/*_numbers.json` committed; `paper/regenerate.py` fills every figure/table; HF dataset pushed with datasheet; living leaderboard described.
+
+---
+
+## E9 — Camera-ready (EMNLP 2026 Industry Track)
+
+Everything promised to the four reviewers in the rebuttal. The authoritative
+item-by-item ledger, including the exact reviewer wording each item answers, is
+`docs/CAMERA_READY.md`; the ids in each `source:` line are its section numbers. A
+step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
+
+### E9.1 — Paper text: narrow the over-claims
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 1.1 1.2 1.3 1.4 1.5 1.6 1.7
+- done-when: Principle 1 restated as a measured invariant (no "cannot arise by construction") in §1, §3.1, §3.3 and the Conclusion; the Tier-2 naming collision resolved by renaming one mechanism and stating that no reported number involves an LLM judgment (scoring, not construction); the replay path-freedom trade-off stated; the tool-exposure scope boundary stated; GLM-5.1 carries the same-family caveat; decay reframed as a materiality demonstration with both caveats visible; the three missing limitations added.
+
+### E9.2 — Appendix: generation funnel, human confusion matrix, open-universe table
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 2.2 2.3 2.6
+- done-when: funnel (980 → 1,014 → 959 → 710) with the non-comparable-denominators caveat; the 2×2 over 975 cards (488/26/230/231, 73.7%, 94.9%) framed as the stated lower bound; the `e8.11` open-universe table promoted with its one-model/one-attempt caveat. All three regenerate from committed numbers JSONs.
+
+### E9.3 — Main body: leave-own-family-out leaderboard + decay per domain
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 2.4 2.5
+- done-when: both tables in the **main body** (not the appendix): LOFO leaderboard with Spearman 0.997, the three adjacent swaps and GLM-5.1 50.3% → 46.4%; decay per domain with per-row call counts (yfinance 18, arXiv 105, Wikipedia 3, pooled 126) so the pooled rate is checkable against the rows.
+
+### E9.4 — Distiller-fidelity audit: protocol, write-up, item-level release
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 2.1 4.2
+- done-when: the audit protocol (annotator independence, blinding to the distiller's retain/drop decision, adjudication of disagreements, written rubric) documented from the collaborator who ran it; appendix reports protocol, raw counts, Wilson intervals, the length stratification and the one failure case; item-level labels + rubric released. **Gate:** without the protocol this is an unblinded self-audit reporting three 100% rows — the weakest link in the package. Do not write it up until the protocol is in hand; `blocked` is the correct status if it does not arrive.
+
+### E9.5 — Restore the six-strategy distractor ablation
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 2.7 / E8.9 (deferred there to the post-acceptance appendix)
+- done-when: the ablation lost when `paper/` was reset to the submitted sources is restored from PR #143 in git history, re-checked against current numbers, and cited from the distractor discussion.
+
+### E9.6 — Run: tool-exposure matrix over the open universe
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 3.1 / docs/experiments/e9.1-tool-exposure-matrix.md
+- done-when: `rag-k` ∈ {4,8,16,32}, `hier`, and `flat` where the context window allows, over ≥4 models on the committed 150-task depth-balanced subset (`manifests/subsets/cr150.ids.txt`), plus pass^3 at `rag:8`; every cell matched task-for-task against the released curated verdicts; cells that cannot run reported as not-runnable with the reason; `docs/experiments/e9.1-tool-exposure-matrix.md` filled with data + result + conclusion and `e9.1_numbers.json` committed.
+
+### E9.7 — Run: Tier-2 override rates per category across judge families
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 3.2
+- done-when: saved leaderboard Tier-1 failures replayed through the judge across several judge families at temperature 0, joined against the specs so every record carries its category; override rates reported overall and for each of the 15 categories. `dmcp/baselines/rq4_agreement.py::_tier1_verdict` drops `tier==2` rows and therefore mis-derives Tier-1 — fixed or bypassed, with the choice stated in the report.
+
+### E9.8 — Run: widen the refresh beyond 22 traces / 3 families
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E9.11 E9.12
+- source: docs/CAMERA_READY.md 3.3
+- done-when: reference traces re-executed across substantially more of the 121 servers; per-domain decay recomputed on the wider sample; `broken` still reported as an upper bound with the retry policy stated.
+
+### E9.9 — Annotate a second model for scorer strictness
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 3.4
+- done-when: at least one model beyond the original is human-annotated and the result reported as whether the scorer's conservatism shifts the level rather than the ordering. Annotation work, not compute — the most expensive item on the list.
+
+### E9.10 — Fix the broken task and tighten the reference validator
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 4.1
+- done-when: the one identified broken task fixed; the validator rejects a claimed-successful exploration that does not produce every required external effect; a regression test covers the rejection.
+
+### E9.11 — Refresh preflight (quarantine, don't blame the agent)
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: —
+- source: docs/CAMERA_READY.md 4.3
+- done-when: required files, tables, credentials and writable resources confirmed before a refreshed task is readmitted; a task failing preflight is quarantined rather than counted as agent failure; covered by tests.
+
+### E9.12 — Finer refresh classifier
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E9.11
+- source: docs/CAMERA_READY.md 4.4
+- done-when: transient errors (timeouts, connection errors, 429, recoverable 5xx) retried with backoff across windows; schema drift classified only when discovery shows a changed or removed tool on a reachable server; decay stated when the schema is intact but a required record is gone; everything else quarantined; covered by tests.
+
+### E9.13 — Pre-submission verification sweep
+- status: todo
+- owner: —
+- claimed_at: —
+- deps: E9.1 E9.2 E9.3
+- source: docs/CAMERA_READY.md 5.1 5.2 5.3
+- done-when: Reproducibility Statement checked against the HF release — the evaluation records are present at `leaderboard_e8.10d/verdicts/evals_*.jsonl`, so the statement is cited by path rather than softened; a committed script regenerates the three Gwet AC1 figures alongside the existing Fleiss kappa; the 16% / 15.5% equivalence-set figures reconciled to one labelled framing (15.5% is the corpus figure, 16% the 750-slice figure).
