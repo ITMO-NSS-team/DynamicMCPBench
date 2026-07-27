@@ -106,13 +106,22 @@ def main() -> None:
     if not cells:
         raise SystemExit(f"no cell files matched {args.evals}")
 
+    # Cell filenames carry the runner's slug (`kimi-k2.6` → `kimi-k2-6`), while the
+    # released verdicts keep the raw model name. Resolve by slugging both sides.
+    verdict_dir = corpus / "leaderboard_e8.10d" / "verdicts"
+    released = {
+        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
+        for p in sorted(verdict_dir.glob("evals_*.jsonl"))
+    }
     baselines: dict[str, dict[str, list[bool]]] = {}
 
     def baseline(model: str) -> dict[str, list[bool]]:
         if model not in baselines:
-            p = corpus / "leaderboard_e8.10d" / "verdicts" / f"evals_{model}.jsonl"
             d: dict[str, list[bool]] = collections.defaultdict(list)
-            if p.exists():
+            p = released.get(model)
+            if p is None:
+                print(f"WARNING: no released verdicts for {model!r} — cell has no baseline")
+            else:
                 for r in load_jsonl(p):
                     d[r["task_id"]].append(bool(r["passed"]))
             baselines[model] = d
