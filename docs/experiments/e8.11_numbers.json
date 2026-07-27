@@ -1,0 +1,53 @@
+{
+  "model": "qwen3.7-max",
+  "rows": [
+    {
+      "scope": "all",
+      "n": 150,
+      "retrieval_full": 36.7,
+      "retrieval_ci": [
+        29.4,
+        44.6
+      ],
+      "curated_first_attempt": 57.3,
+      "curated_mean_of_3": 59.3,
+      "delta_vs_first": -20.7
+    },
+    {
+      "scope": "short (1-2)",
+      "n": 50,
+      "retrieval_full": 64.0,
+      "retrieval_ci": [
+        50.1,
+        75.9
+      ],
+      "curated_first_attempt": 62.0,
+      "curated_mean_of_3": 66.7,
+      "delta_vs_first": 2.0
+    },
+    {
+      "scope": "medium (3-4)",
+      "n": 50,
+      "retrieval_full": 30.0,
+      "retrieval_ci": [
+        19.1,
+        43.8
+      ],
+      "curated_first_attempt": 74.0,
+      "curated_mean_of_3": 70.0,
+      "delta_vs_first": -44.0
+    },
+    {
+      "scope": "long (5+)",
+      "n": 50,
+      "retrieval_full": 16.0,
+      "retrieval_ci": [
+        8.3,
+        28.5
+      ],
+      "curated_first_attempt": 36.0,
+      "curated_mean_of_3": 41.3,
+      "delta_vs_first": -20.0
+    }
+  ]
+}
