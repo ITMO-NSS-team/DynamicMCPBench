@@ -1,0 +1,39 @@
+Thank you for the careful read. Both concerns are about how stable the ground truth is, across models and over time, and we can answer each with data we already have.
+
+SELF-PREFERENCE AND THE LEADERBOARD
+
+You are right that the aggregate hides large per-model swings, so we ran the per-model check you asked for. For each candidate we built a leave-own-family-out leaderboard: drop every task explored by that candidate's own family, recompute pass^3 on what is left.
+
+The order barely moves. Spearman correlation with the headline leaderboard is 0.997. Only three pairs swap, all adjacent and all with overlapping confidence intervals. The top rank is unchanged, and so is the bottom third.
+
+The one substantive shift is the model our contamination analysis already flags. GLM-5.1 goes from 50.3% to 46.4%, minus 3.9 points, moving from rank 2 to rank 3 and staying in the top tier.
+
+That analysis also locates the effect. Pooled across models the same-family coefficient is significant, and it is no longer detectable once GLM-5.1 is dropped, so the pooled signal is driven by that one model.
+
+| logit fit | same-family beta | p |
+|---|---|---|
+| all models | +0.226 | 0.001 |
+| dropping GLM-5.1 | +0.069 | 0.36, n.s. |
+
+It also sits on the explorer side rather than the grading side. Candidates do better on tasks their own family explored; on specs their own family distilled we do not detect a same-family effect. That distinction matters, because the distiller is what writes the checkpoints being graded. The design bounds exposure as well: no family authored a majority. The largest single family accounts for 18% of the tasks, and the largest explorer-side share of the corpus is 20%.
+
+So the swings are real per model, but they do not reorganise the board. For the camera-ready we will add the leave-own-family-out leaderboard and report GLM-5.1 with the same-family caveat attached.
+
+DECAY BY DOMAIN
+
+It does vary by domain, and the per-server breakdown is already in the decay table:
+
+| live-read server | re-executed calls | reproducing identically |
+|---|---|---|
+| yfinance | 18 | 6% |
+| arXiv | 105 | 40% |
+| Wikipedia | 3 | 67% |
+| pooled | 126 | 36% |
+
+So we do not expect one universal rate, we expect roughly this spread. Live financial data drifts on nearly every call and scholarly metadata is mixed; the Wikipedia row is three calls and we would not read a domain claim into it. The substrate is dominated by live-read sources of these kinds.
+
+This is also the argument for the design. Because live-read state depends on both domain and time, re-scoring against the live world would make a model's pass or fail depend on which domain a task happened to touch and when it ran. Deterministic replay removes that dependence and keeps cross-model comparison fair; the refresh step then flags tasks whose effects no longer reproduce so the benchmark can retire or re-record them.
+
+We agree the sample bounds the claim. Twenty-two traces across three families shows that decay is material, not that 36% is the rate. Two further caveats belong with it: the broken share is an upper bound, since that pass used a single retry and so counts transient failures as breakage, and nine of ten Wikipedia traces were excluded after public-API rate limiting rather than treated as decay. For the camera-ready we will widen the refresh across more of the 121 servers, give decay per domain in its own table, and say plainly that this is a materiality demonstration rather than a universal reproduction rate.
+
+We will move the expanded decay table and the leave-own-family-out leaderboard into the main body.
