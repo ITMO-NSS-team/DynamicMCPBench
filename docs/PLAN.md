@@ -553,9 +553,9 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: 8 models × 600 core × pass^3 at MAIN; gold/full ceiling/floor on a subset; pass^5 reliability (pass^k_no_SAE vs overall) on the SAE-rich subset; `e4.7_numbers.json` written.
 
 ### E8.9 — Run: SAE deep-dive (P_alt curves + sampling ablation + heatmap)
-- status: todo
-- owner: —
-- claimed_at: —
+- status: claimed
+- owner: Keysiks@MacBook-Air-Kiriill.local
+- claimed_at: 2026-07-27T14:26:22Z
 - deps: E8.7
 - source: docs/EXPERIMENTS_SUITE.md G3 / simple_approach §8
 - done-when: P_alt degradation curves (3 ref models) with Wilson CIs; 6-strategy sampling ablation with Fisher/χ²+Holm (H1–H3); gen×eval SAE heatmap; SAE_expected/random/conditional + IAE; numbers JSONs written.
