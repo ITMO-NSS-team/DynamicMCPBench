@@ -77,6 +77,7 @@ def main() -> None:
     ap.add_argument("--evals", default="evals/cr/*.jsonl")
     ap.add_argument("--corpus", default="hfdl")
     ap.add_argument("--json-out", default="")
+    ap.add_argument("--subset", default="manifests/subsets/cr150.jsonl")
     args = ap.parse_args()
 
     corpus = Path(args.corpus)
@@ -126,6 +127,21 @@ def main() -> None:
                     d[r["task_id"]].append(bool(r["passed"]))
             baselines[model] = d
         return baselines[model]
+
+    # A shard that dies mid-cell (provider timeout) leaves its tasks absent rather
+    # than failed, so a cell can be silently short. Cells scored over different
+    # task sets are not comparable — say so loudly instead of averaging anyway.
+    subset_lines = Path(args.subset).read_text().splitlines()
+    expected = {json.loads(ln)["task_id"] for ln in subset_lines if ln.strip()}
+    incomplete = {
+        k: sorted(expected - set(v)) for k, v in cells.items() if len(set(v) & expected) < len(expected)
+    }
+    if incomplete:
+        print(f"INCOMPLETE CELLS ({len(incomplete)}) — not comparable until filled:")
+        for (model, cond, repeat), missing in sorted(incomplete.items()):
+            n_have = len(expected) - len(missing)
+            print(f"  {model:22} {cond:8} r{repeat}  {n_have}/{len(expected)} ({len(missing)} missing)")
+        print("  fill with: uv run python scripts/run_cr_matrix.py … (--resume is automatic)\n")
 
     rows = []
     for (model, cond, repeat), results in sorted(cells.items()):
