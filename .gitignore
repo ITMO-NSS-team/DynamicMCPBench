@@ -298,3 +298,12 @@ dmcp-studio/frontend/dist/
 
 # corpus working dir (intermediate goals/specs/traces; release via datasets/ or HF — E5.3)
 /data/
+
+# Secrets in non-.env files (never commit)
+.env.md
+*.env.md
+
+# Local HF downloads and human-annotation working copies
+hfdl/
+human_eval/
+annotate_*.jsonl
