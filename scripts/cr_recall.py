@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import collections
 import json
 from pathlib import Path
 
@@ -133,7 +134,9 @@ async def main() -> None:
         for k in ks:
             shown = {(flat[i][0], flat[i][1]) for i in ranked[:k]}
             hit = sum(1 for cp in cps if any((r.server_id, r.tool_name) in shown for r in cp.equivalence_set))
-            per_k[k][spec.task_id] = (hit, len(cps), bool(cps) and hit == len(cps))
+            # A spec with no tool_effect checkpoints demands no particular tool, so
+            # retrieval cannot gate it. Vacuously reachable, not unreachable.
+            per_k[k][spec.task_id] = (hit, len(cps), hit == len(cps))
 
     out: dict[str, dict] = {}
     print(f"\n{'k':>5} {'checkpoint recall':>18} {'tasks fully reachable':>23}")
@@ -156,6 +159,38 @@ async def main() -> None:
         }
         print(f"{k:>5} {100 * hit / tot:17.1f}% {100 * full / len(rows):22.1f}%   {by_bucket}")
     print(f"{'flat':>5} {100.0:17.1f}% {100.0:22.1f}%   (guaranteed by --pool full)")
+
+    # `hier` exposes exactly one server's tools, so a task whose checkpoints cannot
+    # all be satisfied from a single server is unreachable under it no matter how
+    # good the router is. That ceiling is a property of the tasks alone: compute it
+    # with an oracle router that always picks the best possible server.
+    oracle: dict[str, bool] = {}
+    servers_needed: list[int] = []
+    for s in specs:
+        cps = [cp for cp in s.checkpoints if isinstance(cp, ToolEffectCheckpoint)]
+        per_cp = [{r.server_id for r in cp.equivalence_set} for cp in cps]
+        oracle[str(s.task_id)] = bool(per_cp) and bool(set.intersection(*per_cp))
+        servers_needed.append(len({sid for opts in per_cp for sid in opts}))
+    ceiling = 100 * sum(oracle.values()) / len(oracle)
+    print(f"\nhier ceiling with an oracle router (single server suffices): {ceiling:.1f}% of tasks")
+    for b in BUCKETS:
+        sel = [oracle[str(s.task_id)] for s in specs if bucket(s) == b]
+        if sel:
+            print(f"    {b:14} {100 * sum(sel) / len(sel):5.1f}%")
+    spread = collections.Counter(servers_needed)
+    print(f"    distinct servers a task can draw on: {dict(sorted(spread.items()))}")
+    out["hier_oracle_ceiling"] = {
+        "tasks_single_server_sufficient_pct": round(ceiling, 1),
+        "by_bucket": {
+            b: round(
+                100
+                * sum(oracle[str(s.task_id)] for s in specs if bucket(s) == b)
+                / max(1, sum(1 for s in specs if bucket(s) == b)),
+                1,
+            )
+            for b in BUCKETS
+        },
+    }
 
     if args.json_out:
         Path(args.json_out).write_text(json.dumps(out, indent=2))

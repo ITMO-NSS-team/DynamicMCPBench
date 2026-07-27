@@ -1,7 +1,7 @@
 {
   "4": {
     "checkpoint_recall": 43.2,
-    "tasks_fully_reachable": 36.0,
+    "tasks_fully_reachable": 36.7,
     "checkpoint_recall_by_bucket": {
       "short (1-2)": 76.0,
       "medium (3-4)": 42.5,
@@ -12,7 +12,7 @@
   },
   "8": {
     "checkpoint_recall": 57.7,
-    "tasks_fully_reachable": 47.3,
+    "tasks_fully_reachable": 48.0,
     "checkpoint_recall_by_bucket": {
       "short (1-2)": 82.7,
       "medium (3-4)": 55.9,
@@ -23,7 +23,7 @@
   },
   "16": {
     "checkpoint_recall": 68.9,
-    "tasks_fully_reachable": 62.0,
+    "tasks_fully_reachable": 62.7,
     "checkpoint_recall_by_bucket": {
       "short (1-2)": 92.0,
       "medium (3-4)": 70.9,
@@ -34,7 +34,7 @@
   },
   "32": {
     "checkpoint_recall": 77.9,
-    "tasks_fully_reachable": 74.7,
+    "tasks_fully_reachable": 75.3,
     "checkpoint_recall_by_bucket": {
       "short (1-2)": 93.3,
       "medium (3-4)": 84.3,
@@ -42,5 +42,13 @@
     },
     "checkpoints": 421,
     "tasks": 150
+  },
+  "hier_oracle_ceiling": {
+    "tasks_single_server_sufficient_pct": 70.7,
+    "by_bucket": {
+      "short (1-2)": 82.0,
+      "medium (3-4)": 72.0,
+      "long (5+)": 58.0
+    }
   }
 }
