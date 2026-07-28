@@ -14,12 +14,22 @@ three quantities are available per task:
   pass@3        — passed on at least one attempt. What retries can buy.
   mean attempt  — the single-attempt rate, over 3x the data.
 
-Crossed with `cr_recall.py`'s reachability map, the prediction is sharp and
-falsifiable: on tasks whose required tools were never retrieved, `pass@3` should
-barely exceed the single-attempt rate — no number of retries conjures a tool that
-is not in the pool — while on reachable tasks retries should buy real headroom.
-If instead the unreachable half shows large headroom, the reachability map is not
-measuring what we claim it measures, and the whole decomposition is in doubt.
+**The zero on the unreachable half is not a finding.** `cr_recall.py` marks a task
+unreachable exactly when some `tool_effect` checkpoint has no member of its
+`equivalence_set` in the pool; that checkpoint then cannot pass, and passing needs
+all of them. So `pass@3 = 0` there is very nearly entailed by the definitions, and
+the table prints it as a consistency check, not as evidence. Its only empirical
+content is narrow: a task could in principle be satisfied by a tool reached
+server-internally rather than by the agent, and across these attempts that never
+happened.
+
+What the repeats actually buy is the informative quantity, and it is not entailed
+by anything:
+
+  recovered = (pass@3 - single attempt) / (curated - single attempt)
+
+the share of the exposure deficit that triple the attempt budget wins back. If
+open exposure were mostly bad luck, three attempts would recover most of it.
 
 The `mean attempt` column doubles as a validity check: it is an independent
 re-measurement of the `r1` cell in the matrix and should land within sampling
@@ -54,6 +64,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--evals", default="evals/cr/*.jsonl")
     ap.add_argument("--recall", default="evals/cr/recall_per_task.json")
+    ap.add_argument("--corpus", default="hfdl")
     ap.add_argument("--subset", default="manifests/subsets/cr150.jsonl")
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--json-out", default="docs/experiments/data/e9.1_passk.json")
@@ -127,8 +138,44 @@ def main() -> None:
             )
 
     print("\nheadroom = pass@3 - mean attempt: what retrying buys.")
-    print("A reachability ceiling is not a variance problem, so the NO rows should show little.")
+    print("The NO rows are a consistency check, not evidence: an unreachable task's")
+    print("tool_effect checkpoint cannot pass, so 0.0 there is entailed by the definitions.")
     print("r1 = the matrix cell on the same tasks; it and 'attempt' measure the same quantity twice.")
+
+    # The quantity that is NOT entailed: how much of the exposure deficit three
+    # attempts win back. Computed over all tasks in the cell, not per reachability.
+    released = {
+        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
+        for p in sorted((Path(args.corpus) / "leaderboard_e8.10d" / "verdicts").glob("evals_*.jsonl"))
+    }
+    print(f"\n{'model':18} {'cond':7} {'n':>4} {'1 try':>7} {'pass@3':>7} {'curated':>8} {'recovered':>10}")
+    print("-" * 66)
+    for (model, cond), tasks in sorted(cells.items()):
+        full = {t: r for t, r in tasks.items() if len(r) == args.repeat}
+        if len(full) != len(want) or model not in released:
+            continue
+        cur: dict[str, bool] = {}
+        for ln in Path(released[model]).read_text().splitlines():
+            if ln.strip():
+                r = json.loads(ln)
+                if r["task_id"] in want:
+                    cur.setdefault(r["task_id"], bool(r["passed"]))
+        if len(cur) != len(want):
+            continue
+        n = len(full)
+        one = 100 * sum(sum(r.values()) for r in full.values()) / (n * args.repeat)
+        at = 100 * sum(1 for r in full.values() if any(r.values())) / n
+        cu = 100 * sum(cur.values()) / len(cur)
+        rec = 100 * (at - one) / (cu - one) if cu > one else float("nan")
+        out[f"{model}|{cond}|recovery"] = {
+            "single_attempt": round(one, 1),
+            f"pass_at_{args.repeat}": round(at, 1),
+            "curated": round(cu, 1),
+            "recovered_pct_of_deficit": round(rec, 1),
+        }
+        print(f"{model:18} {cond:7} {n:4d} {one:7.1f} {at:7.1f} {cu:8.1f} {rec:9.0f}%")
+    print("\nrecovered = (pass@3 - 1 try) / (curated - 1 try): the share of the exposure")
+    print("deficit that triple the attempt budget wins back. Low means structural, not luck.")
 
     if args.json_out:
         Path(args.json_out).parent.mkdir(parents=True, exist_ok=True)
