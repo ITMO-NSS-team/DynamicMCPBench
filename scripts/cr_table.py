@@ -33,6 +33,10 @@ from pathlib import Path
 
 CELL_RE = re.compile(r"^(?P<model>.+?)__(?P<cond>.+?)__r(?P<repeat>\d+)\.shard\d+\.jsonl$")
 COND_ORDER = ("rag-4", "rag-8", "rag-16", "rag-32", "hier", "flat")
+# The four models the matrix was registered over. Extended-panel cells sit on disk
+# beside them, so the default must name the registered set explicitly — globbing
+# every cell would silently widen the scope of a committed table.
+REGISTERED_MODELS = ("claude-haiku-4-5", "kimi-k2-6", "minimax-m3", "qwen3-7-max")
 COND_LABEL = {
     "rag-4": "`rag:4`",
     "rag-8": "`rag:8`",
@@ -64,6 +68,11 @@ def main() -> None:
     ap.add_argument("--corpus", default="hfdl")
     ap.add_argument("--subset", default="manifests/subsets/cr150.jsonl")
     ap.add_argument("--json-out", default="docs/experiments/data/e9.1_numbers.json")
+    ap.add_argument(
+        "--models",
+        default="registered",
+        help="'registered' (the four models the matrix was registered over) or 'all'.",
+    )
     args = ap.parse_args()
 
     want = {json.loads(ln)["task_id"] for ln in Path(args.subset).read_text().splitlines() if ln.strip()}
@@ -83,6 +92,11 @@ def main() -> None:
         for p in sorted((Path(args.corpus) / "leaderboard_e8.10d" / "verdicts").glob("evals_*.jsonl"))
     }
     models = sorted({m for m, _ in cells})
+    if args.models == "all":
+        print(f"tabulating ALL {len(models)} models — EXPLORATORY, not the registered scope\n")
+    else:
+        models = [m for m in models if m in REGISTERED_MODELS]
+        cells = {(m, c): v for (m, c), v in cells.items() if m in REGISTERED_MODELS}
     for model in models:
         if model in released:
             d: dict[str, bool] = {}

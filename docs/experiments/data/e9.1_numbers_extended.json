@@ -8,6 +8,33 @@
       45.3
     ]
   },
+  "deepseek-v4-pro|curated": {
+    "pass_pct": 50.7,
+    "passed": 76,
+    "n": 150,
+    "ci95": [
+      42.7,
+      58.6
+    ]
+  },
+  "glm-5-1|curated": {
+    "pass_pct": 46.0,
+    "passed": 69,
+    "n": 150,
+    "ci95": [
+      38.2,
+      54.0
+    ]
+  },
+  "grok-4-3|curated": {
+    "pass_pct": 28.7,
+    "passed": 43,
+    "n": 150,
+    "ci95": [
+      22.0,
+      36.4
+    ]
+  },
   "kimi-k2-6|curated": {
     "pass_pct": 42.7,
     "passed": 64,
@@ -80,6 +107,33 @@
       28.6
     ]
   },
+  "deepseek-v4-pro|rag-8": {
+    "pass_pct": 30.0,
+    "passed": 45,
+    "n": 150,
+    "ci95": [
+      23.2,
+      37.8
+    ]
+  },
+  "glm-5-1|rag-8": {
+    "pass_pct": 25.3,
+    "passed": 38,
+    "n": 150,
+    "ci95": [
+      19.0,
+      32.8
+    ]
+  },
+  "grok-4-3|rag-8": {
+    "pass_pct": 22.0,
+    "passed": 33,
+    "n": 150,
+    "ci95": [
+      16.1,
+      29.3
+    ]
+  },
   "kimi-k2-6|rag-8": {
     "pass_pct": 24.7,
     "passed": 37,
@@ -150,6 +204,33 @@
     "ci95": [
       22.0,
       36.4
+    ]
+  },
+  "deepseek-v4-pro|rag-32": {
+    "pass_pct": 40.7,
+    "passed": 61,
+    "n": 150,
+    "ci95": [
+      33.1,
+      48.7
+    ]
+  },
+  "glm-5-1|rag-32": {
+    "pass_pct": 41.3,
+    "passed": 62,
+    "n": 150,
+    "ci95": [
+      33.8,
+      49.3
+    ]
+  },
+  "grok-4-3|rag-32": {
+    "pass_pct": 29.3,
+    "passed": 44,
+    "n": 150,
+    "ci95": [
+      22.6,
+      37.1
     ]
   },
   "kimi-k2-6|rag-32": {
