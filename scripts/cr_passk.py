@@ -94,8 +94,13 @@ def main() -> None:
             if rep == 1:
                 single[(m["model"], m["cond"])].setdefault(r["task_id"], bool(r["passed"]))
             else:
-                cells[(m["model"], m["cond"])][r["task_id"]][int(r.get("repeat_index", 0))] = bool(
-                    r["passed"]
+                # First record wins, matching the single-attempt path above. A cell
+                # refilled with `--resume` can hold more than one record for the same
+                # (task_id, repeat_index) — resume skips per task, not per attempt, so a
+                # re-shard rewrites attempts that already landed. Keeping the first means
+                # the original run's verdicts stand and a refill only closes real gaps.
+                cells[(m["model"], m["cond"])][r["task_id"]].setdefault(
+                    int(r.get("repeat_index", 0)), bool(r["passed"])
                 )
 
     out: dict[str, dict] = {}

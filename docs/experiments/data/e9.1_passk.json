@@ -32,15 +32,15 @@
     "single_run_r1": 0.0
   },
   "minimax-m3|rag-8|reachable": {
-    "tasks": 45,
-    "pass_hat_3": 42.2,
-    "pass_at_3": 64.4,
-    "mean_attempt": 54.1,
-    "retry_headroom": 10.4,
+    "tasks": 72,
+    "pass_hat_3": 41.7,
+    "pass_at_3": 59.7,
+    "mean_attempt": 50.9,
+    "retry_headroom": 8.8,
     "single_run_r1": 50.0
   },
   "minimax-m3|rag-8|unreachable": {
-    "tasks": 46,
+    "tasks": 78,
     "pass_hat_3": 0.0,
     "pass_at_3": 0.0,
     "mean_attempt": 0.0,
@@ -74,6 +74,12 @@
     "pass_at_3": 28.0,
     "curated": 42.7,
     "recovered_pct_of_deficit": 16.5
+  },
+  "minimax-m3|rag-8|recovery": {
+    "single_attempt": 24.4,
+    "pass_at_3": 28.7,
+    "curated": 44.0,
+    "recovered_pct_of_deficit": 21.6
   },
   "qwen3-7-max|rag-8|recovery": {
     "single_attempt": 29.8,
