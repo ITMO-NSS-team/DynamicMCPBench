@@ -30,6 +30,10 @@ import re
 from pathlib import Path
 
 BUCKETS = ("short (1-2)", "medium (3-4)", "long (5+)")
+# The registration named four candidates. Models added later (the H4 extension)
+# must not silently re-decide a pre-registered rule just by existing on disk, so
+# they are excluded unless asked for by name or by `--models all`.
+REGISTERED_MODELS = ("claude-haiku-4-5", "kimi-k2-6", "minimax-m3", "qwen3-7-max")
 CELL_RE = re.compile(r"^(?P<model>.+?)__(?P<cond>.+?)__r(?P<repeat>\d+)\.shard\d+\.jsonl$")
 
 
@@ -62,6 +66,15 @@ def main() -> None:
         action="store_true",
         help="adjudicate cells that are still filling (their verdicts are not registrable)",
     )
+    ap.add_argument(
+        "--models",
+        default=",".join(REGISTERED_MODELS),
+        help=(
+            "comma-separated model slugs to adjudicate; defaults to the four candidates named "
+            "in the registration. Pass 'all' to include later additions — those verdicts are "
+            "exploratory, not registered."
+        ),
+    )
     args = ap.parse_args()
 
     corpus = Path(args.corpus)
@@ -90,16 +103,30 @@ def main() -> None:
             base_cache[model] = d
         return base_cache[model]
 
+    keep = None if args.models.strip() == "all" else set(args.models.split(","))
+
     # (model, cond) -> task_id -> first-attempt verdict
     cells: dict[tuple[str, str], dict[str, bool]] = collections.defaultdict(dict)
+    seen_models: set[str] = set()
     for f in sorted(glob.glob(args.evals)):
         m = CELL_RE.match(Path(f).name)
         if not m or int(m["repeat"]) != 1:
+            continue
+        seen_models.add(m["model"])
+        if keep is not None and m["model"] not in keep:
             continue
         for r in load_jsonl(f):
             cells[(m["model"], m["cond"])].setdefault(r["task_id"], bool(r["passed"]))
     if not cells:
         raise SystemExit(f"no cells matched {args.evals}")
+    if keep is not None:
+        extra = sorted(seen_models - keep)
+        scope = "the four registered candidates"
+        if extra:
+            print(f"adjudicating {scope}; {len(extra)} later addition(s) excluded: {', '.join(extra)}")
+            print("(re-run with --models all for the exploratory extended-panel verdicts)\n")
+    else:
+        print(f"adjudicating ALL {len(seen_models)} models — EXPLORATORY, not the registered scope\n")
 
     # A cell still filling has a rate drawn from an arbitrary prefix of its tasks;
     # adjudicating it produces a verdict that changes as the run proceeds, which is
