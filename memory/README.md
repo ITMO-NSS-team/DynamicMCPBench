@@ -23,3 +23,6 @@ of the team's agents never see it. Committing it here fixes that.
 - `feedback_agb_orthogonality.md` — the hard rule set keeping this project
   orthogonal to AgentGraphBench (trace not graph; forward not backward; effect
   not answer; live not static cache). Referenced from `README.md` and `CLAUDE.md`.
+- `lesson_zero_score_is_not_a_score.md` — a complete cell scoring 0% can be a
+  model that never ran. Check `agent_call_count` and cost before believing any
+  low number; exclude-and-explain beats relaxing determinism to get a number.
