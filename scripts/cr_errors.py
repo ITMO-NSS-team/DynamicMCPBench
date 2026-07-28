@@ -44,6 +44,48 @@ CODES = ("E3", "E4", "E6", "E7")
 COND_K = {"rag-4": "4", "rag-8": "8", "rag-16": "16", "rag-32": "32"}
 
 
+def check_map(evals: str, reach: dict) -> dict:
+    """Validate the split predicate before splitting anything by it.
+
+    The map is replayed offline and the live run embeds its own text, so the two
+    can disagree at the top-k boundary. Only one direction is a contradiction:
+    an unreachable task cannot pass, because some tool_effect checkpoint has no
+    callable member. Reachable-and-failed is ordinary. So counting passes on the
+    unreachable side measures the map's false-negative rate directly.
+    """
+    tot: collections.Counter = collections.Counter()
+    bad: collections.Counter = collections.Counter()
+    offenders: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(glob.glob(evals)):
+        m = re.match(r"^(?P<model>.+?)__(?P<cond>.+?)__r\d+\.shard\d+\.jsonl$", Path(f).name)
+        if not m or m["cond"] not in COND_K:
+            continue
+        k = COND_K[m["cond"]]
+        for ln in Path(f).read_text().splitlines():
+            if not ln.strip():
+                continue
+            r = json.loads(ln)
+            t = str(r["task_id"])
+            if t not in reach[k] or reach[k][t]:
+                continue
+            tot[k] += 1
+            if r["passed"]:
+                bad[k] += 1
+                offenders[k].add(t)
+    n, b = sum(tot.values()), sum(bad.values())
+    print(f"map check — attempts on tasks the map calls unreachable: {n}, of which passed: {b}")
+    for k in sorted(tot, key=int):
+        if bad[k]:
+            print(f"  k={k}: {bad[k]}/{tot[k]} — tasks {sorted(offenders[k])}")
+    print(f"  false-negative rate {100 * b / n if n else 0:.2f}% — the split below inherits this.\n")
+    return {
+        "attempts_on_unreachable": n,
+        "passed_anyway": b,
+        "false_negative_pct": round(100 * b / n, 3) if n else 0.0,
+        "offending_tasks": {k: sorted(v) for k, v in offenders.items()},
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--evals", default="evals/cr/*.jsonl")
@@ -54,6 +96,7 @@ def main() -> None:
 
     reach = json.loads(Path(args.recall).read_text())
     want = args.conditions.split(",")
+    map_check = check_map(args.evals, reach)
 
     # (model, cond, reachable) -> [(calls, ok_calls, taxonomy_counts)] over failures
     rows: dict[tuple[str, str, bool], list[tuple[int, int, dict]]] = collections.defaultdict(list)
@@ -98,7 +141,7 @@ def main() -> None:
 
     if args.json_out:
         Path(args.json_out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.json_out).write_text(json.dumps(out, indent=2))
+        Path(args.json_out).write_text(json.dumps({"map_check": map_check, **out}, indent=2))
         print(f"\nwrote {args.json_out}")
 
 
