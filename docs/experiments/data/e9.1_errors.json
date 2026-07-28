@@ -1,4 +1,14 @@
 {
+  "map_check": {
+    "attempts_on_unreachable": 1907,
+    "passed_anyway": 1,
+    "false_negative_pct": 0.052,
+    "offending_tasks": {
+      "8": [
+        "305553d2-fb6d-4367-8fa5-ab8ac8ef38f6"
+      ]
+    }
+  },
   "claude-haiku-4-5|rag-32|unreachable": {
     "failures": 37,
     "calls_mean": 6.78,
@@ -34,6 +44,24 @@
     "E4": 0.0,
     "E6": 0.225,
     "E7": 0.35
+  },
+  "deepseek-v4-pro|rag-32|unreachable": {
+    "failures": 2,
+    "calls_mean": 5.5,
+    "calls_ok_mean": 2.5,
+    "E3": 1.0,
+    "E4": 0.0,
+    "E6": 1.0,
+    "E7": 0.0
+  },
+  "deepseek-v4-pro|rag-32|reachable": {
+    "failures": 2,
+    "calls_mean": 4.0,
+    "calls_ok_mean": 3.0,
+    "E3": 1.5,
+    "E4": 0.0,
+    "E6": 0.0,
+    "E7": 0.5
   },
   "kimi-k2-6|rag-32|unreachable": {
     "failures": 37,
@@ -115,5 +143,41 @@
     "E4": 0.0,
     "E6": 0.361,
     "E7": 0.278
+  },
+  "qwen3-7-max|rag-32|unreachable": {
+    "failures": 37,
+    "calls_mean": 12.38,
+    "calls_ok_mean": 2.05,
+    "E3": 1.135,
+    "E4": 0.216,
+    "E6": 2.351,
+    "E7": 0.189
+  },
+  "qwen3-7-max|rag-32|reachable": {
+    "failures": 53,
+    "calls_mean": 7.91,
+    "calls_ok_mean": 4.06,
+    "E3": 1.151,
+    "E4": 0.057,
+    "E6": 0.17,
+    "E7": 0.302
+  },
+  "qwen3-7-max|rag-8|unreachable": {
+    "failures": 78,
+    "calls_mean": 8.56,
+    "calls_ok_mean": 1.91,
+    "E3": 0.987,
+    "E4": 0.192,
+    "E6": 2.128,
+    "E7": 0.064
+  },
+  "qwen3-7-max|rag-8|reachable": {
+    "failures": 26,
+    "calls_mean": 5.85,
+    "calls_ok_mean": 2.96,
+    "E3": 1.462,
+    "E4": 0.0,
+    "E6": 0.231,
+    "E7": 0.231
   }
 }

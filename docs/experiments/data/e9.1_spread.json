@@ -67,22 +67,24 @@
     }
   },
   "rag-32": {
-    "models": 3,
+    "models": 4,
     "model_ids": [
       "claude-haiku-4-5",
       "kimi-k2-6",
-      "minimax-m3"
+      "minimax-m3",
+      "qwen3-7-max"
     ],
-    "spread": 8.0,
-    "curated_spread_same_models": 6.7,
-    "retained_pct_of_curated_spread": 120.0,
-    "top_margin": 2.0,
-    "curated_top_margin_same_models": 1.3,
-    "rho_skill_vs_loss": -1.0,
+    "spread": 11.3,
+    "curated_spread_same_models": 16.7,
+    "retained_pct_of_curated_spread": 68.0,
+    "top_margin": 3.3,
+    "curated_top_margin_same_models": 10.0,
+    "rho_skill_vs_loss": 0.2,
     "loss": {
       "claude-haiku-4-5": 8.7,
       "kimi-k2-6": 8.0,
-      "minimax-m3": 7.3
+      "minimax-m3": 7.3,
+      "qwen3-7-max": 14.0
     }
   },
   "hier": {

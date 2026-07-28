@@ -170,6 +170,15 @@
       44.6
     ]
   },
+  "qwen3-7-max|rag-32": {
+    "pass_pct": 40.0,
+    "passed": 60,
+    "n": 150,
+    "ci95": [
+      32.5,
+      48.0
+    ]
+  },
   "claude-haiku-4-5|hier": {
     "pass_pct": 28.0,
     "passed": 42,
