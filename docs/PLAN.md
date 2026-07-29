@@ -343,7 +343,8 @@ trace — the trace-native invariant holds (graph/direct stay RQ2 baselines).
 - done-when: leaderboard covers ≥5 models (a GPT-class, Gemini, Claude Sonnet/Opus, an open-weight 70B+, a tool-specialized model) in replay, 3× per task; report regenerated.
 
 ### E4.8 — Architecture comparison (flat / RAG-MCP / hierarchical)
-- status: todo
+- status: done
+- note: flat / RAG / hier compared in docs/experiments/e9.1-tool-exposure-matrix.md (flat on minimax-m3 only, context window)
 - owner: —
 - claimed_at: —
 - deps: E4.7
