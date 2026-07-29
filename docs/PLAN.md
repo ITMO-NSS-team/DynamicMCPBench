@@ -563,7 +563,8 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: P_alt degradation curves (3 ref models) with Wilson CIs; 6-strategy sampling ablation with Fisher/χ²+Holm (H1–H3); gen×eval SAE heatmap; SAE_expected/random/conditional + IAE; numbers JSONs written.
 
 ### E8.10 — Run: RQ1/RQ2/RQ3 + difficulty + generator-contamination (post-hoc)
-- status: todo
+- status: done
+- note: RQ1 e4.4, RQ2 e4.3, RQ3 e4.5, contamination + same-family logit e8.10a, corrected leaderboard e8.10d; numbers JSONs committed
 - owner: —
 - claimed_at: —
 - deps: E8.8
