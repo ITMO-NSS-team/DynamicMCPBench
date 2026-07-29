@@ -607,8 +607,8 @@ item-by-item ledger, including the exact reviewer wording each item answers, is
 step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 
 ### E9.1 — Paper text: narrow the over-claims
-- status: todo
-- note: CR 1.1 (PR #183) and CR 1.7 (PR #184) done; 1.2-1.6 still open under this step
+- status: done
+- note: CR 1.1-1.7 all landed (PRs #183, #184, #185)
 - owner: —
 - claimed_at: —
 - deps: —
