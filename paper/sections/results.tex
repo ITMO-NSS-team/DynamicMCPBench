@@ -83,9 +83,15 @@ same study supports grading effects rather than answers: although 99\% of
 questions are valid, the reference answer is fully correct only 79\%
 of the time, so grading the final answer would wrongly penalize roughly one
 task in five. Two further checks reinforce validity. First, the multi-family
-corpus shows no systematic self-preference---a model's accuracy on tasks
-authored by its own family is within \(+\)0.5 points of its accuracy on the
-rest (Appendix~\ref{app:family}). Second, server-attribution errors (SAE;
+corpus shows no systematic self-preference: across the candidates whose family
+also authored tasks, the mean own-family advantage is \(+\)0.5 points (median
+\(-\)0.2). The aggregate does hide individual outliers, and one of them
+touches the headline: glm-5.1 scores 71.9 on tasks its own family authored
+versus 46.4 on the rest, so its second-place figure of 50.3 is lifted by
+same-family tasks---on tasks its family did not author it sits at 46.4, level
+with the third-placed model rather than ahead of it, and we report it with
+that caveat (gpt-5.4-mini shows a comparable \(+\)28.2 gap far from the top of
+the table; Appendix~\ref{app:family}). Second, server-attribution errors (SAE;
 calling the right tool on the wrong server) are near-floor at the default
 setting (0.2\% of runs; Appendix~\ref{app:sae}), so
 failures are dominated by chain length and composition rather than by
