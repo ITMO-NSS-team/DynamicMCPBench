@@ -680,7 +680,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: at least one model beyond the original is human-annotated and the result reported as whether the scorer's conservatism shifts the level rather than the ordering. Annotation work, not compute — the most expensive item on the list.
 
 ### E9.10 — Fix the broken task and tighten the reference validator
-- status: todo
+- status: claimed
+- note: human-directed (CR 4.1, promised to 1npx/RJAT/sJ7917); claimed by hand because scripts/claim.py takes no step id
 - owner: —
 - claimed_at: —
 - deps: —
