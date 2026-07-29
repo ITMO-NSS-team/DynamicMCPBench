@@ -10,8 +10,13 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done.
 
 ## 1. Paper text — corrections we owe (no compute)
 
-**1.1 Narrow Principle 1.** `[ ]` — promised to RJAT, sJ7917 (and reflected to
-1npx).
+**1.1 Narrow Principle 1.** `[x]` — promised to RJAT, sJ7917 (and reflected to
+1npx). Done: the guarantee is gone from §1, §3.1 (Principle 1), §3.3 and the
+Conclusion, replaced by the enforced-and-audited grounding invariant, with
+necessity and equivalence-set recall named as open. "Provably achievable" in
+§3.3 was softened in the same pass (same claim, stronger wording). Exact
+before/after is quoted to RJAT and sJ7917 in `paper/rebuttals/Followup to
+Reviewer *.txt`. The rest of §1 (1.2–1.7) is still open under ledger E9.1.
 Remove "so a spurious 'unnecessary tool' cannot arise" / "cannot arise by
 construction" wherever it appears: abstract-adjacent claim in §1, Principle 1 in
 §3.1, and the Conclusion. Replace with the measured invariant: *every required

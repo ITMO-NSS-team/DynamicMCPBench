@@ -7,10 +7,11 @@ or user-supplied servers instead of shipping a fixed dataset, (ii)~generates
 tasks forward from real successful trajectories instead of imposing a graph
 or a plan, (iii)~scores path-agnostic \emph{effects} under deterministic
 replay instead of answers, tool lists, or cached responses, and
-(iv)~stratifies difficulty by task category and length. Because every tool
-in a task was actually used to reach its goal, an ``unnecessary tool'' cannot
-appear, and because scoring reads effects rather than the reply, the
-benchmark survives live, changing data. Running the framework over 121
+(iv)~stratifies difficulty by task category and length. Because every required effect is
+grounded in a successful call in the task's own reference trace---enforced at
+generation and audited, not assumed---what a task demands stays tied to what a
+working solution did, and because scoring reads effects rather than the reply,
+the benchmark survives live, changing data. Running the framework over 121
 servers and 24 models shows how far current agents still have to go: even the
 strongest solve only about half of the tasks, roughly a third are solved by
 no model, and accuracy falls steadily as the required tool chain lengthens,

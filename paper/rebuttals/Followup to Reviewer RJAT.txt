@@ -1,0 +1,93 @@
+Follow-up: the open-universe condition, extended as promised.
+
+Four model families x {curated, rag k=4/8/16/32, hier, flat} on 150 depth-balanced tasks, every cell complete at 150/150, plus pass^3 at k=8.
+
+THE MECHANISM
+
+The part we could not give at rebuttal time is why success falls. Holding one factor fixed at a time (minimax-m3, matched task for task):
+
+| condition | tools shown | required tool reachable | pass |
+|---|---|---|---|
+| curated | 8 | 100% | 44.0 |
+| rag:8 | 8 | 48.0% | 24.0 |
+| flat | 1,168 | 100% | 36.0 |
+
+Retrieval loss costs 20.0 points; distraction alone costs 8.0. The open-universe penalty is mostly the retriever failing to surface the tool, not the agent losing its way among options - the discovery failure you predicted, now separated from everything else. This analysis is post-hoc and labelled exploratory, and the flat cell needs a 1M-token context, so distraction is measured on one model.
+
+Two facts support reading it that way. Reachability is a hard gate: across 1,064 single-attempt cells on tasks whose required tool was never surfaced, zero passed (1 in 1,905 including three-attempt cells). And three attempts recover only 16-22% of the deficit, so it is a ceiling, not run-to-run variance. Pass rate is monotone in k for all four models and the model ordering is unchanged in every column.
+
+The camera-ready states the scope boundary and its consequence: the retrieval surface belongs to the benchmark, not the agent, and is specified, versioned and reported alongside results.
+
+================================================================================
+
+Follow-up 2: the reference validator is tightened, and the leaderboard is robust to what it catches.
+
+We promised to reject a claimed-successful exploration that does not produce every required external effect. That is now enforced on the generation path rather than in an after-the-fact linting command, and it covers value checkpoints, not just tool-call ones: the reference trace must satisfy every required checkpoint of its own spec under deterministic Tier-1 scoring, or no task is written. Regression tests cover the rejection.
+
+Applied retroactively to the released corpus as a diagnostic, it flags 267 of 1,845 specs (14.5%): 103 where the required value was produced nowhere in the reference, 137 where it was produced but not where the checkpoint scopes it, 27 with no final message recorded. The middle group is the one that matters for validity - a checkpoint its own reference solution fails is measuring wording rather than effect.
+
+What this does to the reported results, on the 750-task slice with 8 models x 3 repeats:
+
+  flagged tasks are 13.9% of the slice but 40.7% of the never-solved wall
+  never solved by any model:  56.7% [47.1, 65.8]  vs  13.3% [10.9, 16.2]
+  removing them:              every model gains 3.4-7.5 points
+  ranking:                    identical, on pass rate and on pass^3
+
+So a measurable part of the hard tail was task defect rather than agent failure, the defect class is now rejected at generation time, and no conclusion in the paper moves. The audit is one deterministic command with no model in the loop; the script and the numbers are committed.
+
+================================================================================
+
+Follow-up 3: the "cannot arise by construction" claim is removed from the paper. Exact wording, so you can hold us to it.
+
+We promised to drop the guarantee language and replace it with the invariant we actually measure. The edit is made in all four places it appeared.
+
+SECTION 1
+
+  was: "Because every tool in a task was actually used to reach the goal, the
+        'unnecessary tool' problem cannot arise by construction."
+
+  now: "Because tasks are distilled from trajectories that actually reached
+        their goal, every required effect is grounded in a successful call in
+        the task's own reference trace: the generator re-scores each distilled
+        task against that trace and discards it when a required effect is
+        missing. Grounding is an enforced and audited property rather than a
+        guarantee - it ties what a task requires to what a working solution
+        did, while the necessity of each requirement, and the completeness of
+        the equivalence set that admits alternatives to it, remain empirical
+        questions we measure rather than assume."
+
+SECTION 3.1, PRINCIPLE 1
+
+  was: "tasks come from recorded successful trajectories, so every required
+        tool was actually used and a spurious 'unnecessary' tool cannot arise."
+
+  now: "tasks come from recorded successful trajectories, so every required
+        effect is grounded in a successful call in the task's own reference
+        trace - an invariant the generator enforces, rejecting any exploration
+        whose reference does not produce every effect the distilled task
+        requires, and one we audit directly rather than assume."
+
+SECTION 3.3
+
+  was: "generation is forward and trace-grounded so tasks are provably
+        achievable" ... "The distiller never introduces a checkpoint the trace
+        does not justify."
+
+  now: "generation is forward and trace-grounded, so each task was achieved at
+        least once - by the trajectory it was distilled from" ... "A checkpoint
+        the distiller emits but the trace does not satisfy is a generation
+        failure we detect rather than exclude by construction: each distilled
+        task is re-scored against its own reference trace and discarded if any
+        required effect is missing."
+
+CONCLUSION
+
+  was: "Because every tool in a task was actually used to reach its goal, an
+        'unnecessary tool' cannot appear..."
+
+  now: "Because every required effect is grounded in a successful call in the
+        task's own reference trace - enforced at generation and audited, not
+        assumed - what a task demands stays tied to what a working solution
+        did..."
+
+Three claims are gone: that the unnecessary-tool problem cannot arise, that tasks are provably achievable, and that the distiller never introduces an unjustified checkpoint. What replaces them is a property that is now mechanically enforced at generation time (previous follow-up) and independently audited, with its two residual gaps - necessity, and equivalence-set recall - stated as open rather than assumed away.

@@ -1,0 +1,24 @@
+Follow-up: the reference-validation miss your audit found is now closed in code.
+
+Your audit found 1 TaskSpec in 100 whose required effect was never executed in its reference trace. We said that was a reference-validation miss and that we would tighten the validator. Done, and measured.
+
+WHAT CHANGED
+
+The old screen was narrow and advisory: it looked at tool-call checkpoints only, and it ran after generation, in a linting command, without rejecting anything. The only gate on the generation path was the explorer's own "I succeeded" self-report.
+
+The validator now requires the reference trace to satisfy EVERY required checkpoint of its own spec under deterministic Tier-1 scoring - value checkpoints included - and it runs where the claim is made: an exploration that claims success but did not produce every required effect is rejected before a spec is written. Regression tests pin exactly your case (claimed success, one successful call, required value never produced), and pin the old check as not catching it.
+
+WHAT IT CATCHES, AND WHAT THAT DOES TO THE RESULTS
+
+Run retroactively as a diagnostic over the released corpus (deterministic, no model in the loop):
+
+  reference produces every required effect   1,578 / 1,845   85.5%
+  value produced nowhere in the reference       103          5.6%
+  value produced, but not where scoped          137          7.4%
+  no final message recorded                      27          1.5%
+
+The second bucket is your defect class. The third is one we would not have seen without your audit: the effect exists in the reference but the checkpoint demands it in a place the reference does not put it - a checkpoint the reference solution itself fails is measuring wording, not effect, which is the one thing this benchmark exists not to do.
+
+These tasks are 13.9% of the evaluation slice and 40.7% of the never-solved wall: never solved by any of 8 models 56.7% [47.1, 65.8] of the time against 13.3% [10.9, 16.2] for the rest. Removing them raises every model 3.4-7.5 points and changes NO model's rank, on pass rate and on pass^3 alike, so the leaderboard is unaffected while a real slice of the "hard wall" turns out to be task defects rather than model failure.
+
+The audit script and the numbers are committed and reproducible in one command.
