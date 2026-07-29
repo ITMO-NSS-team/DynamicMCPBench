@@ -608,7 +608,7 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 
 ### E9.1 — Paper text: narrow the over-claims
 - status: todo
-- note: CR 1.1 (narrow Principle 1: §1, §3.1, §3.3, Conclusion) done in PR #183; 1.2-1.7 still open under this step
+- note: CR 1.1 (PR #183) and CR 1.7 (PR #184) done; 1.2-1.6 still open under this step
 - owner: —
 - claimed_at: —
 - deps: —
