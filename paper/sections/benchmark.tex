@@ -92,10 +92,16 @@ appears; that no minefield was hit; and that the partial order holds. Because
 checkpoints carry equivalence sets, any path that achieves the required
 effects passes. On the released corpus, 16\% of effect checkpoints admit two
 or more interchangeable tools (up to twelve), so multiple valid trajectories
-are accepted rather than a single gold path (Appendix~\ref{app:eqset}). A second tier (Tier-2) is an LLM
-judge that may upgrade only a \emph{failed} tool-effect when a different tool
-is genuinely effect-equivalent; it never reads or grades the final answer. The
-headline leaderboard is scored by Tier-1 alone (Appendix~\ref{app:config}).
+are accepted rather than a single gold path (Appendix~\ref{app:eqset}). A
+second tier (Tier-2) is an \emph{optional} LLM judge that may upgrade only a
+\emph{failed} tool-effect when a different tool is genuinely
+effect-equivalent; it never reads or grades the final answer. It is off by
+default and was not enabled for any number in this paper: every reported
+result is scored by Tier-1 alone (Appendix~\ref{app:config}), so no reported
+score depends on a model's judgment \emph{at scoring time}. That scope is
+scoring, not construction---the goal generator and the distiller are LLMs, and
+what they emit is admitted by the deterministic re-scoring of
+\S\ref{sec:benchmark:gen} rather than by a judge.
 Candidates are compared under deterministic replay, each task attempted three
 times and counted as solved only if all three attempts pass
 (pass\textasciicircum{}3; \citealp{yao2024tau}). To keep the setting controlled
@@ -104,7 +110,25 @@ plus a fixed set of distractor tools, half of them same-name tools on other
 servers; the action budget is generous enough for the longest chains; and the
 main configuration presents tool descriptions as written and exposes all
 tools directly, so the headline measures the agent rather than a description
-rewriter or a retriever.
+rewriter or a retriever. That pool is controlled, not open: the tools a task
+needs are already on offer, so the headline measures tool \emph{use} and does
+not measure retrieval over a large catalog. The distractor analyses
+(Appendix~\ref{app:sae}) vary the composition of that pool and should not be
+read as evidence about open-universe retrieval.
+
+\paragraph{What path-agnosticism means under replay.} Determinism and path
+freedom trade off, and we resolve the trade-off in favour of comparability.
+Replay serves results from the task's recorded world, so a candidate may take
+any route \emph{through that world}: effects may be produced in any order the
+partial order permits, extra calls are tolerated, arguments need only match a
+recorded call closely enough for its result to be served, and any
+equivalence-set member the reference exercised is accepted. What replay cannot
+offer is a route the reference never took---a call with no recorded
+counterpart misses the cache and returns an error instead of a live
+result---so a strictly novel path is scored as failing. Unrestricted path
+freedom exists only in the framework's live mode, which the leaderboard
+deliberately does not use: live scoring would make a model's result depend on
+when it was run (Appendix~\ref{app:decay}).
 
 \subsection{Applying the framework to your own servers}
 \label{sec:benchmark:apply}
