@@ -642,7 +642,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: the ablation lost when `paper/` was reset to the submitted sources is restored from PR #143 in git history, re-checked against current numbers, and cited from the distractor discussion.
 
 ### E9.6 — Run: tool-exposure matrix over the open universe
-- status: todo
+- status: done
+- note: matrix over 4 models x rag-k{4,8,16,32}+hier, flat on minimax-m3 only (context window); pass^3 at rag:8; report e9.1 + numbers committed
 - owner: —
 - claimed_at: —
 - deps: —
