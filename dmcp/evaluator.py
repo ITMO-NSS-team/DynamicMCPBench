@@ -622,3 +622,34 @@ def gold_unsatisfied_tool_effects(spec: TaskSpec, reference: Trace) -> list[str]
         for cp in spec.checkpoints
         if isinstance(cp, ToolEffectCheckpoint) and not _eval_tool_effect(cp, agent_calls).passed
     ]
+
+
+def reference_unsatisfied_checkpoints(spec: TaskSpec, reference: Trace) -> list[str]:
+    """ids of *any* required checkpoint the spec's OWN reference trace fails under Tier-1.
+
+    This is the reference-validation gate: an exploration that claims success must
+    actually have produced every external effect its distilled spec requires. The
+    invariant it enforces is the narrow, measured one we can defend — *every required
+    checkpoint is grounded in a successful call in its own trace*:
+
+    * ``tool_effect``    — a tool from the equivalence set was called (successfully,
+      when ``must_succeed``) with arguments satisfying the predicate;
+    * ``value_produced`` — the demanded evidence appears in a *successful* agent call
+      result, or in the final message backed by ≥1 successful call (FP guard).
+
+    Strictly wider than :func:`gold_unsatisfied_tool_effects`, which sees only the
+    ``tool_effect`` half and therefore lets through a spec whose reference never
+    produced a required *value* — the reference-validation miss surfaced by the
+    distiller-fidelity audit (1/100 specs missing a required effect).
+
+    ``state_condition`` checkpoints are skipped, not failed: Tier-1 cannot observe
+    external state offline, so their reference status is unknowable here (and they
+    would otherwise reject every spec that carries one).
+    """
+    agent_calls = [s for s in reference.steps if s.kind is StepKind.call_tool_agent]
+    return [
+        cp.checkpoint_id
+        for cp in spec.checkpoints
+        if not isinstance(cp, StateConditionCheckpoint)
+        and not _eval_checkpoint(cp, agent_calls, reference).passed
+    ]

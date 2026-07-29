@@ -1,0 +1,90 @@
+{
+ "specs_audited": 1845,
+ "orphan_specs": 0,
+ "reference_consistent": 1578,
+ "flagged": 267,
+ "by_bucket": {
+  "value_nowhere": 103,
+  "value_misscoped": 137,
+  "no_final_message": 27
+ },
+ "evaluation_slice": {
+  "tasks": 750,
+  "models": 8,
+  "wall": {
+   "consistent": {
+    "tasks": 646,
+    "runs": 15504,
+    "pass_rate": 55.20510835913313,
+    "never": 86
+   },
+   "flagged": {
+    "tasks": 104,
+    "runs": 2496,
+    "pass_rate": 11.818910256410255,
+    "never": 59
+   }
+  },
+  "never_solved_total": 145,
+  "per_model": [
+   {
+    "model": "anthropic/claude-haiku-4.5",
+    "pass_all": 46.53333333333333,
+    "pass_kept": 52.73477812177503,
+    "p3_all": 41.06666666666667,
+    "p3_kept": 47.05882352941176
+   },
+   {
+    "model": "deepseek/deepseek-v4-pro",
+    "pass_all": 57.77777777777777,
+    "pass_kept": 64.65428276573788,
+    "p3_all": 46.400000000000006,
+    "p3_kept": 52.94117647058824
+   },
+   {
+    "model": "minimax/minimax-m3",
+    "pass_all": 53.6,
+    "pass_kept": 59.700722394220854,
+    "p3_all": 42.4,
+    "p3_kept": 48.142414860681114
+   },
+   {
+    "model": "moonshotai/kimi-k2.6",
+    "pass_all": 51.37777777777778,
+    "pass_kept": 57.68833849329206,
+    "p3_all": 40.666666666666664,
+    "p3_kept": 46.59442724458204
+   },
+   {
+    "model": "openai/gpt-5.4-mini",
+    "pass_all": 29.15555555555556,
+    "pass_kept": 32.6109391124871,
+    "p3_all": 25.733333333333334,
+    "p3_kept": 28.947368421052634
+   },
+   {
+    "model": "qwen/qwen3.7-max",
+    "pass_all": 58.88888888888889,
+    "pass_kept": 66.35706914344685,
+    "p3_all": 51.2,
+    "p3_kept": 58.51393188854489
+   },
+   {
+    "model": "x-ai/grok-4.3",
+    "pass_all": 38.22222222222222,
+    "pass_kept": 42.827657378740966,
+    "p3_all": 31.6,
+    "p3_kept": 35.91331269349845
+   },
+   {
+    "model": "z-ai/glm-5.1",
+    "pass_all": 57.95555555555556,
+    "pass_kept": 65.0670794633643,
+    "p3_all": 50.26666666666667,
+    "p3_kept": 56.965944272445824
+   }
+  ],
+  "ranking_preserved_pass": true,
+  "ranking_preserved_pass3": true
+ }
+}

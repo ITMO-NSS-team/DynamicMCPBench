@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import release_hf  # noqa: E402  (reuse the dataset builder + secret scan)
 
-from dmcp.evaluator import gold_unsatisfied_tool_effects  # noqa: E402
+from dmcp.evaluator import reference_unsatisfied_checkpoints  # noqa: E402
 from dmcp.spec import TaskSpec  # noqa: E402
 from dmcp.trace import Trace  # noqa: E402
 
@@ -138,7 +138,7 @@ def main() -> None:
                 continue
             spec = TaskSpec.model_validate(s)
             ref = all_traces.get(str(spec.source_trace_id))
-            if ref is not None and gold_unsatisfied_tool_effects(spec, ref):
+            if ref is not None and reference_unsatisfied_checkpoints(spec, ref):
                 dropped += 1
                 continue
             seen_task.add(tid)

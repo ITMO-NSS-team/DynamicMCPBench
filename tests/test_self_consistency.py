@@ -1,8 +1,10 @@
 """Self-consistency detectors. A spec is broken if its OWN gold/reference trace fails
-one of its tool_effect checkpoints — the demanded tool is absent (``tool_absent_
-checkpoints``) or was called with non-matching args (``gold_unsatisfied_tool_effects``,
-the broader check that subsumes it). The cleaning filter, the merge union, and the
-validate-corpus guard all rely on these.
+one of its required checkpoints: the demanded tool is absent (``tool_absent_
+checkpoints``), it was called with non-matching args (``gold_unsatisfied_tool_effects``,
+which subsumes it), or — widest, and the gate the generator enforces — any required
+effect at all, value_produced included, was never produced
+(``reference_unsatisfied_checkpoints``). The cleaning filter, the merge union, the
+validate-corpus guard and the generation path all rely on these.
 """
 
 from __future__ import annotations
@@ -10,9 +12,22 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from dmcp.evaluator import gold_unsatisfied_tool_effects, tool_absent_checkpoints
+from dmcp.evaluator import (
+    gold_unsatisfied_tool_effects,
+    reference_unsatisfied_checkpoints,
+    tool_absent_checkpoints,
+)
 from dmcp.manifest import Dynamism
-from dmcp.spec import ArgPredicate, ComplexityProfile, TaskSpec, ToolEffectCheckpoint, ToolReference
+from dmcp.spec import (
+    ArgPredicate,
+    ComplexityProfile,
+    StateConditionCheckpoint,
+    TaskSpec,
+    ToolEffectCheckpoint,
+    ToolReference,
+    ValuePredicate,
+    ValueProducedCheckpoint,
+)
 from dmcp.trace import Step, StepKind, StepStatus, Trace
 
 
@@ -127,3 +142,76 @@ def test_gold_unsatisfied_passes_when_args_match():
     )
     spec = _spec([cp], gold.trace_id)
     assert gold_unsatisfied_tool_effects(spec, gold) == []
+
+
+# --- E9.10: the reference-validation gate ------------------------------------
+# The narrow tool_effect check let through a spec whose reference never produced a
+# required *value* — the "reference-validation miss" the distiller-fidelity audit
+# found (1/100 specs missing a required effect). These pin the widened gate.
+
+
+def _claimed_successful(server: str, tool: str, result: dict) -> Trace:
+    """A trace the explorer *claims* succeeded: outcome=success, >0 successful calls."""
+    tr = Trace(goal="g")
+    now = datetime.now(UTC)
+    tr.steps.append(
+        Step.build(
+            step_id=0,
+            kind=StepKind.call_tool_agent,
+            server_id=server,
+            tool_name=tool,
+            arguments={},
+            result=result,
+            started_at=now,
+            ended_at=now,
+            status=StepStatus.success,
+        )
+    )
+    tr.seed_metadata["exploration"] = {
+        "outcome": "success",
+        "successful_tool_calls": 1,
+        "final_message": "done",
+    }
+    return tr
+
+
+def _value_cp(cp_id: str, needle: str) -> ValueProducedCheckpoint:
+    return ValueProducedCheckpoint(
+        checkpoint_id=cp_id,
+        description="value checkpoint",
+        predicate=ValuePredicate(contains_all=[needle]),
+    )
+
+
+def test_claimed_successful_exploration_missing_a_value_effect_is_rejected():
+    gold = _claimed_successful("s", "t", {"content": "temperature 12C"})
+    spec = _spec([_tool_cp("called", "s", "t"), _value_cp("needs_humidity", "humidity 80%")], gold.trace_id)
+    # the old, narrower gate sees only the tool half and lets the spec through
+    assert gold_unsatisfied_tool_effects(spec, gold) == []
+    # the reference-validation gate rejects it: the effect was never produced
+    assert reference_unsatisfied_checkpoints(spec, gold) == ["needs_humidity"]
+
+
+def test_reference_that_produces_every_effect_is_accepted():
+    gold = _claimed_successful("s", "t", {"content": "temperature 12C, humidity 80%"})
+    spec = _spec([_tool_cp("called", "s", "t"), _value_cp("needs_humidity", "humidity 80%")], gold.trace_id)
+    assert reference_unsatisfied_checkpoints(spec, gold) == []
+
+
+def test_reference_gate_subsumes_the_tool_effect_gate():
+    gold = _claimed_successful("s", "t", {"content": "ok"})
+    spec = _spec([_tool_cp("needs_missing", "s", "missing")], gold.trace_id)
+    assert reference_unsatisfied_checkpoints(spec, gold) == ["needs_missing"]
+
+
+def test_state_condition_is_skipped_not_failed():
+    # Tier-1 cannot observe external state offline, so a state_condition checkpoint
+    # must not make its own reference look self-inconsistent.
+    gold = _claimed_successful("s", "t", {"content": "ok"})
+    cp = StateConditionCheckpoint(
+        checkpoint_id="external_state",
+        description="a row exists in the sandbox db",
+        probe={"tool": "s__t"},
+    )
+    spec = _spec([cp], gold.trace_id)
+    assert reference_unsatisfied_checkpoints(spec, gold) == []
