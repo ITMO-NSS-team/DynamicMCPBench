@@ -122,6 +122,27 @@ Multi-tier scoring + multi-agent runs.
 - [ ] HuggingFace dataset release (specs JSONL + reference traces)
 - [ ] Living leaderboard page (auto-rerun on each refresh)
 
+### Phase 6 — Camera-ready (EMNLP 2026 Industry Track)
+
+Ledger: `docs/CAMERA_READY.md` (each item names the reviewer it answers). Steps:
+E9.1-E9.13 in `docs/PLAN.md`.
+
+- [ ] Paper text: narrow Principle 1 to a measured invariant, disambiguate the
+      two "Tier-2" mechanisms, state the replay path-freedom and tool-exposure
+      scope boundaries, add the missing limitations (E9.1)
+- [ ] Appendix: generation funnel, human confusion matrix, open-universe table (E9.2)
+- [ ] Main body: leave-own-family-out leaderboard + decay per domain (E9.3)
+- [ ] Distiller-fidelity audit — gated on obtaining the annotation protocol (E9.4)
+- [ ] Restore the six-strategy distractor ablation (E9.5)
+- [ ] **Run:** open-universe tool-exposure matrix — rag-k sweep, hier, flat,
+      4 models, pass^3 (E9.6)
+- [ ] **Run:** Tier-2 override rates per category across judge families (E9.7)
+- [ ] **Run:** widen the refresh beyond 22 traces / 3 families (E9.8)
+- [ ] Annotate a second model for scorer strictness (E9.9)
+- [ ] Reference-validator tightening, refresh preflight, finer refresh classifier (E9.10-E9.12)
+- [ ] Pre-submission verification sweep: reproducibility statement, Gwet AC1,
+      16% / 15.5% reconciliation (E9.13)
+
 ### Research questions (paper-driving)
 
 - [~] **RQ1 (headline)**: Does answer-matching mis-rank agents on dynamic-data tasks, and does trace alignment fix it? — *need to construct paired baseline: same models scored by string-match on final answer vs by trace-effect checkpoints; show ranking shuffles*
@@ -133,20 +154,21 @@ Multi-tier scoring + multi-agent runs.
 
 DynamicMCPBench is a deliberate structural pivot from AGB (the team's submitted NeurIPS paper) — every choice must stay orthogonal. See `memory/feedback_agb_orthogonality.md` for the full rule set; the headline is: **trace is the primitive (not a dependency graph), forward exploration (not backward subgraph sampling), effect alignment (not final-answer matching), live servers (not a static cached catalog)**.
 
-### Current measured state (run 2026-05-29)
+### Current state (EMNLP 2026 Industry Track — accepted, camera-ready in progress)
 
-- 16-server substrate, 60 goals, 56 specs (93% distill rate)
-- Replay-mode leaderboard with Tier-2 active:
+The paper is accepted; the released dataset and evaluation records live in the
+HuggingFace dataset (`scripts/release_hf.py`), including the per-run verdicts at
+`leaderboard_e8.10d/verdicts/evals_*.jsonl` that every reported number is
+regenerated from. Headline slice: **750 tasks × 8 models × pass^3**, scored in
+deterministic replay with Tier-1 effect checkpoints and **no LLM judge**.
 
-  | Model                            | Pass rate | Tier-2 hits | Cache misses |
-  |----------------------------------|-----------|-------------|--------------|
-  | `anthropic/claude-haiku-4.5`     | 25/56 (45%) | 19         | 134          |
-  | `qwen/qwen3-8b`                  | 13/56 (23%) | 13         | 211          |
-  | `anthropic/claude-3.5-haiku`     | 12/56 (21%) | 18         | 125          |
+Camera-ready work — what was promised to the four reviewers — is tracked
+item-by-item in `docs/CAMERA_READY.md` and sequenced as steps **E9.1-E9.13** in
+`docs/PLAN.md`. The one new experiment is the open-universe tool-exposure matrix
+(`docs/experiments/e9.1-tool-exposure-matrix.md`), pre-registered before the run.
 
-- Stratification still discriminates at this scale: depth ≥ 5 = 1/6/3, `live_read` = 3/11/4, `cross_server=True` = 1/3/2
-
-Reports: `reports/v3_leaderboard.md`. Specs: `specs/v3.jsonl`. Reference traces: `traces/v3.jsonl`.
+> The Phase 1-5 checkboxes above predate submission and are being re-audited
+> under E9; `docs/PLAN.md` is the live ledger, not this list.
 
 ## Repo layout
 

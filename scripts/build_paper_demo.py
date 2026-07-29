@@ -9,16 +9,13 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PAPER_DIR = ROOT / "paper_demo"
 TOOLS_DIR = ROOT / ".latex-tools"
 TECTONIC_DIR = TOOLS_DIR / "tectonic"
 TECTONIC_EXE = TECTONIC_DIR / "tectonic.exe"
 TECTONIC_CACHE = TOOLS_DIR / "tectonic-cache"
-LATEST_RELEASE_API = (
-    "https://api.github.com/repos/tectonic-typesetting/tectonic/releases/latest"
-)
+LATEST_RELEASE_API = "https://api.github.com/repos/tectonic-typesetting/tectonic/releases/latest"
 
 
 def fetch_json(url: str) -> dict:
@@ -29,9 +26,8 @@ def fetch_json(url: str) -> dict:
 
 def download(url: str, target: Path) -> None:
     request = urllib.request.Request(url, headers={"User-Agent": "DynamicMCPBench-build"})
-    with urllib.request.urlopen(request, timeout=300) as response:
-        with target.open("wb") as handle:
-            shutil.copyfileobj(response, handle)
+    with urllib.request.urlopen(request, timeout=300) as response, target.open("wb") as handle:
+        shutil.copyfileobj(response, handle)
 
 
 def ensure_tectonic() -> Path:
@@ -50,11 +46,7 @@ def ensure_tectonic() -> Path:
     if selected is None:
         for asset in assets:
             name = asset.get("name", "").lower()
-            if (
-                name.endswith(".zip")
-                and "windows" in name
-                and ("x86_64" in name or "amd64" in name)
-            ):
+            if name.endswith(".zip") and "windows" in name and ("x86_64" in name or "amd64" in name):
                 selected = asset
                 break
 

@@ -1,0 +1,308 @@
+{
+  "claude-haiku-4-5|curated": {
+    "pass_pct": 37.3,
+    "passed": 56,
+    "n": 150,
+    "ci95": [
+      30.0,
+      45.3
+    ]
+  },
+  "deepseek-v4-pro|curated": {
+    "pass_pct": 50.7,
+    "passed": 76,
+    "n": 150,
+    "ci95": [
+      42.7,
+      58.6
+    ]
+  },
+  "glm-5-1|curated": {
+    "pass_pct": 46.0,
+    "passed": 69,
+    "n": 150,
+    "ci95": [
+      38.2,
+      54.0
+    ]
+  },
+  "grok-4-3|curated": {
+    "pass_pct": 28.7,
+    "passed": 43,
+    "n": 150,
+    "ci95": [
+      22.0,
+      36.4
+    ]
+  },
+  "kimi-k2-6|curated": {
+    "pass_pct": 42.7,
+    "passed": 64,
+    "n": 150,
+    "ci95": [
+      35.0,
+      50.7
+    ]
+  },
+  "minimax-m3|curated": {
+    "pass_pct": 44.0,
+    "passed": 66,
+    "n": 150,
+    "ci95": [
+      36.3,
+      52.0
+    ]
+  },
+  "qwen3-7-max|curated": {
+    "pass_pct": 54.0,
+    "passed": 81,
+    "n": 150,
+    "ci95": [
+      46.0,
+      61.8
+    ]
+  },
+  "claude-haiku-4-5|rag-4": {
+    "pass_pct": 16.7,
+    "passed": 25,
+    "n": 150,
+    "ci95": [
+      11.6,
+      23.4
+    ]
+  },
+  "kimi-k2-6|rag-4": {
+    "pass_pct": 21.3,
+    "passed": 32,
+    "n": 150,
+    "ci95": [
+      15.5,
+      28.6
+    ]
+  },
+  "minimax-m3|rag-4": {
+    "pass_pct": 18.0,
+    "passed": 27,
+    "n": 150,
+    "ci95": [
+      12.7,
+      24.9
+    ]
+  },
+  "qwen3-7-max|rag-4": {
+    "pass_pct": 22.7,
+    "passed": 34,
+    "n": 150,
+    "ci95": [
+      16.7,
+      30.0
+    ]
+  },
+  "claude-haiku-4-5|rag-8": {
+    "pass_pct": 21.3,
+    "passed": 32,
+    "n": 150,
+    "ci95": [
+      15.5,
+      28.6
+    ]
+  },
+  "deepseek-v4-pro|rag-8": {
+    "pass_pct": 30.0,
+    "passed": 45,
+    "n": 150,
+    "ci95": [
+      23.2,
+      37.8
+    ]
+  },
+  "glm-5-1|rag-8": {
+    "pass_pct": 25.3,
+    "passed": 38,
+    "n": 150,
+    "ci95": [
+      19.0,
+      32.8
+    ]
+  },
+  "grok-4-3|rag-8": {
+    "pass_pct": 22.0,
+    "passed": 33,
+    "n": 150,
+    "ci95": [
+      16.1,
+      29.3
+    ]
+  },
+  "kimi-k2-6|rag-8": {
+    "pass_pct": 24.7,
+    "passed": 37,
+    "n": 150,
+    "ci95": [
+      18.5,
+      32.1
+    ]
+  },
+  "minimax-m3|rag-8": {
+    "pass_pct": 24.0,
+    "passed": 36,
+    "n": 150,
+    "ci95": [
+      17.9,
+      31.4
+    ]
+  },
+  "qwen3-7-max|rag-8": {
+    "pass_pct": 30.7,
+    "passed": 46,
+    "n": 150,
+    "ci95": [
+      23.8,
+      38.5
+    ]
+  },
+  "claude-haiku-4-5|rag-16": {
+    "pass_pct": 24.0,
+    "passed": 36,
+    "n": 150,
+    "ci95": [
+      17.9,
+      31.4
+    ]
+  },
+  "kimi-k2-6|rag-16": {
+    "pass_pct": 33.3,
+    "passed": 50,
+    "n": 150,
+    "ci95": [
+      26.3,
+      41.2
+    ]
+  },
+  "minimax-m3|rag-16": {
+    "pass_pct": 31.3,
+    "passed": 47,
+    "n": 150,
+    "ci95": [
+      24.5,
+      39.1
+    ]
+  },
+  "qwen3-7-max|rag-16": {
+    "pass_pct": 38.0,
+    "passed": 57,
+    "n": 150,
+    "ci95": [
+      30.6,
+      46.0
+    ]
+  },
+  "claude-haiku-4-5|rag-32": {
+    "pass_pct": 28.7,
+    "passed": 43,
+    "n": 150,
+    "ci95": [
+      22.0,
+      36.4
+    ]
+  },
+  "deepseek-v4-pro|rag-32": {
+    "pass_pct": 40.7,
+    "passed": 61,
+    "n": 150,
+    "ci95": [
+      33.1,
+      48.7
+    ]
+  },
+  "glm-5-1|rag-32": {
+    "pass_pct": 41.3,
+    "passed": 62,
+    "n": 150,
+    "ci95": [
+      33.8,
+      49.3
+    ]
+  },
+  "grok-4-3|rag-32": {
+    "pass_pct": 29.3,
+    "passed": 44,
+    "n": 150,
+    "ci95": [
+      22.6,
+      37.1
+    ]
+  },
+  "kimi-k2-6|rag-32": {
+    "pass_pct": 34.7,
+    "passed": 52,
+    "n": 150,
+    "ci95": [
+      27.5,
+      42.6
+    ]
+  },
+  "minimax-m3|rag-32": {
+    "pass_pct": 36.7,
+    "passed": 55,
+    "n": 150,
+    "ci95": [
+      29.4,
+      44.6
+    ]
+  },
+  "qwen3-7-max|rag-32": {
+    "pass_pct": 40.0,
+    "passed": 60,
+    "n": 150,
+    "ci95": [
+      32.5,
+      48.0
+    ]
+  },
+  "claude-haiku-4-5|hier": {
+    "pass_pct": 28.0,
+    "passed": 42,
+    "n": 150,
+    "ci95": [
+      21.4,
+      35.7
+    ]
+  },
+  "kimi-k2-6|hier": {
+    "pass_pct": 32.7,
+    "passed": 49,
+    "n": 150,
+    "ci95": [
+      25.7,
+      40.5
+    ]
+  },
+  "minimax-m3|hier": {
+    "pass_pct": 32.7,
+    "passed": 49,
+    "n": 150,
+    "ci95": [
+      25.7,
+      40.5
+    ]
+  },
+  "qwen3-7-max|hier": {
+    "pass_pct": 36.0,
+    "passed": 54,
+    "n": 150,
+    "ci95": [
+      28.8,
+      43.9
+    ]
+  },
+  "minimax-m3|flat": {
+    "pass_pct": 36.0,
+    "passed": 54,
+    "n": 150,
+    "ci95": [
+      28.8,
+      43.9
+    ]
+  }
+}

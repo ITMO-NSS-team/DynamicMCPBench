@@ -114,10 +114,24 @@ text is recoverable from git history.
 
 ## 3. Experiments still to run
 
-**3.1 Extend the open-universe condition.** `[ ]` — promised to RJAT, sJ7917.
+**3.1 Extend the open-universe condition.** `[~]` — promised to RJAT, sJ7917.
 `e8.11` covered one model, one retriever (embedding top-8), one slice, single
 attempt. Still owed: the flat full-catalog condition (`--architecture flat`), the
 hierarchical router (`hier`), other `rag-k`, more models, and pass^3.
+
+Delivered by `docs/experiments/e9.1-tool-exposure-matrix.md` (report + the
+`scripts/cr_*.py` drivers): `rag-k` ∈ {4, 8, 16, 32} and `hier` across four
+pre-registered models, every cell 150/150; an exploratory seven-model panel that
+widens the curated span from 16.7 to 25.3 points; and a reconciliation showing
+`e8.11`'s table and this one are different draws from the same slice (0.94 sd
+apart) whose paired deficits agree to 2.7 points. Adjudication: H1/H2/H3 neutral,
+H4 positive — the registration defects are written up, not worked around.
+**Open:** `flat` ran on `minimax-m3` only (36.0) — the condition needs a 1M-token
+context, so the row is deliberately partial (H5) and closing it means the
+`qwen3.7-max` cell; pass^3 at `rag:8` is complete for three of four models with
+`minimax-m3` still filling. `gpt-5.4-mini` is excluded on technical grounds
+(`require_parameters` + `temperature` → 404), artifacts quarantined under
+`evals/cr/quarantine/`.
 
 **3.2 Tier-2 override rates per category.** `[ ]` — promised to 1npx, RJAT.
 Replay the saved leaderboard Tier-1 failures through the judge, across **several
