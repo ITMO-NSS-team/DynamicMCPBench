@@ -580,7 +580,8 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: cost/latency Pareto + $/correct; tool-scaling curve; flat/RAG/hier architecture comparison; living-bench decay over ≥3 windows; numbers JSONs written.
 
 ### E8.12 — Run: RQ4 human validation (200 tasks, ≥3 raters)
-- status: todo
+- status: done
+- note: e4.6-rq4-scorer-vs-human.md: 200-task subset, >=3 raters, Cohen kappa + Krippendorff alpha, per-tier false pass/fail, replay flip; e4.6_numbers.json committed
 - owner: —
 - claimed_at: —
 - deps: E8.7
