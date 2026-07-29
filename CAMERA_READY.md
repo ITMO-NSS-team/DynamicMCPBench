@@ -57,11 +57,19 @@ Keep both caveats visible: `broken` is an upper bound (single retry), and nine o
 ten Wikipedia traces were excluded for rate limiting, so the Wikipedia row rests
 on three calls.
 
-**1.7 Add missing limitations.** `[ ]`
+**1.7 Add missing limitations.** `[x]`
 - No controlled cross-distiller study (same traces distilled independently by
   every family in the pool) — promised to sJ7917.
 - Equivalence-set **recall** is unmeasured; the audit reports precision.
 - Scorer strictness is validated on one model only.
+
+Done: the first two go in a new "What our checkpoints do not establish"
+paragraph in Limitations; the third extends the existing fourth limitation
+(human study on one model) with the consequence — we can show the scorer is
+conservative, not that its conservatism shifts level rather than ordering. The
+§1 sentence from 1.1 was corrected in the same pass: it said these were
+questions "we measure", which is false for recall — it now says we audit and
+qualify them in Limitations.
 
 ---
 

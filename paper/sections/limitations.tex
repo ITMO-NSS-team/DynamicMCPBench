@@ -11,10 +11,28 @@ read-only majority. Third, inter-annotator reliability on the near-unanimous
 validity axis is affected by the high-prevalence agreement paradox, which is
 why we report Gwet's AC1 there rather than a kappa coefficient. Fourth, the
 human study covers all results of the single strongest locally-served model
-rather than of every model. Finally, the substrate leans toward
+rather than of every model, so scorer strictness is validated on one model
+only: we can show that the scorer is conservative, but not that its
+conservatism shifts the level rather than the ordering of the leaderboard.
+Finally, the substrate leans toward
 English-language, public-API servers, so generalization to private or
 non-English deployments is untested, though running the framework on exactly
 such servers is its intended use.
+
+\paragraph{What our checkpoints do not establish.} Two gaps bear on the
+construct itself. (1)~\emph{Equivalence-set recall is unmeasured.} Our audit
+reports precision---every alternative a checkpoint lists is effect-equivalent
+to the tool the reference used---but not recall: whether every tool that would
+produce the same effect is listed. A candidate that reaches a required effect
+through an unlisted equivalent is scored as failing, which is a second reason
+to read the reported accuracies as lower bounds. (2)~\emph{We run no controlled
+cross-distiller study.} Authorship is spread across model families, so no
+single distiller shapes the corpus, but we do not distill the same traces
+independently with each family and compare the resulting checkpoints.
+Distiller-attributable variance in what a task requires is therefore not
+isolated: our fidelity audit establishes that checkpoints are grounded in the
+traces they came from, not how much they would differ had another family
+distilled the same trace.
 
 \paragraph{Future work.} The validation pass surfaced two concrete
 improvements. (1)~\emph{Provisioning state at generation time}: some
