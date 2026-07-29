@@ -2,11 +2,12 @@
 """Drop self-inconsistent specs from a corpus (deterministic, no LLM).
 
 A spec is *self-inconsistent* when its own gold/reference trace fails one of its
-``tool_effect`` checkpoints — the demanded tool is absent, or was called with
-non-matching args. A candidate can only replay the gold's world, so such a task is
-unpassable by construction (the "wall" where every model fails). This filter removes
-exactly those via ``dmcp.evaluator.gold_unsatisfied_tool_effects`` and writes a TSV
-report of what was dropped and why.
+required checkpoints — a demanded tool is absent or was called with non-matching
+args (``tool_effect``), or a demanded value never appears in a successful call
+result (``value_produced``). A candidate can only replay the gold's world, so such
+a task is unpassable by construction (the "wall" where every model fails). This
+filter removes exactly those via ``dmcp.evaluator.reference_unsatisfied_checkpoints``
+and writes a TSV report of what was dropped and why.
 
 Run it on your corpus BEFORE evaluation and before merging into the shared dataset:
 
@@ -23,7 +24,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from dmcp.evaluator import gold_unsatisfied_tool_effects
+from dmcp.evaluator import reference_unsatisfied_checkpoints
 from dmcp.spec import TaskSpec
 from dmcp.trace import Trace
 
@@ -69,7 +70,7 @@ def main() -> None:
                 kept += 1
                 kept_lines.append(line if line.endswith("\n") else line + "\n")
                 continue
-            absent = gold_unsatisfied_tool_effects(spec, ref)
+            absent = reference_unsatisfied_checkpoints(spec, ref)
             if absent:
                 dropped.append((str(spec.task_id), ",".join(absent)))
             else:
@@ -81,9 +82,7 @@ def main() -> None:
     with report.open("w", encoding="utf-8") as fh:
         fh.write("task_id\tself_inconsistent_checkpoints\treason\n")
         for tid, cps in dropped:
-            fh.write(
-                f"{tid}\t{cps}\tgold trace fails this tool_effect checkpoint (tool absent or args mismatch)\n"
-            )
+            fh.write(f"{tid}\t{cps}\tgold trace fails this required checkpoint (effect never produced)\n")
 
     total = kept + len(dropped)
     print(f"[clean] specs={total} kept={kept} dropped={len(dropped)} orphan_trace={orphan}")

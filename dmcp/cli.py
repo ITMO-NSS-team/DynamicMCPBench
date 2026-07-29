@@ -105,7 +105,7 @@ from dmcp.discovery import MCPRegistryClient
 from dmcp.distiller import DistillationError
 from dmcp.distiller import distill as run_distill
 from dmcp.evaluator import evaluate as run_eval
-from dmcp.evaluator import gold_unsatisfied_tool_effects
+from dmcp.evaluator import reference_unsatisfied_checkpoints
 from dmcp.explorer import explore as run_exploration
 from dmcp.explorer import stash_exploration_in_trace
 from dmcp.goal_gen import _fetch_tool_specs
@@ -1244,7 +1244,7 @@ def validate_corpus(
                 spec_obj = TaskSpec.model_validate(row)
                 ref = gold_traces.get(str(spec_obj.source_trace_id))
                 if ref is not None:
-                    bad = gold_unsatisfied_tool_effects(spec_obj, ref)
+                    bad = reference_unsatisfied_checkpoints(spec_obj, ref)
                     if bad:
                         prov = row.get("provenance") or {}
                         prov["validator"] = {
@@ -1252,8 +1252,9 @@ def validate_corpus(
                             "family": "deterministic",
                             "verdict": "invalid",
                             "reason": (
-                                f"self-inconsistent: the gold trace fails its own tool_effect "
-                                f"checkpoint(s) {bad} (tool absent or args mismatch) — unpassable"
+                                f"self-inconsistent: the gold trace fails its own required "
+                                f"checkpoint(s) {bad} (effect never produced in the reference) "
+                                f"— unpassable"
                             ),
                         }
                         row["provenance"] = prov
@@ -1715,7 +1716,7 @@ def generate(
     async def _run() -> None:
         traces_out.parent.mkdir(parents=True, exist_ok=True)
         specs_out.parent.mkdir(parents=True, exist_ok=True)
-        spec_count = trace_count = 0
+        spec_count = trace_count = rejected_unsatisfied = 0
         stratification = {
             "cross_server": 0,
             "state_coupling": 0,
@@ -1778,6 +1779,20 @@ def generate(
                     # falsely reported done. --resume recovers a crashed shard.
                     typer.echo(f"  distill error (transient): {type(e).__name__}: {e}")
                     continue
+                # Reference-validation gate (E9.10): a *claimed-successful* exploration
+                # only earns a spec if its own trace actually produced every required
+                # external effect. `successful_tool_calls > 0` above is the explorer's
+                # self-report; this is the check. Without it a spec can demand an effect
+                # the reference never executed -> unpassable under replay, and a false
+                # "grounded in a successful call" claim.
+                unsatisfied = reference_unsatisfied_checkpoints(spec, trace)
+                if unsatisfied:
+                    rejected_unsatisfied += 1
+                    typer.echo(
+                        f"  reject: reference does not produce required effect(s) {unsatisfied} "
+                        f"(exploration claimed success; spec would be unpassable)"
+                    )
+                    continue
                 fs.write(spec.to_jsonl())
                 fs.write("\n")
                 spec_count += 1
@@ -1800,6 +1815,7 @@ def generate(
                     f"rec={c.recovery_required} rb={c.runtime_branching}"
                 )
         typer.echo(f"\ngenerated {spec_count}/{trace_count} specs ({spec_count} traces became specs)")
+        typer.echo(f"rejected (reference missing a required effect): {rejected_unsatisfied}")
         typer.echo("stratification:")
         typer.echo(f"  cross_server      : {stratification['cross_server']}")
         typer.echo(f"  state_coupling    : {stratification['state_coupling']}")
