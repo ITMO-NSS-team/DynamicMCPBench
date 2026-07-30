@@ -687,10 +687,10 @@ induce server confusion.
 pre-registered the hypothesis that adversarially-mined hard-negative distractors
 would induce at least 15 points more SAE than random fillers
 ($\mathrm{SAE}(\textsf{hard\_neg}) - \mathrm{SAE}(\textsf{random}) \ge 15$\,pp).
-A strategy ablation (Table~\ref{tab:distractor}) rejects it decisively: the
+A six-strategy ablation (Table~\ref{tab:distractor}) rejects it decisively: the
 observed gap is $0.6$\,pp for both models---roughly $25\times$ below the
-threshold, and not significant (Fisher exact $p \approx 0.5$)---and every
-strategy sits at the $0$--$0.6\%$ SAE floor while accuracy is unmoved. Server
+threshold, and not significant (Fisher exact $p \approx 0.5$)---and every one of
+the six sits at the $0$--$0.6\%$ SAE floor while accuracy is unmoved. Server
 confusion is a near-absent failure mode of current capable agents, inducible
 neither by distractor quantity nor by adversarial distractor construction.
 
@@ -712,23 +712,26 @@ open-universe retrieval condition.
 
 \begin{table}[t]
   \centering \small
+  \setlength{\tabcolsep}{4.5pt}
   \begin{tabular}{lcccc}
     \toprule
     & \multicolumn{2}{c}{glm-5.1} & \multicolumn{2}{c}{deepseek-v4-pro} \\
     \cmidrule(lr){2-3}\cmidrule(lr){4-5}
     strategy & SAE & acc & SAE & acc \\
     \midrule
-    \textsf{random}       & 0.0\% & 59\% & 0.0\% & 55\% \\
-    \textsf{hard\_neg}    & 0.6\% & 56\% & 0.6\% & 58\% \\
-    \textsf{cross\_domain}& 0.0\% & 58\% & 0.0\% & 59\% \\
-    \textsf{same\_name}   & 0.6\% & 61\% & 0.3\% & 57\% \\
+    \textsf{random}        & 0.0\% & 59\% & 0.0\% & 55\% \\
+    \textsf{hard\_neg}     & 0.6\% & 56\% & 0.6\% & 58\% \\
+    \textsf{cross\_domain} & 0.0\% & 58\% & 0.0\% & 59\% \\
+    \textsf{same\_name}    & 0.6\% & 61\% & 0.3\% & 57\% \\
+    \textsf{sibling}       & 0.3\% & 60\% & 0.3\% & 59\% \\
+    \textsf{stratified}    & 0.3\% & 57\% & 0.3\% & 57\% \\
     \midrule
     $\Delta$ (\textsf{hard\_neg}$-$\textsf{random}) & \multicolumn{2}{c}{$+0.6$\,pp} & \multicolumn{2}{c}{$+0.6$\,pp} \\
     \bottomrule
   \end{tabular}
   \caption{Distractor-strategy ablation (SAE rate and pass$^3$ accuracy,
     $n{=}350$/cell). The pre-registered $\ge 15$\,pp \textsf{hard\_neg} effect
-    does not appear; SAE stays at the floor under every strategy.}
+    does not appear; SAE stays at the floor across all six strategies.}
   \label{tab:distractor}
 \end{table}
 
