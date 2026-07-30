@@ -572,8 +572,8 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: RQ1 answer-vs-trace (τ, false-pass/fail); RQ2 forward-vs-graph-vs-direct; RQ3 failure model; difficulty curve; G0 contamination matrix + same-family logit; all numbers JSONs written.
 
 ### E8.11 — Run: industry extras (cost/latency, tool-scaling, architecture, decay)
-- status: claimed
-- note: released: auto-claim misfire (paid G6 suite, not the intended next step)
+- status: open
+- note: released: auto-claim misfire (paid G6 suite; excluded by the free-only directive)
 - owner: Keysiks@MacBook-Air-Kiriill.local
 - claimed_at: 2026-07-30T11:41:48Z
 - deps: E8.8 E8.2 E8.3 E8.4
