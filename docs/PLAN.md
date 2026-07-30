@@ -703,7 +703,7 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: required files, tables, credentials and writable resources confirmed before a refreshed task is readmitted; a task failing preflight is quarantined rather than counted as agent failure; covered by tests.
 
 ### E9.12 — Finer refresh classifier
-- status: todo
+- status: claimed
 - owner: —
 - claimed_at: —
 - deps: E9.11
