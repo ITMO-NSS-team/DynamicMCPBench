@@ -307,6 +307,9 @@ dmcp-studio/frontend/dist/
 hfdl/
 human_eval/
 annotate_*.jsonl
+# released corpus pulled by scripts/eqset_stats.py --pull (regenerable, ~7 MB)
+/specs.jsonl
+/traces.jsonl
 
 # camera-ready task subset: ids are tracked, the spec payload is regenerable
 /manifests/subsets/cr150.jsonl

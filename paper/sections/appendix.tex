@@ -569,11 +569,16 @@ prompt tokens a task consumes.
 
 \section{Path-Agnostic Equivalence Sets}
 \label{app:eqset}
-Across the 4{,}651 tool-effect checkpoints in the corpus, the distribution of
-equivalence-set sizes is 3{,}930 of size~1, 575 of size~2, 93 of size~3, 30 of
-size~4, and 23 of size~5 or more (maximum~12). Thus 15.5\% of effect
-checkpoints admit two or more interchangeable tools, so many tasks accept more
-than one valid trajectory rather than a single gold path.
+Across the 4{,}651 tool-effect checkpoints of the 1{,}845 released
+specifications, the distribution of equivalence-set sizes is 3{,}930 of
+size~1, 575 of size~2, 93 of size~3, 30 of size~4, and 23 of size~5 or more
+(mean~1.21, maximum~12). Thus 721 checkpoints---15.5\%---admit two or more
+interchangeable tools, so many tasks accept more than one valid trajectory
+rather than a single gold path. This is the same population and the same
+figure quoted in \S\ref{sec:benchmark:eval}; value-produced checkpoints carry
+no equivalence set and are excluded from the denominator. The distribution is
+recomputed from the released \texttt{specs.jsonl} by
+\texttt{scripts/eqset\_stats.py}.
 
 \section{Generator Self-Preference}
 \label{app:family}
