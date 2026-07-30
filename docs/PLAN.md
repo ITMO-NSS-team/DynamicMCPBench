@@ -661,7 +661,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: `rag-k` ∈ {4,8,16,32}, `hier`, and `flat` where the context window allows, over ≥4 models on the committed 150-task depth-balanced subset (`manifests/subsets/cr150.ids.txt`), plus pass^3 at `rag:8`; every cell matched task-for-task against the released curated verdicts; cells that cannot run reported as not-runnable with the reason; `docs/experiments/e9.1-tool-exposure-matrix.md` filled with data + result + conclusion and `e9.1_numbers.json` committed.
 
 ### E9.7 — Run: Tier-2 override rates per category across judge families
-- status: claimed
+- status: open
+- note: released: auto-claim misfire (paid judge-family replays; excluded by the free-only directive)
 - owner: Keysiks@MacBook-Air-Kiriill.local
 - claimed_at: 2026-07-30T11:42:01Z
 - deps: —
