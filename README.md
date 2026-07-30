@@ -103,10 +103,10 @@ Multi-tier scoring + multi-agent runs.
 
 ### Phase 4 — Robustness & living benchmark (overlaps Phase 3)
 
-- [x] Refresh protocol (`dmcp/refresh.py`): re-execute reference against live, classify identical / drifted / broken / skipped
+- [x] Refresh protocol (`dmcp/refresh.py`): re-execute reference against live, classify identical / drifted / schema_drift / state_decay / unresolved / skipped
 - [x] Refresh preflight (`dmcp/preflight.py`): confirm required files, relations, credentials and write targets first; a task whose own environment is missing is quarantined, not counted as decay or as agent failure
 - [ ] Decay metrics: track per-server drift rate over time, surface in the leaderboard
-- [ ] Refresh retry-with-backoff for transient flakes (currently single-shot)
+- [x] Refresh failure attribution (`dmcp/attribution.py`): retry transient errors with backoff, blame the server only when discovery confirms a changed/removed tool (`schema_drift`) or an intact schema over a vanished record (`state_decay`); everything else is `unresolved` and deferred to the next window instead of counted as decay
 - [ ] LLM-assisted dynamism reclassification when the heuristic disagrees with observed drift
 
 ### Phase 5 — Paper + release

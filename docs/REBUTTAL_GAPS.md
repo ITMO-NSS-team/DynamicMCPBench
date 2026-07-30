@@ -23,7 +23,7 @@
 | P1 | «we will fix the task and tighten the validator» | 1npx, RJAT, sJ7917 | 4.1 | код | **открыто** |
 | P2 | «we will replay them through several judge families and report per-category rates in the camera-ready» | 1npx + RJAT | 3.2 | компьют | **открыто** |
 | P3 | «We will add a preflight before a refreshed task returns» | RJAT | 4.3 | код | **закрыто** (E9.11, `dmcp/preflight.py`) |
-| P4 | «The separation we will implement is mechanical: retry transient… schema drift… state decay… quarantine the rest» | RJAT | 4.4 | код | **открыто** |
+| P4 | «The separation we will implement is mechanical: retry transient… schema drift… state decay… quarantine the rest» | RJAT | 4.4 | код | **закрыто** (E9.12, `dmcp/attribution.py`) |
 | P5 | «We will release the item-level labels and rubric so it can be recomputed» | sJ7917 | 4.2 | упаковка | **заблокировано извне** |
 | P6 | «we will widen the refresh across more of the 121 servers» | 4Rex | 3.3 | компьют (live) | **открыто** |
 | P7 | открытый tool-universe / retrieval поверх 1 168 инструментов | RJAT, sJ7917 | 3.1 | компьют | **закрыто** (`e9.1`) |
@@ -137,11 +137,16 @@ effect») в закрытый — а признанный-и-закрытый д
 
 Три обещания, которые дешевле делать одной цепочкой, а не по отдельности:
 
-- **P4 (CR 4.4)** — механическое разделение: ретраить transient с backoff;
-  schema drift только если discovery показывает изменённый/удалённый инструмент
-  на достижимом сервере; state decay когда схема цела, а записи нет; остальное
-  в карантин. Сейчас классификатор трёхзначный (`identical/drifted/broken`) с
-  одним ретраем, `dmcp/refresh.py`, 351 строка.
+- **P4 (CR 4.4)** — ✅ сделано (E9.12): `dmcp/attribution.py` + refresh `0.4.0`.
+  Transient (таймауты, обрывы соединения, 429, восстановимые 5xx — распознаются
+  и в исключении по цепочке `__cause__`, и в теле `isError`) ретраятся с
+  backoff; только они. `schema_drift` объявляется, лишь когда discovery на
+  достижимом сервере показывает пропавший или несовместимый по схеме
+  инструмент; `state_decay` — когда схема цела, а сервер сам говорит, что
+  записи нет; всё остальное — `unresolved`: оно откладывается до следующего
+  окна и не входит ни в `live_calls`, ни в decay-ставки, ни в
+  `spec_likely_stale`. Метка `broken` осталась легаси-синонимом атрибутируемого
+  провала, поэтому окна до `0.4.0` сравнимы с новыми.
 - **P3 (CR 4.3)** — ✅ сделано (E9.11): `dmcp/preflight.py` выводит из
   референсного трейса четыре вида предусловий (credential / file / writable /
   table) и проверяет их до первого живого вызова; задача с невыполненным
@@ -156,9 +161,10 @@ Wikipedia держится на трёх вызовах, и 4Rex это заме
 Цена здесь — не деньги, а живая сеть: rate limiting (девять трейсов Wikipedia
 уже вылетели именно так) и `npx`-серверы, которые виснут на старте. Реалистичная
 цель — не «121 сервер», а «все pip-устанавливаемые, которые стартуют», с честным
-указанием, сколько из 121 отпало и почему. Именно новый классификатор из P4 и
-делает такой прогон осмысленным: без него расширение просто добавит транзиентных
-ошибок в колонку `broken`, которая и так объявлена верхней границей.
+указанием, сколько из 121 отпало и почему. Классификатор из P4 теперь и делает
+такой прогон осмысленным: расширение больше не сливает транзиентные ошибки в
+колонку `broken`, которую пришлось объявлять верхней границей, — они уходят в
+`unresolved` и в decay-ставку не попадают.
 
 ---
 

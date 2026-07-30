@@ -57,19 +57,31 @@ def _ratio(num: int, denom: int) -> float | None:
     return (num / denom) if denom else None
 
 
+# refresh 0.4.0 split the old `broken` label into schema_drift / state_decay
+# (attributable, still decay) and unresolved (not attributable, not decay).
+# Summing the first two under `broken` keeps windows recorded before and after
+# the split directly comparable; unresolved is carried alongside, never inside.
+_FAILURE_KEYS = ("broken", "schema_drift", "state_decay")
+
+
+def _failed(counts: dict[str, int]) -> int:
+    return sum(int(counts.get(k, 0)) for k in _FAILURE_KEYS)
+
+
 def _live_count(counts: dict[str, int]) -> int:
-    """Excludes skipped — `live = identical + drifted + broken` (refresh.py docstring)."""
-    return int(counts.get("identical", 0)) + int(counts.get("drifted", 0)) + int(counts.get("broken", 0))
+    """Excludes skipped and unresolved — `live = identical + drifted + failures`."""
+    return int(counts.get("identical", 0)) + int(counts.get("drifted", 0)) + _failed(counts)
 
 
 def _window_metrics(reports: list[dict]) -> dict[str, Any]:
     """Roll up all RefreshReports for one window into per-window outcome rates."""
-    identical = drifted = broken = skipped = stale = 0
+    identical = drifted = broken = unresolved = skipped = stale = 0
     for r in reports:
         c = r.get("counts") or {}
         identical += int(c.get("identical", 0))
         drifted += int(c.get("drifted", 0))
-        broken += int(c.get("broken", 0))
+        broken += _failed(c)
+        unresolved += int(c.get("unresolved", 0))
         skipped += int(c.get("skipped", 0))
         if r.get("spec_likely_stale"):
             stale += 1
@@ -77,11 +89,12 @@ def _window_metrics(reports: list[dict]) -> dict[str, Any]:
     return {
         "n_specs": len(reports),
         "n_specs_stale": stale,
-        "total_calls": identical + drifted + broken + skipped,
+        "total_calls": identical + drifted + broken + unresolved + skipped,
         "live_calls": live,
         "identical": identical,
         "drifted": drifted,
         "broken": broken,
+        "unresolved": unresolved,
         "skipped": skipped,
         "identical_rate": _ratio(identical, live),
         "drift_rate": _ratio(drifted, live),
@@ -102,13 +115,23 @@ def _per_server_window(reports: list[dict]) -> dict[str, dict[str, Any]]:
                 continue
             bucket = by_server.setdefault(
                 sid,
-                {"refreshes": 0, "identical": 0, "drifted": 0, "broken": 0, "skipped": 0},
+                {
+                    "refreshes": 0,
+                    "identical": 0,
+                    "drifted": 0,
+                    "broken": 0,
+                    "unresolved": 0,
+                    "skipped": 0,
+                },
             )
             if sid not in seen:
                 bucket["refreshes"] += 1
                 seen.add(sid)
-            if cls in bucket:
-                bucket[cls] += 1
+            # schema_drift / state_decay land in `broken`: both are attributable
+            # failures, and the window series predates the finer labels.
+            key = "broken" if cls in _FAILURE_KEYS else cls
+            if key in bucket:
+                bucket[key] += 1
     for b in by_server.values():
         live = b["identical"] + b["drifted"] + b["broken"]
         b["live_calls"] = live

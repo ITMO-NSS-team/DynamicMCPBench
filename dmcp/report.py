@@ -19,7 +19,7 @@ from pathlib import Path
 from uuid import UUID
 
 from dmcp.evaluator import ERROR_WEIGHTS, EvaluationResult
-from dmcp.refresh import RefreshReport, decay_summary, per_server_decay
+from dmcp.refresh import ATTRIBUTABLE_FAILURES, RefreshReport, decay_summary, per_server_decay
 from dmcp.spec import TaskSpec
 
 UNKNOWN_MODEL = "<unknown>"
@@ -87,15 +87,27 @@ def decay_markdown(refresh_paths: list[Path]) -> str:
         f"Window: {when_first} → {when_last}."
     )
     co = summary["call_outcomes"]
-    live = co["identical"] + co["drifted"] + co["broken"]
+    failed = sum(co.get(c, 0) for c in ATTRIBUTABLE_FAILURES)
+    live = co["identical"] + co["drifted"] + failed
     overall_drift = (co["drifted"] / live * 100.0) if live else 0.0
-    overall_broken = (co["broken"] / live * 100.0) if live else 0.0
+    overall_broken = (failed / live * 100.0) if live else 0.0
     lines.append(
         f"Spec staleness: {summary['specs_stale']}/{summary['specs_refreshed']} "
         f"({summary['stale_rate'] * 100:.0f}%). "
         f"Overall drift {overall_drift:.0f}%, broken {overall_broken:.0f}% "
         f"(skipped {co['skipped']}, retries {sum(b['retries'] for b in per_server.values())})."
     )
+    if co.get("unresolved"):
+        lines.append(
+            f"Unresolved: {co['unresolved']} call(s) failed transiently or behind an unreachable "
+            "discovery and are excluded from the rates above — the next refresh window decides them."
+        )
+    if co.get("broken"):
+        lines.append(
+            f"Legacy: {co['broken']} failure(s) come from reports written before refresh 0.4.0, "
+            "which could not split schema drift from state decay. They count in the broken rate "
+            "but have no column of their own."
+        )
     if summary.get("specs_quarantined"):
         lines.append(
             f"Quarantined: {summary['specs_quarantined']} spec(s) failed preflight and were "
@@ -103,15 +115,16 @@ def decay_markdown(refresh_paths: list[Path]) -> str:
         )
     lines.append("")
     lines.append(
-        "| Server | Refreshes | Live calls | Identical | Drifted | Broken | "
-        "Skipped | Drift rate | Broken rate | Retries |"
+        "| Server | Refreshes | Live calls | Identical | Drifted | Schema drift | "
+        "State decay | Unresolved | Skipped | Drift rate | Broken rate | Retries |"
     )
-    lines.append("|---|---|---|---|---|---|---|---|---|---|")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for sid in sorted(per_server):
         b = per_server[sid]
         lines.append(
             f"| `{sid}` | {b['refreshes']} | {b['live_calls']} | "
-            f"{b['identical']} | {b['drifted']} | {b['broken']} | {b['skipped']} | "
+            f"{b['identical']} | {b['drifted']} | {b['schema_drift']} | "
+            f"{b['state_decay']} | {b['unresolved']} | {b['skipped']} | "
             f"{b['drift_rate'] * 100:.0f}% | {b['broken_rate'] * 100:.0f}% | "
             f"{b['retries']} |"
         )
