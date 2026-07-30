@@ -712,7 +712,7 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: transient errors (timeouts, connection errors, 429, recoverable 5xx) retried with backoff across windows; schema drift classified only when discovery shows a changed or removed tool on a reachable server; decay stated when the schema is intact but a required record is gone; everything else quarantined; covered by tests.
 
 ### E9.13 — Pre-submission verification sweep
-- status: todo
+- status: claimed
 - owner: —
 - claimed_at: —
 - deps: E9.1 E9.2 E9.3
