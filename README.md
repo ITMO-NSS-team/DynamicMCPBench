@@ -104,6 +104,7 @@ Multi-tier scoring + multi-agent runs.
 ### Phase 4 — Robustness & living benchmark (overlaps Phase 3)
 
 - [x] Refresh protocol (`dmcp/refresh.py`): re-execute reference against live, classify identical / drifted / broken / skipped
+- [x] Refresh preflight (`dmcp/preflight.py`): confirm required files, relations, credentials and write targets first; a task whose own environment is missing is quarantined, not counted as decay or as agent failure
 - [ ] Decay metrics: track per-server drift rate over time, surface in the leaderboard
 - [ ] Refresh retry-with-backoff for transient flakes (currently single-shot)
 - [ ] LLM-assisted dynamism reclassification when the heuristic disagrees with observed drift
@@ -127,19 +128,19 @@ Multi-tier scoring + multi-agent runs.
 Ledger: `docs/CAMERA_READY.md` (each item names the reviewer it answers). Steps:
 E9.1-E9.13 in `docs/PLAN.md`.
 
-- [ ] Paper text: narrow Principle 1 to a measured invariant, disambiguate the
+- [x] Paper text: narrow Principle 1 to a measured invariant, disambiguate the
       two "Tier-2" mechanisms, state the replay path-freedom and tool-exposure
       scope boundaries, add the missing limitations (E9.1)
-- [ ] Appendix: generation funnel, human confusion matrix, open-universe table (E9.2)
-- [ ] Main body: leave-own-family-out leaderboard + decay per domain (E9.3)
+- [x] Appendix: generation funnel, human confusion matrix, open-universe table (E9.2)
+- [x] Main body: leave-own-family-out leaderboard + decay per domain (E9.3)
 - [ ] Distiller-fidelity audit — gated on obtaining the annotation protocol (E9.4)
-- [ ] Restore the six-strategy distractor ablation (E9.5)
+- [x] Restore the six-strategy distractor ablation (E9.5)
 - [ ] **Run:** open-universe tool-exposure matrix — rag-k sweep, hier, flat,
       4 models, pass^3 (E9.6)
 - [ ] **Run:** Tier-2 override rates per category across judge families (E9.7)
 - [ ] **Run:** widen the refresh beyond 22 traces / 3 families (E9.8)
 - [ ] Annotate a second model for scorer strictness (E9.9)
-- [ ] Reference-validator tightening, refresh preflight, finer refresh classifier (E9.10-E9.12)
+- [x] Reference-validator tightening (E9.10) and refresh preflight (E9.11); finer refresh classifier still open (E9.12)
 - [ ] Pre-submission verification sweep: reproducibility statement, Gwet AC1,
       16% / 15.5% reconciliation (E9.13)
 

@@ -262,9 +262,20 @@ cannot be named until 4.2 releases the item-level labels.
 **4.2 Release the audit's item-level labels and rubric.** `[ ]` — promised to
 sJ7917. Depends on 2.1.
 
-**4.3 Refresh preflight.** `[ ]` — promised to RJAT.
-Confirm required files, tables, credentials and writable resources before a
-refreshed task is readmitted; quarantine rather than count as agent failure.
+**4.3 Refresh preflight.** `[x]` — promised to RJAT. Shipped as `dmcp/preflight.py`
+(E9.11). A reference trace is read for the four preconditions it depends on —
+`credential` (the server's declared `requires_env`), `file` (an absolute path a
+read call consumed), `writable` (an absolute path a `stateful_write` call
+targeted; the parent is checked when the file does not exist yet) and `table` (a
+relation named by a table-ish argument or by SQL, checked against a read-only
+`list_tables`-style probe). A task with an unmet precondition is **quarantined**:
+`refresh_one` makes no live call at all, the report carries the finding, and the
+quarantined spec is excluded from both `decay_summary` and `per_server_decay`, so
+our own missing fixture can be read neither as server decay nor as agent failure.
+The derivation is deliberately biased toward under-claiming — relative paths and
+unknown servers yield no requirement, and an un-probeable relation is `unknown`,
+which never quarantines. `dmcp refresh --no-preflight` restores the old
+behaviour.
 
 **4.4 Finer refresh classifier.** `[ ]` — promised to RJAT.
 Retry transient errors (timeouts, connection errors, 429, recoverable 5xx) with

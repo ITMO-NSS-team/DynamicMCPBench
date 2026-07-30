@@ -242,6 +242,13 @@ def refresh(
         float,
         typer.Option("--retry-backoff", help="Initial backoff in seconds (doubles each retry)"),
     ] = 0.5,
+    preflight: Annotated[
+        bool,
+        typer.Option(
+            "--preflight/--no-preflight",
+            help="Check required files, relations, credentials and write targets first; quarantine a task whose environment is missing instead of blaming the server.",
+        ),
+    ] = True,
     output: Annotated[Path, typer.Option("--output", "-o", help="RefreshReport JSONL output")] = Path(
         "evals/refresh.jsonl"
     ),
@@ -252,6 +259,9 @@ def refresh(
     Skips stateful_write servers by default — re-running git_create_branch with
     the same name would just fail; pass --refresh-stateful to override only when
     you know the server is sandboxed for refresh.
+
+    A task whose own environment is broken is quarantined by preflight before any
+    live call: it is neither readmitted nor counted as decay.
     """
     m = Manifest.load(manifest)
     refs = _load_traces_by_id(reference_traces)
@@ -276,10 +286,15 @@ def refresh(
                     refresh_stateful=refresh_stateful,
                     transient_retries=transient_retries,
                     initial_backoff_s=initial_backoff_s,
+                    preflight=preflight,
                 )
                 fout.write(report.to_jsonl())
                 fout.write("\n")
                 reports.append(report)
+                if report.quarantined:
+                    detail = report.preflight.summary() if report.preflight else "preflight failed"
+                    typer.echo(f"[task {spec.task_id}] QUARANTINE  {detail}")
+                    continue
                 c = report.counts
                 flag = "STALE" if report.spec_likely_stale else "ok"
                 typer.echo(
@@ -291,6 +306,7 @@ def refresh(
         typer.echo("")
         typer.echo("decay summary:")
         typer.echo(f"  specs refreshed : {summary['specs_refreshed']}")
+        typer.echo(f"  specs quarantd  : {summary['specs_quarantined']} (env unmet — not decay)")
         typer.echo(f"  specs stale     : {summary['specs_stale']} ({summary['stale_rate'] * 100:.0f}%)")
         typer.echo(f"  call outcomes   : {summary['call_outcomes']}")
         typer.echo(f"\nwrote refresh report → {output}")
