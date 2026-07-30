@@ -1,0 +1,66 @@
+{
+  "lofo": {
+    "what": "Leave-own-family-out leaderboard: each model's pass^3 restricted to tasks its own model family did not author.",
+    "source": {
+      "headline": "paper tab:leaderboard (pass^3 over the balanced 750-task slice)",
+      "lofo": "paper tab:family, 'other' column (same runs, tasks authored by the model's own family removed)",
+      "note": "Models whose family authored no task in the corpus have no own-family tasks to remove, so their LOFO score is their headline score by construction; they are marked family_authored=false."
+    },
+    "models": [
+      {"model": "qwen3.7-max", "headline": 51.2, "lofo": 52.0, "family_authored": true},
+      {"model": "glm-5.1", "headline": 50.3, "lofo": 46.4, "family_authored": true},
+      {"model": "qwen3.6-35b", "headline": 48.5, "lofo": 49.5, "family_authored": true},
+      {"model": "deepseek-v4-pro", "headline": 46.4, "lofo": 46.3, "family_authored": true},
+      {"model": "gemma4-31b", "headline": 42.5, "lofo": 42.7, "family_authored": true},
+      {"model": "minimax-m3", "headline": 42.4, "lofo": 43.0, "family_authored": true},
+      {"model": "claude-haiku-4.5", "headline": 41.1, "lofo": 41.8, "family_authored": true},
+      {"model": "kimi-k2.6", "headline": 40.7, "lofo": 39.3, "family_authored": true},
+      {"model": "grok-4.3", "headline": 31.6, "lofo": 31.4, "family_authored": true},
+      {"model": "qwen3.5-4b", "headline": 27.3, "lofo": 27.3, "family_authored": true},
+      {"model": "gpt-5.4-mini", "headline": 25.7, "lofo": 24.0, "family_authored": true},
+      {"model": "granite-3b", "headline": 22.5, "lofo": 22.5, "family_authored": false},
+      {"model": "gemma4-e4b", "headline": 22.1, "lofo": 21.8, "family_authored": true},
+      {"model": "qwen3-8b", "headline": 22.1, "lofo": 22.2, "family_authored": true},
+      {"model": "nemotron-nano-4b", "headline": 21.9, "lofo": 21.9, "family_authored": false},
+      {"model": "qwen2.5-7b", "headline": 21.1, "lofo": 21.4, "family_authored": true},
+      {"model": "gemma4-e2b", "headline": 20.1, "lofo": 19.9, "family_authored": true},
+      {"model": "xlam2-8b", "headline": 19.5, "lofo": 19.5, "family_authored": false},
+      {"model": "toolace2-8b", "headline": 17.5, "lofo": 17.5, "family_authored": false},
+      {"model": "qwen2.5-3b", "headline": 16.9, "lofo": 17.3, "family_authored": true},
+      {"model": "hermes3-8b", "headline": 13.2, "lofo": 13.2, "family_authored": false},
+      {"model": "ministral3-3b", "headline": 12.4, "lofo": 12.9, "family_authored": true},
+      {"model": "hammer2.1-7b", "headline": 9.7, "lofo": 9.7, "family_authored": false},
+      {"model": "smollm3-3b", "headline": 7.2, "lofo": 7.2, "family_authored": false}
+    ],
+    "expected": {
+      "spearman": 0.997,
+      "swapped_pairs": [
+        ["glm-5.1", "qwen3.6-35b"],
+        ["gemma4-31b", "minimax-m3"],
+        ["gemma4-e4b", "nemotron-nano-4b"]
+      ],
+      "headline_ci": {
+        "glm-5.1": [46.7, 53.8],
+        "qwen3.6-35b": [45.0, 52.1],
+        "gemma4-31b": [39.0, 46.1],
+        "minimax-m3": [38.9, 46.0],
+        "gemma4-e4b": [19.3, 25.2],
+        "nemotron-nano-4b": [19.1, 25.0]
+      }
+    }
+  },
+  "decay": {
+    "what": "Refresh protocol re-executing recorded reference tool calls against the live servers, days after recording.",
+    "source": "docs/experiments/decay-living-benchmark.md (22 of 31 reference traces completed; 126 tool-call re-executions)",
+    "rows": [
+      {"server": "yfinance", "calls": 18, "identical": 6, "drifted": 94, "broken": 0},
+      {"server": "arxiv", "calls": 105, "identical": 40, "drifted": 22, "broken": 38},
+      {"server": "wikipedia", "calls": 3, "identical": 67, "drifted": 33, "broken": 0}
+    ],
+    "pooled_expected": {"calls": 126, "identical": 36, "drifted": 33, "broken": 32},
+    "caveats": [
+      "9 of 10 wikipedia traces timed out under API rate-limiting and are excluded; the small wikipedia n is an artifact of our request rate, not of server decay.",
+      "With a single retry, transient failures count as broken, so the broken column is an upper bound on persistent breakage."
+    ]
+  }
+}

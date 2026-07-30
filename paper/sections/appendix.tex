@@ -591,7 +591,10 @@ own-family tasks against 46.4 on the rest. Its overall 50.3
 tasks its family did not author it stands at 46.4---level with the
 third-placed model rather than clear of it. The reported figure should be read
 with that caveat; no other model near the top of the leaderboard shows a
-comparable gap.
+comparable gap. The ``other'' column here is what
+Table~\ref{tab:lofo} orders the whole field by: the leaderboard recomputed with
+each model's own-family tasks removed, which leaves the ranking almost
+unchanged (Spearman \(\rho = 0.997\)).
 
 \begin{table}[h]
   \centering \small
@@ -731,51 +734,26 @@ open-universe retrieval condition.
 
 \section{Benchmark Decay}
 \label{app:decay}
+Table~\ref{tab:decay} in \S\ref{sec:results:decay} reports the decay
+measurement; this section gives the protocol behind it and bounds the two
+caveats attached to the numbers.
+
 The refresh protocol re-executes a recorded reference trajectory against the
 live servers and classifies each call as \emph{identical} (the live result
 matches the recording), \emph{drifted} (the call succeeds but the result
-changed), or \emph{broken} (the call no longer succeeds). It uses no model.
-Running it over 22 reference traces (126 tool-call re-executions) across three
-live-read server families, sampled days after the corpus was recorded, only
-\textbf{36\%} of effects still reproduce identically (Table~\ref{tab:decay}): a
-third have drifted as the underlying data changed and a third no longer succeed.
-The spread is what one would expect---live financial data drifts on almost every
-call, scholarly metadata is a mix, and the encyclopedic content sampled is
-mostly stable. We intend this as a \emph{materiality demonstration}, not a
-universal reproduction rate: it is a small sample deliberately drawn from
-live-read servers over three families, so the pooled figure is dominated by
-which families are in it---a substrate weighted toward stable content would
-decay far more slowly, and one weighted toward market data far faster. What it
-establishes is that decay on live servers is large enough to matter, not how
-fast an arbitrary MCP substrate decays. That much is exactly why scoring runs
-against cached reference
-traces under deterministic replay rather than live: re-scoring against the live
-world would make a model's pass/fail depend on when it was run. Two caveats
-bound the numbers further: the
-Wikipedia public API rate-limited repeated requests, so 9 of 10 wikipedia traces
-timed out and are excluded (an artifact of our request rate, not server decay);
-and with a single retry, transient failures inflate the broken count, so it is
-an upper bound on persistent breakage.
+changed), or \emph{broken} (the call no longer succeeds). It uses no model. We
+ran it over 22 reference traces (126 tool-call re-executions) across three
+live-read server families, sampled days after the corpus was recorded. The
+pooled 36\% is a \emph{materiality demonstration}, not a universal reproduction
+rate: it is a small sample deliberately drawn from live-read servers over three
+families, so the figure is dominated by which families are in it---a substrate
+weighted toward stable content would decay far more slowly, and one weighted
+toward market data far faster. What it establishes is that decay on live servers
+is large enough to matter, not how fast an arbitrary MCP substrate decays.
 
-\begin{table}[t]
-  \centering \small
-  \begin{tabular}{lrrrr}
-    \toprule
-    server (live-read) & calls & identical & drifted & broken \\
-    \midrule
-    yfinance & 18 & 6\% & 94\% & 0\% \\
-    arxiv & 105 & 40\% & 22\% & 38\% \\
-    wikipedia & 3 & 67\% & 33\% & 0\% \\
-    \midrule
-    all & 126 & \textbf{36\%} & 33\% & 32\% \\
-    \bottomrule
-  \end{tabular}
-  \caption{Benchmark decay: re-executing recorded reference tool calls against
-    the live servers. On this three-family live-read sample only 36\% still
-    reproduce identically; the rest drifted (data changed) or broke. The
-    pooled rate demonstrates that decay is material, and is not a universal
-    reproduction rate---it is dominated by the sampled families. Wikipedia $n$
-    is small (9 of 10 traces excluded after API rate-limiting); ``broken'' is
-    an upper bound (single retry).}
-  \label{tab:decay}
-\end{table}
+Two caveats bound the numbers further. The Wikipedia public API rate-limited
+repeated requests, so 9 of 10 wikipedia traces timed out and are excluded; those
+timeouts are an artifact of our request rate rather than of server decay, which
+is why the wikipedia row rests on only 3 calls. And with a single retry,
+transient failures inflate the broken count, so 32\% is an upper bound on
+persistent breakage.
