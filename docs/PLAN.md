@@ -694,7 +694,7 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: the one identified broken task fixed; the validator rejects a claimed-successful exploration that does not produce every required external effect; a regression test covers the rejection.
 
 ### E9.11 — Refresh preflight (quarantine, don't blame the agent)
-- status: todo
+- status: claimed
 - owner: —
 - claimed_at: —
 - deps: —
