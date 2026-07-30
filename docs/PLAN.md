@@ -616,8 +616,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: Principle 1 restated as a measured invariant (no "cannot arise by construction") in §1, §3.1, §3.3 and the Conclusion; the Tier-2 naming collision resolved by renaming one mechanism and stating that no reported number involves an LLM judgment (scoring, not construction); the replay path-freedom trade-off stated; the tool-exposure scope boundary stated; GLM-5.1 carries the same-family caveat; decay reframed as a materiality demonstration with both caveats visible; the three missing limitations added.
 
 ### E9.2 — Appendix: generation funnel, human confusion matrix, open-universe table
-- status: claimed
-- note: CR 2.2 funnel, 2.3 confusion matrix, 2.6 open-universe table
+- status: done
+- note: CR 2.2/2.3/2.6 in the appendix; 2.6 carries the full e9.1 matrix, not just e8.11; tables regenerate via scripts/cr_paper_tables.py --check, enforced in tests
 - owner: —
 - claimed_at: —
 - deps: —
