@@ -2,11 +2,16 @@
 
 Drives `refresh_one` against an injected fake recorder so live MCP servers
 aren't needed. Asserts:
-  - identical / drifted / broken / skipped classification
+  - identical / drifted / failure / skipped classification
   - retries-with-backoff (transient exception then success → identical/drifted)
-  - exhausted retries → broken
+  - exhausted retries → unresolved, deferred to the next window
   - per-server drift rate aggregation across multiple refresh reports
   - decay markdown table renders the per-server breakdown
+
+E9.12 split the old single `broken` label into schema_drift / state_decay /
+unresolved; the finer attribution itself is covered in
+`test_refresh_attribution.py`, and the aggregates here still speak the legacy
+`broken` label so older windows stay comparable.
 """
 
 from __future__ import annotations
@@ -82,6 +87,12 @@ def _ref_trace(calls: list[tuple[str, str, dict, str]]) -> Trace:
     return t
 
 
+class _FakeTool:
+    def __init__(self, name: str):
+        self.name = name
+        self.input_schema: dict = {}
+
+
 class _FakeRecorder:
     """Drop-in for TraceRecorder: deterministically scripts call_tool outcomes."""
 
@@ -90,6 +101,10 @@ class _FakeRecorder:
         # each response is either a result dict or an Exception instance to raise.
         self._plan = {k: list(v) for k, v in plan.items()}
         self.calls: list[tuple[str, str]] = []
+
+    async def list_tools(self, server_id: str):
+        """Discovery for failure attribution (E9.12): every planned tool is live."""
+        return [_FakeTool(tool) for (sid, tool) in self._plan if sid == server_id]
 
     async def call_tool(self, server_id: str, tool: str, args: dict):
         self.calls.append((server_id, tool))
@@ -112,7 +127,7 @@ def _run(coro):
     return asyncio.run(coro)
 
 
-def test_classifies_identical_drifted_broken_skipped():
+def test_classifies_identical_drifted_failed_skipped():
     manifest = _build_manifest(with_stateful=True)
     ref = _ref_trace(
         [
@@ -127,7 +142,9 @@ def test_classifies_identical_drifted_broken_skipped():
             ("time", "get_time"): [_text_result("2024-01-01T00:00:00")],  # identical
             ("weather", "current"): [
                 _text_result("cloudy 19C"),  # drifted
-                _text_result("storm", is_error=True),  # broken (isError)
+                # isError with the tool still live and an intact schema: the
+                # server itself says the record is gone → state_decay (E9.12).
+                _text_result("no such city: Tokyo", is_error=True),
             ],
         }
     )
@@ -142,13 +159,16 @@ def test_classifies_identical_drifted_broken_skipped():
         )
     )
     classes = [o.classification for o in report.call_outcomes]
-    assert sorted(classes) == ["broken", "drifted", "identical", "skipped"]
+    assert sorted(classes) == ["drifted", "identical", "skipped", "state_decay"]
     skipped = next(o for o in report.call_outcomes if o.classification == "skipped")
     assert skipped.server_id == "db"
     assert report.counts == {
         "identical": 1,
         "drifted": 1,
-        "broken": 1,
+        "broken": 0,
+        "schema_drift": 0,
+        "state_decay": 1,
+        "unresolved": 0,
         "skipped": 1,
         "quarantined": 0,
         "total": 4,
@@ -165,8 +185,8 @@ def test_retry_with_backoff_recovers_transient_flake():
     rec = _FakeRecorder(
         {
             ("weather", "current"): [
-                RuntimeError("transient"),
-                RuntimeError("transient"),
+                ConnectionResetError("connection reset by peer"),
+                TimeoutError("read timed out"),
                 _text_result("sunny"),  # eventual success → identical
             ]
         }
@@ -190,7 +210,7 @@ def test_retry_with_backoff_recovers_transient_flake():
     assert len(rec.calls) == 3  # the two failures + the recovering call
 
 
-def test_exhausted_retries_becomes_broken():
+def test_exhausted_retries_becomes_unresolved():
     manifest = _build_manifest()
     ref = _ref_trace([("weather", "current", {"city": "Paris"}, "sunny")])
     rec = _FakeRecorder(
@@ -213,9 +233,13 @@ def test_exhausted_retries_becomes_broken():
             initial_backoff_s=0.01,
         )
     )
-    assert report.counts["broken"] == 1
+    # A server that stayed unreachable is not evidence that the spec decayed:
+    # it is deferred to the next window, and the decay tally never sees it.
+    assert report.counts["unresolved"] == 1
+    assert report.counts["broken"] == 0
+    assert report.spec_likely_stale is False
     o = report.call_outcomes[0]
-    assert o.classification == "broken"
+    assert o.classification == "unresolved"
     assert o.retry_count == 2
     assert "TimeoutError" in o.reason
     assert "2 retries" in o.reason

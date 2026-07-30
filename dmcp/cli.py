@@ -235,7 +235,7 @@ def refresh(
         int,
         typer.Option(
             "--retries",
-            help="Retry exception-raising live calls this many times with exponential backoff before classifying as broken.",
+            help="Retry transient live failures (timeout, dropped connection, 429, recoverable 5xx) this many times with exponential backoff. A non-transient error is not retried.",
         ),
     ] = 2,
     initial_backoff_s: Annotated[
@@ -255,7 +255,13 @@ def refresh(
 ) -> None:
     """Re-execute each spec's reference trace against live servers and report drift.
 
-    Classifies every reference tool call as identical / drifted / broken / skipped.
+    Classifies every reference tool call as identical / drifted / schema_drift /
+    state_decay / unresolved / skipped. A failure counts as decay only when it can
+    be pinned on the server: the tool is gone or reshaped (schema_drift), or the
+    schema is intact and the record it needs is not (state_decay). A transient
+    error that outlives its retries, or a server we cannot reach for discovery, is
+    unresolved and left for the next window rather than counted.
+
     Skips stateful_write servers by default — re-running git_create_branch with
     the same name would just fail; pass --refresh-stateful to override only when
     you know the server is sandboxed for refresh.
@@ -300,7 +306,8 @@ def refresh(
                 typer.echo(
                     f"[task {spec.task_id}] {flag}  "
                     f"identical={c['identical']} drifted={c['drifted']} "
-                    f"broken={c['broken']} skipped={c['skipped']}"
+                    f"schema_drift={c['schema_drift']} state_decay={c['state_decay']} "
+                    f"unresolved={c['unresolved']} skipped={c['skipped']}"
                 )
         summary = decay_summary(reports)
         typer.echo("")

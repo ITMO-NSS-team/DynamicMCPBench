@@ -48,7 +48,15 @@ def primary_server(t):
     return c.most_common(1)[0][0] if c else "?"
 
 
-LINE = re.compile(r"identical=(\d+)\s+drifted=(\d+)\s+broken=(\d+)\s+skipped=(\d+)")
+# refresh 0.4.0 replaced `broken=` with the finer schema_drift / state_decay /
+# unresolved split. `broken` here keeps its old meaning — an attributable
+# failure — so the aggregate stays comparable with earlier windows; unresolved
+# is tracked separately and never folded in.
+LINE = re.compile(
+    r"identical=(\d+)\s+drifted=(\d+)\s+"
+    r"(?:broken=(?P<broken>\d+)|schema_drift=(?P<schema>\d+)\s+state_decay=(?P<state>\d+)\s+"
+    r"unresolved=(?P<unresolved>\d+))\s+skipped=(?P<skipped>\d+)"
+)
 per_server = collections.defaultdict(lambda: collections.Counter())
 overall = collections.Counter()
 done = 0
@@ -67,10 +75,15 @@ for sp in specs:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT)
         m = LINE.search(r.stdout)
         if m:
-            i, d, b, k = (int(x) for x in m.groups())
-            per_server[srv].update(identical=i, drifted=d, broken=b, skipped=k, specs=1)
-            overall.update(identical=i, drifted=d, broken=b, skipped=k, specs=1)
-            status = f"id={i} dr={d} br={b} sk={k}"
+            i, d, k = int(m.group(1)), int(m.group(2)), int(m.group("skipped"))
+            if m.group("broken") is not None:
+                b, u = int(m.group("broken")), 0
+            else:
+                b = int(m.group("schema")) + int(m.group("state"))
+                u = int(m.group("unresolved"))
+            per_server[srv].update(identical=i, drifted=d, broken=b, unresolved=u, skipped=k, specs=1)
+            overall.update(identical=i, drifted=d, broken=b, unresolved=u, skipped=k, specs=1)
+            status = f"id={i} dr={d} br={b} un={u} sk={k}"
         else:
             per_server[srv].update(crashed=1, specs=1)
             overall.update(crashed=1, specs=1)

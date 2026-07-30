@@ -277,11 +277,31 @@ unknown servers yield no requirement, and an un-probeable relation is `unknown`,
 which never quarantines. `dmcp refresh --no-preflight` restores the old
 behaviour.
 
-**4.4 Finer refresh classifier.** `[ ]` — promised to RJAT.
-Retry transient errors (timeouts, connection errors, 429, recoverable 5xx) with
-backoff across windows; classify schema drift only when discovery shows a changed
-or removed tool on a reachable server; state decay when the schema is intact but
-a required record is gone; quarantine whatever remains unresolved.
+**4.4 Finer refresh classifier.** `[x]` — promised to RJAT. Shipped as
+`dmcp/attribution.py` + refresh `0.4.0` (E9.12). The old single `broken` label
+covered a dropped socket and a deleted tool alike, which is exactly the number we
+publish as substrate decay, so it is now split by what the evidence supports:
+
+- **transient** — timeouts, connection errors, HTTP 429 and recoverable 5xx,
+  recognised on the raised exception (following `__cause__`/`__context__`) *and*
+  on `isError` bodies, since many servers wrap the upstream status instead of
+  raising. These are retried with exponential backoff; nothing else is, so a
+  wrong-arguments verdict does not burn the budget.
+- **`schema_drift`** — claimed only when discovery on a *reachable* server shows
+  the tool gone, or its input schema newly incompatible with the recorded
+  arguments (new required parameter, dropped parameter, changed declared type).
+- **`state_decay`** — the schema is intact and the server itself reports the
+  record is gone.
+- **`unresolved`** — a transient failure that outlived its retries, discovery we
+  could not reach, or a server error we cannot pin on anything. It is *deferred
+  to the next window*: excluded from `live_calls`, from every decay rate, and
+  from `spec_likely_stale`.
+
+Discovery is probed at most once per failing server per refresh. `broken` is kept
+as a legacy label that still counts as an attributable failure everywhere, so
+windows recorded before `0.4.0` stay directly comparable; the decay table shows
+the finer columns plus an explicit legacy note. The bias matches 4.3: when in
+doubt we say `unresolved` rather than inflate decay.
 
 ---
 
