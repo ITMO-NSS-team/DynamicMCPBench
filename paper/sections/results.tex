@@ -153,41 +153,64 @@ confusing one server for another.
 \label{sec:results:decay}
 \begin{table}[t]
   \centering \small
-  \begin{tabular}{lrrrr}
+  \begin{tabular}{lrrrrr}
     \toprule
-    server (live-read) & calls & identical & drifted & broken \\
+    domain & servers & calls & identical & drifted & broken \\
     \midrule
-    yfinance & 18 & 6\% & 94\% & 0\% \\
-    arxiv & 105 & 40\% & 22\% & 38\% \\
-    wikipedia & 3 & 67\% & 33\% & 0\% \\
+    law/compliance      & 27 & 432 & 26\% & 74\% & 0\% \\
+    AI/agent tooling    &  9 & 115 & 36\% & 64\% & 0\% \\
+    finance/markets     & 16 &  74 & 58\% & 42\% & 0\% \\
+    gov.\ statistics    &  4 &  61 & 25\% & 75\% & 0\% \\
+    reference/knowledge &  6 &  48 & 27\% & 73\% & 0\% \\
+    science/health      &  3 &  47 & 19\% & 81\% & 0\% \\
+    industry/business   &  5 &  41 & 29\% & 71\% & 0\% \\
+    geo/weather         &  6 &  30 & 27\% & 60\% & 13\% \\
+    developer tooling   & 10 &  29 & 90\% & 10\% & 0\% \\
+    other domains       & 27 &  61 & 43\% & 57\% & 0\% \\
     \midrule
-    all & 126 & \textbf{36\%} & 33\% & 32\% \\
+    all & 113 & 938 & \textbf{33\%} & 67\% & 0.4\% \\
     \bottomrule
   \end{tabular}
-  \caption{Benchmark decay: re-executing recorded reference tool calls against
-    the live servers. On this three-family live-read sample only 36\% still
-    reproduce identically; the rest drifted (data changed) or broke. Per-server
-    call counts are given so the pooled row can be checked against them. The
-    pooled rate demonstrates that decay is material and is not a universal
-    reproduction rate---it is dominated by the sampled families. Wikipedia $n$
-    is small (9 of 10 traces excluded after API rate-limiting); ``broken'' is
-    an upper bound (single retry). Appendix~\ref{app:decay} gives the protocol
-    and bounds both caveats.}
+  \caption{Benchmark decay, measured across the substrate: re-executing 246
+    recorded reference trajectories against the live servers yields 938
+    completed calls on 113 servers in 12 domains. Only 33\% still reproduce
+    identically. The non-identical remainder is almost entirely \emph{drift}
+    (the call succeeds, the result changed), not breakage. Rates are over
+    completed live calls; 320 calls that failed without the classifier being
+    able to attribute the failure are excluded and reported separately, as are
+    28 skipped \texttt{stateful\_write} calls and 40 quarantined by preflight.
+    ``Broken'' counts only attributable failures (schema drift, state decay)
+    under a single-retry policy; if every unattributable failure were instead
+    persistent breakage the rate would be at most 26\%. Domain $n$ is uneven
+    (law/compliance alone is 46\% of calls). Appendix~\ref{app:decay} gives the
+    protocol and the bounds.}
   \label{tab:decay}
 \end{table}
 A live substrate does not stand still, and the refresh step measures how fast
-it moves. Re-executing 22 recorded reference trajectories (126 tool calls)
-against the live servers days after recording, and classifying each call as
-identical, drifted, or broken with no model in the loop, only \textbf{36\%} of
-effects still reproduce identically (Table~\ref{tab:decay}): a third have
-drifted as the underlying data changed and a third no longer succeed. The
-spread across servers is what one would expect---live financial data drifts on
-almost every call, scholarly metadata is a mix, and the encyclopedic content
-sampled is mostly stable. We intend this as a \emph{materiality demonstration}
-rather than a universal reproduction rate, because the pooled figure is
-dominated by which families a small, deliberately live-read sample contains
-(Appendix~\ref{app:decay} bounds it further). What it establishes is that decay
-on live servers is large enough to matter, which is precisely why the
-leaderboard scores against cached reference traces under deterministic replay:
-re-scoring against the live world would make a model's pass or fail depend on
-when it was run.
+it moves. We re-execute 246 recorded reference trajectories---a stratified
+sample of up to three per server, covering 100 of the servers in the
+catalogue---against the live servers and classify each call with no model in
+the loop. The 938 calls that complete land on 113 distinct servers across 12
+domains, and only \textbf{33\%} of recorded effects still reproduce identically
+(Table~\ref{tab:decay}). Two things follow.
+
+First, decay is a property of the substrate rather than of a lucky sample: an
+earlier three-family measurement put the identical rate at 36\%, and widening
+the server sample almost fortyfold moves it by three points. Second, the
+per-domain spread is wide enough that a live re-score would be biased by topic,
+not merely noisy---developer-tooling servers, whose content is versioned and
+rarely rewritten, reproduce at 90\%, while search-ranked scholarly and
+government sources reproduce at 19--25\%.
+
+The composition of the non-identical remainder matters as much as its size.
+Almost all of it is \emph{drift}: the call still succeeds and returns something
+different (67\% of completed calls), while attributable breakage---a schema that
+changed or state that vanished---accounts for 0.4\%. A further 320 calls failed
+without the classifier being able to attribute the failure; excluding them from
+the rates is what keeps a transient network fault from being counted as decay,
+and even if every one of them were persistent breakage the rate would be at most
+26\%. The servers, in other words, are not falling over; they are quietly
+returning different answers. That is precisely why the leaderboard scores
+against cached reference traces under deterministic replay: re-scoring against
+the live world would make a model's pass or fail depend on when it was run, and
+on which domain its task happened to draw.

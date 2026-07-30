@@ -25,10 +25,10 @@
 | P3 | «We will add a preflight before a refreshed task returns» | RJAT | 4.3 | код | **закрыто** (E9.11, `dmcp/preflight.py`) |
 | P4 | «The separation we will implement is mechanical: retry transient… schema drift… state decay… quarantine the rest» | RJAT | 4.4 | код | **закрыто** (E9.12, `dmcp/attribution.py`) |
 | P5 | «We will release the item-level labels and rubric so it can be recomputed» | sJ7917 | 4.2 | упаковка | **заблокировано извне** |
-| P6 | «we will widen the refresh across more of the 121 servers» | 4Rex | 3.3 | компьют (live) | **открыто** |
+| P6 | «we will widen the refresh across more of the 121 servers» | 4Rex | 3.3 | компьют (live) | **закрыто** (E9.8, `scripts/decay_sweep.py`) |
 | P7 | открытый tool-universe / retrieval поверх 1 168 инструментов | RJAT, sJ7917 | 3.1 | компьют | **закрыто** (`e9.1`) |
 | P8 | leave-own-family-out в main body | 4Rex | 2.4 | текст | данные есть |
-| P9 | decay по доменам отдельной таблицей в main body | 4Rex | 2.5 | текст | данные есть |
+| P9 | decay по доменам отдельной таблицей в main body | 4Rex | 2.5 | текст | **закрыто** (E9.8, `tab:decay` по 12 доменам) |
 | P10 | funnel + confusion matrix в приложение | 1npx, sJ7917 | 2.2, 2.3 | текст | данные есть |
 | P11 | снять «by construction», переименовать Tier-2, оговорки GLM-5.1 и decay | все | 1.1–1.6 | текст | — |
 | P12 | «will validate that for the camera-ready» (строгость скорера) | 1npx | 3.4 | разметка | вне scope |
@@ -184,6 +184,15 @@ Wikipedia держится на трёх вызовах, и 4Rex это заме
 такой прогон осмысленным: расширение больше не сливает транзиентные ошибки в
 колонку `broken`, которую пришлось объявлять верхней границей, — они уходят в
 `unresolved` и в decay-ставку не попадают.
+
+**Закрыто (E9.8).** `scripts/decay_sweep.py`, отчёт в
+`docs/experiments/e9.8-wide-decay-sweep.md`. 246 спеков (стратифицированно ≤3 на
+сервер по 100 серверам, воркеры шардятся по серверам — артефакт с rate limiting
+устранён конструктивно), 938 завершённых вызовов на 113 серверах в 12 доменах.
+Хедлайн воспроизвёлся: 32.6% identical против 36% на узкой выборке. Состав
+остатка при этом поменялся — 67.0% drifted против 0.4% атрибутируемой поломки,
+то есть прежние 32% `broken` были очень свободной верхней границей; новая
+граница (если все 320 `unresolved` считать устойчивыми) — 25.8%.
 
 ---
 

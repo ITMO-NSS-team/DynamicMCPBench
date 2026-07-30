@@ -151,12 +151,12 @@ from the two columns, not transcribed, and asserted against the claimed values.
 **2.5 Decay per domain in its own table.** `[x]` — promised to 4Rex; **into the
 main body**.
 Done (E9.3). `tab:decay` moved from Appendix~`app:decay` to §4.5 with the per-row
-call counts intact (yfinance 18, arXiv 105, Wikipedia 3, pooled 126); the pooled
-row is recomputed by call-weighting the three rows rather than transcribed, so
-36/33/32 is checkable against them and a row that changes without the pooled rate
-following fails the check. `app:decay` keeps the protocol and the two bounding
-caveats (Wikipedia rate-limiting, single-retry upper bound on `broken`) and now
-points at the main-body table.
+call counts intact; the pooled row is recomputed by call-weighting the rows rather
+than transcribed, so the headline is checkable against them and a row that changes
+without the pooled rate following fails the check. `app:decay` keeps the protocol
+and the bounding caveats and now points at the main-body table. E9.8 later
+rebuilt the same table on the wide sweep, so its rows are the 12 domains rather
+than the original three server families (see 3.3).
 
 **2.6 Open-universe retrieval condition.** `[x]` — promised to RJAT, sJ7917.
 Done (E9.2), and superseding what was promised: rather than promoting the
@@ -233,9 +233,20 @@ upgrades, 3 cell flips, 96/200 → 99/200 (+1.5 points).
 Note: `dmcp/baselines/rq4_agreement.py::_tier1_verdict` drops `tier==2` rows and
 therefore mis-derives Tier-1 — fix or bypass it before reusing.
 
-**3.3 Widen the refresh.** `[ ]` — promised to 4Rex.
+**3.3 Widen the refresh.** `[x]` — promised to 4Rex. Done (E9.8).
 Re-execute reference traces across more of the 121 servers, not 22 traces over
 three families.
+`scripts/decay_sweep.py` re-runs 246 specs (stratified at most 3 per primary
+server over 100 servers, workers sharded by server so no server is hit
+concurrently); 938 completed calls attributed to 113 distinct servers in 12
+domains. Headline replicates: 32.6% identical against the narrow sample's 36%,
+across a 38× wider server sample. The wide run also corrects the composition of
+the remainder — 67.0% drifted against 0.4% attributable breakage, so the narrow
+report's 32% `broken` was a loose upper bound. `broken` is still reported as an
+upper bound under the unchanged single-retry policy: if all 320 unresolved
+failures were persistent, it would be at most 25.8%. `tab:decay` and
+`app:decay` are rebuilt per domain; report in
+`docs/experiments/e9.8-wide-decay-sweep.md`.
 
 **3.4 Model-independence of scorer strictness.** `[ ]` — promised to 1npx.
 The human study covers one model. Annotate at least one more model to show the

@@ -747,21 +747,43 @@ measurement; this section gives the protocol behind it and bounds the two
 caveats attached to the numbers.
 
 The refresh protocol re-executes a recorded reference trajectory against the
-live servers and classifies each call as \emph{identical} (the live result
-matches the recording), \emph{drifted} (the call succeeds but the result
-changed), or \emph{broken} (the call no longer succeeds). It uses no model. We
-ran it over 22 reference traces (126 tool-call re-executions) across three
-live-read server families, sampled days after the corpus was recorded. The
-pooled 36\% is a \emph{materiality demonstration}, not a universal reproduction
-rate: it is a small sample deliberately drawn from live-read servers over three
-families, so the figure is dominated by which families are in it---a substrate
-weighted toward stable content would decay far more slowly, and one weighted
-toward market data far faster. What it establishes is that decay on live servers
-is large enough to matter, not how fast an arbitrary MCP substrate decays.
+live servers and classifies each call, with no model in the loop, as
+\emph{identical} (the live result matches the recording), \emph{drifted} (the
+call succeeds but the result changed), \emph{schema drift} or \emph{state decay}
+(the call fails and the failure is attributable to a changed interface or to
+vanished state), \emph{unresolved} (the call fails and the cause cannot be
+attributed), \emph{skipped} (\texttt{stateful\_write} servers, never executed),
+or \emph{quarantined} (a preflight check found the task's own environment
+unmet---missing credentials or files---before any live call was made).
 
-Two caveats bound the numbers further. The Wikipedia public API rate-limited
-repeated requests, so 9 of 10 wikipedia traces timed out and are excluded; those
-timeouts are an artifact of our request rate rather than of server decay, which
-is why the wikipedia row rests on only 3 calls. And with a single retry,
-transient failures inflate the broken count, so 32\% is an upper bound on
-persistent breakage.
+We sample up to three specifications per server, deterministically, across every
+server in the catalogue that is not \texttt{stateful\_write}: 246
+specifications over 100 primary servers. Each runs in an isolated subprocess
+with a 240\,s wall clock. Two properties of the driver matter for the numbers.
+Workers claim whole servers rather than individual specifications, so no server
+is ever hit by two concurrent requests---an earlier narrow run lost nine of ten
+wikipedia traces to self-inflicted rate limiting, and sharding this way removes
+that artifact by construction. And each call is attributed to the server it
+actually addressed rather than to the server its trace was sampled under, which
+is why a sample stratified over 100 servers reports outcomes for 113.
+
+Rates are computed over completed live calls only. Of 1{,}326 non-skipped
+attempts, 938 completed and are rated; 320 failed unresolved and 40 were
+quarantined, and both are excluded from every denominator. The exclusions are
+not a rounding detail: counting a transient fault or an unmet local credential
+as decay would attribute our own configuration to the substrate. Conversely they
+set the bound in the other direction---with a single retry we cannot separate a
+persistently broken endpoint from a flaky one, so if every unresolved failure
+were persistent breakage the rate would be 26\% rather than the attributable
+0.4\%. Tightening that gap needs a retry schedule spread over hours, which we
+did not run.
+
+The remaining limitation is coverage rather than method. Domain $n$ is uneven:
+law/compliance contributes 46\% of all calls, largely from one publisher's
+family of per-country law servers, and that family is itself sharply bimodal
+(some members reproduce perfectly, others almost never). Two domains produced
+too few completed calls to characterise---security returned 7 completed calls
+against 69 unresolved, and the local-infrastructure servers produced none---so
+their rows describe reachability as much as decay. A measurement of a live
+substrate is also reproducible in method but not in digits; re-running the sweep
+a week later will move the numbers.
