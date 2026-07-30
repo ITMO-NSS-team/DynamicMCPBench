@@ -136,15 +136,27 @@ human-fail) holds 26 of 975, the large off-diagonal (230) is the deliberate
 conservatism, and 73.7% raw agreement is explicitly *not* the number to
 optimize. Regenerated from `docs/experiments/e4.6_numbers.json`.
 
-**2.4 Leave-own-family-out leaderboard.** `[ ]` — promised to 4Rex; **into the
+**2.4 Leave-own-family-out leaderboard.** `[x]` — promised to 4Rex; **into the
 main body**, not the appendix.
-Spearman 0.997 vs the headline, three adjacent swaps with overlapping CIs, GLM-5.1
-50.3% → 46.4%, rank 2 → 3.
+Done (E9.3). `tab:lofo` in §4.4 orders all 24 models by their score on tasks their
+own family did not author. No new run was needed: the "other" column of
+`tab:family` *is* the leave-own-family-out score, and models whose family authored
+no task keep their headline score by construction (marked †). Spearman ρ = 0.997
+against the headline ordering; the only rank movement is three adjacent swaps
+(glm-5.1 ↔ qwen3.6-35b, minimax-m3 ↔ gemma4-31b, nemotron-nano-4b ↔ gemma4-e4b),
+each between models whose headline CIs already overlap. GLM-5.1 50.3 → 46.4, rank
+2 → 3 — the claim 1.5 deferred to this item. ρ and the swap set are *computed*
+from the two columns, not transcribed, and asserted against the claimed values.
 
-**2.5 Decay per domain in its own table.** `[ ]` — promised to 4Rex; **into the
+**2.5 Decay per domain in its own table.** `[x]` — promised to 4Rex; **into the
 main body**.
-Include the per-row call counts (yfinance 18, arXiv 105, Wikipedia 3, pooled 126)
-so the pooled rate is checkable against the rows.
+Done (E9.3). `tab:decay` moved from Appendix~`app:decay` to §4.5 with the per-row
+call counts intact (yfinance 18, arXiv 105, Wikipedia 3, pooled 126); the pooled
+row is recomputed by call-weighting the three rows rather than transcribed, so
+36/33/32 is checkable against them and a row that changes without the pooled rate
+following fails the check. `app:decay` keeps the protocol and the two bounding
+caveats (Wikipedia rate-limiting, single-retry upper bound on `broken`) and now
+points at the main-body table.
 
 **2.6 Open-universe retrieval condition.** `[x]` — promised to RJAT, sJ7917.
 Done (E9.2), and superseding what was promised: rather than promoting the

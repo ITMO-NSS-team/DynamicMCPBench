@@ -70,6 +70,49 @@ than 20 points.
 
 \subsection{The scoring is valid}
 \label{sec:results:validity}
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lrrc}
+    \toprule
+    Model & headline & LOFO & rank \\
+    \midrule
+    qwen3.7-max & 51.2 & 52.0 & 1 \\
+    qwen3.6-35b & 48.5 & 49.5 & $3 \to 2$ \\
+    glm-5.1 & 50.3 & 46.4 & $2 \to 3$ \\
+    deepseek-v4-pro & 46.4 & 46.3 & 4 \\
+    minimax-m3 & 42.4 & 43.0 & $6 \to 5$ \\
+    gemma4-31b & 42.5 & 42.7 & $5 \to 6$ \\
+    claude-haiku-4.5 & 41.1 & 41.8 & 7 \\
+    kimi-k2.6 & 40.7 & 39.3 & 8 \\
+    grok-4.3 & 31.6 & 31.4 & 9 \\
+    qwen3.5-4b & 27.3 & 27.3 & 10 \\
+    gpt-5.4-mini & 25.7 & 24.0 & 11 \\
+    granite-3b$^{\dagger}$ & 22.5 & 22.5 & 12 \\
+    qwen3-8b & 22.1 & 22.2 & 13 \\
+    nemotron-nano-4b$^{\dagger}$ & 21.9 & 21.9 & $15 \to 14$ \\
+    gemma4-e4b & 22.1 & 21.8 & $13 \to 15$ \\
+    qwen2.5-7b & 21.1 & 21.4 & 16 \\
+    gemma4-e2b & 20.1 & 19.9 & 17 \\
+    xlam2-8b$^{\dagger}$ & 19.5 & 19.5 & 18 \\
+    toolace2-8b$^{\dagger}$ & 17.5 & 17.5 & 19 \\
+    qwen2.5-3b & 16.9 & 17.3 & 20 \\
+    hermes3-8b$^{\dagger}$ & 13.2 & 13.2 & 21 \\
+    ministral3-3b & 12.4 & 12.9 & 22 \\
+    hammer2.1-7b$^{\dagger}$ & 9.7 & 9.7 & 23 \\
+    smollm3-3b$^{\dagger}$ & 7.2 & 7.2 & 24 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Leave-own-family-out (LOFO) leaderboard: pass\textasciicircum{}3
+    (\%) on the 750-task slice, and on the same slice with every task authored
+    by the candidate's own model family removed, ordered by the latter.
+    ``rank'' shows movement against the headline ordering where there is any.
+    Spearman \(\rho = 0.997\); the three swaps are all between models whose
+    headline CIs overlap. \(\dagger\) marks models whose family authored no
+    task, so their LOFO score equals their headline score by construction.
+    gemma4-e4b and qwen3-8b tie at 22.1 in the headline column, so only their
+    LOFO order is determined.}
+  \label{tab:lofo}
+\end{table}
 To check that effect-based scoring is trustworthy, annotators reviewed all
 750 results of the strongest locally-served model. They judged \textbf{99\%}
 of the questions valid and agreed with the automatic grader on \textbf{74\%}
@@ -89,12 +132,62 @@ corpus shows no systematic self-preference: across the candidates whose family
 also authored tasks, the mean own-family advantage is \(+\)0.5 points (median
 \(-\)0.2). The aggregate does hide individual outliers, and one of them
 touches the headline: glm-5.1 scores 71.9 on tasks its own family authored
-versus 46.4 on the rest, so its second-place figure of 50.3 is lifted by
-same-family tasks---on tasks its family did not author it sits at 46.4, level
-with the third-placed model rather than ahead of it, and we report it with
-that caveat (gpt-5.4-mini shows a comparable \(+\)28.2 gap far from the top of
-the table; Appendix~\ref{app:family}). Second, server-attribution errors (SAE;
+versus 46.4 on the rest (gpt-5.4-mini shows a comparable \(+\)28.2 gap far
+from the top of the table; Appendix~\ref{app:family}). Because that outlier
+sits in second place, we recompute the entire leaderboard with each model's
+own-family tasks removed (Table~\ref{tab:lofo}). The ordering is essentially
+unchanged---Spearman \(\rho = 0.997\) against the headline ranking, with three
+adjacent swaps (glm-5.1 with qwen3.6-35b, minimax-m3 with gemma4-31b, and
+nemotron-nano-4b with gemma4-e4b), and in every one of the three the two
+models' headline confidence intervals already overlap. The single substantive
+change is the one the outlier predicts: glm-5.1 falls from \textbf{50.3 to
+46.4} and from second place to third. We report the headline figures as
+measured, and read the leave-own-family-out column as the ordering that does
+not depend on who authored the tasks. Second, server-attribution errors (SAE;
 calling the right tool on the wrong server) are near-floor at the default
 setting (0.2\% of runs; Appendix~\ref{app:sae}), so
 failures are dominated by chain length and composition rather than by
 confusing one server for another.
+
+\subsection{The substrate decays}
+\label{sec:results:decay}
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    server (live-read) & calls & identical & drifted & broken \\
+    \midrule
+    yfinance & 18 & 6\% & 94\% & 0\% \\
+    arxiv & 105 & 40\% & 22\% & 38\% \\
+    wikipedia & 3 & 67\% & 33\% & 0\% \\
+    \midrule
+    all & 126 & \textbf{36\%} & 33\% & 32\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{Benchmark decay: re-executing recorded reference tool calls against
+    the live servers. On this three-family live-read sample only 36\% still
+    reproduce identically; the rest drifted (data changed) or broke. Per-server
+    call counts are given so the pooled row can be checked against them. The
+    pooled rate demonstrates that decay is material and is not a universal
+    reproduction rate---it is dominated by the sampled families. Wikipedia $n$
+    is small (9 of 10 traces excluded after API rate-limiting); ``broken'' is
+    an upper bound (single retry). Appendix~\ref{app:decay} gives the protocol
+    and bounds both caveats.}
+  \label{tab:decay}
+\end{table}
+A live substrate does not stand still, and the refresh step measures how fast
+it moves. Re-executing 22 recorded reference trajectories (126 tool calls)
+against the live servers days after recording, and classifying each call as
+identical, drifted, or broken with no model in the loop, only \textbf{36\%} of
+effects still reproduce identically (Table~\ref{tab:decay}): a third have
+drifted as the underlying data changed and a third no longer succeed. The
+spread across servers is what one would expect---live financial data drifts on
+almost every call, scholarly metadata is a mix, and the encyclopedic content
+sampled is mostly stable. We intend this as a \emph{materiality demonstration}
+rather than a universal reproduction rate, because the pooled figure is
+dominated by which families a small, deliberately live-read sample contains
+(Appendix~\ref{app:decay} bounds it further). What it establishes is that decay
+on live servers is large enough to matter, which is precisely why the
+leaderboard scores against cached reference traces under deterministic replay:
+re-scoring against the live world would make a model's pass or fail depend on
+when it was run.
