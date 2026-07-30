@@ -634,7 +634,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: both tables in the **main body** (not the appendix): LOFO leaderboard with Spearman 0.997, the three adjacent swaps and GLM-5.1 50.3% → 46.4%; decay per domain with per-row call counts (yfinance 18, arXiv 105, Wikipedia 3, pooled 126) so the pooled rate is checkable against the rows.
 
 ### E9.4 — Distiller-fidelity audit: protocol, write-up, item-level release
-- status: todo
+- status: blocked
+- note: gated on the distiller-fidelity audit protocol from the collaborator; no protocol = no write-up
 - owner: —
 - claimed_at: —
 - deps: —
