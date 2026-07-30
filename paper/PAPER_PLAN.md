@@ -60,7 +60,7 @@ Hardest→easiest: cross-server-alternative **13.9%** · complementary 14.1% · 
 Top agents drop **~7–8 pp** from pass@1 to pass^3 → agents are inconsistent across repeats (motivates pass^3).
 
 ### 1.8 Path-agnostic fairness (equivalence sets, 1845 specs) — **(MAIN)**
-Mean equivalence-set size **1.21**, max **12**; **16% of effect checkpoints admit ≥2 interchangeable tools** → any effect-equivalent tool passes; multiple valid trajectories accepted.
+Mean equivalence-set size **1.21**, max **12**; **15.5% of effect checkpoints admit ≥2 interchangeable tools** (721 / 4,651) → any effect-equivalent tool passes; multiple valid trajectories accepted. Single source: `docs/experiments/e9.13_eqset_numbers.json` (`scripts/eqset_stats.py`).
 
 ### 1.9 Server Attribution Error (SAE) baseline — **(APP)**
 Calling the right tool on the **wrong server** fires on **0.20%** of runs at the default setting (near-floor). The **alternative-tool-density sweep** (incoming, §7) tests whether SAE rises with distractor density.

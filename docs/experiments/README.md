@@ -47,4 +47,5 @@ finding, not something to bury: silently dropping a negative result is forbidden
 - `e4.3-rq2-comparison.md` — RQ2 forward vs graph vs direct generation-quality.
 - `e4.4-rq1-comparison.md` — RQ1 answer-match vs trace-align (Kendall's τ, false-pass / false-fail).
 - `e4.5-rq3-failure-model.md` — RQ3 trace-property failure model (coefficients + permutation importance).
-- `e4.6-rq4-scorer-vs-human.md` — RQ4 scorer-vs-human agreement (κ / α + 200-task validation subset) — _status: planned_.
+- `e4.6-rq4-scorer-vs-human.md` — RQ4 scorer-vs-human agreement (Gwet AC1 + Fleiss κ over the 6-rater κ-set); reproduce with `scripts/ac1.py --pull --check`.
+- `e9.13-presubmission-sweep.md` — pre-submission verification of three paper claims: HF release completeness, AC1 reproducibility, and the equivalence-set share.

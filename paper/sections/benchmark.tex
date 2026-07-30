@@ -92,9 +92,10 @@ checkpoint: that some tool in a tool-effect's equivalence set was called with
 arguments meeting its constraint; that a value-produced checkpoint's value
 appears; that no minefield was hit; and that the partial order holds. Because
 checkpoints carry equivalence sets, any path that achieves the required
-effects passes. On the released corpus, 16\% of effect checkpoints admit two
-or more interchangeable tools (up to twelve), so multiple valid trajectories
-are accepted rather than a single gold path (Appendix~\ref{app:eqset}). A
+effects passes. Across the 4{,}651 tool-effect checkpoints of the released
+corpus, 15.5\% admit two or more interchangeable tools (up to twelve), so
+multiple valid trajectories are accepted rather than a single gold path
+(Appendix~\ref{app:eqset}). A
 second tier (Tier-2) is an \emph{optional} LLM judge that may upgrade only a
 \emph{failed} tool-effect when a different tool is genuinely
 effect-equivalent; it never reads or grades the final answer. It is off by
