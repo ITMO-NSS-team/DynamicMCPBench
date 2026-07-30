@@ -10,16 +10,19 @@ paper and survives review, so the tables are generated:
     Open-universe tool exposure      -> docs/experiments/data/e9.1_numbers.json
     Leave-own-family-out leaderboard -> docs/experiments/e9.3_numbers.json
     Benchmark decay per domain       -> docs/experiments/e9.3_numbers.json
+    Distractor-strategy ablation     -> docs/experiments/e8.9_numbers.json
 
 `--check` re-emits every table and asserts that each numeric row appears in the
 paper section that carries it, so a JSON that moves without the paper moving
 (or the reverse) fails loudly instead of drifting.
 
-The two E9.3 tables are derived rather than transcribed: the leave-own-family-out
+The later tables are derived rather than transcribed: the leave-own-family-out
 ordering, its rank movements and its Spearman correlation are computed from the
-headline and other-family columns, and the pooled decay row is recomputed by
-call-weighting the per-server rows. Both are checked against the values the paper
-claims, so a claim that stops following from the rows fails here.
+headline and other-family columns, the pooled decay row is recomputed by
+call-weighting the per-server rows, and the distractor ablation's hard-negative
+contrast is recomputed from its own cells and checked against the pre-registered
+threshold it was supposed to clear. Each is checked against the value the paper
+claims, so a claim that stops following from its rows fails here.
 
 Scope of v0: presentation and a consistency check. It adjudicates nothing and
 introduces no measurement; every input figure it reads is already committed.
@@ -42,8 +45,14 @@ E9_2 = ROOT / "docs/experiments/e9.2_numbers.json"
 E4_6 = ROOT / "docs/experiments/e4.6_numbers.json"
 E9_1 = ROOT / "docs/experiments/data/e9.1_numbers.json"
 E9_3 = ROOT / "docs/experiments/e9.3_numbers.json"
+E8_9 = ROOT / "docs/experiments/e8.9_numbers.json"
 APPENDIX = ROOT / "paper/sections/appendix.tex"
 RESULTS = ROOT / "paper/sections/results.tex"
+
+# E8.9's pre-registered rule: hard-negative distractors were to induce at least
+# this many points more server-attribution error than random fillers.
+PREREG_SAE_THRESHOLD_PP = 15.0
+STRATEGIES = ("random", r"hard\_neg", r"cross\_domain", r"same\_name", "sibling", "stratified")
 
 MODELS = ("claude-haiku-4-5", "kimi-k2-6", "minimax-m3", "qwen3-7-max")
 CONDITIONS = (
@@ -174,12 +183,47 @@ def decay_rows() -> list[str]:
     return rows
 
 
+def distractor_rows() -> list[str]:
+    """Six-strategy distractor ablation, plus the pre-registered contrast row.
+
+    Also asserts that the contrast the paper reports is the one the per-strategy
+    cells imply, and that it still falls short of the pre-registered threshold.
+    """
+    data = json.loads(E8_9.read_text())
+    ablation = data["g3_2_ablation"]
+    prereg = data["g3_2_H1_preregistered"]
+    models = ("glm-5.1", "deepseek-v4-pro")
+    width = max(len(rf"\textsf{{{s}}}") for s in STRATEGIES)
+
+    rows = []
+    for strategy in STRATEGIES:
+        cells = []
+        for model in models:
+            cell = ablation[model][strategy.replace(r"\_", "_")]
+            cells.append(rf"{cell['sae_pct']:.1f}\% & {round(cell['pass_pct'])}\%")
+        label = rf"\textsf{{{strategy}}}".ljust(width)
+        rows.append(f"{label} & " + " & ".join(cells) + r" \\")
+
+    deltas = []
+    for model in models:
+        cells = ablation[model]
+        delta = cells["hard_neg"]["sae_pct"] - cells["random"]["sae_pct"]
+        claimed = prereg[model]["delta_pp"]
+        assert round(delta, 2) == claimed, f"{model}: delta {delta} != claimed {claimed}"
+        assert not prereg[model]["supported"], f"{model}: pre-registered effect marked supported"
+        assert delta < PREREG_SAE_THRESHOLD_PP, f"{model}: delta {delta} clears the threshold"
+        deltas.append(rf"\multicolumn{{2}}{{c}}{{${delta:+.1f}$\,pp}}")
+    rows.append(r"$\Delta$ (\textsf{hard\_neg}$-$\textsf{random}) & " + " & ".join(deltas) + r" \\")
+    return rows
+
+
 TABLES = {
     "Generation funnel": (funnel_rows, APPENDIX),
     "Human validation contingency": (confusion_rows, APPENDIX),
     "Open-universe tool exposure": (exposure_rows, APPENDIX),
     "Leave-own-family-out leaderboard": (lofo_rows, RESULTS),
     "Benchmark decay per domain": (decay_rows, RESULTS),
+    "Distractor-strategy ablation": (distractor_rows, APPENDIX),
 }
 
 

@@ -1,18 +1,18 @@
-"""E9.2/E9.3: the camera-ready paper tables must stay tied to their JSONs.
+"""E9.2/E9.3/E9.5: the camera-ready paper tables must stay tied to their JSONs.
 
 `scripts/cr_paper_tables.py` regenerates the generation funnel, the human
 validation contingency table, the open-universe exposure matrix, the
-leave-own-family-out leaderboard and the decay table from committed numbers
-files. The point of the script is that the paper cannot drift from the data
-silently, so the load-bearing test is the `--check` round trip against the real
-`paper/sections/{appendix,results}.tex`. The row builders are unit-tested
-separately against fixtures so a formatting change fails with a readable diff
-rather than as a wall of missing rows.
+leave-own-family-out leaderboard, the decay table and the distractor-strategy
+ablation from committed numbers files. The point of the script is that the paper
+cannot drift from the data silently, so the load-bearing test is the `--check`
+round trip against the real `paper/sections/{appendix,results}.tex`. The row
+builders are unit-tested separately against fixtures so a formatting change
+fails with a readable diff rather than as a wall of missing rows.
 
-The two E9.3 builders also assert the claims the paper makes about them
-(Spearman, which pairs swap, the pooled decay rate), so those assertions are
-themselves tested against a deliberately wrong expectation --- a check that
-cannot fail is not a check.
+The E9.3 and E9.5 builders also assert the claims the paper makes about them
+(Spearman, which pairs swap, the pooled decay rate, the pre-registered
+hard-negative contrast), so those assertions are themselves tested against a
+deliberately wrong expectation --- a check that cannot fail is not a check.
 """
 
 from __future__ import annotations
@@ -138,6 +138,45 @@ def test_decay_rows_reject_a_pooled_rate_the_rows_do_not_support(tmp_path, monke
         cr_paper_tables.decay_rows()
 
 
+def _distractor_fixture(delta_pp: float = 0.57, supported: bool = False) -> dict:
+    cells = {
+        s: {"sae_n": 0, "sae_pct": 0.0, "pass_n": 0, "pass_pct": 50.0}
+        for s in ("random", "cross_domain", "same_name", "sibling", "stratified")
+    }
+    cells["hard_neg"] = {"sae_n": 2, "sae_pct": delta_pp, "pass_n": 0, "pass_pct": 50.0}
+    return {
+        "g3_2_ablation": {"glm-5.1": cells, "deepseek-v4-pro": cells},
+        "g3_2_H1_preregistered": {
+            "glm-5.1": {"delta_pp": delta_pp, "supported": supported},
+            "deepseek-v4-pro": {"delta_pp": delta_pp, "supported": supported},
+        },
+    }
+
+
+def test_distractor_rows_cover_all_six_strategies(tmp_path, monkeypatch):
+    src = tmp_path / "e8.9_numbers.json"
+    src.write_text(json.dumps(_distractor_fixture()))
+    monkeypatch.setattr(cr_paper_tables, "E8_9", src)
+    rows = cr_paper_tables.distractor_rows()
+    # Six strategies plus the contrast row: the ablation lost in the paper reset
+    # had only four, so a regression to four rows fails here.
+    assert len(rows) == 7
+    assert r"\textsf{sibling}" in rows[4]
+    assert r"\textsf{stratified}" in rows[5]
+    # The contrast is derived from the cells, not read off the pre-registration.
+    assert rows[6].count(r"$+0.6$\,pp") == 2
+
+
+def test_distractor_rows_reject_a_result_that_would_support_the_prereg(tmp_path, monkeypatch):
+    src = tmp_path / "e8.9_numbers.json"
+    src.write_text(json.dumps(_distractor_fixture(delta_pp=20.0, supported=True)))
+    monkeypatch.setattr(cr_paper_tables, "E8_9", src)
+    # A hard_neg effect clearing the 15pp threshold would invalidate the
+    # paragraph the table is cited from, so the builder refuses to emit it.
+    with pytest.raises(AssertionError, match="supported|threshold"):
+        cr_paper_tables.distractor_rows()
+
+
 def test_generated_tables_match_the_committed_paper():
     proc = subprocess.run(
         [sys.executable, str(ROOT / "scripts/cr_paper_tables.py"), "--check"],
@@ -147,4 +186,4 @@ def test_generated_tables_match_the_committed_paper():
     assert proc.returncode == 0, proc.stderr
     # Pin the table count so dropping a table from the registry cannot pass silently.
     assert f"across {len(cr_paper_tables.TABLES)} tables" in proc.stdout
-    assert len(cr_paper_tables.TABLES) == 5
+    assert len(cr_paper_tables.TABLES) == 6
