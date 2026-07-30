@@ -643,7 +643,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: the audit protocol (annotator independence, blinding to the distiller's retain/drop decision, adjudication of disagreements, written rubric) documented from the collaborator who ran it; appendix reports protocol, raw counts, Wilson intervals, the length stratification and the one failure case; item-level labels + rubric released. **Gate:** without the protocol this is an unblinded self-audit reporting three 100% rows — the weakest link in the package. Do not write it up until the protocol is in hand; `blocked` is the correct status if it does not arrive.
 
 ### E9.5 — Restore the six-strategy distractor ablation
-- status: todo
+- status: claimed
+- note: restore the six-strategy distractor ablation lost in the paper/ reset
 - owner: —
 - claimed_at: —
 - deps: —
