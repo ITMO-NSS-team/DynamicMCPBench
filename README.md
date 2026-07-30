@@ -138,7 +138,7 @@ E9.1-E9.13 in `docs/PLAN.md`.
 - [ ] **Run:** open-universe tool-exposure matrix — rag-k sweep, hier, flat,
       4 models, pass^3 (E9.6)
 - [ ] **Run:** Tier-2 override rates per category across judge families (E9.7)
-- [ ] **Run:** widen the refresh beyond 22 traces / 3 families (E9.8)
+- [x] **Run:** widen the refresh beyond 22 traces / 3 families (E9.8): `scripts/decay_sweep.py` over 246 specs / 100 sampled servers → 938 live calls on 113 servers in 12 domains; 32.6% identical (36% narrow), 67.0% drifted, 0.4% attributably broken (≤25.8% upper bound)
 - [ ] Annotate a second model for scorer strictness (E9.9)
 - [x] Reference-validator tightening (E9.10), refresh preflight (E9.11) and the finer refresh classifier (E9.12)
 - [x] Pre-submission verification sweep (E9.13): reproducibility statement cited by

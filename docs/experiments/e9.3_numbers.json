@@ -50,17 +50,26 @@
     }
   },
   "decay": {
-    "what": "Refresh protocol re-executing recorded reference tool calls against the live servers, days after recording.",
-    "source": "docs/experiments/decay-living-benchmark.md (22 of 31 reference traces completed; 126 tool-call re-executions)",
+    "what": "Refresh protocol re-executing recorded reference tool calls against the live servers, days after recording. Rates are over completed live calls only (identical + drifted + schema_drift + state_decay); unresolved, skipped and quarantined calls are excluded from every denominator and reported separately.",
+    "source": "docs/experiments/e9.8-wide-decay-sweep.md (246 reference specs, stratified at most 3 per primary server over 100 servers; 938 completed tool-call re-executions attributed to 113 distinct servers in 12 domains)",
     "rows": [
-      {"server": "yfinance", "calls": 18, "identical": 6, "drifted": 94, "broken": 0},
-      {"server": "arxiv", "calls": 105, "identical": 40, "drifted": 22, "broken": 38},
-      {"server": "wikipedia", "calls": 3, "identical": 67, "drifted": 33, "broken": 0}
+      {"domain": "law/compliance", "servers": 27, "calls": 432, "identical": 26, "drifted": 74, "broken": 0},
+      {"domain": "AI/agent tooling", "servers": 9, "calls": 115, "identical": 36, "drifted": 64, "broken": 0},
+      {"domain": "finance/markets", "servers": 16, "calls": 74, "identical": 58, "drifted": 42, "broken": 0},
+      {"domain": "gov.\\ statistics", "servers": 4, "calls": 61, "identical": 25, "drifted": 75, "broken": 0},
+      {"domain": "reference/knowledge", "servers": 6, "calls": 48, "identical": 27, "drifted": 73, "broken": 0},
+      {"domain": "science/health", "servers": 3, "calls": 47, "identical": 19, "drifted": 81, "broken": 0},
+      {"domain": "industry/business", "servers": 5, "calls": 41, "identical": 29, "drifted": 71, "broken": 0},
+      {"domain": "geo/weather", "servers": 6, "calls": 30, "identical": 27, "drifted": 60, "broken": 13},
+      {"domain": "developer tooling", "servers": 10, "calls": 29, "identical": 90, "drifted": 10, "broken": 0},
+      {"domain": "other domains", "servers": 27, "calls": 61, "identical": 43, "drifted": 57, "broken": 0}
     ],
-    "pooled_expected": {"calls": 126, "identical": 36, "drifted": 33, "broken": 32},
+    "pooled_expected": {"servers": 113, "calls": 938, "identical": 33, "drifted": 67, "broken": 0.4},
+    "excluded": {"unresolved": 320, "skipped_stateful_write": 28, "quarantined": 40},
     "caveats": [
-      "9 of 10 wikipedia traces timed out under API rate-limiting and are excluded; the small wikipedia n is an artifact of our request rate, not of server decay.",
-      "With a single retry, transient failures count as broken, so the broken column is an upper bound on persistent breakage."
+      "Domain n is uneven: law/compliance alone contributes 432 of 938 live calls, largely from one publisher's family of per-country law servers.",
+      "'other domains' pools the four smallest domains (other, web_scraping, security, infrastructure); infrastructure produced no live calls at all.",
+      "With a single retry (--retries 1, unchanged from the narrow run) the 320 unresolved failures cannot be separated from transient faults; if every one of them were persistent breakage the broken rate would be at most 324/1258 = 25.8%, against the 0.4% attributable point estimate."
     ]
   }
 }

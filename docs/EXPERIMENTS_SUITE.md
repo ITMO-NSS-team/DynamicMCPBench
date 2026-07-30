@@ -388,3 +388,10 @@ than 22 traces over three families, and recomputes per-domain decay on the wider
 sample. Depends on the refresh preflight (E9.11) and the finer classifier (E9.12)
 landing first, so that infrastructure failures are quarantined instead of being
 counted as decay.
+
+**Done** — `scripts/decay_sweep.py`, report in
+`docs/experiments/e9.8-wide-decay-sweep.md`. 246 specs over 100 sampled servers
+produced 938 completed calls on 113 servers in 12 domains: 32.6% identical
+(against 36% narrow), 67.0% drifted, 0.4% attributably broken, with a 25.8%
+upper bound on breakage if every unresolved failure were persistent. Free —
+live network calls only, no LLM.

@@ -19,7 +19,7 @@ paper section that carries it, so a JSON that moves without the paper moving
 The later tables are derived rather than transcribed: the leave-own-family-out
 ordering, its rank movements and its Spearman correlation are computed from the
 headline and other-family columns, the pooled decay row is recomputed by
-call-weighting the per-server rows, and the distractor ablation's hard-negative
+call-weighting the per-domain rows, and the distractor ablation's hard-negative
 contrast is recomputed from its own cells and checked against the pre-registered
 threshold it was supposed to clear. Each is checked against the value the paper
 claims, so a claim that stops following from its rows fails here.
@@ -162,23 +162,34 @@ def lofo_rows() -> list[str]:
     return rows
 
 
+def _pct(value: float) -> str:
+    """Render a rate with one decimal, dropped when it is not needed."""
+    return f"{value:.1f}".rstrip("0").rstrip(".")
+
+
 def decay_rows() -> list[str]:
-    """Per-server decay plus a pooled row recomputed by call-weighting the rows."""
+    """Per-domain decay plus a pooled row recomputed by call-weighting the rows."""
     block = json.loads(E9_3.read_text())["decay"]
     rows = [
-        rf"{r['server']} & {r['calls']} & {r['identical']}\% & {r['drifted']}\% & {r['broken']}\% \\"
+        rf"{r['domain']} & {r['servers']} & {r['calls']} & "
+        rf"{r['identical']}\% & {r['drifted']}\% & {r['broken']}\% \\"
         for r in block["rows"]
     ]
     calls = sum(r["calls"] for r in block["rows"])
-    pooled = {
-        k: round(sum(r["calls"] * r[k] for r in block["rows"]) / calls)
-        for k in ("identical", "drifted", "broken")
+    # Domains partition the servers, so the counts add up; the rates do not, and
+    # are call-weighted instead. `broken` keeps a decimal because rounding a rate
+    # this small to an integer would print it as a flat 0%.
+    servers = sum(r["servers"] for r in block["rows"])
+    pooled: dict[str, float] = {
+        k: round(sum(r["calls"] * r[k] for r in block["rows"]) / calls) for k in ("identical", "drifted")
     }
+    pooled["broken"] = round(sum(r["calls"] * r["broken"] for r in block["rows"]) / calls, 1)
     want = block["pooled_expected"]
-    assert {"calls": calls, **pooled} == want, f"pooled {calls, pooled} != claimed {want}"
+    got = {"servers": servers, "calls": calls, **pooled}
+    assert got == want, f"pooled {got} != claimed {want}"
     rows.append(
-        rf"all & {calls} & \textbf{{{pooled['identical']}\%}} & "
-        rf"{pooled['drifted']}\% & {pooled['broken']}\% \\"
+        rf"all & {servers} & {calls} & \textbf{{{pooled['identical']}\%}} & "
+        rf"{_pct(pooled['drifted'])}\% & {_pct(pooled['broken'])}\% \\"
     )
     return rows
 

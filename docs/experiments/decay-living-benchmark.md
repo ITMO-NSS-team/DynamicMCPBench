@@ -4,6 +4,14 @@
 - result: **positive** — re-executing recorded reference effects against the
   live servers shows substantial decay (only 36% reproduce identically),
   substantiating the cached-replay design.
+- **superseded by `e9.8-wide-decay-sweep.md`** for the headline and the paper
+  table. This snapshot covers 22 traces on three server families; E9.8 re-runs
+  the protocol across 113 servers in 12 domains and reports 32.6% identical, so
+  the number here replicates but the sample is narrow. Two claims below are
+  corrected there: the 32% `broken` rate is a loose upper bound (attributable
+  breakage is 0.4% once E9.12's classifier separates unattributable failures),
+  and the wikipedia rate-limiting artifact is designed out by sharding workers
+  over servers rather than specs. Kept as the narrow prior it is compared against.
 
 ## Question
 

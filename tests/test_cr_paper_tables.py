@@ -48,10 +48,11 @@ def _decay_fixture(pooled: dict | None = None) -> dict:
     return {
         "decay": {
             "rows": [
-                {"server": "alpha", "calls": 10, "identical": 50, "drifted": 50, "broken": 0},
-                {"server": "beta", "calls": 40, "identical": 10, "drifted": 40, "broken": 50},
+                {"domain": "alpha", "servers": 2, "calls": 10, "identical": 50, "drifted": 50, "broken": 0},
+                {"domain": "beta", "servers": 3, "calls": 40, "identical": 10, "drifted": 40, "broken": 50},
             ],
-            "pooled_expected": pooled or {"calls": 50, "identical": 18, "drifted": 42, "broken": 40},
+            "pooled_expected": pooled
+            or {"servers": 5, "calls": 50, "identical": 18, "drifted": 42, "broken": 40},
         }
     }
 
@@ -121,18 +122,35 @@ def test_lofo_rows_reject_a_stale_spearman_claim(tmp_path, monkeypatch):
         cr_paper_tables.lofo_rows()
 
 
-def test_decay_pooled_row_is_recomputed_from_the_per_server_rows(tmp_path, monkeypatch):
+def test_decay_pooled_row_is_recomputed_from_the_per_domain_rows(tmp_path, monkeypatch):
     src = tmp_path / "e9.3_numbers.json"
     src.write_text(json.dumps(_decay_fixture()))
     monkeypatch.setattr(cr_paper_tables, "E9_3", src)
     rows = cr_paper_tables.decay_rows()
     # Call-weighted, not a mean of the rows: (10*50 + 40*10) / 50 = 18, not 30.
-    assert rows[-1] == r"all & 50 & \textbf{18\%} & 42\% & 40\% \\"
+    # Servers add up instead, because the domains partition them.
+    assert rows[-1] == r"all & 5 & 50 & \textbf{18\%} & 42\% & 40\% \\"
+
+
+def test_decay_pooled_broken_keeps_a_decimal_when_an_integer_would_read_as_zero(tmp_path, monkeypatch):
+    src = tmp_path / "e9.3_numbers.json"
+    rows = [
+        {"domain": "alpha", "servers": 2, "calls": 900, "identical": 33, "drifted": 67, "broken": 0},
+        {"domain": "beta", "servers": 3, "calls": 100, "identical": 33, "drifted": 63, "broken": 4},
+    ]
+    pooled = {"servers": 5, "calls": 1000, "identical": 33, "drifted": 67, "broken": 0.4}
+    src.write_text(json.dumps({"decay": {"rows": rows, "pooled_expected": pooled}}))
+    monkeypatch.setattr(cr_paper_tables, "E9_3", src)
+    # (900*0 + 100*4) / 1000 = 0.4, which an integer round would flatten to a
+    # bare 0% and misreport near-absent breakage as none at all.
+    assert cr_paper_tables.decay_rows()[-1].endswith(r"0.4\% \\")
 
 
 def test_decay_rows_reject_a_pooled_rate_the_rows_do_not_support(tmp_path, monkeypatch):
     src = tmp_path / "e9.3_numbers.json"
-    src.write_text(json.dumps(_decay_fixture({"calls": 50, "identical": 30, "drifted": 42, "broken": 40})))
+    src.write_text(
+        json.dumps(_decay_fixture({"servers": 5, "calls": 50, "identical": 30, "drifted": 42, "broken": 40}))
+    )
     monkeypatch.setattr(cr_paper_tables, "E9_3", src)
     with pytest.raises(AssertionError, match="pooled"):
         cr_paper_tables.decay_rows()
