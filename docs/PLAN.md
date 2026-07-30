@@ -625,8 +625,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: funnel (980 → 1,014 → 959 → 710) with the non-comparable-denominators caveat; the 2×2 over 975 cards (488/26/230/231, 73.7%, 94.9%) framed as the stated lower bound; the `e8.11` open-universe table promoted with its one-model/one-attempt caveat. All three regenerate from committed numbers JSONs.
 
 ### E9.3 — Main body: leave-own-family-out leaderboard + decay per domain
-- status: claimed
-- note: CR 2.4 LOFO leaderboard + CR 2.5 decay per domain, both into the main body
+- status: done
+- note: CR 2.4 tab:lofo in 4.4 (rho=0.997, 3 adjacent swaps, glm-5.1 50.3->46.4 rank 2->3) + CR 2.5 tab:decay moved to new 4.5 with call counts; both generated and --check'd by scripts/cr_paper_tables.py
 - owner: —
 - claimed_at: —
 - deps: —
