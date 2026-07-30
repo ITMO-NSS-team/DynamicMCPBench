@@ -712,7 +712,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: transient errors (timeouts, connection errors, 429, recoverable 5xx) retried with backoff across windows; schema drift classified only when discovery shows a changed or removed tool on a reachable server; decay stated when the schema is intact but a required record is gone; everything else quarantined; covered by tests.
 
 ### E9.13 — Pre-submission verification sweep
-- status: claimed
+- status: done
+- note: CR 5.1/5.2/5.3 closed: reproducibility statement cited by path against the HF release; scripts/ac1.py reproduces AC1 0.993/0.652/0.763; 16% was a rounding of the same 15.502% (721/4651) — both sites relabelled, scripts/eqset_stats.py is the single source. Report: docs/experiments/e9.13-presubmission-sweep.md
 - owner: —
 - claimed_at: —
 - deps: E9.1 E9.2 E9.3
