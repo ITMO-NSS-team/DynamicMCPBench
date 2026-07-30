@@ -703,7 +703,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: required files, tables, credentials and writable resources confirmed before a refreshed task is readmitted; a task failing preflight is quarantined rather than counted as agent failure; covered by tests.
 
 ### E9.12 — Finer refresh classifier
-- status: claimed
+- status: done
+- note: dmcp/attribution.py + refresh 0.4.0: transient-only retry with backoff (exception chain + isError bodies), schema_drift only on reachable discovery showing a removed/reshaped tool, state_decay on intact schema + vanished record, unresolved deferred and excluded from live_calls/decay rates/spec_likely_stale; legacy broken kept comparable. PR #190.
 - owner: —
 - claimed_at: —
 - deps: E9.11
