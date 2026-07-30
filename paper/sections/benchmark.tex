@@ -80,7 +80,9 @@ difficulty is scaled to span short and long chains; and authorship is spread
 across model families. A checkpoint the distiller emits but the trace does not
 satisfy is a generation failure we detect rather than exclude by construction:
 each distilled task is re-scored against its own reference trace and discarded
-if any required effect is missing. The full generation and evaluation configuration appears in
+if any required effect is missing. Roughly a quarter of distilled
+specifications are rejected before reaching the corpus;
+Appendix~\ref{app:funnel} reports the funnel stage by stage. The full generation and evaluation configuration appears in
 Appendix~\ref{app:config}, and all prompts in Appendix~\ref{app:prompts}.
 
 \subsection{Effect-based scoring}
@@ -114,7 +116,10 @@ rewriter or a retriever. That pool is controlled, not open: the tools a task
 needs are already on offer, so the headline measures tool \emph{use} and does
 not measure retrieval over a large catalog. The distractor analyses
 (Appendix~\ref{app:sae}) vary the composition of that pool and should not be
-read as evidence about open-universe retrieval.
+read as evidence about open-universe retrieval; for that condition---the same
+tasks with their tools hidden in the full 1{,}168-tool catalog---see
+Appendix~\ref{app:openuniverse}, where accuracy falls by 16--23 points and the
+spread between models collapses with it.
 
 \paragraph{What path-agnosticism means under replay.} Determinism and path
 freedom trade off, and we resolve the trade-off in favour of comparability.

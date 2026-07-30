@@ -328,6 +328,189 @@ The released corpus of 1{,}845 tasks breaks down as follows. By \emph{length}:
 are static. By \emph{scope}: 528 tasks (29\%) span more than one server. The
 750-task evaluation slice draws 50 tasks from each of the 15 categories.
 
+\section{Generation Funnel}
+\label{app:funnel}
+Forward generation discards a substantial fraction of what it produces, and
+the yield is a property of the pipeline worth reporting. On the largest single
+generation run---three shards, each pairing a different explorer family with a
+different distiller family---the funnel is:
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrr}
+    \toprule
+    Stage & $n$ & of previous \\
+    \midrule
+    Goals issued              & 980   & --- \\
+    Trajectories recorded     & 1{,}014 & incl.\ retries \\
+    Specifications parsed     & 959   & 94.6\% \\
+    Validator-valid           & 710   & 74.0\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{Generation funnel on the three-shard run. ``Of previous'' is the
+    yield against the preceding row; validator-valid is also 70.0\% of
+    recorded trajectories. Recorded trajectories exceed goals because failed
+    explorations are retried.}
+  \label{tab:funnel}
+\end{table}
+
+\noindent The rejected quarter is dominated by specifications a quality
+validator refuses, not by exploration failures: about 95\% of goals reaching a
+successful call are distilled into a parseable specification, and the loss is
+concentrated at the gate that follows. Substantive rejections cite real
+defects---hard-coded subtopics, baked-in failure modes, prompt/checkpoint
+mismatches---and are separate from the deterministic reference-grounding check
+of \S\ref{sec:benchmark:gen}, which every admitted task must also pass. Three
+caveats. First, recorded trajectories exceed goals issued because retries are
+counted, so the two columns are not a partition. Second, the 74\% is measured
+after unparseable validator responses were made retryable: one provider under
+load returns empty HTTP 200 bodies, and the first sweep, which counted those as
+rejections, stamped only 417 of the 915 specifications it saw as valid
+(46\%)---an operational artefact rather than a property of the pipeline, but one
+that shows how sensitive a yield figure is to transient infrastructure.
+Third, this
+funnel and the corpus-level ratio quoted in \S\ref{sec:benchmark:substrate}
+(1{,}845 tasks from 2{,}051 reference trajectories) have \emph{different
+denominators} and are not comparable: the corpus figure counts trajectories
+that were already admitted into the released corpus, after the per-run
+validator pass reported here, and it aggregates runs made under several
+pipeline versions. Neither number should be read as the other's replication.
+
+\section{Human Validation: the Full Contingency Table}
+\label{app:human}
+The validation study of \S\ref{sec:results:validity} produced 975 annotation
+cards over all 750 results of the strongest locally-served model. Cross-tabulating
+the automatic verdict against the human verdict gives:
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrrr}
+    \toprule
+    & human pass & human fail & total \\
+    \midrule
+    automatic pass & 488 & 26  & 514 \\
+    automatic fail & 230 & 231 & 461 \\
+    \midrule
+    total          & 718 & 257 & 975 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Automatic Tier-1 verdict versus human verdict, 975 cards. Raw
+    agreement 73.7\%; of the 514 automatic passes, 94.9\% are confirmed by the
+    annotator.}
+  \label{tab:confusion}
+\end{table}
+
+\noindent The table is deliberately asymmetric, and that asymmetry is the
+property we claim. The cell that would threaten the benchmark is
+\emph{automatic pass / human fail}: a run credited by the scorer that a human
+rejects. It holds 26 of 975 cards, so 94.9\% of automatic passes are
+confirmed. The large off-diagonal cell is the opposite error---230 runs the
+scorer failed and a human would pass---which is the conservatism already
+stated in Limitations, and is why we read reported accuracies as lower bounds
+on true capability rather than as unbiased estimates. Raw agreement is
+therefore 73.7\% and is not the number to optimize: an accurate scorer with a
+deliberate one-sided bias will disagree in exactly this pattern.
+
+\section{Open-Universe Tool Exposure}
+\label{app:openuniverse}
+The headline setting offers each candidate a controlled pool that already
+contains the tools its task needs (\S\ref{sec:benchmark:eval}). This appendix
+reports what happens when that guarantee is withdrawn and the agent must find
+its tools in the full catalog of 1{,}168 tools across all servers. It is a
+separate measurement, not a correction to the headline: it measures retrieval
+plus use, where the headline measures use.
+
+\paragraph{Setup.} A pre-registered subset of 150 tasks, balanced 50/50/50
+across short (1--2 tools), medium (3--4) and long (5+) chains, is run under six
+exposure conditions and compared against the curated default. \texttt{rag:$k$}
+retrieves the $k$ nearest tools to the task prompt by embedding cosine over
+each tool's name and description; \texttt{hier} is a two-stage router that picks
+servers and then tools; \texttt{flat} exposes all 1{,}168 schemas at once.
+Table~\ref{tab:openuniverse} reports single attempts so that all six conditions
+are on one scale; \texttt{rag:8} was additionally run to pass\textasciicircum{}3
+and is discussed below.
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    condition & haiku & kimi & minimax & qwen \\
+    \midrule
+    curated (\(\approx\)8 tools) & 37.3 & 42.7 & 44.0 & 54.0 \\
+    \midrule
+    \texttt{rag:4}   & 16.7 & 21.3 & 18.0 & 22.7 \\
+    \texttt{rag:8}   & 21.3 & 24.7 & 24.0 & 30.7 \\
+    \texttt{rag:16}  & 24.0 & 33.3 & 31.3 & 38.0 \\
+    \texttt{rag:32}  & 28.7 & 34.7 & 36.7 & 40.0 \\
+    \texttt{hier}    & 28.0 & 32.7 & 32.7 & 36.0 \\
+    \texttt{flat} (1{,}168) & --- & --- & 36.0 & --- \\
+    \bottomrule
+  \end{tabular}
+  \caption{Single-attempt pass rate (\%) on the 150-task subset, four candidate
+    models against six exposure conditions. Each cell is 150 tasks and carries
+    a 95\% Wilson interval of roughly \(\pm\)8 points. \texttt{flat} was run on
+    one model only: 1{,}168 tool schemas per request is 10--30\(\times\) the
+    prompt of any other cell.}
+  \label{tab:openuniverse}
+\end{table}
+
+\paragraph{Retrieval loss and distraction are separable.} Replaying the
+retriever offline gives, for each condition, the fraction of tasks whose every
+required effect has at least one equivalence-set member in the exposed
+pool---\emph{reachability}. It is a property of the retriever and the tasks, not
+of the candidate, and comes out identical across all four models. Tasks fully
+reachable: 36.7\% at $k{=}4$, 48.0\% at $k{=}8$, 62.7\% at $k{=}16$, 75.3\% at
+$k{=}32$, and 100\% under \texttt{flat} by construction; at $k{=}8$ it falls with
+chain length (82.7\% short, 55.9\% medium, 50.2\% long), which is most of why
+long chains suffer most. Reachability behaves as a hard gate: across 1{,}905
+attempts on tasks it marks unreachable, exactly one passed
+(0.05\%). Holding one factor fixed at a time on minimax-m3 then
+decomposes the drop: curated \(\rightarrow\) \texttt{rag:8} keeps the pool at
+eight tools and cuts reachability to 48.0\%, costing \textbf{20.0 points} of
+retrieval loss; curated \(\rightarrow\) \texttt{flat} keeps reachability at 100\%
+and raises the pool to 1{,}168, costing \textbf{8.0 points} of distraction
+alone. The near-tie between \texttt{rag:32} (36.7) and \texttt{flat} (36.0) is
+these two effects cancelling.
+
+\paragraph{The cost is regressive, and it compresses the ranking.} At $k{=}4$
+and $k{=}8$ the loss ranks exactly with curated capability
+(\(\rho = {+}1.000\)): the stronger the model, the more open exposure takes from
+it (at $k{=}8$, \(-\)16.0 for haiku up to \(-\)23.3 for qwen). A shared
+retrieval ceiling binds hardest on whoever would otherwise have cleared it, so
+the four models are compressed together: the spread between best and worst falls
+from 16.7 points under curation to 6.0 at $k{=}4$ (36\% retained) and 9.3 at
+$k{=}8$ (56\%), and the margin between the best model and the runner-up falls
+from 10.0 points to 1.3 at $k{=}4$---well inside a single cell's interval. The
+effect fades as the budget grows (\(\rho = {+}0.400\) at $k{=}16$, \({+}0.200\)
+at $k{=}32$), which is what a receding ceiling should look like. A wider budget
+is not a clean route back to curated discriminability: retained spread recovers
+to 84\% at $k{=}16$ but sits at 68\% at $k{=}32$, so it does not climb
+monotonically with the budget, and \texttt{flat}, which has no retrieval loss at
+all, still costs 8 points. A benchmark that scores agents under retrieval therefore
+measures the retriever as much as the agent, which is why the headline
+deliberately does not.
+
+\paragraph{Under the headline criterion.} Repeating \texttt{rag:8} three times
+per task gives pass\textasciicircum{}3 of 19.3, 22.0, 20.0 and 25.3 for the four
+models in table order. Split by reachability, the gate is absolute: on tasks
+whose required tools the retriever never surfaced, pass\textasciicircum{}3 is
+\textbf{0.0\%} for every model, and all of the remaining capability sits in the
+48\% of tasks that are reachable (40.3, 45.8, 41.7 and 52.8 there). Requiring
+three consecutive successes does not soften the retrieval bound; it removes the
+occasional lucky single attempt that made it look softer.
+
+\paragraph{Caveats.} One retriever (embedding top-$k$) and one router;
+single-attempt cells for five of the six conditions, so those rates are not
+comparable to the pass\textasciicircum{}3 headline;
+\texttt{flat} on one model. An earlier independent draw of the same condition (a
+different 150-task draw from the same 750-task slice, same model and retriever
+at $k{=}8$) measured 36.7 versus 57.3 curated, a deficit of 20.6 points against
+the 23.3 reported here: the two draws sit 0.94 standard deviations apart in
+level and their paired deficits agree to 2.7 points, so the level moves with the
+sample and the deficit replicates. The conclusion we draw is deliberately narrow: the headline is a
+measurement of tool \emph{use} under a controlled pool, and it does not transfer
+to a deployment where the agent must first find its tools.
+
 \section{Operating Requirements and Reliability}
 \label{app:tech}
 Table~\ref{tab:tech} reports, per model, single-attempt accuracy (pass@1)

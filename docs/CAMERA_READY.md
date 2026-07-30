@@ -10,8 +10,13 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done.
 
 ## 1. Paper text — corrections we owe (no compute)
 
-**1.1 Narrow Principle 1.** `[ ]` — promised to RJAT, sJ7917 (and reflected to
-1npx).
+**1.1 Narrow Principle 1.** `[x]` — promised to RJAT, sJ7917 (and reflected to
+1npx). Done: the guarantee is gone from §1, §3.1 (Principle 1), §3.3 and the
+Conclusion, replaced by the enforced-and-audited grounding invariant, with
+necessity and equivalence-set recall named as open. "Provably achievable" in
+§3.3 was softened in the same pass (same claim, stronger wording). Exact
+before/after is quoted to RJAT and sJ7917 in `paper/rebuttals/Followup to
+Reviewer *.txt`.
 Remove "so a spurious 'unnecessary tool' cannot arise" / "cannot arise by
 construction" wherever it appears: abstract-adjacent claim in §1, Principle 1 in
 §3.1, and the Conclusion. Replace with the measured invariant: *every required
@@ -20,7 +25,15 @@ trace*, presented as an empirically evaluated property, not a guarantee. Also
 soften §3.3 "the distiller never introduces a checkpoint the trace does not
 justify."
 
-**1.2 Fix the Tier-2 naming collision.** `[ ]` — promised to RJAT.
+**1.2 Fix the Tier-2 naming collision.** `[x]` — promised to RJAT.
+Done: §3.4 now says the judge is optional, off by default, enabled for no
+reported number, and scopes the claim ("no reported score depends on a model's
+judgment *at scoring time*") explicitly against construction, which is
+LLM-driven. Appendix D gains a "Scoring, and the two 'Tier-2's" block that
+detaches 0.75 from the judge and names it the *replay argument-match threshold*
+(field-level comparison, `difflib` fallback, no model); the Appendix E prompt
+heading now reads "Effect-equivalence judge (the optional Tier-2 component;
+disabled for every reported result)".
 The paper attaches the 0.75 threshold to the LLM judge (§3.4 and Appendix D).
 Two unrelated mechanisms share the name "Tier-2":
 - `replay.py` `tier2_threshold` (default 0.75) — a **deterministic** argument
@@ -32,31 +45,58 @@ Rename one of them and state plainly that no reported result involves an LLM
 judgment, while noting the scope: that covers *scoring*, not *construction* (the
 distiller and validator are LLMs).
 
-**1.3 State the replay path-freedom trade-off.** `[ ]` — promised to 1npx.
+**1.3 State the replay path-freedom trade-off.** `[x]` — promised to 1npx.
+Done: new §3.4 paragraph "What path-agnosticism means under replay" — the
+trade-off is resolved in favour of comparability; inside replay path freedom
+means order freedom, tolerated extra calls, argument-representation tolerance
+and equivalence-set members the reference exercised; a route the reference
+never took misses the cache and errors; unrestricted path freedom exists only
+in live mode, which the leaderboard deliberately does not use.
 Say explicitly that under deterministic replay a candidate cannot execute a route
 the reference never took (cache miss → error), so path-agnosticism inside replay
 means order freedom, tolerated extra calls, argument-representation tolerance and
 equivalence-set members the reference exercised. Unrestricted path freedom exists
 only in live mode, which the leaderboard deliberately does not use.
 
-**1.4 State the tool-exposure scope boundary.** `[ ]` — promised to RJAT, sJ7917.
-Say that the headline condition is a controlled pool and does not measure
-open-universe retrieval, and do not let the distractor analysis (Appendix L)
-stand in for retrieval.
+**1.4 State the tool-exposure scope boundary.** `[x]` — promised to RJAT, sJ7917.
+Done in three places: §3.4 ("that pool is controlled, not open … measures tool
+*use* and does not measure retrieval over a large catalog"), Appendix D
+(evaluation config), and a `\paragraph{Scope.}` at the end of Appendix L
+(server-attribution / distractor robustness) saying the probes vary the
+composition of a pool that already contains the needed tools and are not a
+stand-in for an open-universe retrieval condition.
 
-**1.5 Report GLM-5.1 with the same-family caveat.** `[ ]` — promised to 4Rex.
+**1.5 Report GLM-5.1 with the same-family caveat.** `[x]` — promised to 4Rex.
+Done in three places: §4.4 (the self-preference sentence no longer states only
+the +0.5 mean — it names glm-5.1 71.9 own-family vs 46.4 on the rest, so the
+50.3 second place is lifted by same-family tasks and sits level with third
+place without them), Appendix A (leaderboard table intro), and Appendix J
+(self-preference), which now says the mean is an aggregate, not a per-model
+guarantee. The rank 2 → 3 claim is deliberately *not* stated here: it needs the
+leave-own-family-out leaderboard, which is item 2.4.
 
-**1.6 Reframe benchmark decay.** `[ ]` — promised to 4Rex.
-Present 36% as a materiality demonstration, not a universal reproduction rate.
-Keep both caveats visible: `broken` is an upper bound (single retry), and nine of
-ten Wikipedia traces were excluded for rate limiting, so the Wikipedia row rests
-on three calls.
+**1.6 Reframe benchmark decay.** `[x]` — promised to 4Rex.
+Done: Appendix M now calls the 36% a *materiality demonstration*, not a
+universal reproduction rate — a small deliberately live-read sample over three
+families, dominated by which families are in it; it establishes that decay is
+large enough to matter, not how fast an arbitrary substrate decays. Both
+caveats stay visible in the prose and are now also in the table caption:
+`broken` is an upper bound (single retry), and nine of ten Wikipedia traces
+were excluded for rate limiting, so the Wikipedia row rests on three calls.
 
-**1.7 Add missing limitations.** `[ ]`
+**1.7 Add missing limitations.** `[x]`
 - No controlled cross-distiller study (same traces distilled independently by
   every family in the pool) — promised to sJ7917.
 - Equivalence-set **recall** is unmeasured; the audit reports precision.
 - Scorer strictness is validated on one model only.
+
+Done: the first two go in a new "What our checkpoints do not establish"
+paragraph in Limitations; the third extends the existing fourth limitation
+(human study on one model) with the consequence — we can show the scorer is
+conservative, not that its conservatism shifts level rather than ordering. The
+§1 sentence from 1.1 was corrected in the same pass: it said these were
+questions "we measure", which is false for recall — it now says we audit and
+qualify them in Limitations.
 
 ---
 
@@ -74,15 +114,27 @@ is not documented on our side. Get it from the collaborator who ran it — witho
 it, an unblinded self-audit reporting three 100% rows is the weakest link in the
 whole package.
 
-**2.2 Generation funnel.** `[ ]` — promised to 1npx, sJ7917.
+**2.2 Generation funnel.** `[x]` — promised to 1npx, sJ7917.
 980 goals → 1,014 recorded traces (incl. retries) → 959 parseable (94.6%) → 710
 validator-valid (74.0% of parsed, 70.0% of traces). Plus the corpus-level
 1,845/2,051, **with** the caveat that the two denominators are not comparable.
+Done (E9.2): new Appendix "Generation Funnel" with the four-row table and three
+caveats — retries mean the columns are not a partition; the 74% is post
+retry-fix (the first sweep stamped 417/915 = 46% because one provider returned
+empty HTTP 200 bodies); and the corpus-level 1,845/2,051 has a different
+denominator and is explicitly not a replication. Numbers in
+`docs/experiments/e9.2_numbers.json`, table regenerated by
+`scripts/cr_paper_tables.py`.
 
-**2.3 Human confusion matrix.** `[ ]` — promised to 1npx.
+**2.3 Human confusion matrix.** `[x]` — promised to 1npx.
 The 2×2 over 975 annotated cards covering all 750 results: 488 / 26 / 230 / 231;
 agreement 73.7%; 94.9% of automatic passes confirmed. Frame as the lower-bound
 property already stated in Limitations.
+Done (E9.2): new Appendix "Human Validation: the Full Contingency Table". The
+prose names the asymmetry as the claim — the threatening cell (auto-pass /
+human-fail) holds 26 of 975, the large off-diagonal (230) is the deliberate
+conservatism, and 73.7% raw agreement is explicitly *not* the number to
+optimize. Regenerated from `docs/experiments/e4.6_numbers.json`.
 
 **2.4 Leave-own-family-out leaderboard.** `[ ]` — promised to 4Rex; **into the
 main body**, not the appendix.
@@ -94,13 +146,27 @@ main body**.
 Include the per-row call counts (yfinance 18, arXiv 105, Wikipedia 3, pooled 126)
 so the pooled rate is checkable against the rows.
 
-**2.6 Open-universe retrieval condition.** `[ ]` — promised to RJAT, sJ7917.
+**2.6 Open-universe retrieval condition.** `[x]` — promised to RJAT, sJ7917.
+Done (E9.2), and superseding what was promised: rather than promoting the
+single-model `e8.11` table, the appendix carries the full `e9.1` matrix (4
+models × 6 conditions, 150 tasks each), the reachability gate (36.7/48.0/62.7/
+75.3% of tasks fully reachable at k=4/8/16/32; 1 pass in 1,905 unreachable
+attempts), the retrieval-loss vs distraction decomposition (−20.0 vs −8.0), the
+regressive-cost and spread-compression finding (ρ=+1.000 at k≤8; top margin
+10.0 → 1.3; retained spread 36%), and pass^3 at `rag:8` (19.3/22.0/20.0/25.3
+overall, **0.0% on unreachable tasks for every model**). `e8.11` appears as the
+earlier independent draw whose deficit replicates (−20.6 vs −23.3). Caveats
+kept: one retriever, one router, `flat` on one model, five of six conditions
+single-attempt.
+Original promise, for the record:
 Already run: see `docs/experiments/e8.11-retrieval-full-catalog.md`. Promote the
 table into the paper: 150 tasks balanced across chain depth, retrieval over the
 full 1,168-tool catalog at top-8, 36.7% vs 57.3% curated overall; short 64.0 vs
 62.0, medium 30.0 vs 74.0, long 16.0 vs 36.0; 64% of the 274 unmet checkpoints
 are tools the agent never called. State that the curated column is one model at
 one attempt on 50 tasks per bucket.
+
+---
 
 **2.7 Restore the six-strategy distractor ablation.** `[ ]`
 `paper/` in this repo was reset to the exact submitted sources, which drops an
@@ -134,6 +200,7 @@ grounds (`require_parameters` + `temperature` → 404), artifacts quarantined un
 `evals/cr/quarantine/`. Neither gap blocks the promise to RJAT and sJ7917: the
 condition was to be extended beyond one model, one retriever and one attempt, and
 it is — seven models, four retrieval depths, a router, and three attempts.
+Written into the paper by item 2.6 above.
 
 **3.2 Tier-2 override rates per category.** `[ ]` — promised to 1npx, RJAT.
 Replay the saved leaderboard Tier-1 failures through the judge, across **several
@@ -159,10 +226,18 @@ not compute, and is the most expensive item on the list.
 
 ## 4. Code and data
 
-**4.1 Fix the one broken task and tighten the reference validator.** `[ ]` —
+**4.1 Fix the one broken task and tighten the reference validator.** `[x]` —
 promised to 1npx, RJAT, sJ7917.
 Reject a claimed-successful exploration that does not produce every required
-external effect.
+external effect. Done (E9.10): `reference_unsatisfied_checkpoints` requires the
+reference to satisfy *every* required checkpoint of its own spec, `value_produced`
+included, and `dmcp generate` now rejects on it instead of trusting the explorer's
+`successful_tool_calls` self-report. Audit:
+`docs/experiments/e9.10-reference-validation-gate.md` — 267/1,845 corpus specs
+(14.5%) would have been rejected; on the eval slice they are 13.9% of tasks but
+40.7% of the never-solved wall (56.7% never solved vs 13.3%); removing them
+preserves every model's rank on pass and pass^3. The *specific* audited item
+cannot be named until 4.2 releases the item-level labels.
 
 **4.2 Release the audit's item-level labels and rubric.** `[ ]` — promised to
 sJ7917. Depends on 2.1.
@@ -200,5 +275,12 @@ one framing and label it.
 ## Provenance
 
 Rebuttal texts as sent: `paper/rebuttals/Response to Reviewer {1npx,RJAT,sJ7917,4Rex}.txt`.
-New experiment behind 2.6: `docs/experiments/e8.11-retrieval-full-catalog.md`,
-numbers in `e8.11_numbers.json`, comparison script `scripts/rag_compare.py`.
+Experiments behind 2.6: `docs/experiments/e9.1-tool-exposure-matrix.md` (the
+matrix now in the paper; numbers under `docs/experiments/data/e9.1_*.json`,
+drivers `scripts/cr_*.py`) and the earlier `e8.11-retrieval-full-catalog.md`
+(numbers in `e8.11_numbers.json`, comparison script `scripts/rag_compare.py`).
+Tables for 2.2 / 2.3 / 2.6 are regenerated by `scripts/cr_paper_tables.py` and
+checked against the paper by `tests/test_cr_paper_tables.py`.
+
+This file is the single copy. A duplicate at the repository root was removed in
+the E9.2 PR after status notes were mistakenly written into it.
