@@ -572,10 +572,10 @@ cross-family panel (explorer ≠ distiller), not a single model.
 - done-when: RQ1 answer-vs-trace (τ, false-pass/fail); RQ2 forward-vs-graph-vs-direct; RQ3 failure model; difficulty curve; G0 contamination matrix + same-family logit; all numbers JSONs written.
 
 ### E8.11 — Run: industry extras (cost/latency, tool-scaling, architecture, decay)
-- status: todo
+- status: claimed
 - note: released: auto-claimed by scripts/claim.py (which takes no step id) while targeting E9.2; work not started
 - owner: Keysiks@MacBook-Air-Kiriill.local
-- claimed_at: 2026-07-30T08:15:04Z
+- claimed_at: 2026-07-30T09:23:28Z
 - deps: E8.8 E8.2 E8.3 E8.4
 - source: docs/EXPERIMENTS_SUITE.md G6
 - done-when: cost/latency Pareto + $/correct; tool-scaling curve; flat/RAG/hier architecture comparison; living-bench decay over ≥3 windows; numbers JSONs written.
