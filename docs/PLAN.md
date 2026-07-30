@@ -669,8 +669,8 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - done-when: saved leaderboard Tier-1 failures replayed through the judge across several judge families at temperature 0, joined against the specs so every record carries its category; override rates reported overall and for each of the 15 categories. `dmcp/baselines/rq4_agreement.py::_tier1_verdict` drops `tier==2` rows and therefore mis-derives Tier-1 — fixed or bypassed, with the choice stated in the report.
 
 ### E9.8 — Run: widen the refresh beyond 22 traces / 3 families
-- status: claimed
-- note: widen refresh beyond 22 traces / 3 families
+- status: done
+- note: wide decay sweep: 246 specs / 100 sampled servers -> 938 live calls on 113 servers in 12 domains; 32.6% identical (36% narrow), 67.0% drifted, 0.4% attributable breakage, <=25.8% upper bound at --retries 1; tab:decay + app:decay rebuilt per domain (PR #192)
 - owner: —
 - claimed_at: —
 - deps: E9.11 E9.12
