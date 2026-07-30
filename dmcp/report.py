@@ -96,6 +96,11 @@ def decay_markdown(refresh_paths: list[Path]) -> str:
         f"Overall drift {overall_drift:.0f}%, broken {overall_broken:.0f}% "
         f"(skipped {co['skipped']}, retries {sum(b['retries'] for b in per_server.values())})."
     )
+    if summary.get("specs_quarantined"):
+        lines.append(
+            f"Quarantined: {summary['specs_quarantined']} spec(s) failed preflight and were "
+            "excluded — their environment was missing, so they say nothing about the servers."
+        )
     lines.append("")
     lines.append(
         "| Server | Refreshes | Live calls | Identical | Drifted | Broken | "

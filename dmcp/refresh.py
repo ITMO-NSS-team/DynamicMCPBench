@@ -13,11 +13,20 @@ tool calls against the LIVE servers in the manifest, and classify each call:
   skipped    — server is stateful_write and not opted in. Re-running a write
                 tool would either fail (duplicate side effect) or pollute
                 state, neither of which is a useful drift signal.
+  quarantined — the task's own environment failed preflight (a fixture file,
+                sandbox relation, credential or write target is missing), so no
+                live call was made. Nothing is claimed about the server.
 
 Live calls are retried with exponential backoff before being classified as
 broken (transient network flakes shouldn't pollute the decay signal). Per-
 server drift rate across many refresh runs is exposed via `per_server_decay`,
 which `dmcp.report` renders as the paper's decay table.
+
+Before any of that, `dmcp.preflight` confirms the preconditions the reference
+trace assumes. A spec whose environment is broken would otherwise be scored as
+a decayed server and then, once readmitted, as a failure of every agent that
+attempts it; quarantining keeps our own missing fixtures out of both numbers.
+Quarantined reports are excluded from the decay aggregates entirely.
 
 The output is a `RefreshReport` per spec plus an aggregate decay summary.
 Concrete answer to AGB's static-cache staleness: we measure decay rather
@@ -36,10 +45,18 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from dmcp.manifest import Dynamism, Manifest
+from dmcp.preflight import (
+    PreflightResult,
+    check_requirements,
+    derive_requirements,
+    discover_tables,
+)
 from dmcp.recorder import TraceRecorder
 from dmcp.trace import StepKind, StepStatus, Trace
 
-REFRESH_VERSION = "0.2.0"
+# 0.3.0 adds the `quarantined` classification, the preflight block on
+# RefreshReport, and the quarantine counts in the decay aggregates.
+REFRESH_VERSION = "0.3.0"
 
 DEFAULT_TRANSIENT_RETRIES = 2
 DEFAULT_INITIAL_BACKOFF_S = 0.5
@@ -66,7 +83,7 @@ class CallRefreshOutcome(BaseModel):
     server_id: str
     tool_name: str
     arguments_canonical: str
-    classification: str  # identical | drifted | broken | skipped
+    classification: str  # identical | drifted | broken | skipped | quarantined
     reason: str
     reference_text_len: int = 0
     live_text_len: int = 0
@@ -80,7 +97,7 @@ class CallRefreshOutcome(BaseModel):
 
 class RefreshReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    schema_version: str = "0.1.0"
+    schema_version: str = "0.2.0"
     refresh_version: str = REFRESH_VERSION
     task_id: UUID
     source_trace_id: UUID
@@ -88,6 +105,11 @@ class RefreshReport(BaseModel):
     call_outcomes: list[CallRefreshOutcome]
     counts: dict[str, int]
     spec_likely_stale: bool
+    # Set when preflight found an unmet precondition: the task was not
+    # re-executed, so this report is evidence about our environment, not about
+    # the server. `decay_summary` and `per_server_decay` skip these.
+    quarantined: bool = False
+    preflight: PreflightResult | None = None
 
     def to_jsonl(self) -> str:
         return self.model_dump_json(exclude_none=False)
@@ -134,10 +156,18 @@ async def refresh_one(
     sample_chars: int = 240,
     transient_retries: int = DEFAULT_TRANSIENT_RETRIES,
     initial_backoff_s: float = DEFAULT_INITIAL_BACKOFF_S,
+    preflight: bool = True,
+    table_inventory: dict[str, set[str]] | None = None,
     recorder: Any = None,
     sleep: Any = asyncio.sleep,
 ) -> RefreshReport:
-    """Re-execute one reference trace's successful tool calls against live."""
+    """Re-execute one reference trace's successful tool calls against live.
+
+    Preflight runs first (disable with `preflight=False`). If it finds an unmet
+    precondition the task is quarantined: no live call is made, every reference
+    call is recorded as `quarantined`, and the report is excluded from the decay
+    aggregates rather than counted as a broken server.
+    """
     calls_to_run = [
         s
         for s in reference.steps
@@ -249,23 +279,61 @@ async def refresh_one(
                 )
             )
 
+    requirements = derive_requirements(reference, manifest) if preflight else []
+    preflight_result: PreflightResult | None = None
+
+    async def _preflight_then_drive(rec: Any) -> None:
+        nonlocal preflight_result
+        if requirements:
+            inventory = table_inventory
+            if inventory is None and any(r.kind == "table" for r in requirements):
+                inventory = await discover_tables(rec, servers_for_run)
+            preflight_result = check_requirements(requirements, table_inventory=inventory)
+            if not preflight_result.ok:
+                return  # quarantine: touch nothing live
+        await _drive(rec)
+
     if servers_for_run:
         if recorder is not None:
-            await _drive(recorder)
+            await _preflight_then_drive(recorder)
         else:
             configs = manifest.configs(servers_for_run)
             async with TraceRecorder(servers=configs, goal=f"refresh:{task_id}") as rec:
-                await _drive(rec)
+                await _preflight_then_drive(rec)
+    elif requirements:
+        # Every server was skipped, so there is no session to probe with; the
+        # local checks still decide whether this task's environment is intact.
+        preflight_result = check_requirements(requirements, table_inventory=table_inventory)
+
+    quarantined = preflight_result is not None and not preflight_result.ok
+    if quarantined:
+        assert preflight_result is not None
+        reason = preflight_result.summary()
+        # Replace everything, including the pre-recorded `skipped` outcomes: this
+        # spec contributed no evidence about any server it touches.
+        outcomes = [
+            CallRefreshOutcome(
+                reference_step_id=s.step_id,
+                server_id=s.server_id,
+                tool_name=s.tool_name or "",
+                arguments_canonical=s.arguments_canonical or "{}",
+                classification="quarantined",
+                reason=reason,
+            )
+            for s in calls_to_run
+        ]
 
     counts = {
         "identical": sum(1 for o in outcomes if o.classification == "identical"),
         "drifted": sum(1 for o in outcomes if o.classification == "drifted"),
         "broken": sum(1 for o in outcomes if o.classification == "broken"),
         "skipped": sum(1 for o in outcomes if o.classification == "skipped"),
+        "quarantined": sum(1 for o in outcomes if o.classification == "quarantined"),
         "total": len(outcomes),
     }
     # Heuristic: a spec is likely stale if any reference call breaks (vs just
-    # drifts — drift is expected on live_read servers).
+    # drifts — drift is expected on live_read servers). A quarantined spec makes
+    # no claim either way — the calls never ran.
     spec_likely_stale = counts["broken"] > 0
 
     return RefreshReport(
@@ -274,14 +342,24 @@ async def refresh_one(
         call_outcomes=outcomes,
         counts=counts,
         spec_likely_stale=spec_likely_stale,
+        quarantined=quarantined,
+        preflight=preflight_result,
     )
 
 
 def decay_summary(reports: Iterable[RefreshReport]) -> dict[str, Any]:
-    """Aggregate one or more RefreshReports into a decay summary dict."""
+    """Aggregate one or more RefreshReports into a decay summary dict.
+
+    Quarantined reports are counted, then excluded from every decay figure:
+    they measured our environment, not the substrate, and folding them in would
+    inflate exactly the number the refresh protocol exists to report honestly.
+    """
     reports = list(reports)
+    quarantined = sum(1 for r in reports if r.quarantined)
     n = total_calls = identical = drifted = broken = skipped = stale = 0
     for r in reports:
+        if r.quarantined:
+            continue
         n += 1
         c = r.counts
         total_calls += c["total"]
@@ -293,6 +371,7 @@ def decay_summary(reports: Iterable[RefreshReport]) -> dict[str, Any]:
             stale += 1
     return {
         "specs_refreshed": n,
+        "specs_quarantined": quarantined,
         "specs_stale": stale,
         "stale_rate": (stale / n) if n else 0.0,
         "call_outcomes": {
@@ -313,9 +392,14 @@ def per_server_decay(reports: Iterable[RefreshReport]) -> dict[str, dict[str, An
     (one per spec-refresh). `total` includes skipped; the rates exclude it,
     matching how the decay table should be read: drift_rate = drifted / live
     where live = identical + drifted + broken.
+
+    Quarantined reports are skipped: a task blocked by its own missing fixtures
+    made no live call, so it is not evidence for or against any server.
     """
     by_server: dict[str, dict[str, Any]] = {}
     for r in reports:
+        if r.quarantined:
+            continue
         seen: set[str] = set()
         for o in r.call_outcomes:
             bucket = by_server.setdefault(
@@ -327,6 +411,7 @@ def per_server_decay(reports: Iterable[RefreshReport]) -> dict[str, dict[str, An
                     "drifted": 0,
                     "broken": 0,
                     "skipped": 0,
+                    "quarantined": 0,
                     "retries": 0,
                     "first_seen": r.refreshed_at,
                     "last_seen": r.refreshed_at,

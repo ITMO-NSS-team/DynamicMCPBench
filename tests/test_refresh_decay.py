@@ -150,9 +150,13 @@ def test_classifies_identical_drifted_broken_skipped():
         "drifted": 1,
         "broken": 1,
         "skipped": 1,
+        "quarantined": 0,
         "total": 4,
     }
     assert report.spec_likely_stale is True
+    # These arguments name no file, relation or credential, so preflight has
+    # nothing to check and the sweep proceeds (E9.11).
+    assert report.quarantined is False
 
 
 def test_retry_with_backoff_recovers_transient_flake():
