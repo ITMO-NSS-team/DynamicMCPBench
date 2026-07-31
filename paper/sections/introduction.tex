@@ -29,8 +29,7 @@ equally valid route.
     \textbf{Effect-scored evaluation:} a candidate agent runs on deterministic
     replay and is graded purely on whether it reproduces those effects (with
     \emph{any} effect-equivalent tool), never on its final answer. A periodic
-    \emph{refresh} re-runs the references and classifies drift, keeping the
-    benchmark live.}
+    \emph{refresh} re-runs the references and classifies drift.}
   \label{fig:pipeline}
 \end{figure*}
 
@@ -76,18 +75,6 @@ of the tasks under pass\textasciicircum{}3 (a task counts as solved only if all
 three independent attempts succeed), 31\% of tasks are solved by no model
 at all, and accuracy falls steadily as the required tool chain lengthens. A
 human validation study confirms that the automatic, answer-agnostic scoring
-is reliable.
-
-The contributions of this paper are as follows: (i)~a \emph{reusable
-framework} that turns any set of live MCP servers and models into a
-trace-grounded benchmark through forward exploration and distillation, so
-practitioners can rerun the entire pipeline on their own deployment
-(\S\ref{sec:benchmark}); (ii)~an \emph{answer-agnostic, effect-based}
-scoring method that credits any trajectory reproducing the required effects
-and never grades the final answer, validated against human judgment
-(\S\ref{sec:benchmark},~\S\ref{sec:results}); (iii)~a large
-demonstration study (24 models, 121 servers, 750 tasks) that
-exposes a consistent inability of current agents to handle long,
-multi-step agentic tasks, stratified by task length and category
-(\S\ref{sec:results}); and (iv)~a public, anonymized release of both the
-framework and the generated benchmark.
+is reliable. \S\ref{sec:benchmark} details the framework and
+\S\ref{sec:results} the study it enables; both the framework and the generated
+benchmark are released publicly.

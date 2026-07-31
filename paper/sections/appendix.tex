@@ -97,6 +97,21 @@ rather than the anchor sampler.
     data-dependency edges; one tool's output feeds the next tool's input.
 \end{itemize}
 
+\section{Difficulty by Chain Length and Category}
+\label{app:difficulty}
+Figure~\ref{fig:difficulty} gives the two views behind
+\S\ref{sec:results:difficulty}: pass\textasciicircum{}3 against the length of the
+required tool chain, and mean pass\textasciicircum{}3 per task category, both
+aggregated over all 24 models.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.90\textwidth]{figures/fig_difficulty.png}
+  \caption{Aggregated across all 24 models: pass\textasciicircum{}3 versus task
+    length (left) and mean pass\textasciicircum{}3 per category (right).}
+  \label{fig:difficulty}
+\end{figure*}
+
 \section{A Worked Example}
 \label{app:example}
 Figure~\ref{fig:example} traces one task end to end: forward exploration records
@@ -632,6 +647,50 @@ unchanged (Spearman \(\rho = 0.997\)).
   \label{tab:family}
 \end{table}
 
+\begin{table}[t]
+  \centering \small
+  \begin{tabular}{lrrc}
+    \toprule
+    Model & headline & LOFO & rank \\
+    \midrule
+    qwen3.7-max & 51.2 & 52.0 & 1 \\
+    qwen3.6-35b & 48.5 & 49.5 & $3 \to 2$ \\
+    glm-5.1 & 50.3 & 46.4 & $2 \to 3$ \\
+    deepseek-v4-pro & 46.4 & 46.3 & 4 \\
+    minimax-m3 & 42.4 & 43.0 & $6 \to 5$ \\
+    gemma4-31b & 42.5 & 42.7 & $5 \to 6$ \\
+    claude-haiku-4.5 & 41.1 & 41.8 & 7 \\
+    kimi-k2.6 & 40.7 & 39.3 & 8 \\
+    grok-4.3 & 31.6 & 31.4 & 9 \\
+    qwen3.5-4b & 27.3 & 27.3 & 10 \\
+    gpt-5.4-mini & 25.7 & 24.0 & 11 \\
+    granite-3b$^{\dagger}$ & 22.5 & 22.5 & 12 \\
+    qwen3-8b & 22.1 & 22.2 & 13 \\
+    nemotron-nano-4b$^{\dagger}$ & 21.9 & 21.9 & $15 \to 14$ \\
+    gemma4-e4b & 22.1 & 21.8 & $13 \to 15$ \\
+    qwen2.5-7b & 21.1 & 21.4 & 16 \\
+    gemma4-e2b & 20.1 & 19.9 & 17 \\
+    xlam2-8b$^{\dagger}$ & 19.5 & 19.5 & 18 \\
+    toolace2-8b$^{\dagger}$ & 17.5 & 17.5 & 19 \\
+    qwen2.5-3b & 16.9 & 17.3 & 20 \\
+    hermes3-8b$^{\dagger}$ & 13.2 & 13.2 & 21 \\
+    ministral3-3b & 12.4 & 12.9 & 22 \\
+    hammer2.1-7b$^{\dagger}$ & 9.7 & 9.7 & 23 \\
+    smollm3-3b$^{\dagger}$ & 7.2 & 7.2 & 24 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Leave-own-family-out (LOFO) leaderboard: pass\textasciicircum{}3
+    (\%) on the 750-task slice, and on the same slice with every task authored
+    by the candidate's own model family removed, ordered by the latter.
+    ``rank'' shows movement against the headline ordering where there is any.
+    Spearman \(\rho = 0.997\); the three swaps are all between models whose
+    headline CIs overlap. \(\dagger\) marks models whose family authored no
+    task, so their LOFO score equals their headline score by construction.
+    gemma4-e4b and qwen3-8b tie at 22.1 in the headline column, so only their
+    LOFO order is determined.}
+  \label{tab:lofo}
+\end{table}
+
 \section{Failure Analysis}
 \label{app:failure}
 Every scored run carries an auto-classified failure taxonomy over its unmet
@@ -742,9 +801,45 @@ open-universe retrieval condition.
 
 \section{Benchmark Decay}
 \label{app:decay}
-Table~\ref{tab:decay} in \S\ref{sec:results:decay} reports the decay
-measurement; this section gives the protocol behind it and bounds the two
-caveats attached to the numbers.
+Table~\ref{tab:decay} reports the decay measurement summarised in
+\S\ref{sec:results:decay}; this section gives the protocol behind it and bounds
+the two caveats attached to the numbers.
+
+\begin{table}[t]
+  \centering \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    domain & servers & calls & ident.\ & drifted & broken \\
+    \midrule
+    law/compliance      & 27 & 432 & 26\% & 74\% & 0\% \\
+    AI/agent tooling    &  9 & 115 & 36\% & 64\% & 0\% \\
+    finance/markets     & 16 &  74 & 58\% & 42\% & 0\% \\
+    gov.\ statistics    &  4 &  61 & 25\% & 75\% & 0\% \\
+    reference/knowledge &  6 &  48 & 27\% & 73\% & 0\% \\
+    science/health      &  3 &  47 & 19\% & 81\% & 0\% \\
+    industry/business   &  5 &  41 & 29\% & 71\% & 0\% \\
+    geo/weather         &  6 &  30 & 27\% & 60\% & 13\% \\
+    developer tooling   & 10 &  29 & 90\% & 10\% & 0\% \\
+    other domains       & 27 &  61 & 43\% & 57\% & 0\% \\
+    \midrule
+    all & 113 & 938 & \textbf{33\%} & 67\% & 0.4\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{Benchmark decay, measured across the substrate: re-executing 246
+    recorded reference trajectories against the live servers yields 938
+    completed calls on 113 servers in 12 domains. Only 33\% still reproduce
+    identically. The non-identical remainder is almost entirely \emph{drift}
+    (the call succeeds, the result changed), not breakage. Rates are over
+    completed live calls; 320 calls that failed without the classifier being
+    able to attribute the failure are excluded and reported separately, as are
+    28 skipped \texttt{stateful\_write} calls and 40 quarantined by preflight.
+    ``Broken'' counts only attributable failures (schema drift, state decay)
+    under a single-retry policy; if every unattributable failure were instead
+    persistent breakage the rate would be at most 26\%. Domain $n$ is uneven
+    (law/compliance alone is 46\% of calls).}
+  \label{tab:decay}
+\end{table}
 
 The refresh protocol re-executes a recorded reference trajectory against the
 live servers and classifies each call, with no model in the loop, as
@@ -787,3 +882,25 @@ against 69 unresolved, and the local-infrastructure servers produced none---so
 their rows describe reachability as much as decay. A measurement of a live
 substrate is also reproducible in method but not in digits; re-running the sweep
 a week later will move the numbers.
+
+\section{Reproducibility}
+\label{app:reproducibility}
+All reported numbers are regenerated directly from the released evaluation
+records, which include the per-run verdict of every candidate on every task:
+\texttt{leaderboard\_e8.10d/verdicts/evals\_*.jsonl} for the eight API agents
+and \texttt{leaderboard\_local\_50x15/verdicts/*.jsonl} for the sixteen local
+ones, together with the corpus itself (\texttt{specs.jsonl},
+\texttt{traces.jsonl}), a \texttt{matrix.json} per leaderboard, and the
+human-validation study (\texttt{human\_eval/assignments/} and
+\texttt{human\_eval/submissions/}). Every table and figure is emitted by a
+committed script (\texttt{paper/regenerate.py}) from committed per-experiment
+numbers files, and two further scripts close the loop from the released raw
+records back to the published figures, exiting non-zero on any drift:
+\texttt{scripts/ac1.py} for the inter-annotator coefficients and
+\texttt{scripts/eqset\_stats.py} for the equivalence-set distribution.
+Evaluation is deterministic, each task is scored by replaying its recorded
+world, so re-runs reproduce the same verdicts, and the scoring procedure and
+every design parameter are described in \S\ref{sec:benchmark}. The code is
+released in an anonymized repository at
+\url{https://anonymous.4open.science/r/DynamicMCPBench-4243/}, and the dataset at
+\url{https://huggingface.co/datasets/anonsubmitter/DynamicMCPBench}.

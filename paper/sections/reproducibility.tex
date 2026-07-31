@@ -1,25 +1,3 @@
-\section*{Reproducibility Statement}
-\label{sec:reproducibility}
-All reported numbers are regenerated directly from the released evaluation
-records, which include the per-run verdict of every candidate on every task:
-\texttt{leaderboard\_e8.10d/verdicts/evals\_*.jsonl} for the eight API agents
-and \texttt{leaderboard\_local\_50x15/verdicts/*.jsonl} for the sixteen local
-ones, together with the corpus itself (\texttt{specs.jsonl},
-\texttt{traces.jsonl}), a \texttt{matrix.json} per leaderboard, and the
-human-validation study (\texttt{human\_eval/assignments/} and
-\texttt{human\_eval/submissions/}). Every table and figure is emitted by a
-committed script (\texttt{paper/regenerate.py}) from committed per-experiment
-numbers files, and two further scripts close the loop from the released raw
-records back to the published figures, exiting non-zero on any drift:
-\texttt{scripts/ac1.py} for the inter-annotator coefficients and
-\texttt{scripts/eqset\_stats.py} for the equivalence-set distribution.
-Evaluation is deterministic, each task is scored by replaying its recorded
-world, so re-runs reproduce the same verdicts, and the scoring procedure and
-every design parameter are described in \S\ref{sec:benchmark}. The code is
-released in an anonymized repository at
-\url{https://anonymous.4open.science/r/DynamicMCPBench-4243/}, and the dataset at
-\url{https://huggingface.co/datasets/anonsubmitter/DynamicMCPBench}.
-
 \section*{Use of Large Language Models}
 The objects of study in this paper are large language models: the agents
 under evaluation, the model families that generate the corpus, and the
