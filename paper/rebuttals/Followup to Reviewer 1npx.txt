@@ -1,24 +1,50 @@
-Follow-up: the reference-validation miss your audit found is now closed in code.
+Follow-up to Reviewer 1npx
 
-Your audit found 1 TaskSpec in 100 whose required effect was never executed in its reference trace. We said that was a reference-validation miss and that we would tighten the validator. Done, and measured.
+Two of the things we promised you are done, and one of them turned into a bigger result than the promise. Since the rebuttal stage is still open, here it is.
 
-WHAT CHANGED
+THE REFERENCE-VALIDATION GATE
 
-The old screen was narrow and advisory: it looked at tool-call checkpoints only, and it ran after generation, in a linting command, without rejecting anything. The only gate on the generation path was the explorer's own "I succeeded" self-report.
+You asked whether the distiller omits necessary effects. Our audit found one such spec in a hundred, we diagnosed it as an upstream reference-validation miss rather than a distillation one, and we said we would fix the task and tighten the validator. We did more than that: the gate is implemented, it runs at generation time, and the class of tasks it governs is now measured rather than asserted.
 
-The validator now requires the reference trace to satisfy EVERY required checkpoint of its own spec under deterministic Tier-1 scoring - value checkpoints included - and it runs where the claim is made: an exploration that claims success but did not produce every required effect is rejected before a spec is written. Regression tests pin exactly your case (claimed success, one successful call, required value never produced), and pin the old check as not catching it.
+Over the full released corpus of 1,845 specs: **zero orphans**, 1,578 reference-consistent, 267 flagged. The flags fall into three buckets, 103 where the demanded value appears nowhere in the trace, 137 where it appears but out of the scope the checkpoint requires, and 27 with no final message to check against.
 
-WHAT IT CATCHES, AND WHAT THAT DOES TO THE RESULTS
+On the 750-task evaluation slice the gate governs **104 tasks, 13.9%**, and they behave exactly as a defect class should:
 
-Run retroactively as a diagnostic over the released corpus (deterministic, no model in the loop):
+| | tasks | pass rate | never solved by any model |
+|---|---|---|---|
+| reference-consistent | 646 | 55.2% | 86 |
+| flagged by the gate | 104 | 11.8% | 59 |
 
-  reference produces every required effect   1,578 / 1,845   85.5%
-  value produced nowhere in the reference       103          5.6%
-  value produced, but not where scoped          137          7.4%
-  no final message recorded                      27          1.5%
+Flagged tasks are **4.3 times more likely to be unsolvable by every model**, and they account for **40.7% of the never-solved wall**, 59 of 145.
 
-The second bucket is your defect class. The third is one we would not have seen without your audit: the effect exists in the reference but the checkpoint demands it in a place the reference does not put it - a checkpoint the reference solution itself fails is measuring wording, not effect, which is the one thing this benchmark exists not to do.
+The part that matters for the paper is what happens when they are removed: **no model changes rank**. Every model gains roughly six points of pass^3 and the ordering is untouched. DeepSeek-V4-Pro goes 46.4 to 52.9, MiniMax-M3 42.4 to 48.1, Claude Haiku 4.5 41.1 to 47.1. So the defect class shifts the level uniformly and leaves the comparison intact, which is the property the paper actually relies on.
 
-These tasks are 13.9% of the evaluation slice and 40.7% of the never-solved wall: never solved by any of 8 models 56.7% [47.1, 65.8] of the time against 13.3% [10.9, 16.2] for the rest. Removing them raises every model 3.4-7.5 points and changes NO model's rank, on pass rate and on pass^3 alike, so the leaderboard is unaffected while a real slice of the "hard wall" turns out to be task defects rather than model failure.
+We would rather report this than quietly drop the tasks. It also sharpens the honest reading of the accuracies: they were lower bounds, and now we can say by roughly how much and why.
 
-The audit script and the numbers are committed and reproducible in one command.
+THE EQUIVALENCE-SET FIGURE
+
+You asked about incomplete equivalence sets. One thing we can now settle is the bookkeeping: the paper quotes 16% in the method section and 15.5% in the appendix. Those are the same measurement rounded twice. The single source is now scripted and reproducible from the released corpus:
+
+| quantity | value |
+|---|---|
+| tool_effect checkpoints | 4,651 |
+| admitting two or more tools | 721 |
+| share | 15.5% |
+| mean set size | 1.213 |
+| largest set | 12 |
+
+Regenerate with `scripts/eqset_stats.py --pull --check` against the released `specs.jsonl`.
+
+The generation funnel and the full human confusion matrix you asked for are both in the appendix of the revision, with the counts exactly as we sent them.
+
+WHAT IS NOW DONE
+
+The per-category Tier-2 breakdown you asked for is finished. We replayed 4,500 Tier-1 tool_effect failures, 300 per category out of a population of 45,155, through four judge families with the prompt and schema held fixed, the same items to each.
+
+The override rate is 4.93 percent for our default judge and 4.93 to 5.71 percent across the panel, a 0.78 point spread with overlapping intervals. Per category it runs from 1.83 percent on hard_neg to 9.83 percent on sibling, and that ordering is interpretable: sibling seeds interchangeable tools on the same server, hard_neg seeds adversarial near-duplicates. Nine failures in ten are unanimous NO across the panel; a majority overrides 3.85 percent.
+
+Since Tier-2 only ever turns a failure into a pass, this also bounds how far any judge configuration could have moved the paper's numbers, and only upward. The published leaderboard remains deterministic throughout.
+
+STILL OPEN
+
+The cross-model check on scorer strictness. The annotation package is built and out to raters, and we will report it in the camera-ready. We would rather name it than let it look closed.

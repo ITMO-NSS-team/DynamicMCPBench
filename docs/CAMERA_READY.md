@@ -222,7 +222,7 @@ condition was to be extended beyond one model, one retriever and one attempt, an
 it is — seven models, four retrieval depths, a router, and three attempts.
 Written into the paper by item 2.6 above.
 
-**3.2 Tier-2 override rates per category.** `[ ]` — promised to 1npx, RJAT.
+**3.2 Tier-2 override rates per category.** `[x]` — promised to 1npx, RJAT.
 Replay the saved leaderboard Tier-1 failures through the judge, across **several
 judge families** at temperature 0, and report override rates overall and for each
 of the 15 categories. Blocker: the existing judge-enabled records

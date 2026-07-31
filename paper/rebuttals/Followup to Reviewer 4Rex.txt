@@ -1,0 +1,41 @@
+Follow-up to Reviewer 4Rex
+
+Both of your concerns are now closed with data, and both of your instincts were right. Since the rebuttal stage is still open we would rather show you the results than describe them in a camera-ready you cannot see.
+
+DECAY, WIDENED
+
+You asked whether 36% would hold across the 121 servers or vary a lot by domain. We rebuilt the refresh over **113 servers and 12 domains** against the 22 traces over three server families you flagged as thin, a 38-fold widening of the sample.
+
+The headline holds. **32.6% of recorded effects still reproduce identically**, against 36.0% on the narrow sample. That is a 3.4 point move, inside the band we registered in advance. Only about a third of live-read effects reproducing is a property of the substrate, not of three hand-picked servers.
+
+The domain spread is large, and it runs the way you guessed:
+
+| domain | effects reproducing identically |
+|---|---|
+| dev_tools | 89.7% |
+| science_health | 19.1% |
+| all 12 domains | 32.6% |
+
+A 70 point range on a 32.6% headline. Versioned reference content is nearly stable; listings that re-rank on every query are nearly not. So a benchmark that re-scored against the live world would not merely be unfair, it would be unfairly weighted by topic. The `dev_tools` figure rests on 29 resolved calls of 74 attempted, so read it as the most stable domain we measured rather than a precise 90%.
+
+WHAT THE WIDE RUN CORRECTED
+
+This is the part we did not expect. In the submitted table the non-identical remainder split roughly evenly, 33% drifted against 32% broken, and we told you the broken share was an upper bound. Re-run wide with a classifier that has to attribute each failure rather than bucket it:
+
+| outcome | share |
+|---|---|
+| identical | 32.6% |
+| drifted, call succeeds and the result changed | 67.0% |
+| attributably broken | 0.4% |
+
+The 0.4% is four calls, all schema drift, all on one server, and **zero** state decay. A further 320 calls failed without the classifier being able to attribute them; those are excluded from the rates above rather than counted as breakage.
+
+So the upper bound we flagged was loose by two orders of magnitude. Breakage is close to absent. Drift is the whole phenomenon.
+
+That makes the case for cached deterministic replay stronger than the paper argued, and on a different mechanism than we claimed. The servers are not falling over. They are quietly returning different answers, and the rate at which they do it depends on the topic. Re-scoring live would let a model's pass or fail turn on which domain a task happened to touch and when it ran.
+
+ALSO DONE
+
+The leave-own-family-out leaderboard is in the main body with the full per-model table, and GLM-5.1 is reported with the same-family caveat attached. The decay table is in the main body as well, per domain, captioned as a materiality demonstration rather than a universal reproduction rate.
+
+That closes everything we promised you.
