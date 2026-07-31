@@ -75,12 +75,51 @@ def final_message(trace: dict) -> str:
     return exp.get("final_message") or ""
 
 
-def calls_of(trace: dict) -> list[dict]:
-    return [
-        {"server_id": s.get("server_id"), "tool_name": s.get("tool_name"), "arguments": s.get("arguments")}
-        for s in trace.get("steps", [])
-        if s.get("tool_name") and s.get("kind") == "call_tool_agent"
-    ]
+def calls_of(trace: dict) -> list[str]:
+    """Rendered exactly as annotate2's card expects: 'server.tool({args})'."""
+    out: list[str] = []
+    for s in trace.get("steps", []):
+        if s.get("kind") != "call_tool_agent" or not s.get("tool_name"):
+            continue
+        args = json.dumps(s.get("arguments"), ensure_ascii=False)
+        server = (s.get("server_id") or "").split("__")[-1]
+        out.append(f"{server}.{s['tool_name']}({args})")
+    return out
+
+
+def desc_map(*traces: dict | None) -> dict[str, str]:
+    """'server.tool' -> description, unioned over the traces' tool_specs."""
+    m: dict[str, str] = {}
+    for tr in traces:
+        for server_id, specs in ((tr or {}).get("tool_specs") or {}).items():
+            for sp in specs or []:
+                name = sp.get("name")
+                if name:
+                    m[f"{server_id.split('__')[-1]}.{name}"] = sp.get("description") or ""
+    return m
+
+
+def first_sentence(raw: str) -> str:
+    raw = " ".join((raw or "").split())
+    cut = raw.find(". ")
+    return raw[: cut + 1] if cut != -1 else raw
+
+
+def tool_desc_list(call_lists: list[list[str]], descs: dict[str, str]) -> list[str]:
+    """Unique tools across the call lists, each with a one-line description."""
+    names: list[str] = []
+    seen: set[str] = set()
+    for calls in call_lists:
+        for c in calls:
+            nm = c.split("(", 1)[0]
+            if nm not in seen:
+                seen.add(nm)
+                names.append(nm)
+    out = []
+    for nm in names:
+        d = first_sentence(descs.get(nm, ""))
+        out.append(f"{nm} - {d}" if d else nm)
+    return out
 
 
 def pull(root: Path) -> tuple[dict, dict, dict]:
@@ -117,6 +156,8 @@ def build_cards(specs, golds, per_model, per_category: int, pass_per_model: int,
                 continue
             seen.add(tid)
             gold = golds.get(spec.get("source_trace_id"))
+            gc = calls_of(gold) if gold else []
+            mc = calls_of(trace)
             bucket = by_cat_pass if row.get("passed") else by_cat
             bucket[category_of(spec)].append(
                 {
@@ -124,11 +165,12 @@ def build_cards(specs, golds, per_model, per_category: int, pass_per_model: int,
                     "model": model,
                     "category_claimed": category_of(spec),
                     "prompt": spec.get("prompt"),
-                    "gold_calls": calls_of(gold) if gold else [],
+                    "tools_desc": tool_desc_list([gc, mc], desc_map(gold, trace)),
+                    "gold_calls": gc,
                     "gold_answer": final_message(gold) if gold else "",
-                    "model_calls": calls_of(trace),
+                    "model_calls": mc,
                     "model_answer": final_message(trace),
-                    "model_calls_n": len(calls_of(trace)),
+                    "model_calls_n": len(mc),
                     "_auto_pass": bool(row.get("passed")),
                     "ann": None,
                 }
