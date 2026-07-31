@@ -306,7 +306,7 @@ dmcp-studio/frontend/dist/
 # Local HF downloads and human-annotation working copies
 hfdl/
 human_eval/
-annotate_*.jsonl
+/annotate_*.jsonl
 # released corpus pulled by scripts/eqset_stats.py --pull (regenerable, ~7 MB)
 /specs.jsonl
 /traces.jsonl
