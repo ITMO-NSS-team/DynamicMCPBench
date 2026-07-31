@@ -99,15 +99,16 @@ def pull(root: Path) -> tuple[dict, dict, dict]:
     return specs, golds, per_model
 
 
-def build_cards(specs, golds, per_model, per_category: int, seed: int) -> list[dict]:
+def build_cards(specs, golds, per_model, per_category: int, pass_per_model: int, seed: int) -> list[dict]:
     rng = random.Random(seed)
     cards: list[dict] = []
     for model, (verdicts, traces) in per_model.items():
         by_cat: dict[str, list[dict]] = collections.defaultdict(list)
+        by_cat_pass: dict[str, list[dict]] = collections.defaultdict(list)
         seen: set[str] = set()
         for row in verdicts:
-            if row.get("passed") or row.get("repeat_index") != 0:
-                continue  # scorer-FAIL runs only, first attempt, one card per task
+            if row.get("repeat_index") != 0:
+                continue  # first attempt, one card per task
             tid = row["task_id"]
             if tid in seen:
                 continue
@@ -116,7 +117,8 @@ def build_cards(specs, golds, per_model, per_category: int, seed: int) -> list[d
                 continue
             seen.add(tid)
             gold = golds.get(spec.get("source_trace_id"))
-            by_cat[category_of(spec)].append(
+            bucket = by_cat_pass if row.get("passed") else by_cat
+            bucket[category_of(spec)].append(
                 {
                     "task_id": tid,
                     "model": model,
@@ -127,7 +129,7 @@ def build_cards(specs, golds, per_model, per_category: int, seed: int) -> list[d
                     "model_calls": calls_of(trace),
                     "model_answer": final_message(trace),
                     "model_calls_n": len(calls_of(trace)),
-                    "_auto_pass": False,
+                    "_auto_pass": bool(row.get("passed")),
                     "ann": None,
                 }
             )
@@ -135,6 +137,27 @@ def build_cards(specs, golds, per_model, per_category: int, seed: int) -> list[d
             pool = by_cat.get(cat, [])
             rng.shuffle(pool)
             cards.extend(pool[:per_category])
+        # small auto-PASS stratum: without it the human pass rate cannot be
+        # reconstructed, so "the strictness moves the level, not the ordering"
+        # would be assumed rather than measured. Spread round-robin over
+        # categories so no single category carries it.
+        for pool in by_cat_pass.values():
+            rng.shuffle(pool)
+        picked = 0
+        depth = 0
+        while picked < pass_per_model:
+            drained = True
+            for cat in CATEGORIES:
+                pool = by_cat_pass.get(cat, [])
+                if depth < len(pool):
+                    cards.append(pool[depth])
+                    picked += 1
+                    drained = False
+                    if picked >= pass_per_model:
+                        break
+            if drained:
+                break
+            depth += 1
     return cards
 
 
@@ -172,6 +195,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="human_eval/cr34")
     ap.add_argument("--per-category", type=int, default=4)
+    ap.add_argument("--pass-per-model", type=int, default=10)
     ap.add_argument("--kappa", type=int, default=20)
     ap.add_argument("--shared-raters", type=int, default=3)
     ap.add_argument("--seed", type=int, default=0)
@@ -180,11 +204,14 @@ def main() -> None:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     specs, golds, per_model = pull(out / "hf")
-    cards = build_cards(specs, golds, per_model, args.per_category, args.seed)
+    cards = build_cards(specs, golds, per_model, args.per_category, args.pass_per_model, args.seed)
     packs = assign(cards, args.kappa, args.seed, args.shared_raters)
 
     per_model_n = collections.Counter(c["model"] for c in cards)
-    print(f"unique cards: {len(cards)}  {dict(per_model_n)}")
+    n_pass = sum(c["_auto_pass"] for c in cards)
+    print(
+        f"unique cards: {len(cards)} ({len(cards) - n_pass} scorer-FAIL, {n_pass} scorer-PASS)  {dict(per_model_n)}"
+    )
     for r, pack in packs.items():
         path = out / f"annotate_{r}.jsonl"
         with path.open("w") as fh:
