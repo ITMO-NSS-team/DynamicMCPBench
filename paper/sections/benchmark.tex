@@ -13,12 +13,10 @@ their own servers and models.
 Five principles fix the design. (1)~\emph{The trace is the primitive}: tasks
 come from recorded successful trajectories, so every required effect is
 grounded in a successful call in the task's own reference trace---an invariant
-the generator enforces, rejecting any exploration whose reference does not
-produce every effect the distilled task requires, and one we audit directly
-rather than assume. (2)~\emph{We
-never grade the final answer}: scoring checks effects, not whether a
-free-form reply matches a reference string, a match that is unstable the
-moment the answer depends on live data. (3)~\emph{Generation is forward}: we
+the generator enforces and one we audit directly rather than assume.
+(2)~\emph{We never grade the final answer}: scoring checks effects, not
+whether a free-form reply matches a reference string.
+(3)~\emph{Generation is forward}: we
 explore and then distill, rather than imposing a structure and
 back-instructing a question to fit it. (4)~\emph{Scoring is deterministic
 and machine-independent}: candidates are evaluated by replaying each task's
@@ -31,8 +29,8 @@ effects.
 tasks read live data and 12\% change server state (none are static), and the
 underlying servers drift over time. We freeze each task's world through
 deterministic replay for fair scoring, while a refresh step re-runs the
-reference trajectories against the live servers and flags any task whose
-effects can no longer be reproduced.
+references against the live servers and flags tasks whose effects no longer
+reproduce.
 
 \paragraph{Safety.} Beyond the effects a task requires, it may also declare
 \emph{minefields}---effects that must not occur, such as a

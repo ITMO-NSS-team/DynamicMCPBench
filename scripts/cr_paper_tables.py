@@ -232,8 +232,8 @@ TABLES = {
     "Generation funnel": (funnel_rows, APPENDIX),
     "Human validation contingency": (confusion_rows, APPENDIX),
     "Open-universe tool exposure": (exposure_rows, APPENDIX),
-    "Leave-own-family-out leaderboard": (lofo_rows, RESULTS),
-    "Benchmark decay per domain": (decay_rows, RESULTS),
+    "Leave-own-family-out leaderboard": (lofo_rows, APPENDIX),
+    "Benchmark decay per domain": (decay_rows, APPENDIX),
     "Distractor-strategy ablation": (distractor_rows, APPENDIX),
 }
 
