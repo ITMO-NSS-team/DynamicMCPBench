@@ -21,18 +21,18 @@ such servers is its intended use.
 
 \paragraph{What our checkpoints do not establish.} Two gaps bear on the
 construct itself. (1)~\emph{Equivalence-set recall is unmeasured.} Our audit
-reports precision---every alternative a checkpoint lists is effect-equivalent
-to the tool the reference used---but not recall: whether every tool that would
-produce the same effect is listed. A candidate that reaches a required effect
+(Appendix~\ref{app:fidelity}) reports precision---every alternative a
+checkpoint lists is effect-equivalent to the tool the reference used---but not
+recall: whether every tool that would produce the same effect is listed. A candidate that reaches a required effect
 through an unlisted equivalent is scored as failing, which is a second reason
 to read the reported accuracies as lower bounds. (2)~\emph{We run no controlled
 cross-distiller study.} Authorship is spread across model families, so no
 single distiller shapes the corpus, but we do not distill the same traces
 independently with each family and compare the resulting checkpoints.
 Distiller-attributable variance in what a task requires is therefore not
-isolated: our fidelity audit establishes that checkpoints are grounded in the
-traces they came from, not how much they would differ had another family
-distilled the same trace.
+isolated: our fidelity audit (Appendix~\ref{app:fidelity}) establishes that
+checkpoints are grounded in, and necessary to, the traces they came from, not
+how much they would differ had another family distilled the same trace.
 
 \paragraph{Future work.} The validation pass surfaced two concrete
 improvements. (1)~\emph{Provisioning state at generation time}: some

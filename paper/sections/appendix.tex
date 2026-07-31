@@ -391,6 +391,70 @@ that were already admitted into the released corpus, after the per-run
 validator pass reported here, and it aggregates runs made under several
 pipeline versions. Neither number should be read as the other's replication.
 
+\section{Distiller Fidelity}
+\label{app:fidelity}
+The reference-validation gate of Appendix~\ref{app:funnel} is automatic and
+checks \emph{provenance}: it rejects any task whose reference trace does not
+produce every effect the distilled spec requires. Provenance is not
+sufficiency. A call can be grounded in a successful trace and still be
+unnecessary to the goal, and an equivalence set can list an alternative that
+is not in fact effect-equivalent. Those are properties of the distiller, so we
+measured them by hand.
+
+\paragraph{Protocol.} We drew 100 TaskSpecs from the released corpus and
+audited each against its own reference trace. Within those specs the audit
+covers the 264 retained \texttt{tool\_effect} checkpoints, 200 of the calls the
+distiller did \emph{not} retain, and the 67 alternatives listed in the specs'
+equivalence sets. Each retained checkpoint was labelled for whether it is
+grounded in a successful call and, separately, for whether removing it would
+still allow the goal to be reached; each non-retained call for whether it is
+redundant or irrelevant to the goal; each listed alternative for whether it
+produces the same effect as the checkpoint it is attached to. Intervals are
+Wilson 95\% intervals.
+
+\begin{table}[h]
+  \centering \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lrr}
+    \toprule
+    audited property & rate & 95\% CI \\
+    \midrule
+    grounded in a successful call   & 261/264 & 96.7--99.6 \\
+    \dots{} and necessary to the goal & 261/261 & 98.5--100 \\
+    non-retained call redundant     & 188/188 & 98.0--100 \\
+    listed alternative equivalent   &   67/67 & 94.6--100 \\
+    spec missing a required effect  &   1/100 & 0.2--5.4 \\
+    spec valid as written           &  95/100 & --- \\
+    \bottomrule
+  \end{tabular}
+  \caption{Hand audit of 100 TaskSpecs. The first four rows are the fidelity
+    properties the automatic gate cannot check; the last two report how often
+    a spec is defective overall (4 minor defects and 1 overly permissive spec
+    among the five).}
+  \label{tab:fidelity}
+\end{table}
+
+\paragraph{What the numbers say, and what they do not.} Grounding holds at
+98.9\% (261/264), and every checkpoint that is grounded is also necessary in
+this sample, so within these 100 specs the distiller does not manufacture
+requirements a working solution could skip. Compression is not achieved by
+dropping load-bearing calls: of the non-retained calls we could resolve, all
+188 are redundant or irrelevant. Twelve further non-retained calls were
+unresolved---mostly recovery attempts after a failed call, where necessity is
+ambiguous---and counting all twelve as errors gives a floor of 94\% rather
+than 100\%. The single spec missing a required effect is a
+reference-validation miss rather than a distillation error: the effect was
+never executed in the reference trace at all.
+
+Two limits of this evidence should be read with it. The audit was performed by
+the authors and was not blinded, so it establishes internal consistency rather
+than independent replication; and it is a precision measurement---it asks
+whether every alternative a checkpoint \emph{lists} is equivalent, not whether
+every equivalent alternative that exists is listed, which is the recall
+question we flag in Limitations. The item-level labels are held externally and
+are not part of the released artifact; the aggregates above are what we
+report.
+
 \section{Human Validation: the Full Contingency Table}
 \label{app:human}
 The validation study of \S\ref{sec:results:validity} produced 975 annotation

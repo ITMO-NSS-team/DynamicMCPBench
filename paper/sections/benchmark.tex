@@ -13,9 +13,8 @@ their own servers and models.
 Five principles fix the design. (1)~\emph{The trace is the primitive}: tasks
 come from recorded successful trajectories, so every required effect is
 grounded in a successful call in the task's own reference trace---an invariant
-the generator enforces and one we audit directly rather than assume.
-(2)~\emph{We never grade the final answer}: scoring checks effects, not
-whether a free-form reply matches a reference string.
+the generator enforces. (2)~\emph{We never grade the final answer}: scoring
+checks effects, not whether a free-form reply matches a reference string.
 (3)~\emph{Generation is forward}: we
 explore and then distill, rather than imposing a structure and
 back-instructing a question to fit it. (4)~\emph{Scoring is deterministic
@@ -70,17 +69,18 @@ order} that constrains two effects only where one genuinely depends on the
 other, leaving parallel steps unordered. Each specification also records a
 complexity profile (chain depth, cross-server, branching) used for the
 stratification above; Appendix~\ref{app:example} works one task through end to
-end, from recorded trajectory to distilled checkpoints. The choices that shape the corpus are deliberate:
-generation is forward and trace-grounded, so each task was achieved at least
-once---by the trajectory it was distilled from;
-categories are balanced at 50 tasks each so no category dominates; seed
-difficulty is scaled to span short and long chains; and authorship is spread
-across model families. A checkpoint the distiller emits but the trace does not
+end, from recorded trajectory to distilled checkpoints. The choices that shape
+the corpus are deliberate: generation is forward and trace-grounded, so each
+task was achieved at least once---by the trajectory it was distilled from;
+categories are balanced, seed difficulty spans short and long chains, and
+authorship is spread across model families. A checkpoint the distiller emits
+but the trace does not
 satisfy is a generation failure we detect rather than exclude by construction:
 each distilled task is re-scored against its own reference trace and discarded
-if any required effect is missing. Roughly a quarter of distilled
-specifications are rejected before reaching the corpus;
-Appendix~\ref{app:funnel} reports the funnel stage by stage. The full generation and evaluation configuration appears in
+if any required effect is missing, which rejects roughly a quarter of distilled
+specifications (Appendix~\ref{app:funnel}). The gate checks provenance, not
+necessity, so we also audited 100 specs by hand: 98.9\% of retained checkpoints
+are grounded and all of those necessary (Appendix~\ref{app:fidelity}). The full generation and evaluation configuration appears in
 Appendix~\ref{app:config}, and all prompts in Appendix~\ref{app:prompts}.
 
 \subsection{Effect-based scoring}
