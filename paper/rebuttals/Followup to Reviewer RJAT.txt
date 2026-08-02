@@ -1,8 +1,8 @@
-DRIFT VERSUS TRANSIENT FAILURE
+DRIFT SEPARATED FROM TRANSIENT FAILURE
 
-We built the attributing classifier and ran the refresh over 113 servers and 12 domains against 3 in the paper, a 38-fold widening.
+The attributing classifier is built and the refresh re-run over 113 servers and 12 domains, against 3 in the paper. A 38-fold widening.
 
-The headline survives: 32.6% reproduce identically against 36.0% narrow. The composition does not, which is the more useful result:
+32.6% of effects still reproduce identically, against 36.0% narrow. The composition of the remainder:
 
 | outcome | share |
 |---|---|
@@ -10,13 +10,13 @@ The headline survives: 32.6% reproduce identically against 36.0% narrow. The com
 | drifted, the call succeeds and the result changed | 67.0% |
 | attributably broken | 0.4% |
 
-Four calls, all schema drift, all on one server, zero state decay; 320 more failed unattributably and are excluded rather than counted as breakage. The 32% we flagged as an upper bound resolves to 0.4%.
+Four calls, all schema drift, all on one server, zero state decay. 320 more failed unattributably and are excluded rather than counted as breakage. The 32% flagged as an upper bound resolves to 0.4%.
 
-Breakage is close to absent and drift is the whole phenomenon, which sharpens the argument for cached replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Per domain, dev_tools 89.7% against science_health 19.1%, so live re-scoring would be unfair and unfairly weighted by subject matter.
+Drift is the whole phenomenon, which sharpens the argument for cached replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers. Per domain, dev_tools 89.7% against science_health 19.1%, so live re-scoring would be unfair and unfairly weighted by subject matter.
 
-The preflight is implemented: it derives credential, file, writable and table preconditions from the reference trace and quarantines a task whose environment cannot be provisioned before any live call, so it never reaches the agent-failure column.
+The preflight derives credential, file, writable and table preconditions from the reference trace and quarantines a task whose environment cannot be provisioned before any live call, so it never reaches the agent-failure column.
 
-TOOL DISCOVERY, EXTENDED
+TOOL DISCOVERY OVER THE FULL CATALOG
 
 Four models, k in {4, 8, 16, 32}, a hierarchical router and the flat catalog, over 150 depth-balanced tasks with committed ids.
 
@@ -29,13 +29,11 @@ Four models, k in {4, 8, 16, 32}, a hierarchical router and the flat catalog, ov
 | rag k=32 | 28.7 | 34.7 | 36.7 | 40.0 |
 | hier | 28.0 | 32.7 | 32.7 | 36.0 |
 
-Budget helps and never closes the gap: every model gains 12 to 19 points from k=4 to k=32 and stays 7 to 14 below curated. The binding constraint is reachability, not ranking. The retriever surfaces every required tool for 36.7, 48.0, 62.7 and 75.3 percent of tasks at k = 4, 8, 16, 32, and of the 1,064 unreachable cells zero passed. Three attempts at k=8 recover 16 to 22 percent of the deficit.
-
-Across the four models the curated-to-open gap is 12.8 points on short chains and 19.5 on long, so depth compounds the cost without accounting for all of it.
+Budget helps and never closes the gap: 12 to 19 points gained from k=4 to k=32, still 7 to 14 below curated. The binding constraint is reachability, not ranking. The retriever surfaces every required tool for 36.7, 48.0, 62.7 and 75.3 percent of tasks at k = 4, 8, 16, 32, and of the 1,064 unreachable cells zero passed. Three attempts at k=8 recover 16 to 22 percent of the deficit. Across the four models the curated-to-open gap is 12.8 points on short chains and 19.5 on long.
 
 JUDGE FAMILIES, PER CATEGORY
 
-4,500 Tier-1 tool_effect failures, 300 per category from a population of 45,155, through four families. Prompt and schema are the paper's own, copied verbatim, so only the family varies, and the same items go to every family.
+4,500 Tier-1 tool_effect failures, 300 per category from a population of 45,155, the same items to every family, prompt and schema held fixed.
 
 | judge | override rate | 95% CI |
 |---|---|---|
@@ -44,10 +42,8 @@ JUDGE FAMILIES, PER CATEGORY
 | llama-3.3-70b | 5.33% | 4.71 - 6.03 |
 | mistral-small-3.2-24b | 5.71% | 5.07 - 6.43 |
 
-A 0.78 point spread, fully overlapping intervals, pairwise agreement 94.5 to 97.0 percent. Three of the four have open weights and authored no part of the corpus, so the panel is reproducible without a paid key.
+A 0.78 point spread, fully overlapping intervals, pairwise agreement 94.5 to 97.0 percent. Three of the four have open weights and authored no part of the corpus, so the panel reproduces without a paid key.
 
-Per category the rate runs 1.83 percent on hard_neg to 9.83 percent on sibling, an order of magnitude more variation than the family axis. That ordering is signal: sibling seeds other tools on the same server, where an equivalent path usually exists; hard_neg seeds adversarially mined near-duplicates, where it does not.
+Per category the rate runs 1.83% on hard_neg to 9.83% on sibling, an order of magnitude more variation than the family axis: sibling seeds interchangeable tools on the same server, hard_neg seeds adversarially mined near-duplicates.
 
-Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since Tier-2 only turns a failure into a pass, that bounds how far any judge configuration could have moved our numbers, and only upward.
-
-Every commitment in our response is now closed.
+Nine failures in ten are unanimous NO; a majority overrides 3.85%. Since Tier-2 only turns a failure into a pass, that bounds how far any judge configuration could move our numbers, and only upward.

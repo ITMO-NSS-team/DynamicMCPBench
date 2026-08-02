@@ -1,21 +1,19 @@
-Three of the things we said would come in the camera-ready are done, and two of them turned out larger than the promise.
+THE REFERENCE-VALIDATION GATE
 
-THE VALIDATOR, TIGHTENED
+The gate is implemented and enforced at generation time. Over 1,845 specs: zero orphans, 1,578 reference-consistent, 267 flagged.
 
-Promised: fix the one task with a missing effect and tighten the reference validator. Done, and the class it governs is now measured rather than asserted. Over 1,845 specs: zero orphans, 1,578 reference-consistent, 267 flagged.
-
-On the 750-task slice the gate governs 104 tasks, 13.9%:
+On the 750-task slice it governs 104 tasks, 13.9%:
 
 | | tasks | pass rate | never solved by any model |
 |---|---|---|---|
 | reference-consistent | 646 | 55.2% | 86 |
 | flagged | 104 | 11.8% | 59 |
 
-Flagged tasks are 4.3x more likely to be unsolvable by every model and account for 40.7% of the never-solved wall. Removing them changes no model's rank: every model gains about six points of pass^3 and the ordering is untouched. So the defect is real, bounded, and does not touch the comparison the paper rests on.
+Flagged tasks are 4.3x more likely to be unsolvable by every model and account for 40.7% of the never-solved wall. Removing them changes no model's rank: every model gains about six points of pass^3 and the ordering is untouched.
 
-TIER-2 OVERRIDE RATES, PER CATEGORY
+TIER-2 OVERRIDE RATES, PER CATEGORY AND PER JUDGE FAMILY
 
-Promised: per-category rates in the camera-ready. Done, and across four judge families rather than one. 4,500 Tier-1 tool_effect failures, 300 per category from a population of 45,155, the same items to every family, prompt and schema held fixed.
+4,500 Tier-1 tool_effect failures, 300 per category from a population of 45,155, the same items to every family, prompt and schema held fixed.
 
 | judge | override rate | 95% CI |
 |---|---|---|
@@ -24,12 +22,12 @@ Promised: per-category rates in the camera-ready. Done, and across four judge fa
 | llama-3.3-70b | 5.33% | 4.71 - 6.03 |
 | mistral-small-3.2-24b | 5.71% | 5.07 - 6.43 |
 
-A 0.78 point spread with fully overlapping intervals. Three of the four have open weights and authored no part of the corpus, so the panel needs no paid key to reproduce. Per category the rate runs 1.83 percent on hard_neg to 9.83 percent on sibling, an order of magnitude more variation than the judge axis, and in the direction the taxonomy predicts.
+A 0.78 point spread with fully overlapping intervals. Three of the four have open weights and authored no part of the corpus, so the panel reproduces without a paid key.
 
-Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since Tier-2 only ever turns a failure into a pass, that is also the bound on how far any judge configuration could have moved the paper's numbers, and only upward.
+Per category the rate runs 1.83% on hard_neg to 9.83% on sibling, an order of magnitude more variation than the judge axis, and in the direction the taxonomy predicts: sibling seeds interchangeable tools on the same server, hard_neg seeds adversarially mined near-duplicates.
 
-THE APPENDIX ITEMS
+Nine failures in ten are unanimous NO; a majority overrides 3.85%. Since Tier-2 only ever turns a failure into a pass, that is the bound on how far any judge configuration could move the paper's numbers, and only upward.
 
-Promised: the generation funnel and the full human confusion matrix. Both are in the revision with the counts exactly as we sent them. The equivalence-set share is now single-sourced and scripted from the released corpus, which also settles the 16% against 15.5% double-rounding in favour of 15.5%: 721 of 4,651 checkpoints admit two or more tools, largest 12.
+IN THE APPENDIX
 
-Every commitment in our response is now closed.
+The generation funnel and the full human confusion matrix, with the counts as sent. The equivalence-set share is now scripted from the released corpus and settles the 16% against 15.5% double-rounding in favour of 15.5%: 721 of 4,651 checkpoints admit two or more tools, largest 12.

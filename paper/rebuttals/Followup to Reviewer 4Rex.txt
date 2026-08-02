@@ -1,16 +1,14 @@
-Everything we promised you is delivered, and both of your instincts were right.
+DECAY ACROSS 113 SERVERS AND 12 DOMAINS
 
-DECAY, WIDENED
+We rebuilt the refresh over 113 servers and 12 domains, against the 22 traces over three families in the paper. A 38-fold widening.
 
-Promised: widen the refresh across more of the 121 servers, give decay per domain its own table, and say plainly that this is a materiality demonstration rather than a universal rate. All three done. 113 servers and 12 domains against the 22 traces over three families you flagged as thin, a 38-fold widening.
+32.6% of effects still reproduce identically, against 36.0% on the narrow sample. A 3.4 point move, inside the band registered in advance. It is a property of the substrate, not of three hand-picked servers.
 
-The headline holds: 32.6% of effects still reproduce identically against 36.0% narrow, a 3.4 point move, inside the band we registered in advance. It is a property of the substrate, not of three hand-picked servers.
+Per domain: dev_tools 89.7%, science_health 19.1%. A 70 point range on a 32.6% headline. Versioned reference content is nearly stable; listings that re-rank on every query are not.
 
-The domain spread runs as you guessed: dev_tools 89.7%, science_health 19.1%, a 70 point range on a 32.6% headline. Versioned reference content is nearly stable; listings that re-rank on every query are not.
+THE REMAINDER IS DRIFT, NOT BREAKAGE
 
-WHAT THE WIDE RUN CORRECTED
-
-Your question sent us back to the broken share with a classifier that must attribute each failure rather than bucket it:
+Re-run with a classifier that must attribute each failure rather than bucket it:
 
 | outcome | share |
 |---|---|
@@ -18,10 +16,10 @@ Your question sent us back to the broken share with a classifier that must attri
 | drifted, the call succeeds and the result changed | 67.0% |
 | attributably broken | 0.4% |
 
-Four calls, all schema drift, all on one server, zero state decay; 320 more failed unattributably and are excluded rather than counted as breakage. The 32% we flagged as an upper bound resolves to 0.4%.
+Four calls, all schema drift, all on one server, zero state decay. 320 more failed unattributably and are excluded rather than counted as breakage. The 32% flagged as an upper bound resolves to 0.4%.
 
-Breakage is close to absent and drift is the whole phenomenon, which sharpens the argument for cached deterministic replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Live re-scoring would let a model's pass or fail turn on which domain a task happened to touch and when it ran.
+Drift is the whole phenomenon, which sharpens the argument for cached deterministic replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Live re-scoring would let a model's pass or fail turn on which domain a task touched and when it ran.
 
-THE LEADERBOARD
+IN THE MAIN BODY
 
-Promised: add the leave-own-family-out leaderboard, report GLM-5.1 with the same-family caveat, and move both it and the decay table into the main body. Done, all three, with the full per-model table.
+The leave-own-family-out leaderboard with the full per-model table, GLM-5.1 with the same-family caveat, and decay per domain in its own table, captioned as a materiality demonstration rather than a universal rate.
