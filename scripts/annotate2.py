@@ -22,6 +22,7 @@ import glob
 import json
 import os
 import random
+import re
 import shutil
 import sys
 
@@ -537,25 +538,40 @@ def _hf_upload_dir(local_dir, path_in_repo):
         )
 
 
+def _fname(rater: str, suffix: str = "") -> str:
+    """Assignment/submission filename. A suffix keeps a new pass from colliding
+    with an earlier one: raters reuse their names, so `annotate_delta.jsonl` from
+    a second study would otherwise overwrite the first study's raw data on HF."""
+    return f"annotate_{rater}{suffix}.jsonl"
+
+
 def cmd_fetch(a):
     from huggingface_hub import hf_hub_download
 
-    fn = f"annotate_{a.rater}.jsonl"
+    fn = _fname(a.rater, getattr(a, "suffix", ""))
     p = hf_hub_download(REPO, f"{ASSIGN_DIR}/{fn}", repo_type="dataset", local_dir=".")
     shutil.copy(p, fn)
-    print(f"fetched {fn} ({len(_jsonl(fn))} cards). now: python3 scripts/annotate2.py run --rater {a.rater}")
+    print(f"fetched {fn} ({len(_jsonl(fn))} cards). now: python3 scripts/annotate2.py run --file {fn}")
 
 
 def cmd_submit(a):
-    fn = f"annotate_{a.rater}.jsonl"
+    fn = a.file or _fname(a.rater, getattr(a, "suffix", ""))
     if not os.path.exists(fn):
         sys.exit(f"{fn} not found — run `fetch` then `run` first")
+    remote = f"{SUBMIT_DIR}/{os.path.basename(fn)}"
+    api = _hf_api()
+    existing = set(api.list_repo_files(REPO, repo_type="dataset"))
+    if remote in existing and not a.force:
+        sys.exit(
+            f"refusing to overwrite hf://{REPO}/{remote}\n"
+            f"  a submission already exists under that name. Raters reuse their names across\n"
+            f"  studies, so this is how one pass silently erases another. Use --suffix _v2\n"
+            f"  (or rename the local file), or pass --force if you really mean to replace it."
+        )
     lines = _jsonl(fn)
     done = sum(1 for ln in lines if json.loads(ln).get("ann"))
-    _hf_api().upload_file(
-        path_or_fileobj=fn, path_in_repo=f"{SUBMIT_DIR}/{fn}", repo_id=REPO, repo_type="dataset"
-    )
-    print(f"submitted {fn} ({done}/{len(lines)} done) -> hf://{REPO}/{SUBMIT_DIR}/")
+    api.upload_file(path_or_fileobj=fn, path_in_repo=remote, repo_id=REPO, repo_type="dataset")
+    print(f"submitted {fn} ({done}/{len(lines)} done) -> hf://{REPO}/{remote}")
 
 
 # --------------------------------------------------------------------------- report
@@ -588,7 +604,11 @@ def cmd_report(a):
             hf_hub_download(REPO, f, repo_type="dataset", local_dir=".")
         print(f"pulled {len(files)} submissions")
     rows = []
-    for f in glob.glob("human_eval/submissions/annotate_*.jsonl") + glob.glob("annotate_*.jsonl"):
+    pat = f"annotate_*{a.suffix}.jsonl" if a.suffix else "annotate_*.jsonl"
+    found = glob.glob(f"human_eval/submissions/{pat}") + glob.glob(pat)
+    if not a.suffix:  # the unsuffixed pass must not absorb a later one
+        found = [f for f in found if re.fullmatch(r"annotate_[a-z]+\.jsonl", os.path.basename(f))]
+    for f in found:
         for ln in _jsonl(f):
             d = json.loads(ln)
             if d.get("ann"):
@@ -724,18 +744,23 @@ def main():
     b.set_defaults(fn=cmd_build)
     f = sub.add_parser("fetch")
     f.add_argument("--rater", required=True)
+    f.add_argument("--suffix", default="", help="pass tag, e.g. _v2")
     f.set_defaults(fn=cmd_fetch)
     r = sub.add_parser("run")
     r.add_argument("--rater", default="")
     r.add_argument("--file", default="")
     r.set_defaults(fn=cmd_run)
     s = sub.add_parser("submit")
-    s.add_argument("--rater", required=True)
+    s.add_argument("--rater", default="")
+    s.add_argument("--file", default="")
+    s.add_argument("--suffix", default="", help="pass tag, e.g. _v2")
+    s.add_argument("--force", action="store_true", help="replace an existing submission")
     s.set_defaults(fn=cmd_submit)
     rp = sub.add_parser("report")
     rp.add_argument("--out", default="reports/human_validation.md")
     rp.add_argument("--json", default="")
     rp.add_argument("--pull", action="store_true")
+    rp.add_argument("--suffix", default="", help="report on one pass, e.g. _v2")
     rp.set_defaults(fn=cmd_report)
     a = ap.parse_args()
     a.fn(a)

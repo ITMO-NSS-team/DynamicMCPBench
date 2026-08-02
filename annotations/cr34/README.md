@@ -51,12 +51,18 @@ reference correctness are already measured on the same 750 tasks.
 Same instrument as before:
 
 ```bash
-uv run python scripts/annotate2.py run --rater <name>     # annotate
-uv run python scripts/annotate2.py submit --rater <name>  # push when done
+uv run python scripts/annotate2.py run --file annotate_<name>_v2.jsonl
+uv run python scripts/annotate2.py submit --file annotate_<name>_v2.jsonl
+uv run python scripts/annotate2.py report --suffix _v2 --pull
 ```
 
-Assignments are the `annotate_<rater>.jsonl` files here; copy the one with your
-name to the repo root (or pass `--file`). The single question that matters is Q3,
+Assignments are the `annotate_<rater>_v2.jsonl` files here; copy the one with
+your name to the repo root (or pass `--file`).
+
+**The `_v2` is load-bearing.** Raters reuse their names across studies, so a
+submission named `annotate_delta.jsonl` would overwrite the first pass's raw
+data on the hub. `submit` now refuses to replace an existing submission unless
+you pass `--force`, and `report --suffix _v2` keeps the two passes apart. The single question that matters is Q3,
 *do you agree with the auto-grader*. Most cards are shown as FAIL, where `no`
 means you would have passed the run; a minority are shown as PASS, where `no`
 means you would have failed it. Read the shown verdict before answering.

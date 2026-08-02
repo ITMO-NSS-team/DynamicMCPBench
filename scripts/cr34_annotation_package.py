@@ -241,6 +241,12 @@ def main() -> None:
     ap.add_argument("--kappa", type=int, default=20)
     ap.add_argument("--shared-raters", type=int, default=3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument(
+        "--suffix",
+        default="_v2",
+        help="pass tag baked into the filenames; raters reuse their names, so without it "
+        "a submission would overwrite the first study on the hub",
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -255,7 +261,7 @@ def main() -> None:
         f"unique cards: {len(cards)} ({len(cards) - n_pass} scorer-FAIL, {n_pass} scorer-PASS)  {dict(per_model_n)}"
     )
     for r, pack in packs.items():
-        path = out / f"annotate_{r}.jsonl"
+        path = out / f"annotate_{r}{args.suffix}.jsonl"
         with path.open("w") as fh:
             for c in pack:
                 fh.write(json.dumps(c) + "\n")
