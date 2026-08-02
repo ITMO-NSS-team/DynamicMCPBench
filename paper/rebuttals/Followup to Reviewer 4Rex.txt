@@ -4,21 +4,21 @@ Both concerns are closed with data, and both of your instincts were right.
 
 DECAY, WIDENED
 
-You asked whether 36% holds across the 121 servers or varies by domain. We rebuilt the refresh over **113 servers and 12 domains** against the 22 traces over three families you flagged as thin, a 38-fold widening.
+You asked whether 36% holds across the 121 servers or varies by domain. We rebuilt the refresh over 113 servers and 12 domains against the 22 traces over three families you flagged as thin, a 38-fold widening.
 
-The headline holds: **32.6% of effects still reproduce identically** against 36.0% narrow, a 3.4 point move, inside the band we registered in advance. It is a property of the substrate, not of three hand-picked servers.
+The headline holds: 32.6% of effects still reproduce identically against 36.0% narrow, a 3.4 point move, inside the band we registered in advance. It is a property of the substrate, not of three hand-picked servers.
 
-The domain spread runs as you guessed: `dev_tools` 89.7%, `science_health` 19.1%, a **70 point range** on a 32.6% headline. Versioned reference content is nearly stable; listings that re-rank on every query are not. The `dev_tools` figure rests on 29 resolved calls of 74, so read it as the most stable domain we measured, not a precise 90%.
+The domain spread runs as you guessed: dev_tools 89.7%, science_health 19.1%, a 70 point range on a 32.6% headline. Versioned reference content is nearly stable; listings that re-rank on every query are not. The dev_tools figure rests on 29 resolved calls of 74, so read it as the most stable domain we measured, not a precise 90%.
 
 WHAT THE WIDE RUN CORRECTED
 
-We told you the submitted 32% `broken` was an upper bound. Re-run with a classifier that must attribute each failure rather than bucket it:
+We told you the submitted 32% broken was an upper bound. Re-run with a classifier that must attribute each failure rather than bucket it:
 
 | outcome | share |
 |---|---|
 | identical | 32.6% |
-| drifted, the call succeeds and the result changed | **67.0%** |
-| attributably broken | **0.4%** |
+| drifted, the call succeeds and the result changed | 67.0% |
+| attributably broken | 0.4% |
 
 The 0.4% is four calls, all schema drift, all on one server, zero state decay. A further 320 failed unattributably and are excluded rather than counted as breakage.
 
