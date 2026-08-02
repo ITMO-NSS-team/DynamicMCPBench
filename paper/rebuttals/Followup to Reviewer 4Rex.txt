@@ -19,7 +19,3 @@ Re-run with a classifier that must attribute each failure rather than bucket it:
 Four calls, all schema drift, all on one server, zero state decay. 320 more failed unattributably and are excluded rather than counted as breakage. The 32% flagged as an upper bound resolves to 0.4%.
 
 Drift is the whole phenomenon, which sharpens the argument for cached deterministic replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Live re-scoring would let a model's pass or fail turn on which domain a task touched and when it ran.
-
-IN THE MAIN BODY
-
-The leave-own-family-out leaderboard with the full per-model table, GLM-5.1 with the same-family caveat, and decay per domain in its own table, captioned as a materiality demonstration rather than a universal rate.

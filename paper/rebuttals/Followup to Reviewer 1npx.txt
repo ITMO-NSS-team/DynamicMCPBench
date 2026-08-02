@@ -27,7 +27,3 @@ A 0.78 point spread with fully overlapping intervals. Three of the four have ope
 Per category the rate runs 1.83% on hard_neg to 9.83% on sibling, an order of magnitude more variation than the judge axis, and in the direction the taxonomy predicts: sibling seeds interchangeable tools on the same server, hard_neg seeds adversarially mined near-duplicates.
 
 Nine failures in ten are unanimous NO; a majority overrides 3.85%. Since Tier-2 only ever turns a failure into a pass, that is the bound on how far any judge configuration could move the paper's numbers, and only upward.
-
-IN THE APPENDIX
-
-The generation funnel and the full human confusion matrix, with the counts as sent. The equivalence-set share is now scripted from the released corpus and settles the 16% against 15.5% double-rounding in favour of 15.5%: 721 of 4,651 checkpoints admit two or more tools, largest 12.
