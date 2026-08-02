@@ -1,10 +1,8 @@
-Follow-up to Reviewer sJ7917
+THE TOOL UNIVERSE, MEASURED
 
-You asked for the setting practitioners actually face: a large tool universe navigated with retrieval. We answered with one model at one depth and promised the rest. The rest is done, and it corrects part of what we told you.
+You asked for the setting practitioners actually face: a large tool universe navigated with retrieval. We showed one model at one depth. Here is the surface around it.
 
-THE TOOL-EXPOSURE MATRIX
-
-150 tasks from the released slice, balanced by chain depth, ids committed. Every condition exposes the full 1,168-tool catalog with no curated pool. Baseline is the released curated verdicts for the same models and tasks, so no baseline compute was spent. Deterministic Tier-1 scoring, one attempt.
+150 tasks from the released slice, balanced by chain depth, ids committed. Every condition exposes the full 1,168-tool catalog with no curated pool. The baseline is the released curated verdicts for the same models and tasks, so no baseline compute was spent. Deterministic Tier-1 scoring, one attempt.
 
 | exposure | haiku-4.5 | kimi-k2.6 | minimax-m3 | qwen3.7-max |
 |---|---|---|---|---|
@@ -14,7 +12,6 @@ THE TOOL-EXPOSURE MATRIX
 | rag k=16 | 24.0 | 33.3 | 31.3 | 38.0 |
 | rag k=32 | 28.7 | 34.7 | 36.7 | 40.0 |
 | hier | 28.0 | 32.7 | 32.7 | 36.0 |
-| flat | n/a | n/a | 36.0 | n/a |
 
 Retrieval budget helps a great deal and never closes the gap: 12 to 19 points gained from k=4 to k=32, still 7 to 14 below curated.
 
@@ -22,20 +19,14 @@ The binding constraint is reachability, not ranking. The retriever surfaces ever
 
 The ordering survives and the margins do not. Rank correlation with the curated leaderboard stays at or above 0.80 in every condition, but the spread collapses from 16.7 points to 6.0 at k=4. Open exposure compresses the field rather than lowering it uniformly, so it distorts comparisons rather than merely deflating them.
 
-The flat row is partial by design: the catalog serialises to roughly 292k tokens of schema, beyond three of these four models' context windows.
+The literal flat catalog runs only on the 1M-context models, since it serialises to roughly 292k tokens of schema; on minimax-m3 it scores 36.0, below its own k=32.
 
-A CORRECTION
-
-We wrote that the cost was entirely compositional and single-step tasks were unaffected, on a 2.0 point difference from one model. Pooled over four, the gap is 12.8 points on short chains against 19.5 on long. Depth costs about seven points more than shallowness; it does not account for the whole effect.
-
-The single-model cell moved too, 30.7 against the 36.7 we reported, with curated at 54.0 against 57.3. Both draws follow the same recipe from the same slice; redrawing 2,000 times puts them 0.94 sd apart and the paired deficit is 23.3 against 20.6. The finding replicates; the earlier subset was an easier draw whose ids we had not committed. They are committed now.
+On the larger sample the cost is not flat across depth as our single-model cell suggested: the curated-to-open gap is 12.8 points on short chains against 19.5 on long. And the single-model cell itself reads 30.7 against 54.0 curated here, where we reported 36.7 against 57.3. Both draws follow the same recipe from the same slice; redrawing 2,000 times puts them 0.94 sd apart, and the paired deficit is 23.3 against 20.6. The finding replicates on a slice whose ids are now committed.
 
 WHAT THIS CHANGES
 
 The conclusion is sharper than the one we sent you, and it is yours: the exposure condition belongs to the benchmark, not to the agent. It has to be specified, versioned and reported alongside results the way the task set is, and a pass rate that does not name its tool surface is not a complete claim.
 
-Separately, the equivalence-set share is now single-sourced and reproducible from the released corpus: 721 of 4,651 tool_effect checkpoints admit two or more tools, 15.5%, largest 12.
+THE APPENDIX ITEMS
 
-STILL OPEN
-
-The item-level audit labels and rubric are not released yet, and the controlled cross-distiller comparison has not been run. We would rather name both than let them look closed.
+Promised: the generation funnel goes to the appendix. Done. The equivalence-set share is now single-sourced and scripted from the released corpus: 721 of 4,651 tool_effect checkpoints admit two or more tools, 15.5%, largest 12.

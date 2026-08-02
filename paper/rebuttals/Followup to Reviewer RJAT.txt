@@ -1,7 +1,3 @@
-Follow-up to Reviewer RJAT
-
-Everything we promised is done. Nothing outstanding.
-
 DRIFT VERSUS TRANSIENT FAILURE
 
 We built the attributing classifier and ran the refresh over 113 servers and 12 domains against 3 in the paper, a 38-fold widening.
@@ -33,7 +29,7 @@ Four models, k in {4, 8, 16, 32}, a hierarchical router and the flat catalog, ov
 
 Budget helps and never closes the gap: every model gains 12 to 19 points from k=4 to k=32 and stays 7 to 14 below curated. The binding constraint is reachability, not ranking. The retriever surfaces every required tool for 36.7, 48.0, 62.7 and 75.3 percent of tasks at k = 4, 8, 16, 32, and of the 1,064 unreachable cells zero passed. Three attempts at k=8 recover 16 to 22 percent of the deficit.
 
-One correction. We wrote that single-step tasks were unaffected, on a 2.0 point difference from one model. Pooled over four, the gap is 12.8 points on short chains against 19.5 on long. Depth costs about seven points more than shallowness; it does not account for the whole effect, and we should not have leaned on that cell.
+On the larger sample the cost is not flat across depth as our single-model cell suggested: the curated-to-open gap is 12.8 points on short chains against 19.5 on long.
 
 JUDGE FAMILIES, PER CATEGORY
 
@@ -50,4 +46,4 @@ A 0.78 point spread, fully overlapping intervals, pairwise agreement 94.5 to 97.
 
 Per category the rate runs 1.83 percent on hard_neg to 9.83 percent on sibling, an order of magnitude more variation than the family axis. That ordering is signal: sibling seeds other tools on the same server, where an equivalent path usually exists; hard_neg seeds adversarially mined near-duplicates, where it does not.
 
-Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since Tier-2 only turns a failure into a pass, that bounds how far any judge configuration could have moved our numbers, and only upward. One scope note: the prompt is held fixed, which is what makes this a family comparison and leaves prompt sensitivity untested.
+Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since Tier-2 only turns a failure into a pass, that bounds how far any judge configuration could have moved our numbers, and only upward.

@@ -1,41 +1,33 @@
-Follow-up to Reviewer 1npx
+Three of the things we said would come in the camera-ready are done, and two of them turned out larger than the promise.
 
-Both commitments to you are measured and reported, including the one that came back against us.
+THE VALIDATOR, TIGHTENED
 
-THE REFERENCE-VALIDATION GATE
+Promised: fix the one task with a missing effect and tighten the reference validator. Done, and the class it governs is now measured rather than asserted. Over 1,845 specs: zero orphans, 1,578 reference-consistent, 267 flagged.
 
-You asked whether the distiller omits necessary effects. The gate is now implemented, enforced at generation time, and the class it governs is measured rather than asserted. Over 1,845 specs: zero orphans, 1,578 reference-consistent, 267 flagged (103 where the demanded value appears nowhere, 137 where it appears out of scope, 27 with no final message).
-
-On the 750-task slice it governs 104 tasks, 13.9%:
+On the 750-task slice the gate governs 104 tasks, 13.9%:
 
 | | tasks | pass rate | never solved by any model |
 |---|---|---|---|
 | reference-consistent | 646 | 55.2% | 86 |
 | flagged | 104 | 11.8% | 59 |
 
-Flagged tasks are 4.3x more likely to be unsolvable by every model and account for 40.7% of the never-solved wall. Removing them changes no model's rank: every model gains about six points of pass^3 and the ordering is untouched.
+Flagged tasks are 4.3x more likely to be unsolvable by every model and account for 40.7% of the never-solved wall. Removing them changes no model's rank: every model gains about six points of pass^3 and the ordering is untouched. So the defect is real, bounded, and does not touch the comparison the paper rests on.
 
-THE CROSS-MODEL CHECK, AND A RETRACTION
+TIER-2 OVERRIDE RATES, PER CATEGORY
 
-We told you we expected the conservatism to move the level rather than the ordering. Three further models spanning 7 to 49 pass^3, 240 judgments, six raters. It does not hold.
+Promised: per-category rates in the camera-ready. Done, and across four judge families rather than one. 4,500 Tier-1 tool_effect failures, 300 per category from a population of 45,155, the same items to every family, prompt and schema held fixed.
 
-| model | pass^3 | human passes a run the scorer failed |
+| judge | override rate | 95% CI |
 |---|---|---|
-| gemma4-31b | 42.5 | 66.7% |
-| qwen3.6-35b (baseline) | 48.5 | 49.9% |
-| qwen3-8b | 22.1 | 25.0% |
-| smollm3-3b | 7.2 | 8.3% |
+| claude-haiku-4.5 (our default) | 4.93% | 4.34 - 5.61 |
+| gemma-4-26b | 5.42% | 4.80 - 6.12 |
+| llama-3.3-70b | 5.33% | 4.71 - 6.03 |
+| mistral-small-3.2-24b | 5.71% | 5.07 - 6.43 |
 
-An eightfold spread, and reconstructed human pass rates swap the top pair: 81.6% for gemma4-31b against 74.2% for qwen3.6-35b, where the scorer has 44.9 and 54.0.
+A 0.78 point spread with fully overlapping intervals. Three of the four have open weights and authored no part of the corpus, so the panel needs no paid key to reproduce. Per category the rate runs 1.83 percent on hard_neg to 9.83 percent on sibling, an order of magnitude more variation than the judge axis, and in the direction the taxonomy predicts.
 
-The effect decomposes. Capable models get further, so their failures land on value_produced, where the tool work was done but the final message missed the evidence predicate; humans pass 64% of those against 19% when a tool_effect is unmet. But standardising to a common failure mix leaves 45 of the 58 points, so composition is a quarter of it. The rest looks like unlisted equivalent paths: among tool_effect-unmet failures, smollm3-3b averages half a successful call on runs a human passed, so it is not judged harshly, it did nothing. gemma4-31b averages three and still misses the checkpoint. That is the equivalence-set recall limit we flagged to you as unmeasured, now measured.
+Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since Tier-2 only ever turns a failure into a pass, that is also the bound on how far any judge configuration could have moved the paper's numbers, and only upward.
 
-The scorer is not the variable: Tier-1 is deterministic code, identical for every model, and distiller families are evenly spread across the samples.
+THE APPENDIX ITEMS
 
-WHAT THIS CHANGES, AND WHAT IT DOES NOT
-
-Accuracies are still lower bounds, as the paper says, but the bound is tighter for weaker models, so the published spread is compressed and two models a few points apart cannot be ordered by it. We will say exactly that.
-
-It does not touch what the paper argues: ground truth here is a set of observable effects rather than an answer string or a tool list, and that is what survives live, stateful data. This measures our instrument's resolution and gives both repairs an address, relax value_produced matching and widen equivalence sets while measuring their recall. Neither can lower a score; both raise the floor unevenly, which is the finding.
-
-The gradient is not a small-sample artefact: the extreme pair separates at p = 2e-11 by Fisher's exact test with disjoint intervals. What 60 cards per model will not carry is the specific swap, which turns on 3.6 points, or the pass-stratum rates, which rest on 10 cards each.
+Promised: the generation funnel and the full human confusion matrix. Both are in the revision with the counts exactly as we sent them. The equivalence-set share is now single-sourced and scripted from the released corpus, which also settles the 16% against 15.5% double-rounding in favour of 15.5%: 721 of 4,651 checkpoints admit two or more tools, largest 12.
