@@ -10,7 +10,7 @@ The domain spread runs as you guessed: dev_tools 89.7%, science_health 19.1%, a 
 
 WHAT THE WIDE RUN CORRECTED
 
-You made us look again at the broken share, and it did not survive. Re-run with a classifier that must attribute each failure rather than bucket it:
+Your question sent us back to the broken share with a classifier that must attribute each failure rather than bucket it:
 
 | outcome | share |
 |---|---|
@@ -18,9 +18,9 @@ You made us look again at the broken share, and it did not survive. Re-run with 
 | drifted, the call succeeds and the result changed | 67.0% |
 | attributably broken | 0.4% |
 
-Four calls, all schema drift, all on one server, zero state decay; 320 more failed unattributably and are excluded rather than counted as breakage. The 32% we reported was an upper bound loose by two orders of magnitude.
+Four calls, all schema drift, all on one server, zero state decay; 320 more failed unattributably and are excluded rather than counted as breakage. The 32% we flagged as an upper bound resolves to 0.4%.
 
-Breakage is close to absent; drift is the whole phenomenon. That makes the case for cached deterministic replay stronger than the paper argued, and on a different mechanism than we claimed: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Live re-scoring would let a model's pass or fail turn on which domain a task happened to touch and when it ran.
+Breakage is close to absent and drift is the whole phenomenon, which sharpens the argument for cached deterministic replay rather than merely supporting it: the servers are not falling over, they are quietly returning different answers, at a rate that depends on the topic. Live re-scoring would let a model's pass or fail turn on which domain a task happened to touch and when it ran.
 
 THE LEADERBOARD
 

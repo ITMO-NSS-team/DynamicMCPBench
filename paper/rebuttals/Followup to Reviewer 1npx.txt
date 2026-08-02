@@ -31,3 +31,5 @@ Nine failures in ten are unanimous NO; a majority overrides 3.85 percent. Since 
 THE APPENDIX ITEMS
 
 Promised: the generation funnel and the full human confusion matrix. Both are in the revision with the counts exactly as we sent them. The equivalence-set share is now single-sourced and scripted from the released corpus, which also settles the 16% against 15.5% double-rounding in favour of 15.5%: 721 of 4,651 checkpoints admit two or more tools, largest 12.
+
+Every commitment in our response is now closed.
