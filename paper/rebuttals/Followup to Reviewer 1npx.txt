@@ -21,30 +21,33 @@ The part that matters for the paper is what happens when they are removed: **no 
 
 We would rather report this than quietly drop the tasks. It also sharpens the honest reading of the accuracies: they were lower bounds, and now we can say by roughly how much and why.
 
-THE EQUIVALENCE-SET FIGURE
+THE CROSS-MODEL CHECK, AND A RETRACTION
 
-You asked about incomplete equivalence sets. One thing we can now settle is the bookkeeping: the paper quotes 16% in the method section and 15.5% in the appendix. Those are the same measurement rounded twice. The single source is now scripted and reproducible from the released corpus:
+We told you we expected the scorer's conservatism to move the level rather than the ordering, and that we would validate it. We have, on three further models spanning 7 to 49 pass^3 against the annotated baseline, 240 judgments over six raters. It does not hold, and we would rather retract it here than let it stand.
 
-| quantity | value |
-|---|---|
-| tool_effect checkpoints | 4,651 |
-| admitting two or more tools | 721 |
-| share | 15.5% |
-| mean set size | 1.213 |
-| largest set | 12 |
+| model | pass^3 | human passes a run the scorer failed |
+|---|---|---|
+| gemma4-31b | 42.5 | 66.7% |
+| qwen3.6-35b (baseline) | 48.5 | 49.9% |
+| qwen3-8b | 22.1 | 25.0% |
+| smollm3-3b | 7.2 | 8.3% |
 
-Regenerate with `scripts/eqset_stats.py --pull --check` against the released `specs.jsonl`.
+An eightfold spread, and reconstructing human pass rates swaps the top pair: 81.6% for gemma4-31b against 74.2% for qwen3.6-35b, where the scorer has them at 44.9 and 54.0.
 
-The generation funnel and the full human confusion matrix you asked for are both in the appendix of the revision, with the counts exactly as we sent them.
+What is going on is specific rather than general. Part is what a model fails on: capable models get further, so their failures land on value_produced, where the tool work was done but the final message missed the evidence predicate. Pooled, humans pass 64% of value_produced-only failures against 19% when a tool_effect is unmet. Standardising every model to a common failure mix still leaves 45 of the 58 points, so composition is about a quarter of it.
 
-WHAT IS NOW DONE
+The rest looks like unlisted equivalent paths. Among tool_effect-unmet failures, smollm3-3b averages half a successful call on the runs a human passed: it is not judged harshly, it did nothing, and the human agrees. gemma4-31b averages three and still misses the checkpoint, the shape of a model reaching the effect by a route our equivalence set does not enumerate. That is the recall limit we flagged to you as unmeasured, now measured.
 
-The per-category Tier-2 breakdown you asked for is finished. We replayed 4,500 Tier-1 tool_effect failures, 300 per category out of a population of 45,155, through four judge families with the prompt and schema held fixed, the same items to each.
+The scorer is not the variable: Tier-1 is deterministic code, identical for every model, and distiller families are evenly spread across the samples.
 
-The override rate is 4.93 percent for our default judge and 4.93 to 5.71 percent across the panel, a 0.78 point spread with overlapping intervals. Per category it runs from 1.83 percent on hard_neg to 9.83 percent on sibling, and that ordering is interpretable: sibling seeds interchangeable tools on the same server, hard_neg seeds adversarial near-duplicates. Nine failures in ten are unanimous NO across the panel; a majority overrides 3.85 percent.
+WHAT THIS CHANGES AND WHAT IT DOES NOT
 
-Since Tier-2 only ever turns a failure into a pass, this also bounds how far any judge configuration could have moved the paper's numbers, and only upward. The published leaderboard remains deterministic throughout.
+It changes the reading of the table. Accuracies are still lower bounds, as the paper says, but the bound is tighter for weaker models, so the published spread is compressed and two models a few points apart cannot be ordered by it. We will say exactly that.
+
+It does not touch what the paper argues: that ground truth for an MCP-agent benchmark is a set of observable effects rather than an answer string or a tool list, and that this is what survives live, stateful data. This is a measurement of our instrument's resolution, and it gives both repairs an address: relax value_produced matching, and widen equivalence sets while measuring their recall. Neither can lower a score; both raise the floor unevenly, which is the finding.
+
+Caveats we keep attached: 60 cards per model is about plus or minus 13 points, the pass stratum is 10 cards, and the baseline used the older three-question instrument, so it is not measured identically. The reordering is between two models 3.6 points apart, inside the range this result says should not be read as an ordering.
 
 STILL OPEN
 
-The cross-model check on scorer strictness. The annotation package is built and out to raters, and we will report it in the camera-ready. We would rather name it than let it look closed.
+Nothing on our side. Both commitments to you are now measured and reported, including the one that came back against us.

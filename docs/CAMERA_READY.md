@@ -248,7 +248,7 @@ failures were persistent, it would be at most 25.8%. `tab:decay` and
 `app:decay` are rebuilt per domain; report in
 `docs/experiments/e9.8-wide-decay-sweep.md`.
 
-**3.4 Model-independence of scorer strictness.** `[ ]` — promised to 1npx.
+**3.4 Model-independence of scorer strictness.** `[x]` — promised to 1npx.
 The human study covers one model. Annotate at least one more model to show the
 conservatism shifts the level rather than the ordering. This is annotation work,
 not compute, and is the most expensive item on the list.

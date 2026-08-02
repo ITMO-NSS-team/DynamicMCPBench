@@ -1,0 +1,125 @@
+{
+ "_promised_to": "reviewer 1npx (camera-ready 3.4)",
+ "_reproduce": "scripts/cr34_annotation_package.py + annotate2 report --suffix _v2",
+ "raters": 6,
+ "card_judgments": 240,
+ "unique_items": 210,
+ "baseline": {
+  "model": "qwen3.6-35b",
+  "pass3": 48.5,
+  "fn_rate_pct": 49.9,
+  "fn_n": 461,
+  "tp_rate_pct": 94.9,
+  "tp_n": 514,
+  "_note": "first pass, three questions per card, full 750"
+ },
+ "models": {
+  "gemma4-31b": {
+   "pass3": 42.5,
+   "p_at_1_pct": 44.9,
+   "fn_rate_pct": 68.3,
+   "fn_ci": [
+    55.8,
+    78.7
+   ],
+   "fn_n": 60,
+   "tp_rate_pct": 100.0,
+   "tp_ci": [
+    72.2,
+    100
+   ],
+   "tp_n": 10,
+   "human_pass_rate_pct": 82.6
+  },
+  "qwen3-8b": {
+   "pass3": 22.1,
+   "p_at_1_pct": 27.5,
+   "fn_rate_pct": 25.0,
+   "fn_ci": [
+    15.8,
+    37.2
+   ],
+   "fn_n": 60,
+   "tp_rate_pct": 80.0,
+   "tp_ci": [
+    49.0,
+    94.3
+   ],
+   "tp_n": 10,
+   "human_pass_rate_pct": 40.1
+  },
+  "smollm3-3b": {
+   "pass3": 7.2,
+   "p_at_1_pct": 15.5,
+   "fn_rate_pct": 8.3,
+   "fn_ci": [
+    3.6,
+    18.1
+   ],
+   "fn_n": 60,
+   "tp_rate_pct": 80.0,
+   "tp_ci": [
+    49.0,
+    94.3
+   ],
+   "tp_n": 10,
+   "human_pass_rate_pct": 19.4
+  }
+ },
+ "by_failure_kind": {
+  "gemma4-31b": {
+   "value_produced_only": {
+    "human_pass_pct": 74.3,
+    "n": 35
+   },
+   "tool_effect_unmet": {
+    "human_pass_pct": 60.0,
+    "n": 25
+   }
+  },
+  "qwen3-8b": {
+   "value_produced_only": {
+    "human_pass_pct": 50.0,
+    "n": 18
+   },
+   "tool_effect_unmet": {
+    "human_pass_pct": 14.3,
+    "n": 42
+   }
+  },
+  "smollm3-3b": {
+   "value_produced_only": {
+    "human_pass_pct": 50.0,
+    "n": 6
+   },
+   "tool_effect_unmet": {
+    "human_pass_pct": 3.7,
+    "n": 54
+   }
+  },
+  "POOLED": {
+   "value_produced_only": {
+    "human_pass_pct": 64.4,
+    "n": 59
+   },
+   "tool_effect_unmet": {
+    "human_pass_pct": 19.0,
+    "n": 121
+   }
+  }
+ },
+ "standardised": {
+  "gemma4-31b": {
+   "observed_pct": 68.3,
+   "standardised_pct": 64.7
+  },
+  "qwen3-8b": {
+   "observed_pct": 25.0,
+   "standardised_pct": 26.0
+  },
+  "smollm3-3b": {
+   "observed_pct": 8.3,
+   "standardised_pct": 18.9
+  }
+ }
+}
