@@ -10,9 +10,9 @@
 
 \documentclass[11pt]{article}
 
-% Review (anonymous) mode -- switch to "final" or "preprint" for the
-% camera-ready or arXiv versions.
-\usepackage[review]{acl}
+% Camera-ready (final) mode. Use "review" for anonymous submission or
+% "preprint" for arXiv.
+\usepackage[final]{acl}
 
 \usepackage{times}
 \usepackage{latexsym}
@@ -34,8 +34,14 @@
 
 \title{DynamicMCPBench: A Trace-Grounded, Effect-Scored Benchmark for LLM Agents over Live MCP Servers}
 
-% Anonymous in review mode.
-\author{Anonymous EMNLP 2026 Industry Track submission}
+\author{
+  Jerzy Kami\'nski$^{1,*}$ \quad Ilya Galyukshev$^{1,2}$ \quad Artem Kuznetsov$^{1,3}$ \quad Sergey Chuprin$^{1}$ \\[2pt]
+  Kirill Redko$^{1}$ \quad Aidar Shumbalov$^{1}$ \quad Anna Kalyuzhnaya$^{1}$ \\[4pt]
+  $^{1}$ITMO University \quad $^{2}$Central University \quad $^{3}$ISKIN \\[4pt]
+  \texttt{jkaminski@niuitmo.ru}, \texttt{galyukshev@itmo.ru}, \texttt{kmetra1910@gmail.com}, \\
+  \texttt{schuprin@itmo.ru}, \texttt{kvredko@itmo.ru}, \texttt{489607@niuitmo.ru}, \texttt{anna.kalyuzhnaya@itmo.ru} \\[2pt]
+  $^{*}$Correspondence: \texttt{jkaminski@niuitmo.ru}
+}
 
 \begin{document}
 \maketitle
@@ -53,6 +59,9 @@
 
 % Reproducibility statement (optional; does NOT count toward the page limit).
 \input{sections/reproducibility}
+
+% Acknowledgments (optional; unnumbered; does NOT count toward the page limit).
+\input{sections/acknowledgments}
 
 % Custom bibliography only; switch to {anthology,custom} once the
 % anthology.bib is wired in.
