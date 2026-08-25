@@ -21,15 +21,14 @@ equally valid route.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/fig_pipeline.png}
+  \includegraphics[width=0.76\textwidth]{figures/fig_pipeline_v2.pdf}
   \caption{The DynamicMCPBench pipeline. \textbf{Forward generation:} a
-    goal-seeded agent explores live MCP servers, and each successful execution
-    trace is distilled into a path-agnostic \emph{TaskSpec}: effect
-    checkpoints, minefields, and a partial order over the effects.
-    \textbf{Effect-scored evaluation:} a candidate agent runs on deterministic
-    replay and is graded purely on whether it reproduces those effects (with
-    \emph{any} effect-equivalent tool), never on its final answer. A periodic
-    \emph{refresh} re-runs the references and classifies drift.}
+    goal-seeded agent explores live MCP servers; each successful trace is
+    distilled into a path-agnostic \emph{TaskSpec} of effect checkpoints,
+    minefields, and a partial order. \textbf{Effect-scored evaluation:} a
+    candidate runs on deterministic replay, graded only on whether it
+    reproduces those effects with \emph{any} equivalent tool, never on its
+    answer; a periodic \emph{refresh} re-runs the references to classify drift.}
   \label{fig:pipeline}
 \end{figure*}
 
