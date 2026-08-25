@@ -73,7 +73,7 @@ time, so a wrong run is almost never scored correct
 (Appendix~\ref{app:human}). The same study supports grading effects rather than answers: although 99\% of
 questions are valid, the reference answer is fully correct only 79\%
 of the time, so grading the final answer would wrongly penalize roughly one
-task in five. Two further checks reinforce validity. First, the multi-family
+task in five. Several further checks reinforce validity. First, the multi-family
 corpus shows no systematic self-preference: across the candidates whose family
 also authored tasks, the mean own-family advantage is \(+\)0.5 points (median
 \(-\)0.2). The aggregate does hide individual outliers, and one of them
@@ -93,7 +93,13 @@ Second, server-attribution errors (SAE;
 calling the right tool on the wrong server) are near-floor at the default
 setting (0.2\% of runs; Appendix~\ref{app:sae}), so
 failures are dominated by chain length and composition rather than by
-confusing one server for another.
+confusing one server for another. Third, difficulty also depends on how cleanly
+a task's own reference reproduces its effects: re-scoring each task against its
+reference trace (\S\ref{sec:benchmark:gen}) flags 104 of the 750 as
+reference-inconsistent, and dropping these---\(4.3\times\) likelier to be
+unsolved by every model---raises every model's pass\textasciicircum{}3 by about
+six points without changing the ordering (Appendix~\ref{app:refconsist}), so
+reference consistency moves absolute difficulty, not the ranking.
 
 \subsection{The substrate decays}
 \label{sec:results:decay}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #ffffff; font-family: "Space Grotesk", Helvetica, sans-serif; }
+  a { color: #7C3AED; } a:hover { color: #5B21B6; }
+</style>
+</helmet>
+<div style="position: relative; width: 1300px; height: 620px; background: #ffffff; overflow: hidden;">
+
+  <div style="position: absolute; left: 85px; top: 34px; font-size: 21px; font-weight: 700; letter-spacing: 0.16em; color: #111111;">FORWARD GENERATION</div>
+  <div style="position: absolute; left: 715px; top: 528px; width: 500px; text-align: right; font-size: 21px; font-weight: 700; letter-spacing: 0.16em; color: #111111;">EFFECT-SCORED EVALUATION</div>
+
+  <div style="position: absolute; left: 85px; top: 90px; width: 340px; height: 165px; background: #D3A0F7; border-radius: 46px; padding: 30px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 29px; font-weight: 700; color: #1b0725; line-height: 1.1;">Live MCP servers</div>
+    <div style="font-size: 19px; line-height: 1.35; color: #2f1039;">crawled · installed · vetted<br>static, live, stateful</div>
+  </div>
+  <div style="position: absolute; left: 69px; top: 74px; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #ffffff; font-size: 21px; font-weight: 700; display: flex; align-items: center; justify-content: center;">1</div>
+
+  <div style="position: absolute; left: 480px; top: 90px; width: 340px; height: 165px; background: #4ECB71; border-radius: 14px; padding: 30px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 29px; font-weight: 700; color: #06210f; line-height: 1.1;">Goal-seeded agent</div>
+    <div style="font-size: 19px; line-height: 1.35; color: #0d2b19;">explores the real tools<br>success → execution trace</div>
+  </div>
+  <div style="position: absolute; left: 464px; top: 74px; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #ffffff; font-size: 21px; font-weight: 700; display: flex; align-items: center; justify-content: center;">2</div>
+
+  <div style="position: absolute; left: 875px; top: 90px; width: 340px; height: 165px; background: #FFB25C; border-radius: 14px 46px 14px 46px; padding: 30px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 29px; font-weight: 700; color: #2a1503; line-height: 1.1;">TaskSpec</div>
+    <div style="font-size: 19px; line-height: 1.35; color: #33200a;">path-agnostic: checkpoints,<br>minefields, partial order</div>
+  </div>
+  <div style="position: absolute; left: 859px; top: 74px; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #ffffff; font-size: 21px; font-weight: 700; display: flex; align-items: center; justify-content: center;">3</div>
+
+  <div style="position: absolute; left: 875px; top: 335px; width: 340px; height: 165px; background: #79A8FF; border-radius: 14px; padding: 30px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 29px; font-weight: 700; color: #05122b; line-height: 1.1;">Deterministic replay</div>
+    <div style="font-size: 19px; line-height: 1.35; color: #0a1c3d;">the candidate agent runs<br>against frozen servers</div>
+  </div>
+  <div style="position: absolute; left: 859px; top: 319px; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #ffffff; font-size: 21px; font-weight: 700; display: flex; align-items: center; justify-content: center;">4</div>
+
+  <div style="position: absolute; left: 480px; top: 335px; width: 340px; height: 165px; background: #F97316; border-radius: 46px 14px 46px 14px; padding: 30px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <div style="font-size: 29px; font-weight: 700; color: #ffffff; line-height: 1.1;">Effect score</div>
+    <div style="font-size: 19px; line-height: 1.35; color: #fff1e4;">effects reproduced, any<br>equivalent tool · answer ignored</div>
+  </div>
+  <div style="position: absolute; left: 464px; top: 319px; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #ffffff; font-size: 21px; font-weight: 700; display: flex; align-items: center; justify-content: center;">5</div>
+
+  <svg width="70" height="46" viewBox="0 0 70 46" fill="none" style="position: absolute; left: 427px; top: 149px;">
+    <path d="M5 24 C20 15 34 31 50 23" stroke="#111111" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+    <path d="M41 15 L53 23 L41 31" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  </svg>
+  <svg width="70" height="46" viewBox="0 0 70 46" fill="none" style="position: absolute; left: 822px; top: 149px;">
+    <path d="M5 22 C21 31 34 14 50 23" stroke="#111111" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+    <path d="M41 15 L53 23 L41 31" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  </svg>
+  <svg width="46" height="86" viewBox="0 0 46 86" fill="none" style="position: absolute; left: 1022px; top: 254px;">
+    <path d="M23 5 C15 22 31 40 23 60" stroke="#111111" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+    <path d="M14 51 L23 64 L32 51" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  </svg>
+  <svg width="70" height="46" viewBox="0 0 70 46" fill="none" style="position: absolute; left: 822px; top: 394px;">
+    <path d="M50 22 C34 31 21 14 5 23" stroke="#111111" stroke-width="4.5" stroke-linecap="round" fill="none"></path>
+    <path d="M14 15 L2 23 L14 31" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  </svg>
+
+  <svg width="420" height="220" viewBox="0 0 420 220" fill="none" style="position: absolute; left: 60px; top: 250px;">
+    <path d="M414 167 C300 170 90 176 80 110 L80 30" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="16 12" fill="none"></path>
+    <path d="M68 44 L80 24 L92 44" stroke="#111111" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  </svg>
+
+  <div style="position: absolute; left: 140px; top: 415px; width: 280px; font-size: 19px; line-height: 1.4; color: #111111"><span style="font-weight: 700;">Refresh</span><br>re-run the references,<br>classify the drift</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:620}}"></script>
+</body>
+</html>

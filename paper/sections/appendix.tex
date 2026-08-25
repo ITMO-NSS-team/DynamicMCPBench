@@ -455,6 +455,44 @@ question we flag in Limitations. The item-level labels are held externally and
 are not part of the released artifact; the aggregates above are what we
 report.
 
+\section{Reference Consistency and Absolute Difficulty}
+\label{app:refconsist}
+The grounding check of \S\ref{sec:benchmark:gen} re-scores each distilled task
+against its own reference trace and requires that the trace reproduce every
+effect the spec demands. We enforce it during generation and, to characterise
+the released corpus, applied it retrospectively to all 1{,}845 specifications:
+it finds no orphaned specs and marks 1{,}578 reference-consistent, flagging 267
+whose own reference does not fully reproduce the required effects---an artefact
+of specifications distilled before the check was enforced. On the 750-task
+evaluation slice the same check flags 104 tasks (13.9\%).
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrr}
+    \toprule
+    subset & tasks & pass rate \\
+    \midrule
+    reference-consistent & 646 & 55.2\% \\
+    flagged              & 104 & 11.8\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{The reference-consistency gate on the 750-task slice. ``Pass rate''
+    is the aggregate solve rate on the subset and is not directly comparable to
+    the per-model pass\textasciicircum{}3 headline. Flagged tasks pass far less
+    often and are unsolved by every model $4.3\times$ as often as
+    reference-consistent tasks.}
+  \label{tab:refconsist}
+\end{table}
+
+\noindent The effect on the leaderboard is confined to absolute difficulty.
+Recomputing each model's pass\textasciicircum{}3 over only the 646
+reference-consistent tasks raises every model by roughly six points and leaves
+the ordering unchanged. We therefore report the headline over the full 750-task
+slice and read reference consistency as a factor that shifts absolute difficulty
+rather than model ranking. This mirrors the leave-own-family-out result of
+Appendix~\ref{app:family}: independent re-slicings of the corpus move the level
+without reordering the models.
+
 \section{Human Validation: the Full Contingency Table}
 \label{app:human}
 The validation study of \S\ref{sec:results:validity} produced 975 annotation
@@ -489,6 +527,46 @@ stated in Limitations, and is why we read reported accuracies as lower bounds
 on true capability rather than as unbiased estimates. Raw agreement is
 therefore 73.7\% and is not the number to optimize: an accurate scorer with a
 deliberate one-sided bias will disagree in exactly this pattern.
+
+\section{Tier-2 Judge Sensitivity}
+\label{app:tier2}
+No reported number uses the optional effect-equivalence judge
+(\S\ref{sec:benchmark:eval}); this section bounds what enabling it could add and
+how much that would depend on the judge model. We took 4{,}500 Tier-1
+\texttt{tool\_effect} failures---300 sampled uniformly from each of the 15
+categories---and gave every judge the identical items, prompt, and structured
+output schema. The judge is upgrade-only, so an override can only turn a failed
+checkpoint into a pass.
+
+\begin{table}[h]
+  \centering \small
+  \begin{tabular}{lrr}
+    \toprule
+    judge & override rate & 95\% CI \\
+    \midrule
+    claude-haiku-4.5 (default) & 4.93\% & 4.34--5.61 \\
+    gemma4-26b                 & 5.42\% & 4.80--6.12 \\
+    llama3.3-70b               & 5.33\% & 4.71--6.03 \\
+    mistral-small-3.2-24b      & 5.71\% & 5.07--6.43 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tier-2 override rate on 4{,}500 Tier-1 tool-effect failures, by judge
+    family. The spread across families is 0.78 points with fully overlapping
+    intervals; pairwise agreement is 94.5--97.0\%. Three of the four judges have
+    open weights and did not participate in corpus construction.}
+  \label{tab:tier2}
+\end{table}
+
+\noindent The judge family barely matters: the total spread is 0.78 points and
+every interval overlaps. Task category matters far more---override rates run from
+1.83\% on \textsf{hard\_neg}, where semantically similar tools rarely share an
+effect, to 9.83\% on \textsf{sibling}, which deliberately places interchangeable
+same-server tools side by side. Roughly nine in ten sampled failures draw a
+unanimous \textsf{NO}, and a majority of the four judges overrides 3.85\% of
+failed checkpoints. These are checkpoint-level rates on already-failed
+checkpoints; because the judge is upgrade-only and disabled for every reported
+result, they upper-bound what a judge could add and are not a task-level or
+pass\textasciicircum{}3 score change.
 
 \section{Open-Universe Tool Exposure}
 \label{app:openuniverse}
@@ -588,7 +666,10 @@ the 23.3 reported here: the two draws sit 0.94 standard deviations apart in
 level and their paired deficits agree to 2.7 points, so the level moves with the
 sample and the deficit replicates. The conclusion we draw is deliberately narrow: the headline is a
 measurement of tool \emph{use} under a controlled pool, and it does not transfer
-to a deployment where the agent must first find its tools.
+to a deployment where the agent must first find its tools. The tool-exposure
+policy is therefore part of the benchmark configuration, not an incidental
+setting: it must be versioned and reported alongside the task set, since a pass
+rate without its exposure condition is not interpretable.
 
 \section{Operating Requirements and Reliability}
 \label{app:tech}

@@ -3,17 +3,13 @@
 We argued that the right ground truth for an MCP-agent benchmark is neither
 the final answer nor a list of tools, but the \emph{execution trace}, and we
 built DynamicMCPBench around it: a reusable framework that runs over live
-or user-supplied servers instead of shipping a fixed dataset, generates tasks
-forward from real successful trajectories, and scores path-agnostic
-\emph{effects} under deterministic replay, stratified by task category and
-length. Because every required effect is
-grounded in a successful call in the task's own reference trace---enforced at
-generation and audited, not assumed---what a task demands stays tied to what a
-working solution did, and because scoring reads effects rather than the reply,
-the benchmark survives live, changing data. Running it over 121
-servers and 24 models shows how far current agents have to go: even the
-strongest solve only about half of the tasks, roughly a third are solved by
-no model, and accuracy falls steadily as the tool chain lengthens; a human
-study confirms the answer-agnostic scoring is reliable. We
-release the framework and the generated benchmark so that practitioners can
-rerun the entire pipeline on their own servers and models.
+or user-supplied servers, not a fixed dataset, generates tasks forward from
+real successful trajectories, and scores path-agnostic \emph{effects} under
+deterministic replay. Because every required effect is grounded in a successful
+call in the task's own reference trace---enforced and audited, not assumed---what
+a task demands stays tied to a working solution, and because scoring reads
+effects rather than the reply, the benchmark survives live, changing data. Over
+121 servers and 24 models, even the strongest agents solve only about half the
+tasks, roughly a third are solved by no model, and accuracy falls as chains
+lengthen, while a human study confirms the scoring is reliable. We release the
+framework and benchmark for reuse on any servers and models.
