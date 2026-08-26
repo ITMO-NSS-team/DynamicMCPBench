@@ -13,8 +13,9 @@ from pathlib import Path
 from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
-FIXTURES_DIR = _REPO_ROOT / "docs_benchmark_advisor" / "fixtures"
-GUIDE_PATH = _REPO_ROOT / "docs_benchmark_advisor" / "planning" / "STATISTICAL_GUIDE.md"
+_ADVISOR_PKG = _REPO_ROOT / "benchmark_advisor"
+FIXTURES_DIR = _ADVISOR_PKG / "fixtures"
+GUIDE_PATH = _ADVISOR_PKG / "data" / "STATISTICAL_GUIDE.md"
 
 _GUIDE_ID_RE = re.compile(r"`(G\d+\.[A-Za-z0-9_.]+)`")
 

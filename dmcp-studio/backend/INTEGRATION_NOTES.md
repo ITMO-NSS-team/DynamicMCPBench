@@ -83,21 +83,28 @@ The canonical wiring is `dmcp/cli.py::evaluate._single_run` (replay branch).
 Reproduce exactly:
 
 ```python
-ref = reference_index[str(spec.source_trace_id)]          # Trace
-recorder = TraceReplayRecorder(                            # dmcp.replay
-    cache_traces=[ref], goal=spec.prompt,
-    tier2_threshold=0.75, simulator_llm=None,              # Tier-3 OFF (determinism)
+ref = reference_index[str(spec.source_trace_id)]  # Trace
+recorder = TraceReplayRecorder(  # dmcp.replay
+    cache_traces=[ref],
+    goal=spec.prompt,
+    tier2_threshold=0.75,
+    simulator_llm=None,  # Tier-3 OFF (determinism)
 )
-result = await explore(                                    # dmcp.explorer
-    goal=spec.prompt, recorder=recorder,
-    llm=OpenRouterClient(model=candidate_model), budget=12,
-    tool_surface=optional_pool_surface,                    # see §7
+result = await explore(  # dmcp.explorer
+    goal=spec.prompt,
+    recorder=recorder,
+    llm=OpenRouterClient(model=candidate_model),
+    budget=12,
+    tool_surface=optional_pool_surface,  # see §7
 )
 stash_exploration_in_trace(result)
-ev = evaluate(spec, result.trace,                          # dmcp.evaluator — §6
-              candidate_model=candidate_model,
-              evaluation_mode="replay",
-              server_tags={e.server_id: e.tags for e in m.servers})
+ev = evaluate(
+    spec,
+    result.trace,  # dmcp.evaluator — §6
+    candidate_model=candidate_model,
+    evaluation_mode="replay",
+    server_tags={e.server_id: e.tags for e in m.servers},
+)
 ```
 
 In REPLAY-only A1 the candidate trajectory comes from a **frozen fixture**, not

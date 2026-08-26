@@ -313,3 +313,6 @@ human_eval/
 
 # camera-ready task subset: ids are tracked, the spec payload is regenerable
 /manifests/subsets/cr150.jsonl
+
+# agent scratch index (regenerable; never source)
+.aidex/

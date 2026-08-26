@@ -1,6 +1,6 @@
 """Frozen registry of the v1 statistical guide rule ids (supports BA2.1).
 
-The curated knowledge lives in ``docs_benchmark_advisor/planning/STATISTICAL_GUIDE.md``
+The curated knowledge lives in ``benchmark_advisor/data/STATISTICAL_GUIDE.md``
 (``statistical_guide.v1``, research-refreshed per BA1.2). This module is the *runtime*
 mirror of that document's rule-id registry, so the validator can check guide
 references without reading a docs file at runtime (which would break packaged

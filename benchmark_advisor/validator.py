@@ -1,8 +1,7 @@
 """Deterministic Benchmark Advisor validator (BA2.1 / T02).
 
 Validates a structured ``AdvisorDesign`` against the normative thresholds, claim
-boundaries, and response state matrix in
-``docs_benchmark_advisor/planning/INTERFACES.md``. It emits deterministic
+boundaries, and response state matrix. It emits deterministic
 ``WarningCard`` / ``Refusal`` / ``ClarificationRequest`` objects and a final
 status.
 

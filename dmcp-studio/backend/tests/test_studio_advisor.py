@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 client = TestClient(app)
 
-_FIXTURES = Path(__file__).resolve().parents[3] / "docs_benchmark_advisor" / "fixtures"
+_FIXTURES = Path(__file__).resolve().parents[3] / "benchmark_advisor" / "fixtures"
 
 
 def _request(fixture_id: str) -> dict:

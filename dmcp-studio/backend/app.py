@@ -288,7 +288,7 @@ _REPLAY_DEMO_FIGURES = {
     "heatmap_model_strategy.png",
     "task_solvability.png",
 }
-_REPLAY_DEMO_FIGURES_DIR = _REPO_ROOT / "docs" / "experiments" / "figures" / "e8.10d"
+_REPLAY_DEMO_FIGURES_DIR = Path(__file__).resolve().parent / "fixtures" / "replay_demo_figures"
 
 
 @app.get("/api/advisor/v2/replay-demo-report/figures/{figure_name}")

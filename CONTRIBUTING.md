@@ -1,9 +1,7 @@
 # Contributing to DynamicMCPBench
 
-This repo is developed by people *and* by Claude Code agents. **`CLAUDE.md` is the
-single source of truth** for conventions, hard invariants, code style, and the
-collaboration workflow — for humans too. Read it first. This file is the short
-practical entry point.
+Thanks for helping improve DynamicMCPBench. This is the short practical entry
+point; the design rationale lives in [`docs/CONCEPT.md`](docs/CONCEPT.md).
 
 ## Setup
 
@@ -13,29 +11,32 @@ cp .env.example .env                 # then fill in OPENROUTER_API_KEY (see the 
 ```
 
 `OPENROUTER_API_KEY` is required for any generation/evaluation. Credentialed MCP
-servers (Bucket A) need additional keys — see `docs/credentials_bucket_a.md` and
-the commented section of `.env.example`. **Never commit `.env`** (it is git-ignored).
+servers need additional keys — see the commented section of `.env.example`.
+**Never commit `.env`** (it is git-ignored).
 
 ## Workflow
 
 1. Branch off the latest `main`: `git switch -c feat/<short-slug>` (`feat/ fix/
-   docs/ chore/`). **Never commit to `main` directly.**
+   docs/ chore/`).
 2. `git pull --rebase origin main` before you start and before you push.
 3. Keep the change **small and single-purpose**, so parallel work doesn't collide.
-4. **Run the local gate before every commit** (there is no CI yet, so this is the
-   only guard):
+4. **Run the gate before every commit** (also enforced in CI):
    ```bash
    ruff check . && ruff format --check . && pytest -q
    ```
-5. Imperative commit subjects ("Add …", "Fix …", "Tighten …"). Update the
-   `README.md` roadmap checkbox(es) and any touched docs in the same PR.
+   or simply `bash scripts/check.sh`.
+5. Imperative commit subjects ("Add …", "Fix …", "Tighten …"). Update any touched
+   docs in the same PR.
 6. Open a PR against `main` and get a review.
 
-## Using Claude Code here
+## Code style
 
-Claude auto-loads `CLAUDE.md` and should read `memory/*.md` at session start. If
-you change personal Claude settings, put them in `.claude/settings.local.json`
-(git-ignored), not the shared `.claude/settings.json`.
+- Python ≥ 3.11; `from __future__ import annotations`; modern typing (`X | None`,
+  `list[...]`).
+- **Ruff is the single source of truth** — `ruff check .` and `ruff format .`
+  (config in `pyproject.toml`).
+- Pydantic v2 for on-disk schemas (`ConfigDict(extra="forbid")`); bump the
+  relevant `*_version` on any schema/behavior change.
 
 ## What never goes in git
 
@@ -45,7 +46,6 @@ hand-authored manifests and `goals/{local,scaled,recovery}.json` are tracked.
 
 ## Don't undo the thesis
 
-Before changing the generator or scorer, read `docs/CONCEPT.md` and
-`memory/feedback_agb_orthogonality.md`. The benchmark grades **effects, not final
-answers**, and is built from **traces, not dependency graphs** — these are
-load-bearing, not stylistic.
+Before changing the generator or scorer, read [`docs/CONCEPT.md`](docs/CONCEPT.md).
+The benchmark grades **effects, not final answers**, and is built from **traces,
+not dependency graphs** — these are load-bearing, not stylistic.

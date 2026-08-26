@@ -1,10 +1,9 @@
 # Concept, lineage, and the full experiment plan
 
 The canonical "why" and "what" behind DynamicMCPBench, distilled from the team's
-private planning documents so any contributor — human or Claude — has the full
-context without those originals. `CLAUDE.md` holds operational rules; `docs/PLAN.md`
-holds the ordered, claimable backlog; this file holds the reasoning **and the
-complete catalogue of experiments, metrics, and baselines** the paper draws on.
+private planning documents so any contributor has the full context without those
+originals. This file holds the reasoning **and the complete catalogue of
+experiments, metrics, and baselines** behind the benchmark's design.
 
 ---
 
@@ -60,7 +59,7 @@ partial ordering (only real dependencies); a complexity profile (depth,
 cross-server, runtime-branching, state-coupling, recovery); a dynamism tag
 (static / live_read / stateful_write).
 
-## 4. The four orthogonality pillars (full rules: `memory/feedback_agb_orthogonality.md`)
+## 4. The four orthogonality pillars
 
 1. **Trace, not graph** — the primitive is a recorded trajectory.
 2. **Forward, not backward** — explore → distill, never subgraph → back-instruct.
@@ -92,7 +91,8 @@ as the headline.
 
 ## 6. Experiments & methods catalogue (the complete set from all docs)
 
-Everything below is in-scope for the paper. PLAN.md sequences each as steps.
+Everything below documents the benchmark's design space — the experiments,
+metrics, and baselines it was built to support.
 
 ### 6.1 Scale: the 100+ server substrate (paper-critical)
 The headline scale claim. Crawl the official MCP Registry (+ PulseMCP / Smithery /
@@ -184,6 +184,5 @@ substrate. A GitHub PAT is required for credentialed/GitHub servers (rate limits
 Distilled from: the graph-based technical description (rev.1 PDF), the sampling MVP
 spec (rev.2, `simple_approach.md`), the 50+-paper field survey
 (`research_landscape.md`), and the rev.3 trace-native research plan
-(`research_plan`). Those originals are not in the repo; this file and `docs/PLAN.md`
-are their in-repo successors. Keep them in sync when the direction changes (plan
-changes require human sign-off — see `CLAUDE.md`).
+(`research_plan`). Those originals are not in the repo; this file is their in-repo
+successor.

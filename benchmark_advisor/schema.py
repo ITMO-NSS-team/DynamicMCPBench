@@ -1,9 +1,8 @@
 """Benchmark Advisor v1 schema layer (BA1.1 / T01).
 
 Typed, frozen wire/disk contracts for the statistically aware pre-run planning
-module described in ``docs_benchmark_advisor/planning/INTERFACES.md``. Every model
-here is a faithful Pydantic v2 transcription of that doc's field lists, enum
-registries, and the response state matrix.
+module. Every model here is a Pydantic v2 model of the advisor's field lists,
+enum registries, and the response state matrix.
 
 Scope of v1 (this module):
 - shared types, enum registries, and version constants;

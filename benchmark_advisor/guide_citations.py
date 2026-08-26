@@ -17,9 +17,7 @@ from .guide import GUIDE_VERSION, KNOWN_RULE_IDS
 from .schema import TEST_FAMILIES, RationaleRole, StatisticalGuideReference
 from .v2_schema import LocalStatisticalCitation
 
-DEFAULT_GUIDE_PATH = (
-    Path(__file__).resolve().parents[1] / "docs_benchmark_advisor" / "planning" / "STATISTICAL_GUIDE.md"
-)
+DEFAULT_GUIDE_PATH = Path(__file__).resolve().parent / "data" / "STATISTICAL_GUIDE.md"
 
 _RULE_ID_RE = re.compile(r"`(G\d+\.[A-Za-z0-9_.]+)`")
 _SOURCE_KEY_RE = re.compile(r"`([^`]+)`")

@@ -72,7 +72,7 @@ uv run dmcp verify -m manifests/local.json --llm --strict --require-all --json-o
 uv run python scripts/enrich_manifest.py --include-local-below-1
 ```
 
-Pick a subset (or use the full set) and run the pipeline — see **`docs/EXPERIMENTS.md`**:
+Pick a subset (or use the full set) and run the pipeline:
 
 ```bash
 uv run dmcp subset --domain finance --dyn live_read -o manifests/subsets/fin.json
@@ -105,14 +105,14 @@ docker compose -f docker-compose-mcp.yaml --profile full down --remove-orphans
 ```
 
 Docker Hub may throttle a full 25-container parallel pull (large layers stall); bring
-services up in small batches. Latest smoke-vet: `reports/compose_verify.md`
-(postgres 9/9, qdrant 2/2, time 2/2 verified over SSE; git partial — its tools need
-repo state, as with the substrate `git`).
+services up in small batches. In a recent smoke-vet postgres (9/9), qdrant (2/2)
+and time (2/2) verified over SSE; git was partial — its tools need repo state, as
+with the substrate `git`.
 
 ## Credentialed tier (`manifests/credentialed.json`)
 
 Servers that need API keys (Bucket A — GitHub, Brave, Tavily, Exa, Firecrawl,
-Linear, Notion, Slack, Supabase; see `docs/credentials_bucket_a.md`). Each entry
+Linear, Notion, Slack, Supabase). Each entry
 declares `requires_env` (the var NAMES); the secret VALUES come from `.env`
 (gitignored, never committed) and are plumbed into the server at launch.
 

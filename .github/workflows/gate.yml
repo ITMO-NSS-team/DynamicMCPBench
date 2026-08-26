@@ -1,7 +1,6 @@
-# DynamicMCPBench mandatory local gate, run in CI.
+# DynamicMCPBench CI gate.
 # Mirrors `bash scripts/check.sh`: ruff check + ruff format --check + pytest -q.
-# Per `docs/AUTONOMY.md` the local gate is still authoritative — this
-# workflow exists so PRs cannot accidentally land with a red gate when the
+# This workflow exists so PRs cannot accidentally land with a red gate when the
 # author forgot to run it locally.
 
 name: gate

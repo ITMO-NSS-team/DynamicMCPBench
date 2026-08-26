@@ -180,8 +180,9 @@ studio code and NO paid calls:
    any recorder teardown dies — and the whole uvicorn loop stays poisoned.
    Repro:
    ```python
-   async with TraceRecorder(...): pass
-   await anyio.to_thread.run_sync(time.sleep, 0)   # -> CancelledError, persistently
+   async with TraceRecorder(...):
+       pass
+   await anyio.to_thread.run_sync(time.sleep, 0)  # -> CancelledError, persistently
    ```
 
 **Root cause (deepened — two hypotheses tested and RULED OUT, all free):**

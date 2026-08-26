@@ -5,7 +5,8 @@ pipeline (architecture dependency direction: ``dmcp-studio`` -> ``benchmark_advi
 -> lightweight ``dmcp`` stats helpers; the advisor never imports Studio). v1 ships
 the Stage-1 planning loop; Stage 2 is interface-only.
 
-See ``docs_benchmark_advisor/`` for the concept, plan, and frozen contracts.
+The statistical knowledge base and golden fixtures live under ``data/`` and
+``fixtures/`` in this package.
 
 Scope of this ``__init__``: re-export the v1 schema layer, v2 schema module,
 guide-citation module, v2 engine/service modules, and version constants.
