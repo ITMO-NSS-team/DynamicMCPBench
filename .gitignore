@@ -313,3 +313,15 @@ human_eval/
 
 # camera-ready task subset: ids are tracked, the spec payload is regenerable
 /manifests/subsets/cr150.jsonl
+
+# --- dev snapshot hygiene: build artifacts & agent scratch (not source) ---
+.aidex/
+*.fls
+*.fdb_latexmk
+paper/arxiv-*.zip
+paper_demo/aaai/main.aux
+paper_demo/aaai/main.bbl
+paper_demo/aaai/main.blg
+paper_demo/aaai/main.out
+paper_demo/aaai/main.pdf
+paper_demo/aaai/main.synctex.gz
