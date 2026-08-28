@@ -23,7 +23,7 @@ Usage:
 
   uv run python scripts/reference_gate_audit.py \\
       --specs hfdl/specs.jsonl --traces hfdl/traces.jsonl \\
-      --verdicts hfdl/leaderboard_e8.10d/verdicts \\
+      --verdicts hfdl/leaderboard_api/verdicts \\
       --out docs/experiments/e9.10_numbers.json
 
 Scope of v0 / out of scope: reports, never mutates. Dropping the flagged specs is
@@ -102,7 +102,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Audit a corpus against the reference-validation gate.")
     ap.add_argument("--specs", required=True, type=Path)
     ap.add_argument("--traces", required=True, type=Path)
-    ap.add_argument("--verdicts", type=Path, default=None, help="dir of evals_*.jsonl (optional)")
+    ap.add_argument("--verdicts", type=Path, default=None, help="dir of per-model verdict jsonl (optional)")
     ap.add_argument("--out", type=Path, default=None, help="numbers JSON")
     a = ap.parse_args()
 
@@ -141,7 +141,7 @@ def main() -> None:
     if a.verdicts is not None:
         runs: dict[str, list[bool]] = collections.defaultdict(list)
         per_model: dict[tuple[str, str], list[bool]] = collections.defaultdict(list)
-        for p in sorted(a.verdicts.glob("evals_*.jsonl")):
+        for p in sorted(a.verdicts.glob("*.jsonl")):
             with p.open(encoding="utf-8") as fh:
                 for line in fh:
                     if not line.strip():

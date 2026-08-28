@@ -161,7 +161,7 @@ DynamicMCPBench is a deliberate structural pivot from AGB (the team's submitted 
 
 The paper is accepted; the released dataset and evaluation records live in the
 HuggingFace dataset (`scripts/release_hf.py`), including the per-run verdicts at
-`leaderboard_e8.10d/verdicts/evals_*.jsonl` that every reported number is
+`leaderboard_api/verdicts/*.jsonl` that every reported number is
 regenerated from. Headline slice: **750 tasks × 8 models × pass^3**, scored in
 deterministic replay with Tier-1 effect checkpoints and **no LLM judge**.
 

@@ -7,7 +7,7 @@ slice, balanced across reference-chain depth (short 1-2, medium 3-4, long 5+),
 sampled with a fixed seed so every condition is scored over identical task ids.
 
 The 750-task slice itself is recovered from the released per-run verdicts
-(`leaderboard_e8.10d/verdicts/evals_*.jsonl`): a task belongs to the slice iff
+(`leaderboard_api/verdicts/*.jsonl`): a task belongs to the slice iff
 every model in the leaderboard has a verdict for it. Chain depth is the number
 of `call_tool_agent` steps in the spec's source trace.
 
@@ -57,7 +57,7 @@ def main() -> None:
         for t in load_jsonl(corpus / "traces.jsonl")
     }
 
-    pattern = args.verdicts or str(corpus / "leaderboard_e8.10d" / "verdicts" / "evals_*.jsonl")
+    pattern = args.verdicts or str(corpus / "leaderboard_api" / "verdicts" / "*.jsonl")
     files = sorted(glob.glob(pattern))
     if not files:
         raise SystemExit(f"no verdict files matched {pattern}")

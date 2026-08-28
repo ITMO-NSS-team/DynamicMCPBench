@@ -7,7 +7,7 @@ architectures, at one or several attempts. Cells are identified by the eval
 filenames the runner writes (`<model>__<condition>__r<repeat>.shard<i>.jsonl`).
 
 Baseline is the released per-run verdicts for the same model on the same task ids
-(`<corpus>/leaderboard_e8.10d/verdicts/evals_<model>.jsonl`), matched
+(`<corpus>/leaderboard_api/verdicts/<model>.jsonl`), matched
 task-for-task, so no baseline compute is spent. Tasks still running are simply
 absent from both sides.
 
@@ -109,10 +109,9 @@ def main() -> None:
 
     # Cell filenames carry the runner's slug (`kimi-k2.6` → `kimi-k2-6`), while the
     # released verdicts keep the raw model name. Resolve by slugging both sides.
-    verdict_dir = corpus / "leaderboard_e8.10d" / "verdicts"
+    verdict_dir = corpus / "leaderboard_api" / "verdicts"
     released = {
-        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
-        for p in sorted(verdict_dir.glob("evals_*.jsonl"))
+        re.sub(r"[^a-z0-9]+", "-", p.stem.lower()).strip("-"): p for p in sorted(verdict_dir.glob("*.jsonl"))
     }
     baselines: dict[str, dict[str, list[bool]]] = {}
 

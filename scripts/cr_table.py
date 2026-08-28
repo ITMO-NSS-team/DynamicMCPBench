@@ -88,8 +88,8 @@ def main() -> None:
 
     # Curated reference from the released leaderboard, restricted to the same tasks.
     released = {
-        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
-        for p in sorted((Path(args.corpus) / "leaderboard_e8.10d" / "verdicts").glob("evals_*.jsonl"))
+        re.sub(r"[^a-z0-9]+", "-", p.stem.lower()).strip("-"): p
+        for p in sorted((Path(args.corpus) / "leaderboard_api" / "verdicts").glob("*.jsonl"))
     }
     models = sorted({m for m, _ in cells})
     if args.models == "all":

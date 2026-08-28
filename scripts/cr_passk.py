@@ -150,8 +150,8 @@ def main() -> None:
     # The quantity that is NOT entailed: how much of the exposure deficit three
     # attempts win back. Computed over all tasks in the cell, not per reachability.
     released = {
-        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
-        for p in sorted((Path(args.corpus) / "leaderboard_e8.10d" / "verdicts").glob("evals_*.jsonl"))
+        re.sub(r"[^a-z0-9]+", "-", p.stem.lower()).strip("-"): p
+        for p in sorted((Path(args.corpus) / "leaderboard_api" / "verdicts").glob("*.jsonl"))
     }
     print(f"\n{'model':18} {'cond':7} {'n':>4} {'1 try':>7} {'pass@3':>7} {'curated':>8} {'recovered':>10}")
     print("-" * 66)

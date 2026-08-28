@@ -349,7 +349,7 @@ catalog**. `e8.11` established the single point (`qwen3.7-max`, embedding top-8,
   models `minimax-m3`, `kimi-k2.6`, `claude-haiku-4.5`, `qwen3.7-max`;
   attempts 1 for the sweep, 3 (pass^3) at `rag:8`.
 - **Baseline:** matched task-for-task against the released curated verdicts
-  (`leaderboard_e8.10d/verdicts/`), so no baseline compute is spent.
+  (`leaderboard_api/verdicts/`), so no baseline compute is spent.
 - **Known incompleteness (reported, not hidden):** the catalog serialises to
   ~292k tokens of tool schema, so the literal `flat` full-catalog condition
   exceeds the context window of `kimi-k2.6` (262,144), `glm-5.1` (204,800) and

@@ -65,8 +65,8 @@ def main() -> None:
         for t in load_jsonl(CORPUS / "traces.jsonl")
     }
 
-    verdict_dir = CORPUS / "leaderboard_e8.10d" / "verdicts"
-    files = sorted(glob.glob(str(verdict_dir / "evals_*.jsonl")))
+    verdict_dir = CORPUS / "leaderboard_api" / "verdicts"
+    files = sorted(glob.glob(str(verdict_dir / "*.jsonl")))
     slice_ids: set[str] | None = None
     for f in files:
         seen = {r["task_id"] for r in load_jsonl(f)}

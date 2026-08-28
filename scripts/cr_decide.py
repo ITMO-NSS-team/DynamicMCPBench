@@ -89,8 +89,8 @@ def main() -> None:
         return BUCKETS[0] if n <= 2 else (BUCKETS[1] if n <= 4 else BUCKETS[2])
 
     released = {
-        re.sub(r"[^a-z0-9]+", "-", p.stem[len("evals_") :].lower()).strip("-"): p
-        for p in sorted((corpus / "leaderboard_e8.10d" / "verdicts").glob("evals_*.jsonl"))
+        re.sub(r"[^a-z0-9]+", "-", p.stem.lower()).strip("-"): p
+        for p in sorted((corpus / "leaderboard_api" / "verdicts").glob("*.jsonl"))
     }
     base_cache: dict[str, dict[str, list[bool]]] = {}
 

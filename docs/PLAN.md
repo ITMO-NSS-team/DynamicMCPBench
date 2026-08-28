@@ -720,4 +720,4 @@ step is done when its `docs/CAMERA_READY.md` checkbox can honestly be ticked.
 - claimed_at: —
 - deps: E9.1 E9.2 E9.3
 - source: docs/CAMERA_READY.md 5.1 5.2 5.3
-- done-when: Reproducibility Statement checked against the HF release — the evaluation records are present at `leaderboard_e8.10d/verdicts/evals_*.jsonl`, so the statement is cited by path rather than softened; a committed script regenerates the three Gwet AC1 figures alongside the existing Fleiss kappa; the 16% / 15.5% equivalence-set figures reconciled to one labelled framing (15.5% is the corpus figure, 16% the 750-slice figure).
+- done-when: Reproducibility Statement checked against the HF release — the evaluation records are present at `leaderboard_api/verdicts/*.jsonl`, so the statement is cited by path rather than softened; a committed script regenerates the three Gwet AC1 figures alongside the existing Fleiss kappa; the 16% / 15.5% equivalence-set figures reconciled to one labelled framing (15.5% is the corpus figure, 16% the 750-slice figure).

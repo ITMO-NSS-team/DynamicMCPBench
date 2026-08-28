@@ -324,8 +324,8 @@ records. Confirm the evaluation records really are in the HF release, or soften
 the sentence. `scripts/release_hf.py` uploads specs, traces and the manifest.
 
 Done (E9.13): audited the HF release — 85 files, and the per-run verdicts *are*
-there: 8 × `leaderboard_e8.10d/verdicts/evals_*.jsonl` (one per API candidate),
-16 × `leaderboard_local_50x15/verdicts/*.jsonl`, a `matrix.json` per
+there: 8 × `leaderboard_api/verdicts/*.jsonl` (one per API candidate),
+16 × `leaderboard_local/verdicts/*.jsonl`, a `matrix.json` per
 leaderboard, `specs.jsonl` (1,845 specs), `traces.jsonl`, and
 `human_eval/{assignments,submissions}` (6 rater submissions). So the statement
 is **cited by path, not softened** — `sections/reproducibility.tex` now names

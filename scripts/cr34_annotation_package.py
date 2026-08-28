@@ -132,8 +132,8 @@ def pull(root: Path) -> tuple[dict, dict, dict]:
     golds = {t["trace_id"]: t for t in jsonl(get("traces.jsonl"))}
     per_model = {}
     for m in MODELS:
-        v = list(jsonl(get(f"leaderboard_local_50x15/verdicts/{m}.jsonl")))
-        c = {t["trace_id"]: t for t in jsonl(get(f"leaderboard_local_50x15/candidate_traces/{m}.jsonl"))}
+        v = list(jsonl(get(f"leaderboard_local/verdicts/{m}.jsonl")))
+        c = {t["trace_id"]: t for t in jsonl(get(f"leaderboard_local/candidate_traces/{m}.jsonl"))}
         per_model[m] = (v, c)
     return specs, golds, per_model
 

@@ -36,8 +36,14 @@ except Exception:  # pragma: no cover - cosmetic fallback
     _console = None
 
 REPO = "TokenWasteGroup/DynamicMCPBench"
+# Working prefixes for a NEW annotation campaign. The completed campaigns are
+# released as human_eval/round1 (the pass reported in the paper) and
+# human_eval/round2 (a later re-annotation of a 192-task subset); a new pass
+# should claim its own round prefix rather than reuse these.
 ASSIGN_DIR = "human_eval/assignments"
 SUBMIT_DIR = "human_eval/submissions"
+# Released, read-only. `report` reads these; --suffix _v2 selects round 2.
+ROUND_DIRS = {"": "human_eval/round1", "_v2": "human_eval/round2"}
 
 CATS = [
     "ambiguous_intent",
@@ -599,14 +605,18 @@ def cmd_report(a):
         from huggingface_hub import HfApi, hf_hub_download
 
         api = HfApi()
-        files = [f for f in api.list_repo_files(REPO, repo_type="dataset") if f.startswith(SUBMIT_DIR + "/")]
+        prefix = ROUND_DIRS.get(a.suffix, SUBMIT_DIR)
+        files = [f for f in api.list_repo_files(REPO, repo_type="dataset") if f.startswith(prefix + "/")]
         for f in files:
             hf_hub_download(REPO, f, repo_type="dataset", local_dir=".")
-        print(f"pulled {len(files)} submissions")
+        print(f"pulled {len(files)} cards from {prefix}")
     rows = []
+    # Each released round lives in its own directory, so a round can no longer
+    # absorb a later one by filename; the local fallback still needs the guard.
+    round_dir = ROUND_DIRS.get(a.suffix, SUBMIT_DIR)
     pat = f"annotate_*{a.suffix}.jsonl" if a.suffix else "annotate_*.jsonl"
-    found = glob.glob(f"human_eval/submissions/{pat}") + glob.glob(pat)
-    if not a.suffix:  # the unsuffixed pass must not absorb a later one
+    found = glob.glob(f"{round_dir}/annotate_*.jsonl") + glob.glob(f"{SUBMIT_DIR}/{pat}") + glob.glob(pat)
+    if not a.suffix:
         found = [f for f in found if re.fullmatch(r"annotate_[a-z]+\.jsonl", os.path.basename(f))]
     for f in found:
         for ln in _jsonl(f):

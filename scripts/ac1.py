@@ -41,7 +41,7 @@ NUMBERS = ROOT / "docs" / "experiments" / "e4.6_numbers.json"
 # Same repo/dir constants as scripts/annotate2.py — the annotations are the
 # study's raw data and live in the (private) HF dataset, not in git.
 REPO = "TokenWasteGroup/DynamicMCPBench"
-SUBMIT_DIR = "human_eval/submissions"
+SUBMIT_DIR = "human_eval/round1"  # the pass reported in the paper
 
 # (annotation field, category domain, name used in the paper / numbers JSON)
 FIELDS: list[tuple[str, list[str], str]] = [
@@ -151,9 +151,7 @@ def load_rows(paths: list[str]) -> list[dict[str, Any]]:
 
 
 def default_paths() -> list[str]:
-    return sorted(glob.glob("human_eval/submissions/annotate_*.jsonl")) or sorted(
-        glob.glob("annotate_*.jsonl")
-    )
+    return sorted(glob.glob("human_eval/round1/annotate_*.jsonl")) or sorted(glob.glob("annotate_*.jsonl"))
 
 
 def kappa_set(rows: list[dict[str, Any]]) -> tuple[dict[str, list[dict]], int]:

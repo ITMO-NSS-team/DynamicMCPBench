@@ -5,7 +5,7 @@ the candidate is offered only the top-k tools retrieved from the *entire* catalo
 instead of a curated pool of required tools plus eight distractors.
 
 Baseline: the released per-run verdicts for the same model on the same task_ids
-(leaderboard_e8.10d/verdicts), so no baseline compute is spent. Comparison is
+(leaderboard_api/verdicts), so no baseline compute is spent. Comparison is
 matched task-for-task; tasks still running are simply absent from both sides.
 
 Reproduce:
@@ -64,7 +64,7 @@ def main() -> None:
         raise SystemExit("no results yet")
 
     base = collections.defaultdict(list)
-    for r in load_jsonl(f"hfdl/leaderboard_e8.10d/verdicts/evals_{args.model}.jsonl"):
+    for r in load_jsonl(f"hfdl/leaderboard_api/verdicts/{args.model}.jsonl"):
         if r["task_id"] in rag:
             base[r["task_id"]].append(bool(r["passed"]))
 

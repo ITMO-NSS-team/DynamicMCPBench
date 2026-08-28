@@ -60,7 +60,7 @@
          "unknown_price": false}
 ```
 
-Проверено: в `hfdl/leaderboard_e8.10d/verdicts/` **2 250 записей с ненулевой
+Проверено: в `hfdl/leaderboard_api/verdicts/` **2 250 записей с ненулевой
 стоимостью**, суммарно $42.14 и 25 065 с настенного времени, по 8 моделям.
 В статье при этом **нет ни одной цифры про стоимость или задержку** — единственное
 вхождение слова в `paper/sections/appendix.tex` не относится к делу.
@@ -82,7 +82,7 @@
 
 Сделано: `scripts/ac1.py` считает сырое попарное согласие, Fleiss κ **и** Gwet
 AC1 по тому же общему κ-набору, что и `annotate2.py report`; `--pull` тянет
-разметку из HF (`human_eval/submissions/`), `--check` сверяет с
+разметку из HF (`human_eval/round1/`), `--check` сверяет с
 `e4.6_numbers.json` с допуском 0.005. На реальных данных (45 задач × 6
 разметчиков) выходит **0.993 / 0.652 / 0.763** против опубликованных
 0.99 / 0.65 / 0.76, exit 0. Побочный выигрыш: скрипт печатает κ рядом с AC1, и
@@ -94,8 +94,8 @@ Fleiss κ = −0.004) — то есть выбор AC1 в статье тепе�
 
 Аудит релиза показал, что дырка была уже, чем мы думали: 85 файлов, и per-run
 вердикты **обеих** таблиц лидеров там есть —
-8 × `leaderboard_e8.10d/verdicts/evals_*.jsonl`,
-16 × `leaderboard_local_50x15/verdicts/*.jsonl`, плюс `specs.jsonl` (1 845
+8 × `leaderboard_api/verdicts/*.jsonl`,
+16 × `leaderboard_local/verdicts/*.jsonl`, плюс `specs.jsonl` (1 845
 спек), `traces.jsonl`, `matrix.json` и `human_eval/{assignments,submissions}`.
 Поэтому Reproducibility Statement **процитирован путями, а не смягчён**.
 

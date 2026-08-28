@@ -1,8 +1,8 @@
 """Render the data figures for Section 4 from the released HuggingFace dataset.
 
 Inputs (the TokenWasteGroup/DynamicMCPBench dataset, also cached locally):
-  <data>/leaderboard_e8.10d/matrix.json      8 API models  x 15 categories (pass^3)
-  <data>/leaderboard_local_50x15/matrix.json 16 local models x 15 categories (pass^3)
+  <data>/leaderboard_api/matrix.json      8 API models  x 15 categories (pass^3)
+  <data>/leaderboard_local/matrix.json 16 local models x 15 categories (pass^3)
   <data>/leaderboard_*/verdicts/*.jsonl      per-run EvaluationResult rows
   <data>/specs.jsonl                          task specs (complexity.trace_depth)
 
@@ -79,12 +79,12 @@ def _load_json(p):
         return json.load(f)
 
 
-boards = {b: _load_json(f"{DATA}/{b}/matrix.json") for b in ("leaderboard_e8.10d", "leaderboard_local_50x15")}
-STRATS = boards["leaderboard_e8.10d"]["strategies"]
+boards = {b: _load_json(f"{DATA}/{b}/matrix.json") for b in ("leaderboard_api", "leaderboard_local")}
+STRATS = boards["leaderboard_api"]["strategies"]
 cells = {}
 overall = {}  # model -> overall pass^3
 group = {}  # model -> "API"/"local"
-for b, tag in (("leaderboard_e8.10d", "API"), ("leaderboard_local_50x15", "local")):
+for b, tag in (("leaderboard_api", "API"), ("leaderboard_local", "local")):
     m = boards[b]
     for k, (p, n) in m["cells"].items():
         cells[k] = p / n
