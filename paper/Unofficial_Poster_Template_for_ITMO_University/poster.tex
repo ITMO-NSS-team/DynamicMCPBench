@@ -108,10 +108,20 @@
 
   \end{alertblock}
 
+  \begin{block}{The benchmark}
+
+    DynamicMCPBench measures whether a configured agent completes multi-step
+    goals across live services. We score \textbf{24 models} on \textbf{750
+    tasks} (15 categories $\times$ 50) over \textbf{121 live MCP servers}, drawn
+    from a \textbf{1{,}168-tool} catalog. Every task is a real, replayable
+    trajectory, and the framework regenerates on \emph{your own} servers.
+
+  \end{block}
+
   \begin{block}{Capability is not bought by size}
     \begin{figure}
       \centering
-      \includegraphics[width=0.83\colwidth]{figures/fig_size.png}
+      \includegraphics[width=0.58\colwidth]{figures/fig_size.png}
     \end{figure}
     \vspace{-0.4em}
     {\small Below ${\sim}30$B parameters a 4B model outperforms every 7--8B one:
@@ -120,9 +130,8 @@
 
   \begin{block}{Validated against humans}
 
-    Annotators reviewed all 750 results of the strongest model:
-    \textbf{94.9\%} of automatic passes are human-confirmed, and the error is
-    one-sided. Read every score as a \textbf{lower bound} on true capability.
+    Annotators confirmed \textbf{94.9\%} of the scorer's passes; the error is
+    one-sided, so read every score as a \textbf{lower bound} on true capability.
 
   \end{block}
 
@@ -170,12 +179,12 @@
   \end{block}
 
   \begin{exampleblock}{Paper $\cdot$ Code $\cdot$ Data}
-    \begin{columns}
-      \begin{column}{0.42\colwidth}
+    \begin{columns}[c]
+      \begin{column}{0.44\colwidth}
         \centering
-        \qrcode[height=8.5cm]{https://github.com/ITMO-NSS-team/DynamicMCPBench}
+        \qrcode[height=8cm]{https://github.com/ITMO-NSS-team/DynamicMCPBench}
       \end{column}
-      \begin{column}{0.52\colwidth}
+      \begin{column}{0.5\colwidth}
         Scan for the paper, the open-source framework, and the released dataset.
         \\[0.6em]
         Run the benchmark on \emph{your own} MCP servers.
