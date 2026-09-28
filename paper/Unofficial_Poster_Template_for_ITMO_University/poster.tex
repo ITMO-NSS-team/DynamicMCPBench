@@ -85,8 +85,14 @@
       \includegraphics[width=\colwidth]{figures/fig_pipeline_v2.pdf}
     \end{figure}
     \vspace{-0.5em}
-    {\small Crawl live servers $\to$ explore goals into traces $\to$ distill
-    effect checkpoints $\to$ score candidates deterministically.}
+    {\small Five automated stages. \textbf{(1)}~Crawl and vet live MCP servers,
+    tagging each tool as live-read or stateful-write. \textbf{(2)}~A goal-seeded
+    agent explores the real tools and records a successful execution trace.
+    \textbf{(3)}~The trace is distilled into a TaskSpec: path-agnostic effect
+    checkpoints, equivalence sets, minefields, and a partial order.
+    \textbf{(4)}~Candidates run under deterministic replay against frozen
+    servers. \textbf{(5)}~Effects are scored --- any equivalent tool accepted,
+    the answer ignored. A refresh loop re-runs the references to track drift.}
   \end{block}
 
   \begin{alertblock}{How scoring works}
@@ -105,7 +111,7 @@
   \begin{block}{Capability is not bought by size}
     \begin{figure}
       \centering
-      \includegraphics[width=\colwidth]{figures/fig_size.png}
+      \includegraphics[width=0.83\colwidth]{figures/fig_size.png}
     \end{figure}
     \vspace{-0.4em}
     {\small Below ${\sim}30$B parameters a 4B model outperforms every 7--8B one:
