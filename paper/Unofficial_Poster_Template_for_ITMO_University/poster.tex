@@ -19,6 +19,7 @@
 \usepackage{booktabs}
 \usepackage{tikz}
 \usepackage{qrcode}
+\usepackage{eso-pic}
 \usepackage{anyfontsize}
 
 % ====================
@@ -60,6 +61,16 @@
 
 \logoleft{\includegraphics[height=5cm]{logos/itmo-logo-2.pdf}}
 \logoright{\includegraphics[height=4cm]{logos/ENG_CU_logo_white.png}}
+
+% Easter egg: a faint, semi-transparent sticker tucked into the empty area of
+% the model-size scatter (absolute page placement via eso-pic; pt from lower-left).
+\AddToShipoutPictureFG{%
+  \AtPageLowerLeft{\put(616,638){%
+    \begin{tikzpicture}
+      \node[opacity=0.18,anchor=south west,inner sep=0pt] at (0,0)
+        {\includegraphics[width=4cm]{figures/pepper.png}};
+    \end{tikzpicture}}}%
+}
 
 \begin{document}
 
